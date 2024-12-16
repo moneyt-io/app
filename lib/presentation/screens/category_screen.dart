@@ -1,21 +1,23 @@
+// lib/presentation/screens/category_screen.dart
 import 'package:flutter/material.dart';
-import '../../data/local/database.dart';
-import '../../data/local/daos/category_dao.dart';
+import '../../domain/entities/category.dart';
+import '../../domain/repositories/category_repository.dart';
 import 'category_form.dart';
 
-
-
 class CategoryScreen extends StatelessWidget {
-  final CategoryDao categoryDao;
+  final CategoryRepository categoryRepository;
 
-  const CategoryScreen({Key? key, required this.categoryDao}) : super(key: key);
+  const CategoryScreen({
+    Key? key, 
+    required this.categoryRepository
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Categorías')),
-      body: StreamBuilder<List<Category>>(
-        stream: categoryDao.watchAllCategories(),
+      body: StreamBuilder<List<CategoryEntity>>(
+        stream: categoryRepository.watchCategories(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -32,16 +34,15 @@ class CategoryScreen extends StatelessWidget {
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () async {
-                    await categoryDao.deleteCategory(category.id);
+                    await categoryRepository.deleteCategory(category.id);
                   },
                 ),
                 onTap: () {
-                  // Navegamos al formulario de edición
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => CategoryForm(
-                        categoryDao: categoryDao,
+                        categoryRepository: categoryRepository,
                         category: category,
                       ),
                     ),
@@ -55,12 +56,11 @@ class CategoryScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          // Navegamos al formulario de creación
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => CategoryForm(
-                categoryDao: categoryDao,
+                categoryRepository: categoryRepository,
               ),
             ),
           );

@@ -1,15 +1,18 @@
-import 'package:drift/drift.dart' as drift; // 👈 Usamos un alias "drift"
+// lib/presentation/screens/category_form.dart
 import 'package:flutter/material.dart';
-
-import '../../data/local/database.dart';
-import '../../data/local/daos/category_dao.dart';
+import '../../domain/entities/category.dart';
+import '../../domain/repositories/category_repository.dart';
+import '../../data/models/category_model.dart';
 
 class CategoryForm extends StatelessWidget {
-  final CategoryDao categoryDao;
-  final Category? category;
+  final CategoryRepository categoryRepository;
+  final CategoryEntity? category;
 
-  const CategoryForm({Key? key, required this.categoryDao, this.category})
-      : super(key: key);
+  const CategoryForm({
+    Key? key, 
+    required this.categoryRepository, 
+    this.category
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +25,7 @@ class CategoryForm extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Column( // 👈 Ya no hay problema con el 'Column' de Flutter
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
@@ -46,21 +49,22 @@ class CategoryForm extends StatelessWidget {
                   return;
                 }
 
-                // Usamos drift.Value en lugar de Value
-                final companion = CategoriesCompanion(
-                  name: drift.Value(name),
-                  description: drift.Value(description),
+                final newCategory = CategoryModel(
+                  id: category?.id ?? -1, // -1 para nueva categoría
+                  name: name,
+                  description: description,
+                  createdAt: category?.createdAt ?? DateTime.now(),
                 );
 
                 if (category == null) {
-                  await categoryDao.insertCategory(companion);
+                  await categoryRepository.createCategory(newCategory);
                 } else {
-                  await categoryDao.updateCategory(
-                    companion.copyWith(id: drift.Value(category!.id)),
-                  );
+                  await categoryRepository.updateCategory(newCategory);
                 }
 
-                Navigator.pop(context);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
               },
               child: Text(category == null ? 'Crear' : 'Actualizar'),
             ),

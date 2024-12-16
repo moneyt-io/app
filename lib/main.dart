@@ -1,21 +1,26 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
 import 'data/local/database.dart';
 import 'data/local/daos/category_dao.dart';
-import 'ui/screens/category_screen.dart';
+import 'data/repositories/category_repository_impl.dart';
+import 'domain/repositories/category_repository.dart';
+import 'presentation/screens/category_screen.dart';
 
 void main() {
-  // Inicializamos la base de datos
   final database = AppDatabase();
-  // Creamos el CategoryDao
   final categoryDao = CategoryDao(database);
+  final CategoryRepository categoryRepository = CategoryRepositoryImpl(categoryDao);
   
-  runApp(MainApp(categoryDao: categoryDao));
+  runApp(MainApp(categoryRepository: categoryRepository));
 }
 
 class MainApp extends StatelessWidget {
-  final CategoryDao categoryDao;
+  final CategoryRepository categoryRepository;
 
-  const MainApp({super.key, required this.categoryDao});
+  const MainApp({
+    super.key, 
+    required this.categoryRepository
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +30,7 @@ class MainApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: CategoryScreen(categoryDao: categoryDao),
+      home: CategoryScreen(categoryRepository: categoryRepository),
     );
   }
 }
