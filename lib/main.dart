@@ -4,7 +4,8 @@ import 'data/local/database.dart';
 import 'data/local/daos/category_dao.dart';
 import 'data/repositories/category_repository_impl.dart';
 import 'domain/repositories/category_repository.dart';
-import 'presentation/screens/category_screen.dart';
+import 'presentation/screens/home_screen.dart';
+import 'routes/app_routes.dart';
 
 void main() {
   final database = AppDatabase();
@@ -25,12 +26,14 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Category CRUD App',
+      title: 'Mi Aplicación',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: CategoryScreen(categoryRepository: categoryRepository),
+      onGenerateRoute: (settings) => 
+          AppRoutes.onGenerateRoute(settings, categoryRepository),
+      home: HomeScreen(categoryRepository: categoryRepository),
     );
   }
 }
