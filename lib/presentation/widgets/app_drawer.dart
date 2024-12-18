@@ -1,14 +1,20 @@
 // lib/presentation/widgets/app_drawer.dart
 import 'package:flutter/material.dart';
-import '../../domain/repositories/category_repository.dart';
+import '../../domain/usecases/category_usecases.dart';
 import '../../routes/app_routes.dart';
 
 class AppDrawer extends StatelessWidget {
-  final CategoryRepository categoryRepository;
+  final GetCategories getCategories;
+  final CreateCategory createCategory;
+  final UpdateCategory updateCategory;
+  final DeleteCategory deleteCategory;
 
   const AppDrawer({
     Key? key,
-    required this.categoryRepository,
+    required this.getCategories,
+    required this.createCategory,
+    required this.updateCategory,
+    required this.deleteCategory,
   }) : super(key: key);
 
   @override
@@ -50,7 +56,16 @@ class AppDrawer extends StatelessWidget {
             leading: const Icon(Icons.category),
             title: const Text('Categorías'),
             onTap: () {
-              Navigator.pushReplacementNamed(context, AppRoutes.categories);
+              Navigator.pushReplacementNamed(
+                context, 
+                AppRoutes.categories,
+                arguments: {
+                  'getCategories': getCategories,
+                  'createCategory': createCategory,
+                  'updateCategory': updateCategory,
+                  'deleteCategory': deleteCategory,
+                },
+              );
             },
           ),
           const Divider(),

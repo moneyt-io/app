@@ -1,39 +1,39 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'data/local/database.dart';
-import 'data/local/daos/category_dao.dart';
-import 'data/repositories/category_repository_impl.dart';
-import 'domain/repositories/category_repository.dart';
+import 'core/di/injection_container.dart';
+import 'domain/usecases/category_usecases.dart';
 import 'presentation/screens/home_screen.dart';
 import 'routes/app_routes.dart';
 
 void main() {
-  final database = AppDatabase();
-  final categoryDao = CategoryDao(database);
-  final CategoryRepository categoryRepository = CategoryRepositoryImpl(categoryDao);
-  
-  runApp(MainApp(categoryRepository: categoryRepository));
+  setupDependencies();
+  runApp(const MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  final CategoryRepository categoryRepository;
-
-  const MainApp({
-    super.key, 
-    required this.categoryRepository
-  });
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mi Aplicación',
+      title: 'moneyt',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      onGenerateRoute: (settings) => 
-          AppRoutes.onGenerateRoute(settings, categoryRepository),
-      home: HomeScreen(categoryRepository: categoryRepository),
+      onGenerateRoute: (settings) => AppRoutes.onGenerateRoute(
+        settings,
+        getCategories: getIt<GetCategories>(),
+        createCategory: getIt<CreateCategory>(),
+        updateCategory: getIt<UpdateCategory>(),
+        deleteCategory: getIt<DeleteCategory>(),
+      ),
+      home: HomeScreen(
+        getCategories: getIt<GetCategories>(),
+        createCategory: getIt<CreateCategory>(),
+        updateCategory: getIt<UpdateCategory>(),
+        deleteCategory: getIt<DeleteCategory>(),
+      ),
     );
   }
 }
