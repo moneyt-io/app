@@ -2,22 +2,36 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/usecases/category_usecases.dart';
+import '../../domain/usecases/account_usecases.dart';  // Añadir esta importación
 import '../../routes/app_routes.dart';
 import '../widgets/expandable_category_list.dart';
 import '../widgets/app_drawer.dart';
 
 class CategoryScreen extends StatelessWidget {
+  // Categorías
   final GetCategories getCategories;
   final CreateCategory createCategory;
   final UpdateCategory updateCategory;
   final DeleteCategory deleteCategory;
 
+  // Cuentas (necesarias para el drawer)
+  final GetAccounts getAccounts;
+  final CreateAccount createAccount;
+  final UpdateAccount updateAccount;
+  final DeleteAccount deleteAccount;
+
   const CategoryScreen({
     Key? key,
+    // Categorías
     required this.getCategories,
     required this.createCategory,
     required this.updateCategory,
     required this.deleteCategory,
+    // Cuentas
+    required this.getAccounts,
+    required this.createAccount,
+    required this.updateAccount,
+    required this.deleteAccount,
   }) : super(key: key);
 
   @override
@@ -77,10 +91,16 @@ class CategoryScreen extends StatelessWidget {
           ],
         ),
         drawer: AppDrawer(
+          // Categorías
           getCategories: getCategories,
           createCategory: createCategory,
           updateCategory: updateCategory,
           deleteCategory: deleteCategory,
+          // Cuentas
+          getAccounts: getAccounts,
+          createAccount: createAccount,
+          updateAccount: updateAccount,
+          deleteAccount: deleteAccount,
         ),
         body: TabBarView(
           children: [

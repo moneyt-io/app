@@ -2,27 +2,46 @@
 import 'package:get_it/get_it.dart';
 import '../../data/local/database.dart';
 import '../../data/local/daos/category_dao.dart';
+import '../../data/local/daos/account_dao.dart';
 import '../../data/repositories/category_repository_impl.dart';
+import '../../data/repositories/account_repository_impl.dart';
 import '../../domain/repositories/category_repository.dart';
+import '../../domain/repositories/account_repository.dart';
 import '../../domain/usecases/category_usecases.dart';
+import '../../domain/usecases/account_usecases.dart';
 
-final GetIt getIt = GetIt.instance;
+final getIt = GetIt.instance;
 
-void setupDependencies() {
-  // Infrastructure Layer (Database)
-  getIt.registerLazySingleton<AppDatabase>(() => AppDatabase());
+Future<void> init(AppDatabase database) async {
+  // Database
+  getIt.registerSingleton<AppDatabase>(database);
+
+  // DAOs
   getIt.registerLazySingleton<CategoryDao>(
-    () => CategoryDao(getIt<AppDatabase>())
+    () => CategoryDao(getIt<AppDatabase>()),
+  );
+  getIt.registerLazySingleton<AccountDao>(
+    () => AccountDao(getIt<AppDatabase>()),
   );
 
-  // Repository Layer
+  // Repositories
   getIt.registerLazySingleton<CategoryRepository>(
-    () => CategoryRepositoryImpl(getIt<CategoryDao>())
+    () => CategoryRepositoryImpl(getIt<CategoryDao>()),
+  );
+  getIt.registerLazySingleton<AccountRepository>(
+    () => AccountRepositoryImpl(getIt<AccountDao>()),
   );
 
-  // Use Cases Layer
+  // Use Cases
+  // Categorías
   getIt.registerLazySingleton(() => GetCategories(getIt<CategoryRepository>()));
   getIt.registerLazySingleton(() => CreateCategory(getIt<CategoryRepository>()));
   getIt.registerLazySingleton(() => UpdateCategory(getIt<CategoryRepository>()));
   getIt.registerLazySingleton(() => DeleteCategory(getIt<CategoryRepository>()));
+
+  // Cuentas
+  getIt.registerLazySingleton(() => GetAccounts(getIt<AccountRepository>()));
+  getIt.registerLazySingleton(() => CreateAccount(getIt<AccountRepository>()));
+  getIt.registerLazySingleton(() => UpdateAccount(getIt<AccountRepository>()));
+  getIt.registerLazySingleton(() => DeleteAccount(getIt<AccountRepository>()));
 }

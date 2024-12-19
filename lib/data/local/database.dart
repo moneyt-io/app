@@ -4,6 +4,10 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'tables/category_table.dart';
+import 'tables/account_table.dart';
+import 'daos/category_dao.dart';
+import 'daos/account_dao.dart';
+
 
 part 'database.g.dart'; // Necesario para la generación de código
 
@@ -19,7 +23,9 @@ LazyDatabase _openConnection() {
 }
 
 @DriftDatabase(
-  tables: [Categories], // Registra las tablas aquí
+  tables: [Categories, Accounts], // Registra las tablas aquí
+  daos: [CategoryDao, AccountDao],  // Esta es la línea importante
+
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
