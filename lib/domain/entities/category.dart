@@ -1,4 +1,5 @@
 // lib/domain/entities/category.dart
+
 import 'package:moenyt_drift/presentation/interfaces/list_item_interface.dart';
 
 class CategoryEntity implements ListItemInterface {
@@ -12,6 +13,7 @@ class CategoryEntity implements ListItemInterface {
   final String type;
   @override
   final DateTime createdAt;
+  final bool status;  // Nuevo campo
 
   CategoryEntity({
     required this.id,
@@ -20,6 +22,7 @@ class CategoryEntity implements ListItemInterface {
     this.description,
     required this.type,
     required this.createdAt,
+    this.status = true,  // Valor por defecto
   });
 
   bool get isMainCategory => parentId == null;
@@ -35,5 +38,5 @@ class CategoryEntity implements ListItemInterface {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'CategoryEntity(id: $id, name: $name)';
+  String toString() => 'CategoryEntity(id: $id, name: $name, type: $type)';
 }

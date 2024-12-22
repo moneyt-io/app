@@ -1,5 +1,9 @@
 // lib/routes/app_routes.dart
 import 'package:flutter/material.dart';
+import 'package:moenyt_drift/domain/entities/transaction.dart';
+import 'package:moenyt_drift/domain/usecases/transaction_usecases.dart';
+import 'package:moenyt_drift/presentation/screens/transaction_form.dart';
+import 'package:moenyt_drift/presentation/screens/transaction_screen.dart';
 import '../domain/entities/category.dart';
 import '../domain/entities/account.dart';
 import '../domain/usecases/category_usecases.dart';
@@ -17,6 +21,8 @@ class AppRoutes {
   static const String categoryForm = '/category-form';
   static const String accounts = '/accounts';
   static const String accountForm = '/account-form';
+  static const String transactions = '/transactions';  // Nueva
+  static const String transactionForm = '/transaction-form';
 
   static Route<dynamic>? generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -33,6 +39,9 @@ class AppRoutes {
             createAccount: getIt<CreateAccount>(),
             updateAccount: getIt<UpdateAccount>(),
             deleteAccount: getIt<DeleteAccount>(),
+
+            transactionUseCases: getIt<TransactionUseCases>(),  // Agregamos esta línea
+
           ),
         );
 
@@ -49,6 +58,9 @@ class AppRoutes {
             createAccount: getIt<CreateAccount>(),
             updateAccount: getIt<UpdateAccount>(),
             deleteAccount: getIt<DeleteAccount>(),
+
+            transactionUseCases: getIt<TransactionUseCases>(),
+
           ),
         );
 
@@ -76,6 +88,9 @@ class AppRoutes {
             createAccount: getIt<CreateAccount>(),
             updateAccount: getIt<UpdateAccount>(),
             deleteAccount: getIt<DeleteAccount>(),
+
+            transactionUseCases: getIt<TransactionUseCases>(),
+
           ),
         );
 
@@ -88,6 +103,34 @@ class AppRoutes {
             updateAccount: args.updateAccount,
           ),
         );
+
+          case transactions:
+      return MaterialPageRoute(
+        builder: (_) => TransactionScreen(
+          transactionUseCases: getIt<TransactionUseCases>(),
+          // Categorías
+          getCategories: getIt<GetCategories>(),
+          createCategory: getIt<CreateCategory>(),
+          updateCategory: getIt<UpdateCategory>(),
+          deleteCategory: getIt<DeleteCategory>(),
+          // Cuentas
+          getAccounts: getIt<GetAccounts>(),
+          createAccount: getIt<CreateAccount>(),
+          updateAccount: getIt<UpdateAccount>(),
+          deleteAccount: getIt<DeleteAccount>(),
+        ),
+      );
+
+    case transactionForm:
+      final args = settings.arguments as TransactionFormArgs?;
+      return MaterialPageRoute(
+        builder: (_) => TransactionForm(
+          transaction: args?.transaction,
+          transactionUseCases: args?.transactionUseCases ?? getIt<TransactionUseCases>(),
+          getAccounts: args?.getAccounts ?? getIt<GetAccounts>(),
+          getCategories: args?.getCategories ?? getIt<GetCategories>(),
+        ),
+      );
 
       default:
         // Ruta por defecto o manejo de error
@@ -125,5 +168,20 @@ class AccountFormArgs {
     this.account,
     required this.createAccount,
     required this.updateAccount,
+  });
+}
+
+// lib/routes/app_routes.dart
+class TransactionFormArgs {
+  final TransactionEntity? transaction;
+  final TransactionUseCases transactionUseCases;
+  final GetAccounts getAccounts;
+  final GetCategories getCategories;
+
+  TransactionFormArgs({
+    this.transaction,
+    required this.transactionUseCases,
+    required this.getAccounts,
+    required this.getCategories,
   });
 }

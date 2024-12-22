@@ -1,5 +1,6 @@
 // lib/presentation/screens/category_screen.dart
 import 'package:flutter/material.dart';
+import 'package:moenyt_drift/domain/usecases/transaction_usecases.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/usecases/category_usecases.dart';
 import '../../domain/usecases/account_usecases.dart';  // Añadir esta importación
@@ -20,6 +21,8 @@ class CategoryScreen extends StatelessWidget {
   final UpdateAccount updateAccount;
   final DeleteAccount deleteAccount;
 
+  final TransactionUseCases transactionUseCases;
+
   const CategoryScreen({
     Key? key,
     // Categorías
@@ -32,6 +35,8 @@ class CategoryScreen extends StatelessWidget {
     required this.createAccount,
     required this.updateAccount,
     required this.deleteAccount,
+
+    required this.transactionUseCases,
   }) : super(key: key);
 
   @override
@@ -101,6 +106,8 @@ class CategoryScreen extends StatelessWidget {
           createAccount: createAccount,
           updateAccount: updateAccount,
           deleteAccount: deleteAccount,
+
+          transactionUseCases: transactionUseCases,
         ),
         body: TabBarView(
           children: [

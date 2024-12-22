@@ -1,5 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:moenyt_drift/data/local/daos/transaction_dao.dart';
+import 'package:moenyt_drift/data/local/tables/transaction_table.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -23,13 +25,25 @@ LazyDatabase _openConnection() {
 }
 
 @DriftDatabase(
-  tables: [Categories, Accounts], // Registra las tablas aquí
-  daos: [CategoryDao, AccountDao],  // Esta es la línea importante
+  tables: [Categories, Accounts, Transactions],
+  daos: [CategoryDao, AccountDao, TransactionDao],// Esta es la línea importante
 
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (Migrator m) async {
+      await m.createAll();
+    },
+    onUpgrade: (Migrator m, int from, int to) async {
+      // Agregar lógica de migración si es necesario
+    },
+  );
+
+  TransactionDao get transactionDao => TransactionDao(this);
 }

@@ -16,10 +16,8 @@ class CategoryModel implements CategoryEntity {
   final String type;
   @override
   final DateTime createdAt;
-
-  // Implementamos el getter isMainCategory
   @override
-  bool get isMainCategory => parentId == null;
+  final bool status;
 
   CategoryModel({
     required this.id,
@@ -28,6 +26,7 @@ class CategoryModel implements CategoryEntity {
     this.description,
     required this.type,
     required this.createdAt,
+    this.status = true,
   });
 
   factory CategoryModel.fromDriftCategory(Category driftCategory) {
@@ -38,16 +37,17 @@ class CategoryModel implements CategoryEntity {
       description: driftCategory.description,
       type: driftCategory.type,
       createdAt: driftCategory.createdAt,
+      status: driftCategory.status,
     );
   }
 
   CategoriesCompanion toCompanion() {
-    return CategoriesCompanion(
+    return CategoriesCompanion.insert(
       parentId: Value(parentId),
-      name: Value(name),
+      name: name,
       description: Value(description),
-      type: Value(type),
-      createdAt: Value(createdAt),
+      type: type,
+      createdAt: Value(createdAt),  // Envuelto en Value()
     );
   }
 
@@ -58,14 +58,17 @@ class CategoryModel implements CategoryEntity {
       name: Value(name),
       description: Value(description),
       type: Value(type),
-      createdAt: Value(createdAt),
+      createdAt: Value(createdAt),  // Envuelto en Value()
     );
   }
 
   @override
+  bool get isMainCategory => parentId == null;
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CategoryEntity &&
+      other is CategoryModel &&
           runtimeType == other.runtimeType &&
           id == other.id;
 
@@ -73,6 +76,5 @@ class CategoryModel implements CategoryEntity {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'CategoryModel(id: $id, name: $name)';
-  
+  String toString() => 'CategoryModel(id: $id, name: $name, type: $type, status: $status)';
 }

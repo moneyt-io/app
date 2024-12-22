@@ -10,12 +10,14 @@ class AccountEntity implements ListItemInterface {
   final String? description;
   @override
   final DateTime createdAt;
+  final double balance;  // Nuevo campo
 
   AccountEntity({
     required this.id,
     required this.name,
     this.description,
     required this.createdAt,
+    this.balance = 0.0,  // Valor por defecto
   });
 
   @override
@@ -29,5 +31,5 @@ class AccountEntity implements ListItemInterface {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'AccountEntity(id: $id, name: $name)';
+  String toString() => 'AccountEntity(id: $id, name: $name, balance: $balance)';
 }

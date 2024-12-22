@@ -1,5 +1,6 @@
 // lib/presentation/widgets/app_drawer.dart
 import 'package:flutter/material.dart';
+import 'package:moenyt_drift/domain/usecases/transaction_usecases.dart';
 import '../../domain/usecases/category_usecases.dart';
 import '../../domain/usecases/account_usecases.dart';
 import '../../routes/app_routes.dart';
@@ -17,6 +18,8 @@ class AppDrawer extends StatelessWidget {
   final UpdateAccount updateAccount;
   final DeleteAccount deleteAccount;
 
+  final TransactionUseCases transactionUseCases;  // Nuevo campo
+
   const AppDrawer({
     Key? key,
     // Categorías
@@ -29,6 +32,9 @@ class AppDrawer extends StatelessWidget {
     required this.createAccount,
     required this.updateAccount,
     required this.deleteAccount,
+
+    required this.transactionUseCases,  // Nuevo parámetro
+
   }) : super(key: key);
 
   @override
@@ -67,6 +73,15 @@ class AppDrawer extends StatelessWidget {
                   title: const Text('Dashboard'),
                   onTap: () {
                     Navigator.pushReplacementNamed(context, AppRoutes.home);
+                  },
+                ),
+                const Divider(),
+                // lib/presentation/widgets/app_drawer.dart
+                ListTile(
+                  leading: const Icon(Icons.receipt_long),
+                  title: const Text('Transacciones'),
+                  onTap: () {
+                    Navigator.pushReplacementNamed(context, AppRoutes.transactions);
                   },
                 ),
                 const Divider(),

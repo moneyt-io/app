@@ -1,5 +1,6 @@
 // lib/presentation/screens/account_screen.dart
 import 'package:flutter/material.dart';
+import 'package:moenyt_drift/domain/usecases/transaction_usecases.dart';
 import '../../domain/entities/account.dart';
 import '../../domain/usecases/account_usecases.dart';
 import '../../domain/usecases/category_usecases.dart';  // Añadir esta importación
@@ -21,6 +22,8 @@ class AccountScreen extends StatelessWidget {
   final UpdateCategory updateCategory;
   final DeleteCategory deleteCategory;
 
+  final TransactionUseCases transactionUseCases;
+  
   const AccountScreen({
     Key? key,
     // Cuentas
@@ -33,6 +36,8 @@ class AccountScreen extends StatelessWidget {
     required this.createCategory,
     required this.updateCategory,
     required this.deleteCategory,
+
+    required this.transactionUseCases,
   }) : super(key: key);
 
   @override
@@ -88,6 +93,8 @@ class AccountScreen extends StatelessWidget {
         createCategory: createCategory,
         updateCategory: updateCategory,
         deleteCategory: deleteCategory,
+
+        transactionUseCases: transactionUseCases,
       ),
       body: StreamBuilder<List<AccountEntity>>(
         stream: getAccounts(),

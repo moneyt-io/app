@@ -12,12 +12,15 @@ class AccountModel implements AccountEntity {
   final String? description;
   @override
   final DateTime createdAt;
+  @override
+  final double balance;  // Nuevo campo
 
   AccountModel({
     required this.id,
     required this.name,
     this.description,
     required this.createdAt,
+    this.balance = 0.0,  // Valor por defecto
   });
 
   factory AccountModel.fromDriftAccount(Account driftAccount) {
@@ -26,6 +29,7 @@ class AccountModel implements AccountEntity {
       name: driftAccount.name,
       description: driftAccount.description,
       createdAt: driftAccount.createdAt,
+      balance: 0.0,  // El balance se calculará después con las transacciones
     );
   }
 
@@ -49,10 +53,13 @@ class AccountModel implements AccountEntity {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AccountEntity &&
+      other is AccountModel &&
           runtimeType == other.runtimeType &&
           id == other.id;
 
   @override
   int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'AccountModel(id: $id, name: $name, balance: $balance)';
 }
