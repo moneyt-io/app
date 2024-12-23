@@ -56,7 +56,7 @@ class AppDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Mi Presupuesto',
+                  'moneyt',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: Colors.white,
                   ),
@@ -122,8 +122,7 @@ class AppDrawer extends StatelessWidget {
                   leading: const Icon(Icons.settings),
                   title: const Text('Configuración'),
                   onTap: () {
-                    // TODO: Implementar pantalla de configuración
-                    Navigator.pop(context);
+                    Navigator.pushNamed(context, AppRoutes.settings);
                   },
                 ),
               ],

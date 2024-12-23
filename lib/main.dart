@@ -1,32 +1,93 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'core/di/injection_container.dart' as di;
-import 'routes/app_routes.dart';
-import 'data/local/database.dart';
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
-import 'dart:io';
+import 'package:get_it/get_it.dart';
+
+import 'data/local/database.dart';
+import 'data/repositories/category_repository_impl.dart';
+import 'data/repositories/account_repository_impl.dart';
+import 'data/repositories/transaction_repository_impl.dart';
+import 'domain/repositories/category_repository.dart';
+import 'domain/repositories/account_repository.dart';
+import 'domain/repositories/transaction_repository.dart';
+import 'domain/usecases/category_usecases.dart';
+import 'domain/usecases/account_usecases.dart';
+import 'domain/usecases/transaction_usecases.dart';
+import 'presentation/providers/theme_provider.dart';
+import 'routes/app_routes.dart';
+
+final getIt = GetIt.instance;
 
 void main() async {
-  // Asegurarse de que las dependencias de Flutter estén inicializadas
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inicializar SharedPreferences para el tema
+  final prefs = await SharedPreferences.getInstance();
 
   // Configurar la base de datos
-  final dbFolder = await getApplicationDocumentsDirectory();
-  final file = File(join(dbFolder.path, 'db.sqlite'));
+  final appDatabase = AppDatabase();
   
-  // Configurar Drift para usar SQLite
-  final connection = NativeDatabase(file);
+  // Registrar DAOs
+  getIt.registerSingleton(appDatabase.categoryDao);
+  getIt.registerSingleton(appDatabase.accountDao);
+  getIt.registerSingleton(appDatabase);
+
+  // Registrar repositorios
+  getIt.registerSingleton<CategoryRepository>(
+    CategoryRepositoryImpl(getIt()),
+  );
   
-  // Inicializar la base de datos
-  final database = AppDatabase();
+  getIt.registerSingleton<AccountRepository>(
+    AccountRepositoryImpl(getIt()),
+  );
+  
+  getIt.registerSingleton<TransactionRepository>(
+    TransactionRepositoryImpl(getIt()),
+  );
 
-  // Inicializar la inyección de dependencias
-  await di.init(database);
+  // Registrar casos de uso de categorías
+  getIt.registerFactory<GetCategories>(
+    () => GetCategories(getIt<CategoryRepository>()),
+  );
+  getIt.registerFactory<CreateCategory>(
+    () => CreateCategory(getIt<CategoryRepository>()),
+  );
+  getIt.registerFactory<UpdateCategory>(
+    () => UpdateCategory(getIt<CategoryRepository>()),
+  );
+  getIt.registerFactory<DeleteCategory>(
+    () => DeleteCategory(getIt<CategoryRepository>()),
+  );
 
-  runApp(const MyApp());
+  // Registrar casos de uso de cuentas
+  getIt.registerFactory<GetAccounts>(
+    () => GetAccounts(getIt<AccountRepository>()),
+  );
+  getIt.registerFactory<CreateAccount>(
+    () => CreateAccount(getIt<AccountRepository>()),
+  );
+  getIt.registerFactory<UpdateAccount>(
+    () => UpdateAccount(getIt<AccountRepository>()),
+  );
+  getIt.registerFactory<DeleteAccount>(
+    () => DeleteAccount(getIt<AccountRepository>()),
+  );
+
+  // Registrar casos de uso de transacciones
+  getIt.registerFactory<TransactionUseCases>(
+    () => TransactionUseCases(getIt<TransactionRepository>()),
+  );
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(prefs),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -34,73 +95,58 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mi Presupuesto',
-      debugShowCheckedModeBanner: false, // Quitar el banner de debug
-      theme: ThemeData(
-        // Configuración del tema principal
-        primarySwatch: Colors.blue,
-        // Configuración del tema oscuro
-        brightness: Brightness.light,
-        // Configuración de los textos
-        textTheme: const TextTheme(
-          headlineMedium: TextStyle(
-            fontSize: 28.0,
-            fontWeight: FontWeight.bold,
-          ),
-          bodyLarge: TextStyle(
-            fontSize: 16.0,
-            color: Colors.black87,
-          ),
-        ),
-        // Configuración de los inputs
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          filled: true,
-          fillColor: Colors.grey[100],
-        ),
-        // Configuración de los botones
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 12,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'Mi Presupuesto',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue,
+              brightness: Brightness.light,
             ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
+            useMaterial3: true,
+            appBarTheme: const AppBarTheme(
+              centerTitle: true,
+              elevation: 0,
+            ),
+            inputDecorationTheme: const InputDecorationTheme(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            ),
+            cardTheme: CardTheme(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
-        ),
-        // Configuración de las cards
-        cardTheme: CardTheme(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue,
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+            appBarTheme: const AppBarTheme(
+              centerTitle: true,
+              elevation: 0,
+            ),
+            inputDecorationTheme: const InputDecorationTheme(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            ),
+            cardTheme: CardTheme(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
           ),
-        ),
-      ),
-      // Configuración del tema oscuro
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.blue,
-        // Aquí puedes personalizar más el tema oscuro si lo deseas
-      ),
-      // Usar el tema según el sistema
-      themeMode: ThemeMode.system,
-      // Configuración de las rutas
-      onGenerateRoute: AppRoutes.generateRoute,
-      initialRoute: AppRoutes.home,
+          themeMode: themeProvider.themeMode,
+          initialRoute: AppRoutes.home,
+          onGenerateRoute: AppRoutes.onGenerateRoute,
+        );
+      },
     );
   }
-}
-
-// Función para conectar con la base de datos SQLite
-QueryExecutor connect() {
-  return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(join(dbFolder.path, 'db.sqlite'));
-    return NativeDatabase(file);
-  });
 }

@@ -35,6 +35,11 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 3;
 
+    // Agregar getters para los DAOs
+  CategoryDao get categoryDao => CategoryDao(this);
+  AccountDao get accountDao => AccountDao(this);
+  TransactionDao get transactionDao => TransactionDao(this);
+
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (Migrator m) async {
@@ -44,6 +49,4 @@ class AppDatabase extends _$AppDatabase {
       // Agregar lógica de migración si es necesario
     },
   );
-
-  TransactionDao get transactionDao => TransactionDao(this);
 }

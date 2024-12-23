@@ -1,4 +1,4 @@
-package com.example.moenyt_drift
+package io.moneyt.app
 
 import io.flutter.embedding.android.FlutterActivity
 
