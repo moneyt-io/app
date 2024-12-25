@@ -1,7 +1,7 @@
 // lib/data/local/tables/transaction_table.dart
 import 'package:drift/drift.dart';
-import 'package:moenyt_drift/data/local/tables/account_table.dart';
-import 'package:moenyt_drift/data/local/tables/category_table.dart';
+import 'package:moneyt_pfm/data/local/tables/account_table.dart';
+import 'package:moneyt_pfm/data/local/tables/category_table.dart';
 
 // Constantes para tipos de transacción
 const String TRANSACTION_TYPE_INCOME = 'I';    // Ingreso

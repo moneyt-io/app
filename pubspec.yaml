@@ -1,5 +1,5 @@
-name: moenyt_drift
-description: "A new Flutter project."
+name: moneyt_pfm
+description: "Personal Finance Manager"
 publish_to: 'none'
 version: 0.1.0
 
@@ -24,6 +24,7 @@ dev_dependencies:
   flutter_lints: ^4.0.0
   drift_dev: ^2.22.1
   build_runner: ^2.4.13
+  flutter_launcher_icons: ^0.14.2
 
 flutter:
   uses-material-design: true

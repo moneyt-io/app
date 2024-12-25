@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "moenyt_drift" "\0"
+            VALUE "FileDescription", "moneyt_pfm" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "moenyt_drift" "\0"
+            VALUE "InternalName", "moneyt_pfm" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "moenyt_drift.exe" "\0"
-            VALUE "ProductName", "moenyt_drift" "\0"
+            VALUE "OriginalFilename", "moneyt_pfm.exe" "\0"
+            VALUE "ProductName", "moneyt_pfm" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

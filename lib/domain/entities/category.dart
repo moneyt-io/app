@@ -1,6 +1,6 @@
 // lib/domain/entities/category.dart
 
-import 'package:moenyt_drift/presentation/interfaces/list_item_interface.dart';
+import 'package:moneyt_pfm/presentation/interfaces/list_item_interface.dart';
 
 class CategoryEntity implements ListItemInterface {
   @override
