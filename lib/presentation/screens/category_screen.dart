@@ -67,8 +67,14 @@ class CategoryScreen extends StatelessWidget {
           title: const Text('Categorías'),
           bottom: const TabBar(
             tabs: [
-              Tab(text: 'Gastos'),
-              Tab(text: 'Ingresos'),
+              Tab(
+                text: 'Gastos',
+                icon: Icon(Icons.arrow_downward),
+              ),
+              Tab(
+                text: 'Ingresos',
+                icon: Icon(Icons.arrow_upward)
+              ),
             ],
           ),
         ),

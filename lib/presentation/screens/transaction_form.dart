@@ -241,29 +241,58 @@ class _TransactionFormState extends State<TransactionForm> {
     if (_formKey.currentState!.validate()) {
       final amount = double.parse(_amountController.text);
       
-      final transaction = TransactionEntity(
-        id: widget.transaction?.id ?? -1,
-        type: _selectedType,
-        flow: _flow,
-        amount: amount,
-        accountId: _selectedAccount!.id,
-        categoryId: isTransfer ? null : _selectedCategory!.id,
-        reference: _referenceController.text.isEmpty ? null : _referenceController.text,
-        contact: _contactController.text.isEmpty ? null : _contactController.text,
-        description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
-        transactionDate: _selectedDate,
-        createdAt: widget.transaction?.createdAt ?? DateTime.now(),
-        status: true,
-      );
+      try {
+        if (isTransfer) {
+          // Si es una transferencia, usar el método específico para transferencias
+          if (_selectedAccount == null || _selectedToAccount == null) {
+            throw Exception('Debe seleccionar las cuentas de origen y destino');
+          }
+          
+          await widget.transactionUseCases.createTransfer(
+            fromAccountId: _selectedAccount!.id,
+            toAccountId: _selectedToAccount!.id,
+            amount: amount,
+            date: _selectedDate,
+            description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
+            reference: _referenceController.text.isEmpty ? null : _referenceController.text,
+            contact: _contactController.text.isEmpty ? null : _contactController.text,
+          );
+        } else {
+          // Si no es una transferencia, crear una transacción normal
+          final transaction = TransactionEntity(
+            id: widget.transaction?.id,
+            type: _selectedType,
+            flow: _flow,
+            amount: amount,
+            accountId: _selectedAccount!.id,
+            categoryId: isTransfer ? null : _selectedCategory!.id,
+            reference: _referenceController.text.isEmpty ? null : _referenceController.text,
+            contact: _contactController.text.isEmpty ? null : _contactController.text,
+            description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
+            transactionDate: _selectedDate,
+            createdAt: widget.transaction?.createdAt ?? DateTime.now(),
+            status: true,
+          );
 
-      if (widget.transaction == null) {
-        await widget.transactionUseCases.createTransaction(transaction);
-      } else {
-        await widget.transactionUseCases.updateTransaction(transaction);
-      }
+          if (widget.transaction == null) {
+            await widget.transactionUseCases.createTransaction(transaction);
+          } else {
+            await widget.transactionUseCases.updateTransaction(transaction);
+          }
+        }
 
-      if (mounted) {
-        Navigator.pop(context);
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
