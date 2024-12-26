@@ -1,5 +1,6 @@
 // lib/presentation/screens/transaction_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/di/injection_container.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/usecases/transaction_usecases.dart';
@@ -7,6 +8,7 @@ import '../../domain/usecases/account_usecases.dart';
 import '../../domain/usecases/category_usecases.dart';
 import '../../routes/app_routes.dart';
 import '../widgets/app_drawer.dart';
+import '../../core/l10n/language_manager.dart';
 
 class TransactionScreen extends StatelessWidget {
   // Transacciones
@@ -39,11 +41,13 @@ class TransactionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translations = context.watch<LanguageManager>().translations;
+
     return DefaultTabController(
       length: 4,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Transacciones'),
+          title: Text(translations.transactions),
           actions: [
             IconButton(
               icon: const Icon(Icons.filter_list),
@@ -67,39 +71,39 @@ class TransactionScreen extends StatelessWidget {
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'date_asc',
-                  child: Text('Fecha ↑'),
+                  child: Text(translations.sortDateAsc),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'date_desc',
-                  child: Text('Fecha ↓'),
+                  child: Text(translations.sortDateDesc),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'amount_asc',
-                  child: Text('Monto ↑'),
+                  child: Text(translations.sortAmountAsc),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'amount_desc',
-                  child: Text('Monto ↓'),
+                  child: Text(translations.sortAmountDesc),
                 ),
               ],
             ),
           ],
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: [
-              Tab(text: 'Todas'),
+              Tab(text: translations.all),
               Tab(
-                icon: Icon(Icons.arrow_upward),
-                text: 'Ingresos',
+                icon: const Icon(Icons.arrow_upward),
+                text: translations.income,
               ),
               Tab(
-                icon: Icon(Icons.arrow_downward),
-                text: 'Gastos',
+                icon: const Icon(Icons.arrow_downward),
+                text: translations.expense,
               ),
               Tab(
-                icon: Icon(Icons.swap_horiz),
-                text: 'Transferencias',
+                icon: const Icon(Icons.swap_horiz),
+                text: translations.transfer,
               ),
             ],
           ),
@@ -113,7 +117,6 @@ class TransactionScreen extends StatelessWidget {
           createAccount: createAccount,
           updateAccount: updateAccount,
           deleteAccount: deleteAccount,
-
           transactionUseCases: transactionUseCases,
         ),
         body: TabBarView(
@@ -149,11 +152,12 @@ class TransactionScreen extends StatelessWidget {
   }
 
   void _showFilterDialog(BuildContext context) {
-    // Implementar diálogo de filtros
+    final translations = context.read<LanguageManager>().translations;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filtros'),
+        title: Text(translations.filters),
         content: const SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -169,14 +173,14 @@ class TransactionScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(translations.cancel),
           ),
           TextButton(
             onPressed: () {
               // Aplicar filtros
               Navigator.pop(context);
             },
-            child: const Text('Aplicar'),
+            child: Text(translations.apply),
           ),
         ],
       ),
@@ -197,25 +201,27 @@ class TransactionScreen extends StatelessWidget {
 
   Future<void> _deleteTransaction(
       BuildContext context, TransactionEntity transaction) async {
+    final translations = context.read<LanguageManager>().translations;
+    
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Transacción'),
-        content: const Text('¿Está seguro de eliminar esta transacción?'),
+        title: Text(translations.deleteTransaction),
+        content: Text(translations.deleteTransactionConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(translations.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar'),
+            child: Text(translations.delete),
           ),
         ],
       ),
     );
 
-    if (confirm == true && transaction.id != null) {
+    if (confirm == true) {
       await transactionUseCases.deleteTransaction(transaction.id!);
     }
   }
@@ -234,6 +240,8 @@ class _TransactionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translations = context.watch<LanguageManager>().translations;
+
     return StreamBuilder<List<TransactionEntity>>(
       stream: stream,
       builder: (context, snapshot) {
@@ -248,7 +256,7 @@ class _TransactionList extends StatelessWidget {
         final transactions = snapshot.data!;
 
         if (transactions.isEmpty) {
-          return const Center(child: Text('No hay transacciones'));
+          return Center(child: Text(translations.noTransactions));
         }
 
         return ListView.builder(
@@ -280,11 +288,13 @@ class _TransactionListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translations = context.watch<LanguageManager>().translations;
+
     return ListTile(
       leading: _getTransactionIcon(),
-      title: Text(transaction.description ?? 'Sin descripción'),
+      title: Text(transaction.description ?? translations.noDescription),
       subtitle: Text(
-        '${_getTransactionType()} • ${_formatDate(transaction.transactionDate)}',
+        '${_getTransactionType(context)} • ${_formatDate(transaction.transactionDate)}',
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -308,13 +318,13 @@ class _TransactionListItem extends StatelessWidget {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'edit',
-                child: Text('Editar'),
+                child: Text(translations.edit),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'delete',
-                child: Text('Eliminar'),
+                child: Text(translations.delete),
               ),
             ],
           ),
@@ -337,16 +347,17 @@ class _TransactionListItem extends StatelessWidget {
     }
   }
 
-  String _getTransactionType() {
+  String _getTransactionType(BuildContext context) {
+    final translations = context.watch<LanguageManager>().translations;
     switch (transaction.type) {
       case 'I':
-        return 'Ingreso';
+        return translations.income;
       case 'E':
-        return 'Gasto';
+        return translations.expense;
       case 'T':
-        return 'Transferencia';
+        return translations.transfer;
       default:
-        return 'Desconocido';
+        return translations.getText('unknown');
     }
   }
 

@@ -1,5 +1,6 @@
 // lib/presentation/screens/category_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/usecases/category_usecases.dart';
 import '../../domain/usecases/account_usecases.dart';
@@ -7,6 +8,7 @@ import '../../domain/usecases/transaction_usecases.dart';
 import '../../routes/app_routes.dart';
 import '../widgets/expandable_category_list.dart';
 import '../widgets/app_drawer.dart';
+import '../../core/l10n/language_manager.dart';
 
 class CategoryFormArgs {
   final CategoryEntity? category;
@@ -46,7 +48,6 @@ class CategoryScreen extends StatelessWidget {
     required this.transactionUseCases,
   }) : super(key: key);
 
-  // Cambiado para devolver Future<void>
   Future<void> _navigateToForm(BuildContext context, {CategoryEntity? category}) async {
     await Navigator.pushNamed(
       context,
@@ -60,20 +61,22 @@ class CategoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translations = context.watch<LanguageManager>().translations;
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Categorías'),
-          bottom: const TabBar(
+          title: Text(translations.categories),
+          bottom: TabBar(
             tabs: [
               Tab(
-                text: 'Gastos',
-                icon: Icon(Icons.arrow_downward),
+                text: translations.expense,
+                icon: const Icon(Icons.arrow_downward),
               ),
               Tab(
-                text: 'Ingresos',
-                icon: Icon(Icons.arrow_upward)
+                text: translations.income,
+                icon: const Icon(Icons.arrow_upward)
               ),
             ],
           ),
@@ -96,7 +99,7 @@ class CategoryScreen extends StatelessWidget {
               stream: getCategories(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
+                  return Center(child: Text('${translations.getText('error')}: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
@@ -116,7 +119,7 @@ class CategoryScreen extends StatelessWidget {
               stream: getCategories(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
+                  return Center(child: Text('${translations.getText('error')}: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());

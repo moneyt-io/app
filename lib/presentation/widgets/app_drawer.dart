@@ -1,9 +1,11 @@
 // lib/presentation/widgets/app_drawer.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:moneyt_pfm/domain/usecases/transaction_usecases.dart';
 import '../../domain/usecases/category_usecases.dart';
 import '../../domain/usecases/account_usecases.dart';
 import '../../routes/app_routes.dart';
+import '../../core/l10n/language_manager.dart';
 
 class AppDrawer extends StatelessWidget {
   // Categorías
@@ -18,27 +20,25 @@ class AppDrawer extends StatelessWidget {
   final UpdateAccount updateAccount;
   final DeleteAccount deleteAccount;
 
-  final TransactionUseCases transactionUseCases;  // Nuevo campo
+  final TransactionUseCases transactionUseCases;
 
   const AppDrawer({
     Key? key,
-    // Categorías
     required this.getCategories,
     required this.createCategory,
     required this.updateCategory,
     required this.deleteCategory,
-    // Cuentas
     required this.getAccounts,
     required this.createAccount,
     required this.updateAccount,
     required this.deleteAccount,
-
-    required this.transactionUseCases,  // Nuevo parámetro
-
+    required this.transactionUseCases,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final translations = context.watch<LanguageManager>().translations;
+
     return Drawer(
       child: Column(
         children: [
@@ -56,7 +56,7 @@ class AppDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'moneyt',
+                  translations.appName,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: Colors.white,
                   ),
@@ -70,16 +70,15 @@ class AppDrawer extends StatelessWidget {
               children: [
                 ListTile(
                   leading: const Icon(Icons.dashboard),
-                  title: const Text('Dashboard'),
+                  title: Text(translations.home),
                   onTap: () {
                     Navigator.pushReplacementNamed(context, AppRoutes.home);
                   },
                 ),
                 const Divider(),
-                // lib/presentation/widgets/app_drawer.dart
                 ListTile(
                   leading: const Icon(Icons.receipt_long),
-                  title: const Text('Transacciones'),
+                  title: Text(translations.transactions),
                   onTap: () {
                     Navigator.pushReplacementNamed(context, AppRoutes.transactions);
                   },
@@ -87,7 +86,7 @@ class AppDrawer extends StatelessWidget {
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.account_balance),
-                  title: const Text('Cuentas'),
+                  title: Text(translations.accounts),
                   onTap: () {
                     Navigator.pushReplacementNamed(
                       context,
@@ -103,7 +102,7 @@ class AppDrawer extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.category),
-                  title: const Text('Categorías'),
+                  title: Text(translations.categories),
                   onTap: () {
                     Navigator.pushReplacementNamed(
                       context,
@@ -120,7 +119,7 @@ class AppDrawer extends StatelessWidget {
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.settings),
-                  title: const Text('Configuración'),
+                  title: Text(translations.settings),
                   onTap: () {
                     Navigator.pushNamed(context, AppRoutes.settings);
                   },
@@ -132,7 +131,7 @@ class AppDrawer extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Versión 1.0.0',
+              translations.getText('version'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),

@@ -2,23 +2,28 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import '../../core/l10n/language_manager.dart';
+import '../widgets/language_selector.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final translations = context.watch<LanguageManager>().translations;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configuración'),
+        title: Text(translations.getText('settings')),
       ),
       body: ListView(
         children: [
+          // Tema
           Consumer<ThemeProvider>(
             builder: (context, themeProvider, child) {
               return SwitchListTile(
-                title: const Text('Modo Oscuro'),
-                subtitle: const Text('Cambiar entre tema claro y oscuro'),
+                title: Text(translations.getText('darkTheme')),
+                subtitle: Text(translations.getText('darkThemeDescription')),
                 secondary: Icon(
                   themeProvider.isDarkMode 
                     ? Icons.dark_mode 
@@ -30,7 +35,17 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           const Divider(),
-          // Aquí puedes agregar más opciones de configuración
+
+          // Idioma
+          Padding(
+            padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
+            child: Text(
+              translations.getText('language'),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
+          const LanguageSelector(showTitle: false),
+          const Divider(),
         ],
       ),
     );

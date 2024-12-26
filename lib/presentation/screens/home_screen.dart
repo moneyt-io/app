@@ -1,6 +1,7 @@
 // lib/presentation/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/entities/account.dart';
 import '../../domain/usecases/category_usecases.dart';
@@ -8,6 +9,7 @@ import '../../domain/usecases/account_usecases.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../widgets/app_drawer.dart';
 import '../../routes/app_routes.dart';
+import '../../core/l10n/language_manager.dart';
 
 class HomeScreen extends StatelessWidget {
   // Categorías
@@ -40,9 +42,11 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translations = context.watch<LanguageManager>().translations;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi Presupuesto'),
+        title: Text(translations.appName),
       ),
       drawer: AppDrawer(
         getCategories: getCategories,
@@ -75,9 +79,9 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Cuentas',
-                          style: TextStyle(
+                        Text(
+                          translations.accounts,
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -128,9 +132,9 @@ class HomeScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Transacciones Recientes',
-                              style: TextStyle(
+                            Text(
+                              translations.getText('recentTransactions'),
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -142,14 +146,14 @@ class HomeScreen extends StatelessWidget {
                                   AppRoutes.transactions,
                                 );
                               },
-                              child: const Text('Ver todas'),
+                              child: Text(translations.getText('viewAll')),
                             ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         if (recentTransactions.isEmpty)
-                          const Center(
-                            child: Text('No hay transacciones recientes'),
+                          Center(
+                            child: Text(translations.getText('noRecentTransactions')),
                           )
                         else
                           ListView.builder(
@@ -168,7 +172,7 @@ class HomeScreen extends StatelessWidget {
                                       : Colors.red,
                                 ),
                                 title: Text(
-                                  transaction.description ?? 'Sin descripción',
+                                  transaction.description ?? translations.getText('noDescription'),
                                 ),
                                 subtitle: Text(
                                   DateFormat('dd/MM/yyyy')

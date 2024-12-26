@@ -1,11 +1,13 @@
 // lib/presentation/screens/account_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../domain/entities/account.dart';
 import '../../domain/usecases/account_usecases.dart';
 import '../../domain/usecases/category_usecases.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../../routes/app_routes.dart';
 import '../widgets/app_drawer.dart';
+import '../../core/l10n/language_manager.dart';
 
 class AccountFormArgs {
   final AccountEntity? account;
@@ -58,9 +60,11 @@ class AccountScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translations = context.watch<LanguageManager>().translations;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cuentas'),
+        title: Text(translations.accounts),
       ),
       drawer: AppDrawer(
         getCategories: getCategories,
@@ -74,16 +78,21 @@ class AccountScreen extends StatelessWidget {
         transactionUseCases: transactionUseCases,
       ),
       body: StreamBuilder<List<AccountEntity>>(
-        stream: getAccounts(), // Cambiado de watchAll() a call()
+        stream: getAccounts(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('${translations.error}: ${snapshot.error}'));
           }
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
           final accounts = snapshot.data!;
+
+          if (accounts.isEmpty) {
+            return Center(child: Text(translations.noAccounts));
+          }
+
           return ListView.builder(
             itemCount: accounts.length,
             itemBuilder: (context, index) {
@@ -92,7 +101,7 @@ class AccountScreen extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: ListTile(
                   title: Text(account.name),
-                  subtitle: Text(account.description ?? ''),
+                  subtitle: Text(account.description ?? translations.noDescription),
                   trailing: PopupMenuButton<String>(
                     onSelected: (value) async {
                       switch (value) {
@@ -100,49 +109,48 @@ class AccountScreen extends StatelessWidget {
                           _navigateToForm(context, account: account);
                           break;
                         case 'delete':
-                          // Mostrar diálogo de confirmación
                           final confirm = await showDialog<bool>(
                             context: context,
                             builder: (context) => AlertDialog(
-                              title: const Text('Eliminar cuenta'),
-                              content: const Text('¿Estás seguro de que deseas eliminar esta cuenta?'),
+                              title: Text(translations.deleteAccount),
+                              content: Text(translations.deleteAccountConfirmation),
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context, false),
-                                  child: const Text('Cancelar'),
+                                  child: Text(translations.cancel),
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('Eliminar'),
+                                  child: Text(translations.delete),
                                 ),
                               ],
                             ),
                           );
                           
                           if (confirm == true) {
-                            await deleteAccount(account.id!); // Cambiado de execute() a call()
+                            await deleteAccount(account.id!);
                           }
                           break;
                       }
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'edit',
                         child: Row(
                           children: [
-                            Icon(Icons.edit),
-                            SizedBox(width: 8),
-                            Text('Editar'),
+                            const Icon(Icons.edit),
+                            const SizedBox(width: 8),
+                            Text(translations.edit),
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
-                            Icon(Icons.delete),
-                            SizedBox(width: 8),
-                            Text('Eliminar'),
+                            const Icon(Icons.delete),
+                            const SizedBox(width: 8),
+                            Text(translations.delete),
                           ],
                         ),
                       ),

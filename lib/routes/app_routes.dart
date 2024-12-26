@@ -9,6 +9,7 @@ import '../presentation/screens/settings_screen.dart';
 import '../presentation/screens/transaction_form.dart';
 import '../presentation/screens/category_form.dart';
 import '../presentation/screens/account_form.dart';
+import '../presentation/screens/welcome_screen.dart';
 import '../domain/usecases/category_usecases.dart';
 import '../domain/usecases/account_usecases.dart';
 import '../domain/usecases/transaction_usecases.dart';
@@ -19,6 +20,7 @@ import '../domain/entities/account.dart';
 final getIt = GetIt.instance;
 
 class AppRoutes {
+  static const String welcome = '/welcome';
   static const String home = '/';
   static const String categories = '/categories';
   static const String categoryForm = '/category-form';
@@ -32,6 +34,11 @@ class AppRoutes {
     final String? routeName = settings.name;
 
     switch (routeName) {
+      case AppRoutes.welcome:
+        return MaterialPageRoute(
+          builder: (context) => const WelcomeScreen(),
+        );
+
       case AppRoutes.home:
         return MaterialPageRoute(
           builder: (context) => HomeScreen(
