@@ -109,7 +109,7 @@ class CategoryScreen extends StatelessWidget {
                     .toList();
                 return ExpandableCategoryList(
                   categories: expenseCategories,
-                  onDelete: (category) => deleteCategory(category.id!),
+                  onDelete: (category) => deleteCategory(category.id),
                   onUpdate: (category) => _navigateToForm(context, category: category),
                 );
               },
@@ -129,7 +129,7 @@ class CategoryScreen extends StatelessWidget {
                     .toList();
                 return ExpandableCategoryList(
                   categories: incomeCategories,
-                  onDelete: (category) => deleteCategory(category.id!),
+                  onDelete: (category) => deleteCategory(category.id),
                   onUpdate: (category) => _navigateToForm(context, category: category),
                 );
               },

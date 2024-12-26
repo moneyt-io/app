@@ -38,8 +38,8 @@ Future<void> init(AppDatabase database) async {
   getIt.registerLazySingleton<AccountRepository>(
     () => AccountRepositoryImpl(getIt<AccountDao>()),
   );
-  getIt.registerLazySingleton<TransactionRepository>(  // Nuevo
-    () => TransactionRepositoryImpl(getIt<AppDatabase>()),
+  getIt.registerLazySingleton<TransactionRepository>(
+    () => TransactionRepositoryImpl(getIt<TransactionDao>()),
   );
 
   // Use Cases
@@ -54,7 +54,6 @@ Future<void> init(AppDatabase database) async {
   getIt.registerLazySingleton(() => CreateAccount(getIt<AccountRepository>()));
   getIt.registerLazySingleton(() => UpdateAccount(getIt<AccountRepository>()));
   getIt.registerLazySingleton(() => DeleteAccount(getIt<AccountRepository>()));
-
-  // Transacciones
+// Transacciones
   getIt.registerLazySingleton(() => TransactionUseCases(getIt<TransactionRepository>()));
 }

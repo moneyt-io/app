@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_svg: ^2.0.9
   drift: ^2.22.1
   sqlite3_flutter_libs: ^0.5.27
   path: ^1.9.0
@@ -17,6 +18,10 @@ dependencies:
   intl: ^0.20.1
   provider: ^6.1.2
   shared_preferences: ^2.3.4
+  google_sign_in: ^6.1.6
+  firebase_core: ^3.9.0
+  firebase_auth: ^5.3.4
+  cloud_firestore: ^5.6.0
 
 dev_dependencies:
   flutter_test:

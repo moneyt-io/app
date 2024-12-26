@@ -15,21 +15,21 @@ class LanguageManager extends ChangeNotifier {
   LanguageManager._internal();
 
   static const String _languageKey = 'selected_language';
-  static const String defaultLanguage = 'es';
+  static const String defaultLanguage = 'en';
 
   late SharedPreferences _prefs;
   final List<Language> _supportedLanguages = [
-    const Language(
-      code: 'es',
-      name: 'Spanish',
-      nativeName: 'Español',
-      flag: '🇪🇸',
-    ),
     const Language(
       code: 'en',
       name: 'English',
       nativeName: 'English',
       flag: '🇺🇸',
+    ),
+    const Language(
+      code: 'es',
+      name: 'Spanish',
+      nativeName: 'Español',
+      flag: '🇪🇸',
     ),
   ];
 

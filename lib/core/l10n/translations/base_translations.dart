@@ -4,6 +4,7 @@ abstract class BaseTranslations {
   // App general
   String get appName;
   String get welcome;
+  String get welcomeTitle;
   String get selectLanguage;
   String get continue_;
   String get cancel;
@@ -14,6 +15,16 @@ abstract class BaseTranslations {
   String get error;
   String get noDescription;
   String get unknown;
+
+  // Login
+  String get signInWithGoogle => 'Sign in with Google';
+  String get skipSignIn => 'Skip Sign In';
+  String get termsAndConditions => 'Terms and Conditions';
+  String get acceptTerms => 'I accept the Terms and Conditions';
+  String get acceptTermsAndConditions => 'I accept the Terms and Conditions';
+  String get acceptMarketing => 'I would like to receive marketing emails';
+  String get termsText => 'By using this app, you agree to our Terms of Service and Privacy Policy...';
+  String get readTerms => 'Read Terms and Conditions';
 
   // Navigation
   String get home;
@@ -92,6 +103,7 @@ abstract class BaseTranslations {
       // Call all getters to verify they return non-null values
       appName;
       welcome;
+      welcomeTitle;
       selectLanguage;
       continue_;
       cancel;
@@ -102,6 +114,14 @@ abstract class BaseTranslations {
       error;
       noDescription;
       unknown;
+      signInWithGoogle;
+      skipSignIn;
+      termsAndConditions;
+      acceptTerms;
+      acceptTermsAndConditions;
+      acceptMarketing;
+      termsText;
+      readTerms;
       home;
       accounts;
       categories;

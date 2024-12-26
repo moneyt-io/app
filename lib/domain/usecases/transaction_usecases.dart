@@ -14,7 +14,7 @@ class TransactionUseCases {
 
   // Crear una nueva transacción
   Future<int> createTransaction(TransactionEntity transaction) {
-    return repository.createTransaction(transaction);
+    return repository.insertTransaction(transaction);
   }
 
   // Actualizar una transacción existente

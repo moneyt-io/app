@@ -27,6 +27,8 @@ class InitializationService {
 
     try {
       print('Iniciando inicialización de datos por defecto...');
+      print('Idioma actual: ${_languageManager.currentLanguage.code}');
+      
       final defaultData = _languageManager.defaultData;
 
       print('Inicializando categorías por defecto...');
@@ -43,6 +45,7 @@ class InitializationService {
       }
       print('Cuentas inicializadas correctamente');
 
+      await _prefs.setBool(_initKey, true);
       print('Inicialización de datos completada exitosamente');
     } catch (e) {
       print('Error al inicializar datos por defecto: $e');

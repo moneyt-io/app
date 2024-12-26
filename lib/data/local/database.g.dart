@@ -1871,7 +1871,7 @@ final class $$TransactionsTableReferences
 
   $$AccountsTableProcessedTableManager get accountId {
     final manager = $$AccountsTableTableManager($_db, $_db.accounts)
-        .filter((f) => f.id($_item.accountId!));
+        .filter((f) => f.id($_item.accountId));
     final item = $_typedResult.readTableOrNull(_accountIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(

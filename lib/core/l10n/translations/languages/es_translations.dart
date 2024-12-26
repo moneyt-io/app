@@ -6,9 +6,11 @@ class SpanishTranslations extends BaseTranslations {
 
   // App general
   @override
-  String get appName => 'Gestor de Finanzas Personal';
+  String get appName => 'MoneyT';
   @override
   String get welcome => 'Bienvenido';
+  @override
+  String get welcomeTitle => 'Bienvenido a MoneyT';
   @override
   String get selectLanguage => 'Selecciona tu idioma';
   @override
@@ -23,6 +25,36 @@ class SpanishTranslations extends BaseTranslations {
   String get edit => 'Editar';
   @override
   String get add => 'Agregar';
+  @override
+  String get error => 'Error';
+  @override
+  String get noDescription => 'Sin descripción';
+  @override
+  String get unknown => 'Desconocido';
+
+  // Login
+  @override
+  String get signInWithGoogle => 'Iniciar sesión con Google';
+  @override
+  String get skipSignIn => 'Omitir inicio de sesión';
+  @override
+  String get termsAndConditions => 'Términos y Condiciones';
+  @override
+  String get acceptTerms => 'Acepto los Términos y Condiciones';
+  @override
+  String get acceptTermsAndConditions => 'Acepto los Términos y Condiciones';
+  @override
+  String get acceptMarketing => 'Me gustaría recibir correos de marketing';
+  @override
+  String get termsText => '''
+Al usar esta aplicación, aceptas nuestros Términos de Servicio y Política de Privacidad.
+
+1. Tus datos serán almacenados de forma segura
+2. Nunca compartiremos tus datos con terceros
+3. Puedes solicitar la eliminación de tus datos en cualquier momento
+''';
+  @override
+  String get readTerms => 'Leer Términos y Condiciones';
 
   // Navigation
   @override
@@ -116,7 +148,7 @@ class SpanishTranslations extends BaseTranslations {
   final Map<String, String> _translations = {
     'darkTheme': 'Modo Oscuro',
     'darkThemeDescription': 'Cambiar entre tema claro y oscuro',
-    'version': 'Versión 1.0.0',
+    'version': 'Versión 0.1.0',
     'recentTransactions': 'Transacciones Recientes',
     'viewAll': 'Ver todas',
     'noRecentTransactions': 'No hay transacciones recientes',
@@ -140,13 +172,15 @@ class SpanishTranslations extends BaseTranslations {
     'delete': 'Eliminar',
     'edit': 'Editar',
     'unknown': 'Desconocido',
+    'signInWithGoogle': 'Iniciar sesión con Google',
+    'skipSignIn': 'Omitir inicio de sesión',
+    'termsAndConditions': 'Términos y Condiciones',
+    'acceptTerms': 'Acepto los Términos y Condiciones',
+    'acceptMarketing': 'Me gustaría recibir correos de marketing',
+    'termsText': 'Al usar esta aplicación, aceptas nuestros Términos de Servicio y Política de Privacidad...',
+    'welcomeTitle': 'Bienvenido a MoneyT',
+    'readTerms': 'Leer Términos y Condiciones',
   };
-
-  @override
-  String get error => getText('error');
-
-  @override
-  String get noDescription => getText('noDescription');
 
   @override
   String get noAccounts => getText('noAccounts');
@@ -192,9 +226,6 @@ class SpanishTranslations extends BaseTranslations {
 
   @override
   String get darkThemeDescription => getText('darkThemeDescription');
-
-  @override
-  String get unknown => getText('unknown');
 
   @override
   String getText(String key) {

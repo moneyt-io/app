@@ -4,7 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../core/l10n/models/language.dart';
 import '../../routes/app_routes.dart';
-import '../../main.dart';
+import '../../data/local/database.dart';
+import '../../data/services/initialization_service.dart';
+import '../providers/auth_provider.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -16,6 +18,8 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
   Language? _selectedLanguage;
   bool _isLoading = false;
+  bool _acceptedTerms = false;
+  bool _acceptedMarketing = true; // Marketing marcado por defecto
 
   @override
   void initState() {
@@ -23,27 +27,67 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     _selectedLanguage = context.read<LanguageManager>().currentLanguage;
   }
 
-  Future<void> _continueToApp() async {
-    if (_selectedLanguage == null) return;
+  void _showTermsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final translations = context.read<LanguageManager>().translations;
+        return AlertDialog(
+          title: Text(translations.termsAndConditions),
+          content: SingleChildScrollView(
+            child: Text(translations.termsText),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(translations.continue_),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-    setState(() => _isLoading = true);
+  Future<void> _onLanguageChanged(Language? newValue) async {
+    if (newValue == null) return;
+    
+    setState(() {
+      _selectedLanguage = newValue;
+      _isLoading = true;
+    });
+
+    // Cambiar el idioma
+    final languageManager = context.read<LanguageManager>();
+    await languageManager.changeLanguage(newValue.code);
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _signInWithGoogle() async {
+    if (!_acceptedTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.read<LanguageManager>().translations.acceptTerms),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     try {
-      // Cambiar el idioma
-      final languageManager = context.read<LanguageManager>();
-      await languageManager.changeLanguage(_selectedLanguage!.code);
-
-      // Inicializar la base de datos y los datos por defecto
-      await AppInitializer.initializeDatabase();
-
-      // Marcar que ya no es primera ejecución
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('is_first_run', false);
+      final authProvider = context.read<AuthProvider>();
+      await authProvider.signInWithGoogle();
+      
+      if (_acceptedMarketing) {
+        await authProvider.updateMarketingPreferences(_acceptedMarketing);
+      }
 
       if (!mounted) return;
-
-      // Navegar a la pantalla principal
-      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+      
+      // Continuar con la app
+      _continueToApp();
     } catch (e) {
       if (!mounted) return;
       
@@ -53,96 +97,129 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           backgroundColor: Colors.red,
         ),
       );
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _continueToApp() async {
+    if (_selectedLanguage == null) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Inicializar datos por defecto con el idioma seleccionado
+      final prefs = await SharedPreferences.getInstance();
+      final bool isFirstRun = prefs.getBool('is_first_run') ?? true;
+      
+      if (isFirstRun) {
+        final initService = InitializationService(
+          getIt<AppDatabase>(),
+          prefs,
+          context.read<LanguageManager>(),
+        );
+        
+        await initService.initializeDefaultDataIfNeeded();
+        await prefs.setBool('is_first_run', false);
       }
+
+      if (!mounted) return;
+
+      // Navegar a la pantalla principal
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final languageManager = Provider.of<LanguageManager>(context);
-    final translations = languageManager.translations;
+    final translations = context.watch<LanguageManager>().translations;
+    final languages = context.watch<LanguageManager>().supportedLanguages;
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo o Icono
-              const Icon(
-                Icons.account_balance_wallet,
-                size: 80,
-                color: Colors.blue,
-              ),
-              const SizedBox(height: 32),
-
-              // Título de bienvenida
+              // Logo de la app
+              const SizedBox(height: 24),
               Text(
-                translations.welcome,
+                translations.welcomeTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 48),
-
-              // Texto de selección de idioma
-              Text(
-                translations.selectLanguage,
-                style: Theme.of(context).textTheme.titleMedium,
-                textAlign: TextAlign.center,
+              const SizedBox(height: 32),
+              DropdownButtonFormField<Language>(
+                value: _selectedLanguage,
+                decoration: InputDecoration(
+                  labelText: translations.selectLanguage,
+                  border: const OutlineInputBorder(),
+                ),
+                items: languages.map((Language language) {
+                  return DropdownMenuItem<Language>(
+                    value: language,
+                    child: Text('${language.flag} ${language.nativeName}'),
+                  );
+                }).toList(),
+                onChanged: _onLanguageChanged,
               ),
               const SizedBox(height: 24),
-
-              // Lista de idiomas
-              Card(
-                elevation: 4,
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: languageManager.supportedLanguages.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final language = languageManager.supportedLanguages[index];
-                    return RadioListTile<Language>(
-                      title: Row(
-                        children: [
-                          Text(language.flag),
-                          const SizedBox(width: 12),
-                          Text(language.nativeName),
-                        ],
-                      ),
-                      subtitle: Text(language.name),
-                      value: language,
-                      groupValue: _selectedLanguage,
-                      onChanged: (Language? value) {
-                        setState(() => _selectedLanguage = value);
-                      },
-                    );
-                  },
-                ),
+              CheckboxListTile(
+                title: Text(translations.acceptTermsAndConditions),
+                value: _acceptedTerms,
+                onChanged: (bool? value) {
+                  setState(() {
+                    _acceptedTerms = value ?? false;
+                  });
+                },
               ),
-              const SizedBox(height: 48),
-
-              // Botón continuar
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _continueToApp,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+              TextButton(
+                onPressed: _showTermsDialog,
+                child: Text(translations.readTerms),
+              ),
+              const SizedBox(height: 8),
+              CheckboxListTile(
+                title: Text(translations.acceptMarketing),
+                value: _acceptedMarketing,
+                onChanged: (bool? value) {
+                  setState(() {
+                    _acceptedMarketing = value ?? true;
+                  });
+                },
+              ),
+              const SizedBox(height: 32),
+              if (_isLoading)
+                const CircularProgressIndicator()
+              else ...[
+                ElevatedButton(
+                  onPressed: _signInWithGoogle,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.g_mobiledata, size: 24, color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 12),
+                        Text(translations.signInWithGoogle),
+                      ],
+                    ),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(translations.continue_),
                 ),
-              ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: _continueToApp,
+                  child: Text(translations.skipSignIn),
+                ),
+              ],
             ],
           ),
         ),

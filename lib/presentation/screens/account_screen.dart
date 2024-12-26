@@ -128,7 +128,7 @@ class AccountScreen extends StatelessWidget {
                           );
                           
                           if (confirm == true) {
-                            await deleteAccount(account.id!);
+                            await deleteAccount(account.id);
                           }
                           break;
                       }

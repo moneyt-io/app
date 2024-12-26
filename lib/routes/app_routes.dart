@@ -14,8 +14,6 @@ import '../domain/usecases/category_usecases.dart';
 import '../domain/usecases/account_usecases.dart';
 import '../domain/usecases/transaction_usecases.dart';
 import '../domain/entities/transaction.dart';
-import '../domain/entities/category.dart';
-import '../domain/entities/account.dart';
 
 final getIt = GetIt.instance;
 

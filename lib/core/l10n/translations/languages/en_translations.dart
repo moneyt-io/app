@@ -6,9 +6,11 @@ class EnglishTranslations extends BaseTranslations {
 
   // App general
   @override
-  String get appName => 'Personal Finance Manager';
+  String get appName => 'MoneyT';
   @override
   String get welcome => 'Welcome';
+  @override
+  String get welcomeTitle => 'Welcome to MoneyT';
   @override
   String get selectLanguage => 'Select your language';
   @override
@@ -23,6 +25,36 @@ class EnglishTranslations extends BaseTranslations {
   String get edit => 'Edit';
   @override
   String get add => 'Add';
+  @override
+  String get error => 'Error';
+  @override
+  String get noDescription => 'No description';
+  @override
+  String get unknown => 'Unknown';
+
+  // Login
+  @override
+  String get signInWithGoogle => 'Sign in with Google';
+  @override
+  String get skipSignIn => 'Skip Sign In';
+  @override
+  String get termsAndConditions => 'Terms and Conditions';
+  @override
+  String get acceptTerms => 'I accept the Terms and Conditions';
+  @override
+  String get acceptTermsAndConditions => 'I accept the Terms and Conditions';
+  @override
+  String get acceptMarketing => 'I would like to receive marketing emails';
+  @override
+  String get termsText => '''
+By using this app, you agree to our Terms of Service and Privacy Policy.
+
+1. Your data will be stored securely
+2. We will never share your data with third parties
+3. You can request deletion of your data at any time
+''';
+  @override
+  String get readTerms => 'Read Terms and Conditions';
 
   // Navigation
   @override
@@ -116,7 +148,7 @@ class EnglishTranslations extends BaseTranslations {
   final Map<String, String> _translations = {
     'darkTheme': 'Dark Mode',
     'darkThemeDescription': 'Switch between light and dark theme',
-    'version': 'Version 1.0.0',
+    'version': 'Version 0.1.0',
     'recentTransactions': 'Recent Transactions',
     'viewAll': 'View all',
     'noRecentTransactions': 'No recent transactions',
@@ -141,12 +173,6 @@ class EnglishTranslations extends BaseTranslations {
     'edit': 'Edit',
     'unknown': 'Unknown',
   };
-
-  @override
-  String get error => getText('error');
-
-  @override
-  String get noDescription => getText('noDescription');
 
   @override
   String get noAccounts => getText('noAccounts');
@@ -192,9 +218,6 @@ class EnglishTranslations extends BaseTranslations {
 
   @override
   String get darkThemeDescription => getText('darkThemeDescription');
-
-  @override
-  String get unknown => getText('unknown');
 
   @override
   String getText(String key) {

@@ -2,12 +2,13 @@
 import 'package:drift/drift.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/repositories/transaction_repository.dart';
+import '../local/daos/transaction_dao.dart';
 import '../local/database.dart';
 
 class TransactionRepositoryImpl implements TransactionRepository {
-  final AppDatabase _database;
+  final TransactionDao _transactionDao;
 
-  TransactionRepositoryImpl(this._database);
+  TransactionRepositoryImpl(this._transactionDao);
 
   // Convertir Transaction (Drift) a TransactionEntity
   TransactionEntity _mapToEntity(Transaction transaction) {
@@ -47,68 +48,67 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   Stream<List<TransactionEntity>> watchAllTransactions() {
-    return _database.transactionDao.watchAllTransactions()
+    return _transactionDao.watchAllTransactions()
         .map((list) => list.map(_mapToEntity).toList());
   }
 
   @override
   Stream<List<TransactionEntity>> watchTransactionsByType(String type) {
-    return _database.transactionDao.watchTransactionsByType(type)
+    return _transactionDao.watchTransactionsByType(type)
         .map((list) => list.map(_mapToEntity).toList());
   }
 
   @override
   Stream<List<TransactionEntity>> watchTransactionsByFlow(String flow) {
-    return _database.transactionDao.watchTransactionsByFlow(flow)
+    return _transactionDao.watchTransactionsByFlow(flow)
         .map((list) => list.map(_mapToEntity).toList());
   }
 
   @override
   Stream<List<TransactionEntity>> watchTransactionsByAccount(int accountId) {
-    return _database.transactionDao.watchTransactionsByAccount(accountId)
+    return _transactionDao.watchTransactionsByAccount(accountId)
         .map((list) => list.map(_mapToEntity).toList());
   }
 
   @override
   Stream<List<TransactionEntity>> watchTransactionsByCategory(int categoryId) {
-    return _database.transactionDao.watchTransactionsByCategory(categoryId)
+    return _transactionDao.watchTransactionsByCategory(categoryId)
         .map((list) => list.map(_mapToEntity).toList());
   }
 
   @override
   Stream<List<TransactionEntity>> watchTransactionsByDateRange(
-      DateTime startDate, DateTime endDate) {
-    return _database.transactionDao
-        .watchTransactionsByDateRange(startDate, endDate)
+    DateTime startDate,
+    DateTime endDate,
+  ) {
+    return _transactionDao.watchTransactionsByDateRange(startDate, endDate)
         .map((list) => list.map(_mapToEntity).toList());
   }
 
   @override
   Future<TransactionEntity?> getTransactionById(int id) async {
-    final transaction = await _database.transactionDao.getTransactionById(id);
+    final transaction = await _transactionDao.getTransactionById(id);
     return transaction != null ? _mapToEntity(transaction) : null;
   }
 
   @override
-  Future<int> createTransaction(TransactionEntity transaction) async {
-    return await _database.transactionDao
-        .insertTransaction(_mapToCompanion(transaction));
+  Future<int> insertTransaction(TransactionEntity transaction) async {
+    return await _transactionDao.insertTransaction(_mapToCompanion(transaction));
   }
 
   @override
   Future<bool> updateTransaction(TransactionEntity transaction) async {
-    return await _database.transactionDao
-        .updateTransaction(_mapToCompanion(transaction));
+    return await _transactionDao.updateTransaction(_mapToCompanion(transaction));
   }
 
   @override
   Future<bool> deleteTransaction(int id) async {
-    return await _database.transactionDao.deleteTransaction(id);
+    return await _transactionDao.deleteTransaction(id);
   }
 
   @override
   Future<double> getAccountBalance(int accountId) async {
-    return await _database.transactionDao.getAccountBalance(accountId);
+    return await _transactionDao.getAccountBalance(accountId);
   }
 
   @override
@@ -121,7 +121,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
     String? reference,
     String? contact,
   }) async {
-    await _database.transactionDao.createTransfer(
+    await _transactionDao.createTransfer(
       fromAccountId: fromAccountId,
       toAccountId: toAccountId,
       amount: amount,

@@ -12,7 +12,7 @@ abstract class TransactionRepository {
 
   // Operaciones CRUD
   Future<TransactionEntity?> getTransactionById(int id);
-  Future<int> createTransaction(TransactionEntity transaction);
+  Future<int> insertTransaction(TransactionEntity transaction);
   Future<bool> updateTransaction(TransactionEntity transaction);
   Future<bool> deleteTransaction(int id);
 

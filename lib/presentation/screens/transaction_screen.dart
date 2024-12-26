@@ -1,7 +1,6 @@
 // lib/presentation/screens/transaction_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/di/injection_container.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../../domain/usecases/account_usecases.dart';

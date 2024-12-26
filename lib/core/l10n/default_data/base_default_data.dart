@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart';
 import 'package:moneyt_pfm/data/local/database.dart';
 
 abstract class BaseDefaultData {

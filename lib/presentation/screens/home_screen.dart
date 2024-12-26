@@ -46,7 +46,7 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(translations.appName),
+        title: Text(translations.home),
       ),
       drawer: AppDrawer(
         getCategories: getCategories,
