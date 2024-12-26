@@ -8,93 +8,93 @@ class SpanishDefaultData extends BaseDefaultData {
 
   @override
   List<CategoriesCompanion> getDefaultCategories() {
-    return [
-      // Categorías de Gastos
-      CategoriesCompanion.insert(
-        name: 'Alimentación',
-        type: 'E',
-        description: const Value('Gastos en comida, bebidas y restaurantes'),
-        status: const Value(true),
-      ),
-      CategoriesCompanion.insert(
-        name: 'Transporte',
-        type: 'E',
-        description: const Value('Gastos en transporte público, gasolina y mantenimiento de vehículos'),
-        status: const Value(true),
-      ),
-      CategoriesCompanion.insert(
-        name: 'Servicios',
-        type: 'E',
-        description: const Value('Pagos de servicios básicos como luz, agua, gas e internet'),
-        status: const Value(true),
-      ),
-      CategoriesCompanion.insert(
-        name: 'Vivienda',
-        type: 'E',
-        description: const Value('Gastos relacionados con el alquiler o hipoteca'),
-        status: const Value(true),
-      ),
-      CategoriesCompanion.insert(
-        name: 'Salud',
-        type: 'E',
-        description: const Value('Gastos médicos, medicamentos y seguros de salud'),
-        status: const Value(true),
-      ),
-      CategoriesCompanion.insert(
-        name: 'Educación',
-        type: 'E',
-        description: const Value('Gastos en estudios, libros y material educativo'),
-        status: const Value(true),
-      ),
-      CategoriesCompanion.insert(
-        name: 'Entretenimiento',
-        type: 'E',
-        description: const Value('Gastos en ocio, deportes y actividades recreativas'),
-        status: const Value(true),
-      ),
+    final List<CategoriesCompanion> categories = [];
+    int id = 1;
 
-      // Categorías de Ingresos
-      CategoriesCompanion.insert(
-        name: 'Salario',
-        type: 'I',
-        description: const Value('Ingresos por trabajo en relación de dependencia'),
-        status: const Value(true),
-      ),
-      CategoriesCompanion.insert(
-        name: 'Trabajo Independiente',
-        type: 'I',
-        description: const Value('Ingresos por trabajo freelance o servicios profesionales'),
-        status: const Value(true),
-      ),
-      CategoriesCompanion.insert(
-        name: 'Inversiones',
-        type: 'I',
-        description: const Value('Ingresos por rendimientos de inversiones'),
-        status: const Value(true),
-      ),
-      CategoriesCompanion.insert(
-        name: 'Otros Ingresos',
-        type: 'I',
-        description: const Value('Otros tipos de ingresos no categorizados'),
-        status: const Value(true),
-      ),
-    ];
+    // Función auxiliar para agregar categorías
+    void addCategory(String name, String type, {int? parentId, String? icon}) {
+      categories.add(
+        CategoriesCompanion.insert(
+          id: Value(id++),
+          name: name,
+          type: type,
+          parentId: Value(parentId),
+        ),
+      );
+    }
+
+    // GANANCIAS
+    // 1. Ingresos Activos
+    addCategory('Ingresos Activos', 'I', icon: 'work');
+    addCategory('Salario', 'I', parentId: 1, icon: 'payments');
+    addCategory('Trabajo extras', 'I', parentId: 1, icon: 'work_history');
+
+    // 2. Ingresos Pasivos
+    addCategory('Ingresos Pasivos', 'I', icon: 'account_balance');
+    addCategory('Intereses bancarios', 'I', parentId: 4, icon: 'savings');
+    addCategory('Alquileres', 'I', parentId: 4, icon: 'house');
+    addCategory('Dividendos', 'I', parentId: 4, icon: 'trending_up');
+
+    // 3. Otros Ingresos
+    addCategory('Otros Ingresos', 'I', icon: 'more_horiz');
+    addCategory('Juegos de Azar', 'I', parentId: 8, icon: 'casino');
+    addCategory('Herencias', 'I', parentId: 8, icon: 'real_estate_agent');
+
+    // GASTOS
+    // 1. Gastos Fijos
+    addCategory('Gastos Fijos', 'E', icon: 'calendar_today');
+    addCategory('Alquiler', 'E', parentId: 11, icon: 'house');
+    addCategory('Hipoteca', 'E', parentId: 11, icon: 'account_balance');
+    addCategory('Agua', 'E', parentId: 11, icon: 'water_drop');
+    addCategory('Luz', 'E', parentId: 11, icon: 'bolt');
+    addCategory('Internet', 'E', parentId: 11, icon: 'wifi');
+    addCategory('Telefonía', 'E', parentId: 11, icon: 'phone');
+    addCategory('Seguros', 'E', parentId: 11, icon: 'security');
+
+    // 2. Gastos Variables
+    addCategory('Gastos Variables', 'E', icon: 'moving');
+    addCategory('Restaurantes', 'E', parentId: 19, icon: 'restaurant');
+    addCategory('Transporte', 'E', parentId: 19, icon: 'directions_car');
+    addCategory('Ropa y calzado', 'E', parentId: 19, icon: 'checkroom');
+    addCategory('Entretenimiento', 'E', parentId: 19, icon: 'sports_esports');
+
+    // 3. Gastos de Salud
+    addCategory('Gastos de Salud', 'E', icon: 'medical_services');
+    addCategory('Medicamentos', 'E', parentId: 24, icon: 'medication');
+    addCategory('Consultas médicas', 'E', parentId: 24, icon: 'healing');
+
+    // 4. Educación
+    addCategory('Educación', 'E', icon: 'school');
+    addCategory('Cursos', 'E', parentId: 27, icon: 'menu_book');
+    addCategory('Universidad', 'E', parentId: 27, icon: 'account_balance');
+
+    // 5. Hogar
+    addCategory('Hogar', 'E', icon: 'home');
+    addCategory('Muebles y decoración', 'E', parentId: 30, icon: 'chair');
+    addCategory('Mantenimiento', 'E', parentId: 30, icon: 'build');
+
+    // 6. Otros Gastos
+    addCategory('Otros Gastos', 'E', icon: 'more_horiz');
+    addCategory('Donaciones', 'E', parentId: 33, icon: 'volunteer_activism');
+    addCategory('Regalos', 'E', parentId: 33, icon: 'card_giftcard');
+    addCategory('Imprevistos', 'E', parentId: 33, icon: 'warning');
+    addCategory('Viajes', 'E', parentId: 33, icon: 'flight');
+
+    return categories;
   }
 
   @override
   List<AccountsCompanion> getDefaultAccounts() {
     return [
       AccountsCompanion.insert(
+        id: const Value(1),
         name: 'Efectivo',
         description: const Value('Dinero en efectivo'),
       ),
       AccountsCompanion.insert(
+        id: const Value(2),
         name: 'Cuenta Bancaria',
         description: const Value('Cuenta bancaria principal'),
-      ),
-      AccountsCompanion.insert(
-        name: 'Ahorros',
-        description: const Value('Cuenta de ahorros'),
       ),
     ];
   }

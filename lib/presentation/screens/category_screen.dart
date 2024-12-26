@@ -71,12 +71,12 @@ class CategoryScreen extends StatelessWidget {
           bottom: TabBar(
             tabs: [
               Tab(
-                text: translations.expense,
-                icon: const Icon(Icons.arrow_downward),
-              ),
-              Tab(
                 text: translations.income,
                 icon: const Icon(Icons.arrow_upward)
+              ),
+              Tab(
+                text: translations.expense,
+                icon: const Icon(Icons.arrow_downward),
               ),
             ],
           ),
@@ -94,26 +94,6 @@ class CategoryScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            // Tab de categorías de gastos
-            StreamBuilder<List<CategoryEntity>>(
-              stream: getCategories(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text('${translations.getText('error')}: ${snapshot.error}'));
-                }
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final expenseCategories = snapshot.data!
-                    .where((category) => category.type == 'E')
-                    .toList();
-                return ExpandableCategoryList(
-                  categories: expenseCategories,
-                  onDelete: (category) => deleteCategory(category.id),
-                  onUpdate: (category) => _navigateToForm(context, category: category),
-                );
-              },
-            ),
             // Tab de categorías de ingresos
             StreamBuilder<List<CategoryEntity>>(
               stream: getCategories(),
@@ -129,6 +109,26 @@ class CategoryScreen extends StatelessWidget {
                     .toList();
                 return ExpandableCategoryList(
                   categories: incomeCategories,
+                  onDelete: (category) => deleteCategory(category.id),
+                  onUpdate: (category) => _navigateToForm(context, category: category),
+                );
+              },
+            ),
+            // Tab de categorías de gastos
+            StreamBuilder<List<CategoryEntity>>(
+              stream: getCategories(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('${translations.getText('error')}: ${snapshot.error}'));
+                }
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final expenseCategories = snapshot.data!
+                    .where((category) => category.type == 'E')
+                    .toList();
+                return ExpandableCategoryList(
+                  categories: expenseCategories,
                   onDelete: (category) => deleteCategory(category.id),
                   onUpdate: (category) => _navigateToForm(context, category: category),
                 );

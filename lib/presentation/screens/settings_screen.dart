@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../../core/l10n/language_manager.dart';
 import '../widgets/language_selector.dart';
+import '../widgets/social_links.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -46,6 +47,9 @@ class SettingsScreen extends StatelessWidget {
           ),
           const LanguageSelector(showTitle: false),
           const Divider(),
+
+          // Enlaces sociales
+          const SocialLinks(),
         ],
       ),
     );

@@ -42,23 +42,23 @@ class AppDrawer extends StatelessWidget {
     return Drawer(
       child: Column(
         children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-            ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            height: 170, // Altura similar al DrawerHeader
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.account_balance_wallet,
                   size: 64,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.primary, // Usar colorScheme para mejor soporte de temas
                 ),
                 const SizedBox(height: 16),
                 Text(
                   translations.appName,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface, // Usar el color de texto apropiado para el tema actual
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
@@ -75,7 +75,6 @@ class AppDrawer extends StatelessWidget {
                     Navigator.pushReplacementNamed(context, AppRoutes.home);
                   },
                 ),
-                const Divider(),
                 ListTile(
                   leading: const Icon(Icons.receipt_long),
                   title: Text(translations.transactions),
@@ -83,7 +82,6 @@ class AppDrawer extends StatelessWidget {
                     Navigator.pushReplacementNamed(context, AppRoutes.transactions);
                   },
                 ),
-                const Divider(),
                 ListTile(
                   leading: const Icon(Icons.account_balance),
                   title: Text(translations.accounts),
@@ -116,7 +114,6 @@ class AppDrawer extends StatelessWidget {
                     );
                   },
                 ),
-                const Divider(),
                 ListTile(
                   leading: const Icon(Icons.settings),
                   title: Text(translations.settings),
@@ -127,7 +124,6 @@ class AppDrawer extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
