@@ -134,6 +134,16 @@ By using this app, you agree to our Terms of Service and Privacy Policy.
   @override
   String get to => 'To';
 
+  // Balance and Statistics
+  @override
+  String get totalBalance => 'Total Balance';
+  @override
+  String get monthlyStats => 'Monthly Statistics';
+  @override
+  String get expenses => 'Expenses';
+  @override
+  String get monthlyBalance => 'Monthly Balance';
+
   // Validation messages
   @override
   String get fieldRequired => 'This field is required';

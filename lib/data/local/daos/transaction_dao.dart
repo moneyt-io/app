@@ -117,6 +117,39 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
     return balance;
   }
 
+  // Observar el balance de una cuenta
+  Stream<double> watchAccountBalance(int accountId) {
+    final query = select(transactions)
+      ..where((t) => t.accountId.equals(accountId) & t.status.equals(true));
+
+    return query.watch().map((transactions) {
+      double balance = 0;
+      for (final transaction in transactions) {
+        if (transaction.flow == FLOW_TYPE_INFLOW) {
+          balance += transaction.amount;
+        } else if (transaction.flow == FLOW_TYPE_OUTFLOW) {
+          balance -= transaction.amount;
+        }
+      }
+      return balance;
+    });
+  }
+
+  // Obtener el balance de todas las cuentas en una sola consulta
+  Stream<Map<int, double>> watchAllAccountBalances() {
+    return (select(transactions)..where((t) => t.status.equals(true)))
+        .watch()
+        .map((transactions) {
+      final balances = <int, double>{};
+      for (final transaction in transactions) {
+        final currentBalance = balances[transaction.accountId] ?? 0.0;
+        balances[transaction.accountId] = currentBalance + 
+            (transaction.flow == FLOW_TYPE_INFLOW ? transaction.amount : -transaction.amount);
+      }
+      return balances;
+    });
+  }
+
   // Crear una transferencia entre cuentas
   Future<void> createTransfer({
     required int fromAccountId,

@@ -8,6 +8,7 @@ import '../../domain/usecases/transaction_usecases.dart';
 import '../../routes/app_routes.dart';
 import '../widgets/app_drawer.dart';
 import '../../core/l10n/language_manager.dart';
+import 'package:intl/intl.dart'; // Import the intl package
 
 class AccountFormArgs {
   final AccountEntity? account;
@@ -77,87 +78,136 @@ class AccountScreen extends StatelessWidget {
         deleteAccount: deleteAccount,
         transactionUseCases: transactionUseCases,
       ),
-      body: StreamBuilder<List<AccountEntity>>(
-        stream: getAccounts(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('${translations.error}: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: StreamBuilder<Map<int, double>>(
+        stream: transactionUseCases.watchAllAccountBalances(),
+        builder: (context, balancesSnapshot) {
+          final balances = balancesSnapshot.data ?? {};
 
-          final accounts = snapshot.data!;
+          return StreamBuilder<List<AccountEntity>>(
+            stream: getAccounts(),
+            builder: (context, accountsSnapshot) {
+              if (!accountsSnapshot.hasData || !balancesSnapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          if (accounts.isEmpty) {
-            return Center(child: Text(translations.noAccounts));
-          }
+              if (accountsSnapshot.hasError) {
+                return Center(child: Text('${translations.error}: ${accountsSnapshot.error}'));
+              }
 
-          return ListView.builder(
-            itemCount: accounts.length,
-            itemBuilder: (context, index) {
-              final account = accounts[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: ListTile(
-                  title: Text(account.name),
-                  subtitle: Text(account.description ?? translations.noDescription),
-                  trailing: PopupMenuButton<String>(
-                    onSelected: (value) async {
-                      switch (value) {
-                        case 'edit':
-                          _navigateToForm(context, account: account);
-                          break;
-                        case 'delete':
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text(translations.deleteAccount),
-                              content: Text(translations.deleteAccountConfirmation),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
-                                  child: Text(translations.cancel),
+              final accounts = accountsSnapshot.data!;
+
+              if (accounts.isEmpty) {
+                return Center(child: Text(translations.noAccounts));
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(8.0),
+                itemCount: accounts.length,
+                itemBuilder: (context, index) {
+                  final account = accounts[index];
+                  final balance = balances[account.id] ?? 0.0;
+                  final isPositive = balance >= 0;
+
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.account_balance_wallet,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 32,
+                      ),
+                      title: Text(
+                        account.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (account.description?.isNotEmpty ?? false)
+                            Text(
+                              account.description!,
+                              style: TextStyle(
+                                color: Theme.of(context).textTheme.bodySmall?.color,
+                              ),
+                            ),
+                          const SizedBox(height: 4),
+                          Text(
+                            NumberFormat.currency(
+                              symbol: '\$',
+                              decimalDigits: 2,
+                            ).format(balance),
+                            style: TextStyle(
+                              color: isPositive ? Colors.green : Colors.red,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                      trailing: PopupMenuButton<String>(
+                        icon: const Icon(Icons.more_vert),
+                        onSelected: (value) {
+                          switch (value) {
+                            case 'edit':
+                              _navigateToForm(context, account: account);
+                              break;
+                            case 'delete':
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: Text(translations.getText('deleteAccount')),
+                                  content: Text(translations.getText('deleteAccountConfirmation')),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(ctx).pop(),
+                                      child: Text(translations.getText('cancel')),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        deleteAccount(account.id);
+                                        Navigator.of(ctx).pop();
+                                      },
+                                      child: Text(translations.getText('delete')),
+                                    ),
+                                  ],
                                 ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: Text(translations.delete),
+                              );
+                              break;
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.edit),
+                                const SizedBox(width: 8),
+                                Text(translations.getText('edit')),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.delete, color: Colors.red),
+                                const SizedBox(width: 8),
+                                Text(
+                                  translations.getText('delete'),
+                                  style: const TextStyle(color: Colors.red),
                                 ),
                               ],
                             ),
-                          );
-                          
-                          if (confirm == true) {
-                            await deleteAccount(account.id);
-                          }
-                          break;
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'edit',
-                        child: Row(
-                          children: [
-                            const Icon(Icons.edit),
-                            const SizedBox(width: 8),
-                            Text(translations.edit),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Row(
-                          children: [
-                            const Icon(Icons.delete),
-                            const SizedBox(width: 8),
-                            Text(translations.delete),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  onTap: () => _navigateToForm(context, account: account),
-                ),
+                      onTap: () => _navigateToForm(context, account: account),
+                    ),
+                  );
+                },
               );
             },
           );

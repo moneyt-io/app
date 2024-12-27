@@ -94,6 +94,12 @@ abstract class BaseTranslations {
   String get darkTheme;
   String get darkThemeDescription;
 
+  // Balance y Estadísticas
+  String get totalBalance => throw UnimplementedError();
+  String get monthlyStats => throw UnimplementedError();
+  String get expenses => throw UnimplementedError();
+  String get monthlyBalance => throw UnimplementedError();
+
   // Method to get text by key dynamically
   String getText(String key);
 
@@ -176,6 +182,11 @@ abstract class BaseTranslations {
       selectAccount;
       darkTheme;
       darkThemeDescription;
+      totalBalance;
+      monthlyStats;
+      income;
+      expenses;
+      monthlyBalance;
       return true;
     } catch (e) {
       return false;

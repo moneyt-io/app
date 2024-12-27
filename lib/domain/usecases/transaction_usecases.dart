@@ -53,6 +53,16 @@ class TransactionUseCases {
     return repository.getAccountBalance(accountId);
   }
 
+  // Observar el balance de una cuenta
+  Stream<double> watchAccountBalance(int accountId) {
+    return repository.watchAccountBalance(accountId);
+  }
+
+  // Observar todos los balances
+  Stream<Map<int, double>> watchAllAccountBalances() {
+    return repository.watchAllAccountBalances();
+  }
+
   // Observar transacciones por tipo
   Stream<List<TransactionEntity>> watchTransactionsByType(String type) {
     return repository.watchTransactionsByType(type);

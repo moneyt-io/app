@@ -49,7 +49,7 @@ class SocialLinks extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.email),
           title: const Text('Email'),
-          subtitle: const Text('hello@moneyt.com'),
+          subtitle: const Text('admin@moneyt.com'),
           onTap: () => _launchUrl('mailto:admin@moneyt.io'),
         ),
       ],

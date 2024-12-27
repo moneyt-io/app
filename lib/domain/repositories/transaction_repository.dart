@@ -6,6 +6,7 @@ abstract class TransactionRepository {
   Stream<List<TransactionEntity>> watchAllTransactions();
   Stream<List<TransactionEntity>> watchTransactionsByType(String type);
   Stream<List<TransactionEntity>> watchTransactionsByFlow(String flow);
+  Stream<List<TransactionEntity>> watchTransactionsByTypeAndFlow(String type, String flow);
   Stream<List<TransactionEntity>> watchTransactionsByAccount(int accountId);
   Stream<List<TransactionEntity>> watchTransactionsByCategory(int categoryId);
   Stream<List<TransactionEntity>> watchTransactionsByDateRange(DateTime startDate, DateTime endDate);
@@ -18,6 +19,8 @@ abstract class TransactionRepository {
 
   // Operaciones específicas
   Future<double> getAccountBalance(int accountId);
+  Stream<double> watchAccountBalance(int accountId);
+  Stream<Map<int, double>> watchAllAccountBalances();
   Future<void> createTransfer({
     required int fromAccountId,
     required int toAccountId,

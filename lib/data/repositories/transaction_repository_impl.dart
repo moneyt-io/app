@@ -112,6 +112,22 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
+  Stream<Map<int, double>> watchAllAccountBalances() {
+    return _transactionDao.watchAllAccountBalances();
+  }
+
+  @override
+  Stream<double> watchAccountBalance(int accountId) {
+    return _transactionDao.watchAccountBalance(accountId);
+  }
+
+  @override
+  Stream<List<TransactionEntity>> watchTransactionsByTypeAndFlow(String type, String flow) {
+    return _transactionDao.watchTransactionsByTypeAndFlow(type, flow)
+        .map((transactions) => transactions.map(_mapToEntity).toList());
+  }
+
+  @override
   Future<void> createTransfer({
     required int fromAccountId,
     required int toAccountId,

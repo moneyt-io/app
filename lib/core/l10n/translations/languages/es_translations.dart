@@ -134,6 +134,16 @@ Al usar esta aplicación, aceptas nuestros Términos de Servicio y Política de 
   @override
   String get to => 'Hacia';
 
+  // Balance y Estadísticas
+  @override
+  String get totalBalance => 'Balance Total';
+  @override
+  String get monthlyStats => 'Estadísticas del Mes';
+  @override
+  String get expenses => 'Gastos';
+  @override
+  String get monthlyBalance => 'Balance Mensual';
+
   // Validation messages
   @override
   String get fieldRequired => 'Este campo es requerido';
@@ -180,6 +190,11 @@ Al usar esta aplicación, aceptas nuestros Términos de Servicio y Política de 
     'termsText': 'Al usar esta aplicación, aceptas nuestros Términos de Servicio y Política de Privacidad...',
     'welcomeTitle': 'Bienvenido a MoneyT',
     'readTerms': 'Leer Términos y Condiciones',
+    'totalBalance': 'Balance Total',
+    'monthlyStats': 'Estadísticas del Mes',
+    'income': 'Ingresos',
+    'expenses': 'Gastos',
+    'monthlyBalance': 'Balance Mensual',
   };
 
   @override
