@@ -11,8 +11,9 @@ import '../widgets/home_balance_widget.dart';
 import '../widgets/home_monthly_stats_widget.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../routes/app_routes.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   // Categorías
   final GetCategories getCategories;
   final CreateCategory createCategory;
@@ -42,6 +43,21 @@ class HomeScreen extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final _expandableFabKey = GlobalKey<ExpandableFabState>();
+
+  void _navigateToTransactionForm(BuildContext context, {required String type}) async {
+    await Navigator.pushNamed(context, AppRoutes.transactionForm, arguments: type);
+    // Cuando regrese de la navegación, cerrar el FAB si está abierto
+    if (_expandableFabKey.currentState?.isOpen ?? false) {
+      _expandableFabKey.currentState?.toggle();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final translations = context.watch<LanguageManager>().translations;
 
@@ -50,15 +66,15 @@ class HomeScreen extends StatelessWidget {
         title: Text(translations.home),
       ),
       drawer: AppDrawer(
-        getCategories: getCategories,
-        createCategory: createCategory,
-        updateCategory: updateCategory,
-        deleteCategory: deleteCategory,
-        getAccounts: getAccounts,
-        createAccount: createAccount,
-        updateAccount: updateAccount,
-        deleteAccount: deleteAccount,
-        transactionUseCases: transactionUseCases,
+        getCategories: widget.getCategories,
+        createCategory: widget.createCategory,
+        updateCategory: widget.updateCategory,
+        deleteCategory: widget.deleteCategory,
+        getAccounts: widget.getAccounts,
+        createAccount: widget.createAccount,
+        updateAccount: widget.updateAccount,
+        deleteAccount: widget.deleteAccount,
+        transactionUseCases: widget.transactionUseCases,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -66,33 +82,73 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             children: [
               HomeBalanceWidget(
-                transactionUseCases: transactionUseCases,
+                transactionUseCases: widget.transactionUseCases,
               ),
               const SizedBox(height: 8),
               HomeMonthlyStatsWidget(
-                transactionUseCases: transactionUseCases,
+                transactionUseCases: widget.transactionUseCases,
               ),
               const SizedBox(height: 8),
               HomeAccountsWidget(
-                getAccounts: getAccounts,
-                createAccount: createAccount,
-                updateAccount: updateAccount,
-                deleteAccount: deleteAccount,
-                transactionUseCases: transactionUseCases,
+                getAccounts: widget.getAccounts,
+                createAccount: widget.createAccount,
+                updateAccount: widget.updateAccount,
+                deleteAccount: widget.deleteAccount,
+                transactionUseCases: widget.transactionUseCases,
               ),
               const SizedBox(height: 8),
               HomeTransactionsWidget(
-                transactionUseCases: transactionUseCases,
+                transactionUseCases: widget.transactionUseCases,
               ),
             ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, AppRoutes.transactionForm);
-        },
-        child: const Icon(Icons.add),
+      floatingActionButtonLocation: ExpandableFab.location,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 80.0),
+        child: ExpandableFab(
+          key: _expandableFabKey,
+          openButtonBuilder: RotateFloatingActionButtonBuilder(
+            child: const Icon(Icons.add),
+            fabSize: ExpandableFabSize.regular,
+            foregroundColor: Colors.white,
+            backgroundColor: Theme.of(context).primaryColor,
+          ),
+          closeButtonBuilder: DefaultFloatingActionButtonBuilder(
+            child: const Icon(Icons.close),
+            fabSize: ExpandableFabSize.regular,
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.red,
+          ),
+          overlayStyle: ExpandableFabOverlayStyle(
+            // Aumentamos la opacidad para un mejor efecto de difuminado
+            color: Colors.black.withOpacity(0.7),
+            blur: 3,
+          ),
+          children: [
+            FloatingActionButton.small(
+              heroTag: 'expense',
+              onPressed: () => _navigateToTransactionForm(context, type: 'E'),
+              backgroundColor: Colors.red,
+              child: const Icon(Icons.arrow_downward),
+            ),
+            FloatingActionButton.small(
+              heroTag: 'income',
+              onPressed: () => _navigateToTransactionForm(context, type: 'I'),
+              backgroundColor: Colors.green,
+              child: const Icon(Icons.arrow_upward),
+            ),
+            FloatingActionButton.small(
+              heroTag: 'transfer',
+              onPressed: () => _navigateToTransactionForm(context, type: 'T'),
+              backgroundColor: Colors.blue,
+              child: const Icon(Icons.swap_horiz),
+            ),
+          ],
+          type: ExpandableFabType.up,
+          distance: 70,
+        ),
       ),
     );
   }

@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import '../presentation/screens/home_screen.dart';
 import '../presentation/screens/category_screen.dart';
 import '../presentation/screens/account_screen.dart';
-import '../presentation/screens/transaction_screen.dart';
+import '../presentation/screens/transactions_screen.dart';
 import '../presentation/screens/settings_screen.dart';
 import '../presentation/screens/transaction_form.dart';
 import '../presentation/screens/category_form.dart';
@@ -105,13 +105,13 @@ class AppRoutes {
 
       case AppRoutes.transactions:
         return MaterialPageRoute(
-          builder: (context) => TransactionScreen(
+          builder: (context) => TransactionsScreen(
             transactionUseCases: getIt<TransactionUseCases>(),
             getCategories: getIt<GetCategories>(),
-            getAccounts: getIt<GetAccounts>(),
             createCategory: getIt<CreateCategory>(),
             updateCategory: getIt<UpdateCategory>(),
             deleteCategory: getIt<DeleteCategory>(),
+            getAccounts: getIt<GetAccounts>(),
             createAccount: getIt<CreateAccount>(),
             updateAccount: getIt<UpdateAccount>(),
             deleteAccount: getIt<DeleteAccount>(),
@@ -119,13 +119,30 @@ class AppRoutes {
         );
 
       case AppRoutes.transactionForm:
-        final TransactionEntity? transaction = settings.arguments as TransactionEntity?;
+        String type;
+        TransactionEntity? transaction;
+        
+        if (settings.arguments != null) {
+          if (settings.arguments is String) {
+            type = settings.arguments as String;
+          } else if (settings.arguments is Map) {
+            final args = settings.arguments as Map;
+            type = args['type'] as String;
+            transaction = args['transaction'] as TransactionEntity?;
+          } else {
+            type = 'E'; // Default to expense
+          }
+        } else {
+          type = 'E'; // Default to expense
+        }
+
         return MaterialPageRoute(
           builder: (context) => TransactionForm(
+            type: type,
             transaction: transaction,
             transactionUseCases: getIt<TransactionUseCases>(),
-            getCategories: getIt<GetCategories>(),
             getAccounts: getIt<GetAccounts>(),
+            getCategories: getIt<GetCategories>(),
           ),
         );
 

@@ -11,6 +11,7 @@ import '../../domain/usecases/category_usecases.dart';
 
 class TransactionForm extends StatefulWidget {
   final TransactionEntity? transaction;
+  final String type;
   final TransactionUseCases transactionUseCases;
   final GetAccounts getAccounts;
   final GetCategories getCategories;
@@ -18,6 +19,7 @@ class TransactionForm extends StatefulWidget {
   const TransactionForm({
     Key? key,
     this.transaction,
+    required this.type,
     required this.transactionUseCases,
     required this.getAccounts,
     required this.getCategories,
@@ -35,10 +37,10 @@ class _TransactionFormState extends State<TransactionForm> {
   final _contactController = TextEditingController();
 
   late DateTime _selectedDate;
-  String _selectedType = 'E'; // Por defecto es gasto
-  String _flow = 'O'; // Por defecto es salida
+  late String _selectedType;
+  late String _flow;
   AccountEntity? _selectedAccount;
-  AccountEntity? _selectedToAccount; // Solo para transferencias
+  AccountEntity? _selectedToAccount;
   CategoryEntity? _selectedCategory;
 
   bool get isTransfer => _selectedType == 'T';
@@ -48,6 +50,8 @@ class _TransactionFormState extends State<TransactionForm> {
   @override
   void initState() {
     super.initState();
+    _selectedType = widget.transaction?.type ?? widget.type;
+    _flow = _selectedType == 'I' ? 'I' : 'O';
     _initializeForm();
   }
 
@@ -58,8 +62,6 @@ class _TransactionFormState extends State<TransactionForm> {
       _referenceController.text = widget.transaction!.reference ?? '';
       _contactController.text = widget.transaction!.contact ?? '';
       _selectedDate = widget.transaction!.transactionDate;
-      _selectedType = widget.transaction!.type;
-      _flow = widget.transaction!.flow;
     } else {
       _selectedDate = DateTime.now();
     }
@@ -74,7 +76,6 @@ class _TransactionFormState extends State<TransactionForm> {
     super.dispose();
   }
 
-  // Función auxiliar para encontrar la categoría padre
   CategoryEntity findParentCategory(List<CategoryEntity> categories, CategoryEntity childCategory) {
     try {
       return categories.firstWhere((c) => c.id == childCategory.parentId);
@@ -91,7 +92,6 @@ class _TransactionFormState extends State<TransactionForm> {
     }
   }
 
-  // Widget para seleccionar la categoría
   Widget _buildCategorySelector() {
     if (isTransfer) return const SizedBox.shrink();
 
@@ -140,7 +140,6 @@ class _TransactionFormState extends State<TransactionForm> {
     );
   }
 
-  // Widget para seleccionar la cuenta
   Widget _buildAccountSelector() {
     return StreamBuilder<List<AccountEntity>>(
       stream: widget.getAccounts(),
@@ -166,6 +165,10 @@ class _TransactionFormState extends State<TransactionForm> {
           onChanged: (AccountEntity? value) {
             setState(() {
               _selectedAccount = value;
+              // Limpiar la cuenta destino si es la misma que la cuenta origen
+              if (isTransfer && _selectedToAccount == value) {
+                _selectedToAccount = null;
+              }
             });
           },
           validator: (value) {
@@ -179,7 +182,6 @@ class _TransactionFormState extends State<TransactionForm> {
     );
   }
 
-  // Widget para seleccionar la cuenta destino (solo para transferencias)
   Widget _buildToAccountSelector() {
     if (!isTransfer) return const SizedBox.shrink();
 
@@ -299,61 +301,34 @@ class _TransactionFormState extends State<TransactionForm> {
 
   @override
   Widget build(BuildContext context) {
+    String title;
+    switch (_selectedType) {
+      case 'E':
+        title = 'Nuevo Gasto';
+        break;
+      case 'I':
+        title = 'Nuevo Ingreso';
+        break;
+      case 'T':
+        title = 'Nueva Transferencia';
+        break;
+      default:
+        title = 'Nueva Transacción';
+    }
+
+    if (widget.transaction != null) {
+      title = 'Editar ${title.substring(6)}';
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.transaction == null ? 'Nueva Transacción' : 'Editar Transacción'),
+        title: Text(title),
       ),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            // Tipo de Transacción
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Tipo de Transacción',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    SegmentedButton<String>(
-                      segments: const [
-                        ButtonSegment(
-                          value: 'E',
-                          icon: Icon(Icons.arrow_downward),
-                          label: Text('Gasto'),
-                        ),
-                        ButtonSegment(
-                          value: 'I',
-                          icon: Icon(Icons.arrow_upward),
-                          label: Text('Ingreso'),
-                        ),
-                        ButtonSegment(
-                          value: 'T',
-                          icon: Icon(Icons.swap_horiz),
-                          label: Text('Transferencia'),
-                        ),
-                      ],
-                      selected: {_selectedType},
-                      onSelectionChanged: (Set<String> newSelection) {
-                        setState(() {
-                          _selectedType = newSelection.first;
-                          _flow = _selectedType == 'I' ? 'I' : 'O';
-                          // Limpiar la categoría cuando cambia el tipo
-                          _selectedCategory = null;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
             // Monto
             TextFormField(
               controller: _amountController,
@@ -362,7 +337,7 @@ class _TransactionFormState extends State<TransactionForm> {
                 prefixIcon: Icon(Icons.attach_money),
                 border: OutlineInputBorder(),
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: TextInputType.number,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
               ],
@@ -372,9 +347,6 @@ class _TransactionFormState extends State<TransactionForm> {
                 }
                 if (double.tryParse(value) == null) {
                   return 'Por favor ingrese un monto válido';
-                }
-                if (double.parse(value) <= 0) {
-                  return 'El monto debe ser mayor a 0';
                 }
                 return null;
               },
@@ -399,18 +371,16 @@ class _TransactionFormState extends State<TransactionForm> {
 
             // Cuenta origen
             _buildAccountSelector(),
-            
+            const SizedBox(height: 16),
+
             // Cuenta destino (solo para transferencias)
             _buildToAccountSelector(),
-            
-            // Categoría (excepto para transferencias)
-            if (!isTransfer) ...[
-              const SizedBox(height: 16),
-              _buildCategorySelector(),
-            ],
+            if (isTransfer) const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
-            
+            // Categoría (no para transferencias)
+            _buildCategorySelector(),
+            if (!isTransfer) const SizedBox(height: 16),
+
             // Descripción
             TextFormField(
               controller: _descriptionController,
@@ -421,7 +391,6 @@ class _TransactionFormState extends State<TransactionForm> {
               ),
               maxLines: 2,
             ),
-
             const SizedBox(height: 16),
 
             // Referencia
@@ -429,11 +398,10 @@ class _TransactionFormState extends State<TransactionForm> {
               controller: _referenceController,
               decoration: const InputDecoration(
                 labelText: 'Referencia',
-                prefixIcon: Icon(Icons.receipt),
+                prefixIcon: Icon(Icons.numbers),
                 border: OutlineInputBorder(),
               ),
             ),
-
             const SizedBox(height: 16),
 
             // Contacto
@@ -445,14 +413,14 @@ class _TransactionFormState extends State<TransactionForm> {
                 border: OutlineInputBorder(),
               ),
             ),
+            const SizedBox(height: 16),
+
+            // Botón guardar
+            ElevatedButton(
+              onPressed: _onSave,
+              child: const Text('Guardar'),
+            ),
           ],
-        ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ElevatedButton(
-          onPressed: _onSave,
-          child: Text(widget.transaction == null ? 'Crear Transacción' : 'Actualizar Transacción'),
         ),
       ),
     );
