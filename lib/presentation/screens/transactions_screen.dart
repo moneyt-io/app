@@ -10,6 +10,7 @@ import '../../routes/app_routes.dart';
 import '../../core/l10n/language_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../widgets/expandable_fab_widget.dart';
 
 enum DateRange {
   today,
@@ -223,53 +224,60 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             child: Row(
               children: [
                 // Filtro de tipo
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: _selectedType,
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      border: OutlineInputBorder(),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: 'all', child: Text('Todos')),
-                      DropdownMenuItem(value: 'E', child: Text('Gastos')),
-                      DropdownMenuItem(value: 'I', child: Text('Ingresos')),
-                      DropdownMenuItem(value: 'T', child: Text('Transferencias')),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.35,
+                  child: PopupMenuButton<String>(
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'all',
+                        child: Text(translations.all),
+                      ),
+                      PopupMenuItem(
+                        value: 'I',
+                        child: Text(translations.income),
+                      ),
+                      PopupMenuItem(
+                        value: 'E',
+                        child: Text(translations.expense),
+                      ),
+                      PopupMenuItem(
+                        value: 'T',
+                        child: Text(translations.transfer),
+                      ),
                     ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          _selectedType = value;
-                        });
-                      }
+                    onSelected: (value) {
+                      setState(() {
+                        _selectedType = value;
+                      });
                     },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _selectedType == 'all'
+                                ? translations.all
+                                : _selectedType == 'I'
+                                    ? translations.income
+                                    : _selectedType == 'E'
+                                        ? translations.expense
+                                        : translations.transfer,
+                          ),
+                          const Icon(Icons.arrow_drop_down),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 // Filtro de fecha
                 Expanded(
                   child: PopupMenuButton<DateRange>(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              _dateRangeText,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const Icon(Icons.arrow_drop_down),
-                        ],
-                      ),
-                    ),
                     itemBuilder: (context) => DateRange.values
                         .map((range) => PopupMenuItem(
                               value: range,
@@ -277,6 +285,25 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                             ))
                         .toList(),
                     onSelected: _setDateRange,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _dateRangeText,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const Icon(Icons.arrow_drop_down),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -430,49 +457,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         ],
       ),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 80.0),
-        child: ExpandableFab(
-          key: _expandableFabKey,
-          openButtonBuilder: RotateFloatingActionButtonBuilder(
-            child: const Icon(Icons.add),
-            fabSize: ExpandableFabSize.regular,
-            foregroundColor: Colors.white,
-            backgroundColor: Theme.of(context).primaryColor,
-          ),
-          closeButtonBuilder: DefaultFloatingActionButtonBuilder(
-            child: const Icon(Icons.close),
-            fabSize: ExpandableFabSize.regular,
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.red,
-          ),
-          overlayStyle: ExpandableFabOverlayStyle(
-            color: Colors.black.withOpacity(0.7),
-            blur: 3,
-          ),
-          children: [
-            FloatingActionButton.small(
-              heroTag: 'expense_trans',
-              onPressed: () => _navigateToTransactionForm(context, type: 'E'),
-              backgroundColor: Colors.red,
-              child: const Icon(Icons.arrow_downward),
-            ),
-            FloatingActionButton.small(
-              heroTag: 'income_trans',
-              onPressed: () => _navigateToTransactionForm(context, type: 'I'),
-              backgroundColor: Colors.green,
-              child: const Icon(Icons.arrow_upward),
-            ),
-            FloatingActionButton.small(
-              heroTag: 'transfer_trans',
-              onPressed: () => _navigateToTransactionForm(context, type: 'T'),
-              backgroundColor: Colors.blue,
-              child: const Icon(Icons.swap_horiz),
-            ),
-          ],
-          type: ExpandableFabType.up,
-          distance: 70,
-        ),
+      floatingActionButton: ExpandableFabWidget(
+        fabKey: _expandableFabKey,
+        onTransactionPressed: _navigateToTransactionForm,
       ),
     );
   }

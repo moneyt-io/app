@@ -353,6 +353,18 @@ class _TransactionFormState extends State<TransactionForm> {
             ),
             const SizedBox(height: 16),
 
+            // Categoría (no para transferencias)
+            _buildCategorySelector(),
+            if (!isTransfer) const SizedBox(height: 16),
+
+            // Cuenta origen
+            _buildAccountSelector(),
+            const SizedBox(height: 16),
+
+            // Cuenta destino (solo para transferencias)
+            _buildToAccountSelector(),
+            if (isTransfer) const SizedBox(height: 16),
+
             // Fecha
             InkWell(
               onTap: () => _selectDate(context),
@@ -369,17 +381,16 @@ class _TransactionFormState extends State<TransactionForm> {
             ),
             const SizedBox(height: 16),
 
-            // Cuenta origen
-            _buildAccountSelector(),
+            // Contacto
+            TextFormField(
+              controller: _contactController,
+              decoration: const InputDecoration(
+                labelText: 'Contacto',
+                prefixIcon: Icon(Icons.person),
+                border: OutlineInputBorder(),
+              ),
+            ),
             const SizedBox(height: 16),
-
-            // Cuenta destino (solo para transferencias)
-            _buildToAccountSelector(),
-            if (isTransfer) const SizedBox(height: 16),
-
-            // Categoría (no para transferencias)
-            _buildCategorySelector(),
-            if (!isTransfer) const SizedBox(height: 16),
 
             // Descripción
             TextFormField(
@@ -399,17 +410,6 @@ class _TransactionFormState extends State<TransactionForm> {
               decoration: const InputDecoration(
                 labelText: 'Referencia',
                 prefixIcon: Icon(Icons.numbers),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Contacto
-            TextFormField(
-              controller: _contactController,
-              decoration: const InputDecoration(
-                labelText: 'Contacto',
-                prefixIcon: Icon(Icons.person),
                 border: OutlineInputBorder(),
               ),
             ),

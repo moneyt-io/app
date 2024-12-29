@@ -6,6 +6,7 @@ import '../../domain/usecases/category_usecases.dart';
 import '../../domain/usecases/account_usecases.dart';
 import '../../routes/app_routes.dart';
 import '../../core/l10n/language_manager.dart';
+import '../../core/navigation/navigation_service.dart';
 
 class AppDrawer extends StatelessWidget {
   // Categorías
@@ -71,55 +72,36 @@ class AppDrawer extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.dashboard),
                   title: Text(translations.home),
-                  onTap: () {
-                    Navigator.pushReplacementNamed(context, AppRoutes.home);
-                  },
+                  onTap: () => NavigationService.navigateToScreen(context, AppRoutes.home),
                 ),
                 ListTile(
                   leading: const Icon(Icons.receipt_long),
                   title: Text(translations.transactions),
-                  onTap: () {
-                    Navigator.pushReplacementNamed(context, AppRoutes.transactions);
-                  },
+                  onTap: () => NavigationService.navigateToScreen(context, AppRoutes.transactions),
                 ),
                 ListTile(
                   leading: const Icon(Icons.account_balance),
                   title: Text(translations.accounts),
-                  onTap: () {
-                    Navigator.pushReplacementNamed(
-                      context,
-                      AppRoutes.accounts,
-                      arguments: {
-                        'getAccounts': getAccounts,
-                        'createAccount': createAccount,
-                        'updateAccount': updateAccount,
-                        'deleteAccount': deleteAccount,
-                      },
-                    );
-                  },
+                  onTap: () => NavigationService.navigateToScreen(
+                    context,
+                    AppRoutes.accounts,
+                    arguments: {
+                      'getAccounts': getAccounts,
+                      'createAccount': createAccount,
+                      'updateAccount': updateAccount,
+                      'deleteAccount': deleteAccount,
+                    },
+                  ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.category),
                   title: Text(translations.categories),
-                  onTap: () {
-                    Navigator.pushReplacementNamed(
-                      context,
-                      AppRoutes.categories,
-                      arguments: {
-                        'getCategories': getCategories,
-                        'createCategory': createCategory,
-                        'updateCategory': updateCategory,
-                        'deleteCategory': deleteCategory,
-                      },
-                    );
-                  },
+                  onTap: () => NavigationService.navigateToScreen(context, AppRoutes.categories),
                 ),
                 ListTile(
                   leading: const Icon(Icons.settings),
                   title: Text(translations.settings),
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.settings);
-                  },
+                  onTap: () => NavigationService.navigateToScreen(context, AppRoutes.settings),
                 ),
               ],
             ),

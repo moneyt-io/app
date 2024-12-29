@@ -9,9 +9,11 @@ import '../widgets/home_accounts_widget.dart';
 import '../widgets/home_transactions_widget.dart';
 import '../widgets/home_balance_widget.dart';
 import '../widgets/home_monthly_stats_widget.dart';
+import '../widgets/expandable_fab_widget.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../routes/app_routes.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import '../../core/navigation/navigation_service.dart';
 
 class HomeScreen extends StatefulWidget {
   // Categorías
@@ -61,93 +63,55 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final translations = context.watch<LanguageManager>().translations;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(translations.home),
-      ),
-      drawer: AppDrawer(
-        getCategories: widget.getCategories,
-        createCategory: widget.createCategory,
-        updateCategory: widget.updateCategory,
-        deleteCategory: widget.deleteCategory,
-        getAccounts: widget.getAccounts,
-        createAccount: widget.createAccount,
-        updateAccount: widget.updateAccount,
-        deleteAccount: widget.deleteAccount,
-        transactionUseCases: widget.transactionUseCases,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              HomeBalanceWidget(
-                transactionUseCases: widget.transactionUseCases,
-              ),
-              const SizedBox(height: 8),
-              HomeMonthlyStatsWidget(
-                transactionUseCases: widget.transactionUseCases,
-              ),
-              const SizedBox(height: 8),
-              HomeAccountsWidget(
-                getAccounts: widget.getAccounts,
-                createAccount: widget.createAccount,
-                updateAccount: widget.updateAccount,
-                deleteAccount: widget.deleteAccount,
-                transactionUseCases: widget.transactionUseCases,
-              ),
-              const SizedBox(height: 8),
-              HomeTransactionsWidget(
-                transactionUseCases: widget.transactionUseCases,
-              ),
-            ],
+    return WillPopScope(
+      onWillPop: () => NavigationService.handleWillPop(context),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(translations.home),
+        ),
+        drawer: AppDrawer(
+          getCategories: widget.getCategories,
+          createCategory: widget.createCategory,
+          updateCategory: widget.updateCategory,
+          deleteCategory: widget.deleteCategory,
+          getAccounts: widget.getAccounts,
+          createAccount: widget.createAccount,
+          updateAccount: widget.updateAccount,
+          deleteAccount: widget.deleteAccount,
+          transactionUseCases: widget.transactionUseCases,
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                HomeBalanceWidget(
+                  transactionUseCases: widget.transactionUseCases,
+                ),
+                const SizedBox(height: 8),
+                HomeMonthlyStatsWidget(
+                  transactionUseCases: widget.transactionUseCases,
+                ),
+                const SizedBox(height: 8),
+                HomeAccountsWidget(
+                  getAccounts: widget.getAccounts,
+                  createAccount: widget.createAccount,
+                  updateAccount: widget.updateAccount,
+                  deleteAccount: widget.deleteAccount,
+                  transactionUseCases: widget.transactionUseCases,
+                ),
+                const SizedBox(height: 8),
+                HomeTransactionsWidget(
+                  transactionUseCases: widget.transactionUseCases,
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 80.0),
-        child: ExpandableFab(
-          key: _expandableFabKey,
-          openButtonBuilder: RotateFloatingActionButtonBuilder(
-            child: const Icon(Icons.add),
-            fabSize: ExpandableFabSize.regular,
-            foregroundColor: Colors.white,
-            backgroundColor: Theme.of(context).primaryColor,
-          ),
-          closeButtonBuilder: DefaultFloatingActionButtonBuilder(
-            child: const Icon(Icons.close),
-            fabSize: ExpandableFabSize.regular,
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.red,
-          ),
-          overlayStyle: ExpandableFabOverlayStyle(
-            // Aumentamos la opacidad para un mejor efecto de difuminado
-            color: Colors.black.withOpacity(0.7),
-            blur: 3,
-          ),
-          children: [
-            FloatingActionButton.small(
-              heroTag: 'expense',
-              onPressed: () => _navigateToTransactionForm(context, type: 'E'),
-              backgroundColor: Colors.red,
-              child: const Icon(Icons.arrow_downward),
-            ),
-            FloatingActionButton.small(
-              heroTag: 'income',
-              onPressed: () => _navigateToTransactionForm(context, type: 'I'),
-              backgroundColor: Colors.green,
-              child: const Icon(Icons.arrow_upward),
-            ),
-            FloatingActionButton.small(
-              heroTag: 'transfer',
-              onPressed: () => _navigateToTransactionForm(context, type: 'T'),
-              backgroundColor: Colors.blue,
-              child: const Icon(Icons.swap_horiz),
-            ),
-          ],
-          type: ExpandableFabType.up,
-          distance: 70,
+        floatingActionButtonLocation: ExpandableFab.location,
+        floatingActionButton: ExpandableFabWidget(
+          fabKey: _expandableFabKey,
+          onTransactionPressed: _navigateToTransactionForm,
         ),
       ),
     );
