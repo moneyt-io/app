@@ -88,9 +88,9 @@ class LanguageManager extends ChangeNotifier {
   BaseTranslations _getTranslationsForLanguage(String languageCode) {
     switch (languageCode) {
       case 'es':
-        return SpanishTranslations();
+        return EsTranslations();
       case 'en':
-        return EnglishTranslations();
+        return EnTranslations();
       default:
         throw UnsupportedError('Translations not available for $languageCode');
     }

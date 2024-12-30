@@ -7,14 +7,15 @@ abstract class BaseTranslations {
   String get welcomeTitle;
   String get selectLanguage;
   String get continue_;
-  String get cancel;
+  String get cancel => 'Cancel';
   String get save;
-  String get delete;
-  String get edit;
+  String get delete => 'Delete';
+  String get edit => 'Edit';
   String get add;
   String get error;
   String get noDescription;
   String get unknown;
+  String get notFound => 'Not Found';
 
   // Login
   String get signInWithGoogle => 'Sign in with Google';
@@ -31,7 +32,7 @@ abstract class BaseTranslations {
   String get accounts;
   String get categories;
   String get transactions;
-  String get settings;
+  String get settings => 'Settings';
 
   // Account related
   String get account;
@@ -56,6 +57,16 @@ abstract class BaseTranslations {
   String get income;
   String get expense;
   String get noCategories;
+  String get basicInformation;
+  String get categoryHierarchy;
+  String get mainCategory;
+  String get mainCategoryDescription;
+  String get subcategory;
+  String get subcategoryDescription;
+  String get parentCategory;
+  String get selectParentCategory;
+  String noMainCategoriesAvailable(String type);
+  String get errorLoadingCategories;
 
   // Transaction related
   String get transaction;
@@ -66,7 +77,7 @@ abstract class BaseTranslations {
   String get newTransaction;
   String get editTransaction;
   String get deleteTransaction;
-  String get deleteTransactionConfirmation;
+  String get deleteTransactionConfirmation => 'Are you sure you want to delete this transaction?';
   String get transfer;
   String get from;
   String get to;
@@ -74,6 +85,26 @@ abstract class BaseTranslations {
   String get recentTransactions;
   String get viewAll;
   String get noRecentTransactions;
+  String get newExpense => 'New Expense';
+  String get newIncome => 'New Income';
+  String get newTransfer => 'New Transfer';
+  String get toAccount => 'To Account';
+  String get contact => 'Contact';
+  String get details => 'Details';
+  String get additionalInformation => 'Additional Information';
+
+  // Transaction Details
+  String get transactionDetails => 'Transaction Details';
+  String get descriptionDetails => 'Description';
+  String get dateDetails => 'Date';
+  String get categoryDetails => 'Category';
+  String get accountDetails => 'Account';
+  String get contactDetails => 'Contact';
+  String get referenceDetails => 'Reference';
+
+  // Actions
+  String get share => 'Share';
+  String get deleteConfirmation => 'Delete Confirmation';
 
   // Sorting and filtering
   String get sortDateAsc;
@@ -84,6 +115,21 @@ abstract class BaseTranslations {
   String get filters;
   String get apply;
 
+  // Date Ranges
+  String get today => 'Today';
+  String get yesterday => 'Yesterday';
+  String get lastWeek => 'Last Week';
+  String get lastMonth => 'Last Month';
+  String get lastThreeMonths => 'Last 3 Months';
+  String get thisYear => 'This Year';
+  String get custom => 'Custom';
+
+  // Filter Labels
+  String get filterAll => 'All';
+  String get filterIncome => 'Income';
+  String get filterExpense => 'Expense';
+  String get filterTransfer => 'Transfer';
+
   // Validation messages
   String get fieldRequired;
   String get invalidAmount;
@@ -91,14 +137,35 @@ abstract class BaseTranslations {
   String get selectAccount;
 
   // Theme
-  String get darkTheme;
-  String get darkThemeDescription;
+  String get darkTheme => 'Dark Theme';
+  String get darkThemeDescription => 'Enable dark mode for a better night experience';
+
+  // Settings
+  String get appearance => 'Appearance';
+  String get about => 'About';
+  String get language => 'Language';
+  String get english => 'English';
+  String get spanish => 'Spanish';
+
+  // Drawer Sections
+  String get main => 'Main';
+  String get management => 'Management';
+  String get preferences => 'Preferences';
 
   // Balance y Estadísticas
   String get totalBalance => throw UnimplementedError();
   String get monthlyStats => throw UnimplementedError();
   String get expenses => throw UnimplementedError();
   String get monthlyBalance => throw UnimplementedError();
+
+  // Form Fields and Sections
+  String get name => 'Name';
+  String get nameRequired => 'Name is required';
+  String get mainCategoryRequired => 'Please select a main category';
+  String get incomeDescription => 'Money coming into your accounts';
+  String get expenseDescription => 'Money going out of your accounts';
+  String get create => 'Create';
+  String get update => 'Update';
 
   // Method to get text by key dynamically
   String getText(String key);
@@ -120,6 +187,7 @@ abstract class BaseTranslations {
       error;
       noDescription;
       unknown;
+      notFound;
       signInWithGoogle;
       skipSignIn;
       termsAndConditions;
@@ -169,6 +237,22 @@ abstract class BaseTranslations {
       recentTransactions;
       viewAll;
       noRecentTransactions;
+      newExpense;
+      newIncome;
+      newTransfer;
+      toAccount;
+      contact;
+      details;
+      additionalInformation;
+      transactionDetails;
+      descriptionDetails;
+      dateDetails;
+      categoryDetails;
+      accountDetails;
+      contactDetails;
+      referenceDetails;
+      share;
+      deleteConfirmation;
       sortDateAsc;
       sortDateDesc;
       sortAmountAsc;
@@ -176,17 +260,51 @@ abstract class BaseTranslations {
       all;
       filters;
       apply;
+      today;
+      yesterday;
+      lastWeek;
+      lastMonth;
+      lastThreeMonths;
+      thisYear;
+      custom;
+      filterAll;
+      filterIncome;
+      filterExpense;
+      filterTransfer;
       fieldRequired;
       invalidAmount;
       selectCategory;
       selectAccount;
       darkTheme;
       darkThemeDescription;
+      appearance;
+      about;
+      language;
+      english;
+      spanish;
+      main;
+      management;
+      preferences;
       totalBalance;
       monthlyStats;
-      income;
       expenses;
       monthlyBalance;
+      basicInformation;
+      name;
+      nameRequired;
+      categoryHierarchy;
+      mainCategory;
+      mainCategoryDescription;
+      subcategory;
+      subcategoryDescription;
+      parentCategory;
+      selectParentCategory;
+      errorLoadingCategories;
+      mainCategoryRequired;
+      incomeDescription;
+      expenseDescription;
+      create;
+      update;
       return true;
     } catch (e) {
       return false;

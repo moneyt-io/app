@@ -104,11 +104,8 @@ class HomeTransactionsWidget extends StatelessWidget {
                         onTap: () {
                           Navigator.pushNamed(
                             context,
-                            AppRoutes.transactionForm,
-                            arguments: {
-                              'transaction': transaction,
-                              'type': transaction.type,
-                            },
+                            AppRoutes.transactionDetails,
+                            arguments: transaction,
                           );
                         },
                       );

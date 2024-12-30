@@ -1,15 +1,17 @@
 // lib/routes/app_routes.dart
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
 import '../presentation/screens/home_screen.dart';
 import '../presentation/screens/category_screen.dart';
 import '../presentation/screens/account_screen.dart';
-import '../presentation/screens/transactions_screen.dart';
+import '../presentation/screens/transaction_screen.dart';
 import '../presentation/screens/settings_screen.dart';
 import '../presentation/screens/transaction_form.dart';
 import '../presentation/screens/category_form.dart';
 import '../presentation/screens/account_form.dart';
 import '../presentation/screens/welcome_screen.dart';
+import '../presentation/screens/transaction_details_screen.dart';
 import '../domain/usecases/category_usecases.dart';
 import '../domain/usecases/account_usecases.dart';
 import '../domain/usecases/transaction_usecases.dart';
@@ -26,6 +28,7 @@ class AppRoutes {
   static const String accountForm = '/account-form';
   static const String transactions = '/transactions';
   static const String transactionForm = '/transaction-form';
+  static const String transactionDetails = '/transaction-details';
   static const String settings = '/settings';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -105,7 +108,7 @@ class AppRoutes {
 
       case AppRoutes.transactions:
         return MaterialPageRoute(
-          builder: (context) => TransactionsScreen(
+          builder: (context) => TransactionScreen(
             transactionUseCases: getIt<TransactionUseCases>(),
             getCategories: getIt<GetCategories>(),
             createCategory: getIt<CreateCategory>(),
@@ -143,6 +146,27 @@ class AppRoutes {
             transactionUseCases: getIt<TransactionUseCases>(),
             getAccounts: getIt<GetAccounts>(),
             getCategories: getIt<GetCategories>(),
+          ),
+        );
+
+      case AppRoutes.transactionDetails:
+        final transaction = settings.arguments as TransactionEntity;
+        return MaterialPageRoute(
+          builder: (context) => MultiProvider(
+            providers: [
+              Provider<GetAccounts>(
+                create: (_) => getIt<GetAccounts>(),
+              ),
+              Provider<GetCategories>(
+                create: (_) => getIt<GetCategories>(),
+              ),
+              Provider<TransactionUseCases>(
+                create: (_) => getIt<TransactionUseCases>(),
+              ),
+            ],
+            child: TransactionDetailsScreen(
+              transaction: transaction,
+            ),
           ),
         );
 

@@ -14,7 +14,7 @@ class ExpandableFabWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 90, right: 16),
+      padding: const EdgeInsets.only(bottom: 20, right: 16),
       child: ExpandableFab(
         key: fabKey,
         openButtonBuilder: RotateFloatingActionButtonBuilder(

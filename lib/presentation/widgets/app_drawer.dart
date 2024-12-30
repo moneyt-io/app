@@ -39,82 +39,224 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final translations = context.watch<LanguageManager>().translations;
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Drawer(
+      backgroundColor: colorScheme.surface,
+      elevation: 0,
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
-            height: 170, // Altura similar al DrawerHeader
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.account_balance_wallet,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.primary, // Usar colorScheme para mejor soporte de temas
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  translations.appName,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface, // Usar el color de texto apropiado para el tema actual
-                    fontWeight: FontWeight.bold,
+            padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(24),
+                bottomRight: Radius.circular(24),
+              ),
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Icon(
+                    Icons.account_balance_wallet,
+                    size: 48,
+                    color: colorScheme.onPrimaryContainer,
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Text(
+                    translations.appName,
+                    style: textTheme.headlineSmall?.copyWith(
+                      color: colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+          const SizedBox(height: 8),
           Expanded(
             child: ListView(
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               children: [
-                ListTile(
-                  leading: const Icon(Icons.dashboard),
-                  title: Text(translations.home),
-                  onTap: () => NavigationService.navigateToScreen(context, AppRoutes.home),
+                _buildSection(
+                  context,
+                  title: translations.main,
+                  items: [
+                    _DrawerItem(
+                      icon: Icons.dashboard_outlined,
+                      selectedIcon: Icons.dashboard,
+                      label: translations.home,
+                      route: AppRoutes.home,
+                    ),
+                    _DrawerItem(
+                      icon: Icons.receipt_long_outlined,
+                      selectedIcon: Icons.receipt_long,
+                      label: translations.transactions,
+                      route: AppRoutes.transactions,
+                    ),
+                  ],
                 ),
-                ListTile(
-                  leading: const Icon(Icons.receipt_long),
-                  title: Text(translations.transactions),
-                  onTap: () => NavigationService.navigateToScreen(context, AppRoutes.transactions),
+                const SizedBox(height: 16),
+                _buildSection(
+                  context,
+                  title: translations.management,
+                  items: [
+                    _DrawerItem(
+                      icon: Icons.account_balance_outlined,
+                      selectedIcon: Icons.account_balance,
+                      label: translations.accounts,
+                      route: AppRoutes.accounts,
+                      arguments: {
+                        'getAccounts': getAccounts,
+                        'createAccount': createAccount,
+                        'updateAccount': updateAccount,
+                        'deleteAccount': deleteAccount,
+                      },
+                    ),
+                    _DrawerItem(
+                      icon: Icons.category_outlined,
+                      selectedIcon: Icons.category,
+                      label: translations.categories,
+                      route: AppRoutes.categories,
+                    ),
+                  ],
                 ),
-                ListTile(
-                  leading: const Icon(Icons.account_balance),
-                  title: Text(translations.accounts),
-                  onTap: () => NavigationService.navigateToScreen(
-                    context,
-                    AppRoutes.accounts,
-                    arguments: {
-                      'getAccounts': getAccounts,
-                      'createAccount': createAccount,
-                      'updateAccount': updateAccount,
-                      'deleteAccount': deleteAccount,
-                    },
-                  ),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.category),
-                  title: Text(translations.categories),
-                  onTap: () => NavigationService.navigateToScreen(context, AppRoutes.categories),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.settings),
-                  title: Text(translations.settings),
-                  onTap: () => NavigationService.navigateToScreen(context, AppRoutes.settings),
+                const SizedBox(height: 16),
+                _buildSection(
+                  context,
+                  title: translations.preferences,
+                  items: [
+                    _DrawerItem(
+                      icon: Icons.settings_outlined,
+                      selectedIcon: Icons.settings,
+                      label: translations.settings,
+                      route: AppRoutes.settings,
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              translations.getText('version'),
-              style: Theme.of(context).textTheme.bodySmall,
+          const Divider(height: 1),
+          Container(
+            padding: const EdgeInsets.all(12),
+            child: SafeArea(
+              top: false,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.info_outline,
+                      color: colorScheme.onPrimaryContainer,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'MoneyT',
+                          style: textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'v1.0.0',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildSection(
+    BuildContext context, {
+    required String title,
+    required List<_DrawerItem> items,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            title,
+            style: textTheme.titleSmall?.copyWith(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        ...items.map((item) {
+          final isSelected = currentRoute == item.route;
+          return ListTile(
+            leading: Icon(
+              isSelected ? item.selectedIcon : item.icon,
+              color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+            ),
+            title: Text(
+              item.label,
+              style: textTheme.bodyLarge?.copyWith(
+                color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                fontWeight: isSelected ? FontWeight.bold : null,
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(28),
+            ),
+            selected: isSelected,
+            selectedTileColor: colorScheme.primaryContainer.withOpacity(0.3),
+            onTap: () => NavigationService.navigateToScreen(
+              context,
+              item.route,
+              arguments: item.arguments,
+            ),
+          );
+        }).toList(),
+      ],
+    );
+  }
+}
+
+class _DrawerItem {
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+  final String route;
+  final Map<String, dynamic>? arguments;
+
+  const _DrawerItem({
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+    required this.route,
+    this.arguments,
+  });
 }

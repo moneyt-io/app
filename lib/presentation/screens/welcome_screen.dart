@@ -6,7 +6,6 @@ import '../../core/l10n/models/language.dart';
 import '../../routes/app_routes.dart';
 import '../../data/local/database.dart';
 import '../../data/services/initialization_service.dart';
-import '../providers/auth_provider.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -74,29 +73,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         ),
       );
       return;
-    }
-
-    try {
-      final authProvider = context.read<AuthProvider>();
-      await authProvider.signInWithGoogle();
-      
-      if (_acceptedMarketing) {
-        await authProvider.updateMarketingPreferences(_acceptedMarketing);
-      }
-
-      if (!mounted) return;
-      
-      // Continuar con la app
-      _continueToApp();
-    } catch (e) {
-      if (!mounted) return;
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
 

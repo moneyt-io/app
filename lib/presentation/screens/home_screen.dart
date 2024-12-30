@@ -62,12 +62,24 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final translations = context.watch<LanguageManager>().translations;
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return WillPopScope(
       onWillPop: () => NavigationService.handleWillPop(context),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(translations.home),
+          title: Text(
+            translations.home,
+            style: textTheme.titleLarge?.copyWith(
+              color: colorScheme.onSurface,
+            ),
+          ),
+          backgroundColor: colorScheme.surface,
+          elevation: 0,
+          iconTheme: IconThemeData(
+            color: colorScheme.onSurface,
+          ),
         ),
         drawer: AppDrawer(
           getCategories: widget.getCategories,

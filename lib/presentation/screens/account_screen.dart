@@ -8,7 +8,7 @@ import '../../domain/usecases/transaction_usecases.dart';
 import '../../routes/app_routes.dart';
 import '../widgets/app_drawer.dart';
 import '../../core/l10n/language_manager.dart';
-import 'package:intl/intl.dart'; // Import the intl package
+import 'package:intl/intl.dart';
 
 class AccountFormArgs {
   final AccountEntity? account;
@@ -62,10 +62,13 @@ class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final translations = context.watch<LanguageManager>().translations;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(translations.accounts),
+        backgroundColor: colorScheme.surface,
+        elevation: 0,
       ),
       drawer: AppDrawer(
         getCategories: getCategories,
@@ -91,123 +94,139 @@ class AccountScreen extends StatelessWidget {
               }
 
               if (accountsSnapshot.hasError) {
-                return Center(child: Text('${translations.error}: ${accountsSnapshot.error}'));
+                return Center(
+                  child: Text(
+                    '${translations.error}: ${accountsSnapshot.error}',
+                    style: TextStyle(color: colorScheme.error),
+                  ),
+                );
               }
 
               final accounts = accountsSnapshot.data!;
 
               if (accounts.isEmpty) {
-                return Center(child: Text(translations.noAccounts));
-              }
-
-              return ListView.builder(
-                padding: const EdgeInsets.all(8.0),
-                itemCount: accounts.length,
-                itemBuilder: (context, index) {
-                  final account = accounts[index];
-                  final balance = balances[account.id] ?? 0.0;
-                  final isPositive = balance >= 0;
-
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.account_balance_wallet,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 32,
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.account_balance_outlined,
+                        size: 48,
+                        color: colorScheme.primary.withOpacity(0.5),
                       ),
-                      title: Text(
-                        account.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      const SizedBox(height: 16),
+                      Text(
+                        translations.noAccounts,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (account.description?.isNotEmpty ?? false)
-                            Text(
-                              account.description!,
-                              style: TextStyle(
-                                color: Theme.of(context).textTheme.bodySmall?.color,
+                    ],
+                  ),
+                );
+              }
+
+              final totalBalance = balances.values.fold<double>(0, (a, b) => a + b);
+              final currencyFormat = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
+
+              return Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          translations.totalBalance,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          currencyFormat.format(totalBalance),
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            color: colorScheme.onPrimaryContainer,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: colorScheme.outline.withOpacity(0.2),
+                        ),
+                      ),
+                      child: ListView.separated(
+                        padding: const EdgeInsets.all(8),
+                        itemCount: accounts.length,
+                        separatorBuilder: (context, index) => Divider(
+                          color: colorScheme.outline.withOpacity(0.2),
+                          height: 1,
+                        ),
+                        itemBuilder: (context, index) {
+                          final account = accounts[index];
+                          final balance = balances[account.id] ?? 0;
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: colorScheme.primaryContainer,
+                              child: Icon(
+                                Icons.account_balance_outlined,
+                                color: colorScheme.onPrimaryContainer,
                               ),
                             ),
-                          const SizedBox(height: 4),
-                          Text(
-                            NumberFormat.currency(
-                              symbol: '\$',
-                              decimalDigits: 2,
-                            ).format(balance),
-                            style: TextStyle(
-                              color: isPositive ? Colors.green : Colors.red,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 15,
+                            title: Text(
+                              account.name,
+                              style: Theme.of(context).textTheme.titleMedium,
                             ),
-                          ),
-                        ],
-                      ),
-                      trailing: PopupMenuButton<String>(
-                        icon: const Icon(Icons.more_vert),
-                        onSelected: (value) {
-                          switch (value) {
-                            case 'edit':
-                              _navigateToForm(context, account: account);
-                              break;
-                            case 'delete':
-                              showDialog(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  title: Text(translations.getText('deleteAccount')),
-                                  content: Text(translations.getText('deleteAccountConfirmation')),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(ctx).pop(),
-                                      child: Text(translations.getText('cancel')),
+                            subtitle: account.description?.isNotEmpty ?? false
+                                ? Text(
+                                    account.description!,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.onSurfaceVariant,
                                     ),
-                                    TextButton(
-                                      onPressed: () {
-                                        deleteAccount(account.id);
-                                        Navigator.of(ctx).pop();
-                                      },
-                                      child: Text(translations.getText('delete')),
-                                    ),
-                                  ],
-                                ),
-                              );
-                              break;
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'edit',
-                            child: Row(
+                                  )
+                                : null,
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.edit),
-                                const SizedBox(width: 8),
-                                Text(translations.getText('edit')),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.delete, color: Colors.red),
-                                const SizedBox(width: 8),
                                 Text(
-                                  translations.getText('delete'),
-                                  style: const TextStyle(color: Colors.red),
+                                  currencyFormat.format(balance),
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: balance >= 0
+                                        ? Colors.green
+                                        : Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.edit_outlined,
+                                    color: colorScheme.primary,
+                                    size: 20,
+                                  ),
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () => _navigateToForm(context, account: account),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
+                            onTap: () => _navigateToForm(context, account: account),
+                          );
+                        },
                       ),
-                      onTap: () => _navigateToForm(context, account: account),
                     ),
-                  );
-                },
+                  ),
+                ],
               );
             },
           );
@@ -215,7 +234,11 @@ class AccountScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToForm(context),
-        child: const Icon(Icons.add),
+        backgroundColor: colorScheme.primaryContainer,
+        child: Icon(
+          Icons.add,
+          color: colorScheme.onPrimaryContainer,
+        ),
       ),
     );
   }

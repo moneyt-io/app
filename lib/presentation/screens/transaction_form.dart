@@ -2,12 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/entities/account.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../../domain/usecases/account_usecases.dart';
 import '../../domain/usecases/category_usecases.dart';
+import '../../core/l10n/language_manager.dart';
 
 class TransactionForm extends StatefulWidget {
   final TransactionEntity? transaction;
@@ -77,12 +79,13 @@ class _TransactionFormState extends State<TransactionForm> {
   }
 
   CategoryEntity findParentCategory(List<CategoryEntity> categories, CategoryEntity childCategory) {
+    final translations = context.watch<LanguageManager>().translations;
     try {
       return categories.firstWhere((c) => c.id == childCategory.parentId);
     } catch (e) {
       return CategoryEntity(
         id: -1,
-        name: 'Desconocido',
+        name: translations.unknown,
         type: childCategory.type,
         createdAt: DateTime.now(),
         parentId: null,
@@ -95,11 +98,18 @@ class _TransactionFormState extends State<TransactionForm> {
   Widget _buildCategorySelector() {
     if (isTransfer) return const SizedBox.shrink();
 
+    final colorScheme = Theme.of(context).colorScheme;
+    final translations = context.watch<LanguageManager>().translations;
+
     return StreamBuilder<List<CategoryEntity>>(
       stream: widget.getCategories(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const CircularProgressIndicator();
+          return Center(
+            child: CircularProgressIndicator(
+              color: colorScheme.primary,
+            ),
+          );
         }
 
         final categories = snapshot.data!;
@@ -111,10 +121,17 @@ class _TransactionFormState extends State<TransactionForm> {
 
         return DropdownButtonFormField<CategoryEntity>(
           value: _selectedCategory,
-          decoration: const InputDecoration(
-            labelText: 'Categoría',
-            prefixIcon: Icon(Icons.category),
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: translations.category,
+            prefixIcon: Icon(
+              Icons.category_rounded,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            filled: true,
+            fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           items: validCategories.map((category) {
             final parent = findParentCategory(categories, category);
@@ -131,7 +148,7 @@ class _TransactionFormState extends State<TransactionForm> {
           },
           validator: (value) {
             if (!isTransfer && value == null) {
-              return 'Por favor seleccione una categoría';
+              return translations.selectCategory;
             }
             return null;
           },
@@ -141,20 +158,34 @@ class _TransactionFormState extends State<TransactionForm> {
   }
 
   Widget _buildAccountSelector() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final translations = context.watch<LanguageManager>().translations;
+
     return StreamBuilder<List<AccountEntity>>(
       stream: widget.getAccounts(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const CircularProgressIndicator();
+          return Center(
+            child: CircularProgressIndicator(
+              color: colorScheme.primary,
+            ),
+          );
         }
 
         final accounts = snapshot.data!;
         return DropdownButtonFormField<AccountEntity>(
           value: _selectedAccount,
-          decoration: const InputDecoration(
-            labelText: 'Cuenta',
-            prefixIcon: Icon(Icons.account_balance),
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: translations.account,
+            prefixIcon: Icon(
+              Icons.account_balance_rounded,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            filled: true,
+            fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           items: accounts.map((account) {
             return DropdownMenuItem(
@@ -173,7 +204,7 @@ class _TransactionFormState extends State<TransactionForm> {
           },
           validator: (value) {
             if (value == null) {
-              return 'Por favor seleccione una cuenta';
+              return translations.selectAccount;
             }
             return null;
           },
@@ -185,11 +216,18 @@ class _TransactionFormState extends State<TransactionForm> {
   Widget _buildToAccountSelector() {
     if (!isTransfer) return const SizedBox.shrink();
 
+    final colorScheme = Theme.of(context).colorScheme;
+    final translations = context.watch<LanguageManager>().translations;
+
     return StreamBuilder<List<AccountEntity>>(
       stream: widget.getAccounts(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const CircularProgressIndicator();
+          return Center(
+            child: CircularProgressIndicator(
+              color: colorScheme.primary,
+            ),
+          );
         }
 
         final accounts = snapshot.data!.where((account) => account != _selectedAccount).toList();
@@ -197,10 +235,17 @@ class _TransactionFormState extends State<TransactionForm> {
           padding: const EdgeInsets.only(top: 16.0),
           child: DropdownButtonFormField<AccountEntity>(
             value: _selectedToAccount,
-            decoration: const InputDecoration(
-              labelText: 'Cuenta Destino',
-              prefixIcon: Icon(Icons.account_balance),
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: translations.toAccount,
+              prefixIcon: Icon(
+                Icons.account_balance_rounded,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              filled: true,
+              fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             items: accounts.map((account) {
               return DropdownMenuItem(
@@ -215,7 +260,7 @@ class _TransactionFormState extends State<TransactionForm> {
             },
             validator: (value) {
               if (isTransfer && value == null) {
-                return 'Por favor seleccione una cuenta destino';
+                return translations.selectAccount;
               }
               return null;
             },
@@ -231,6 +276,14 @@ class _TransactionFormState extends State<TransactionForm> {
       initialDate: _selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2025),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme,
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -247,7 +300,7 @@ class _TransactionFormState extends State<TransactionForm> {
         if (isTransfer) {
           // Si es una transferencia, usar el método específico para transferencias
           if (_selectedAccount == null || _selectedToAccount == null) {
-            throw Exception('Debe seleccionar las cuentas de origen y destino');
+            throw Exception(context.watch<LanguageManager>().translations.selectAccount);
           }
           
           await widget.transactionUseCases.createTransfer(
@@ -290,8 +343,9 @@ class _TransactionFormState extends State<TransactionForm> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error: ${e.toString()}'),
-              backgroundColor: Colors.red,
+              content: Text(e.toString()),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              behavior: SnackBarBehavior.floating,
             ),
           );
         }
@@ -301,28 +355,39 @@ class _TransactionFormState extends State<TransactionForm> {
 
   @override
   Widget build(BuildContext context) {
+    final translations = context.watch<LanguageManager>().translations;
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     String title;
     switch (_selectedType) {
       case 'E':
-        title = 'Nuevo Gasto';
+        title = translations.newExpense;
         break;
       case 'I':
-        title = 'Nuevo Ingreso';
+        title = translations.newIncome;
         break;
       case 'T':
-        title = 'Nueva Transferencia';
+        title = translations.newTransfer;
         break;
       default:
-        title = 'Nueva Transacción';
+        title = translations.newTransaction;
     }
 
     if (widget.transaction != null) {
-      title = 'Editar ${title.substring(6)}';
+      title = translations.editTransaction;
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(
+          title,
+          style: textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
+          ),
+        ),
+        backgroundColor: colorScheme.surface,
+        elevation: 0,
       ),
       body: Form(
         key: _formKey,
@@ -330,95 +395,224 @@ class _TransactionFormState extends State<TransactionForm> {
           padding: const EdgeInsets.all(16.0),
           children: [
             // Monto
-            TextFormField(
-              controller: _amountController,
-              decoration: const InputDecoration(
-                labelText: 'Monto',
-                prefixIcon: Icon(Icons.attach_money),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-              ],
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor ingrese un monto';
-                }
-                if (double.tryParse(value) == null) {
-                  return 'Por favor ingrese un monto válido';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Categoría (no para transferencias)
-            _buildCategorySelector(),
-            if (!isTransfer) const SizedBox(height: 16),
-
-            // Cuenta origen
-            _buildAccountSelector(),
-            const SizedBox(height: 16),
-
-            // Cuenta destino (solo para transferencias)
-            _buildToAccountSelector(),
-            if (isTransfer) const SizedBox(height: 16),
-
-            // Fecha
-            InkWell(
-              onTap: () => _selectDate(context),
-              child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Fecha',
-                  prefixIcon: Icon(Icons.calendar_today),
-                  border: OutlineInputBorder(),
-                ),
-                child: Text(
-                  DateFormat('dd/MM/yyyy').format(_selectedDate),
+            Card(
+              elevation: 0,
+              color: colorScheme.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: colorScheme.outlineVariant,
+                  width: 1,
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // Contacto
-            TextFormField(
-              controller: _contactController,
-              decoration: const InputDecoration(
-                labelText: 'Contacto',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      translations.amount,
+                      style: textTheme.titleMedium?.copyWith(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _amountController,
+                      decoration: InputDecoration(
+                        labelText: translations.amount,
+                        prefixIcon: Icon(
+                          Icons.attach_money_rounded,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        filled: true,
+                        fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                      ],
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return translations.invalidAmount;
+                        }
+                        if (double.tryParse(value) == null) {
+                          return translations.invalidAmount;
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 16),
 
-            // Descripción
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Descripción',
-                prefixIcon: Icon(Icons.description),
-                border: OutlineInputBorder(),
+            // Cuentas y Categoría
+            Card(
+              elevation: 0,
+              color: colorScheme.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: colorScheme.outlineVariant,
+                  width: 1,
+                ),
               ),
-              maxLines: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      translations.details,
+                      style: textTheme.titleMedium?.copyWith(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Categoría (no para transferencias)
+                    _buildCategorySelector(),
+                    if (!isTransfer) const SizedBox(height: 16),
+
+                    // Cuenta origen
+                    _buildAccountSelector(),
+                    const SizedBox(height: 16),
+
+                    // Cuenta destino (solo para transferencias)
+                    _buildToAccountSelector(),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
 
-            // Referencia
-            TextFormField(
-              controller: _referenceController,
-              decoration: const InputDecoration(
-                labelText: 'Referencia',
-                prefixIcon: Icon(Icons.numbers),
-                border: OutlineInputBorder(),
+            // Información adicional
+            Card(
+              elevation: 0,
+              color: colorScheme.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: colorScheme.outlineVariant,
+                  width: 1,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      translations.additionalInformation,
+                      style: textTheme.titleMedium?.copyWith(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Fecha
+                    InkWell(
+                      onTap: () => _selectDate(context),
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: translations.date,
+                          prefixIcon: Icon(
+                            Icons.calendar_today_rounded,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          filled: true,
+                          fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          DateFormat('dd/MM/yyyy').format(_selectedDate),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Contacto
+                    TextFormField(
+                      controller: _contactController,
+                      decoration: InputDecoration(
+                        labelText: translations.contact,
+                        prefixIcon: Icon(
+                          Icons.person_rounded,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        filled: true,
+                        fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Descripción
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: InputDecoration(
+                        labelText: translations.description,
+                        prefixIcon: Icon(
+                          Icons.description_rounded,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        filled: true,
+                        fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Referencia
+                    TextFormField(
+                      controller: _referenceController,
+                      decoration: InputDecoration(
+                        labelText: translations.reference,
+                        prefixIcon: Icon(
+                          Icons.numbers_rounded,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        filled: true,
+                        fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
             // Botón guardar
-            ElevatedButton(
+            FilledButton(
               onPressed: _onSave,
-              child: const Text('Guardar'),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(double.infinity, 56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: Text(
+                widget.transaction == null ? translations.create : translations.update,
+                style: textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onPrimary,
+                ),
+              ),
             ),
           ],
         ),

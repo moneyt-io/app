@@ -2,9 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'firebase_options.dart';
 import 'data/local/database.dart';
 import 'data/local/daos/category_dao.dart';
 import 'data/local/daos/account_dao.dart';
@@ -12,7 +10,6 @@ import 'data/local/daos/transaction_dao.dart';
 import 'data/repositories/category_repository_impl.dart';
 import 'data/repositories/account_repository_impl.dart';
 import 'data/repositories/transaction_repository_impl.dart';
-import 'data/repositories/auth_repository_impl.dart';
 import 'domain/repositories/category_repository.dart';
 import 'domain/repositories/account_repository.dart';
 import 'domain/repositories/transaction_repository.dart';
@@ -45,10 +42,7 @@ Future<void> initializeDependencies() async {
   GetIt.I.registerSingleton<TransactionRepository>(
     TransactionRepositoryImpl(GetIt.I<TransactionDao>()),
   );
-  GetIt.I.registerSingleton<AuthRepository>(
-    AuthRepositoryImpl(),
-  );
-
+  
   // Use Cases
   // Categories
   GetIt.I.registerFactory(() => GetCategories(GetIt.I()));
@@ -69,15 +63,6 @@ Future<void> initializeDependencies() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Inicializar Firebase
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    debugPrint('Firebase initialized successfully');
-  } catch (e) {
-    debugPrint('Error initializing Firebase: $e');
-  }
   
   // Inicializar dependencias
   await initializeDependencies();

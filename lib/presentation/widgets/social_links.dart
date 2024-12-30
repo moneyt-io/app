@@ -23,6 +23,12 @@ class SocialLinks extends StatelessWidget {
           ),
         ),
         ListTile(
+          leading: const Icon(Icons.web),
+          title: const Text('Web Site'),
+          subtitle: const Text('moneyt.io'),
+          onTap: () => _launchUrl('https://moneyt.io'),
+        ),
+        ListTile(
           leading: const Icon(Icons.work),
           title: const Text('LinkedIn'),
           subtitle: const Text('MONEYT, LLC'),
@@ -49,7 +55,7 @@ class SocialLinks extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.email),
           title: const Text('Email'),
-          subtitle: const Text('admin@moneyt.com'),
+          subtitle: const Text('admin@moneyt.io'),
           onTap: () => _launchUrl('mailto:admin@moneyt.io'),
         ),
       ],

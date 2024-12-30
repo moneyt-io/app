@@ -1,249 +1,340 @@
 import '../base_translations.dart';
 
-class SpanishTranslations extends BaseTranslations {
+class EsTranslations extends BaseTranslations {
   @override
   String get languageCode => 'es';
 
   // App general
   @override
   String get appName => 'MoneyT';
+
   @override
   String get welcome => 'Bienvenido';
+
   @override
-  String get welcomeTitle => 'Bienvenido a MoneyT';
+  String get welcomeTitle => 'Gestiona tus finanzas con facilidad';
+
   @override
-  String get selectLanguage => 'Selecciona tu idioma';
+  String get selectLanguage => 'Seleccionar idioma';
+
   @override
   String get continue_ => 'Continuar';
-  @override
-  String get cancel => 'Cancelar';
+
   @override
   String get save => 'Guardar';
-  @override
-  String get delete => 'Eliminar';
-  @override
-  String get edit => 'Editar';
+
   @override
   String get add => 'Agregar';
+
   @override
   String get error => 'Error';
+
   @override
   String get noDescription => 'Sin descripción';
+
   @override
   String get unknown => 'Desconocido';
-
-  // Login
-  @override
-  String get signInWithGoogle => 'Iniciar sesión con Google';
-  @override
-  String get skipSignIn => 'Omitir inicio de sesión';
-  @override
-  String get termsAndConditions => 'Términos y Condiciones';
-  @override
-  String get acceptTerms => 'Acepto los Términos y Condiciones';
-  @override
-  String get acceptTermsAndConditions => 'Acepto los Términos y Condiciones';
-  @override
-  String get acceptMarketing => 'Me gustaría recibir correos de marketing';
-  @override
-  String get termsText => '''
-Al usar esta aplicación, aceptas nuestros Términos de Servicio y Política de Privacidad.
-
-1. Tus datos serán almacenados de forma segura
-2. Nunca compartiremos tus datos con terceros
-3. Puedes solicitar la eliminación de tus datos en cualquier momento
-''';
-  @override
-  String get readTerms => 'Leer Términos y Condiciones';
 
   // Navigation
   @override
   String get home => 'Inicio';
+
   @override
   String get accounts => 'Cuentas';
+
   @override
   String get categories => 'Categorías';
+
   @override
   String get transactions => 'Transacciones';
-  @override
-  String get settings => 'Configuración';
 
   // Account related
   @override
   String get account => 'Cuenta';
+
   @override
   String get accountName => 'Nombre de la cuenta';
+
   @override
   String get accountDescription => 'Descripción de la cuenta';
+
   @override
-  String get balance => 'Saldo';
+  String get balance => 'Balance';
+
   @override
   String get newAccount => 'Nueva cuenta';
+
   @override
   String get editAccount => 'Editar cuenta';
+
   @override
   String get deleteAccount => 'Eliminar cuenta';
+
   @override
   String get deleteAccountConfirmation => '¿Estás seguro de que deseas eliminar esta cuenta?';
+
+  @override
+  String get noAccounts => 'No se encontraron cuentas';
 
   // Category related
   @override
   String get category => 'Categoría';
+
   @override
   String get categoryName => 'Nombre de la categoría';
+
   @override
   String get categoryDescription => 'Descripción de la categoría';
-  @override
-  String get categoryType => 'Tipo de categoría';
+
   @override
   String get newCategory => 'Nueva categoría';
+
   @override
   String get editCategory => 'Editar categoría';
+
   @override
   String get deleteCategory => 'Eliminar categoría';
+
   @override
   String get deleteCategoryConfirmation => '¿Estás seguro de que deseas eliminar esta categoría?';
+
   @override
-  String get income => 'Ingreso';
+  String get noCategories => 'No se encontraron categorías';
+
   @override
-  String get expense => 'Gasto';
+  String get basicInformation => 'Información básica';
+
+  @override
+  String get categoryHierarchy => 'Jerarquía de categoría';
+
+  @override
+  String get mainCategory => 'Categoría principal';
+
+  @override
+  String get mainCategoryDescription => 'Una categoría principal que puede contener subcategorías';
+
+  @override
+  String get subcategory => 'Subcategoría';
+
+  @override
+  String get subcategoryDescription => 'Una subcategoría que pertenece a una categoría principal';
+
+  @override
+  String get parentCategory => 'Categoría padre';
+
+  @override
+  String get selectParentCategory => 'Seleccione una categoría padre';
+
+  @override
+  String get categoryType => 'Tipo de categoría';
+
+  @override
+  String noMainCategoriesAvailable(String type) => 'No hay categorías principales de $type disponibles';
+
+  @override
+  String get errorLoadingCategories => 'Error al cargar las categorías';
 
   // Transaction related
   @override
   String get transaction => 'Transacción';
-  @override
-  String get amount => 'Monto';
-  @override
-  String get date => 'Fecha';
-  @override
-  String get description => 'Descripción';
-  @override
-  String get reference => 'Referencia';
+
   @override
   String get newTransaction => 'Nueva transacción';
+
   @override
   String get editTransaction => 'Editar transacción';
+
   @override
   String get deleteTransaction => 'Eliminar transacción';
+
   @override
   String get deleteTransactionConfirmation => '¿Estás seguro de que deseas eliminar esta transacción?';
+
+  @override
+  String get noTransactions => 'No se encontraron transacciones';
+
+  @override
+  String get amount => 'Monto';
+
+  @override
+  String get date => 'Fecha';
+
+  @override
+  String get description => 'Descripción';
+
+  @override
+  String get reference => 'Referencia';
+
+  @override
+  String get contact => 'Contacto';
+
+  @override
+  String get details => 'Detalles';
+
+  @override
+  String get additionalInformation => 'Información adicional';
+
+  @override
+  String get toAccount => 'A la cuenta';
+
+  @override
+  String get income => 'Ingreso';
+
+  @override
+  String get expense => 'Gasto';
+
   @override
   String get transfer => 'Transferencia';
-  @override
-  String get from => 'Desde';
-  @override
-  String get to => 'Hacia';
 
-  // Balance y Estadísticas
   @override
-  String get totalBalance => 'Balance Total';
-  @override
-  String get monthlyStats => 'Estadísticas del Mes';
-  @override
-  String get expenses => 'Gastos';
-  @override
-  String get monthlyBalance => 'Balance Mensual';
+  String get newExpense => 'Nuevo gasto';
 
-  // Validation messages
   @override
-  String get fieldRequired => 'Este campo es requerido';
+  String get newIncome => 'Nuevo ingreso';
+
+  @override
+  String get newTransfer => 'Nueva transferencia';
+
   @override
   String get invalidAmount => 'Monto inválido';
-  @override
-  String get selectCategory => 'Selecciona una categoría';
-  @override
-  String get selectAccount => 'Selecciona una cuenta';
-
-  // Dynamic text retrieval
-  final Map<String, String> _translations = {
-    'darkTheme': 'Modo Oscuro',
-    'darkThemeDescription': 'Cambiar entre tema claro y oscuro',
-    'version': 'Versión 0.1.0',
-    'recentTransactions': 'Transacciones Recientes',
-    'viewAll': 'Ver todas',
-    'noRecentTransactions': 'No hay transacciones recientes',
-    'noDescription': 'Sin descripción',
-    'sortDateAsc': 'Fecha ↑',
-    'sortDateDesc': 'Fecha ↓',
-    'sortAmountAsc': 'Monto ↑',
-    'sortAmountDesc': 'Monto ↓',
-    'all': 'Todas',
-    'filters': 'Filtros',
-    'apply': 'Aplicar',
-    'noTransactions': 'No hay transacciones',
-    'error': 'Error',
-    'noAccounts': 'No hay cuentas',
-    'noCategories': 'No hay categorías',
-    'settings': 'Configuración',
-    'language': 'Idioma',
-    'deleteAccount': 'Eliminar cuenta',
-    'deleteAccountConfirmation': '¿Estás seguro de que deseas eliminar esta cuenta?',
-    'cancel': 'Cancelar',
-    'delete': 'Eliminar',
-    'edit': 'Editar',
-    'unknown': 'Desconocido',
-    'signInWithGoogle': 'Iniciar sesión con Google',
-    'skipSignIn': 'Omitir inicio de sesión',
-    'termsAndConditions': 'Términos y Condiciones',
-    'acceptTerms': 'Acepto los Términos y Condiciones',
-    'acceptMarketing': 'Me gustaría recibir correos de marketing',
-    'termsText': 'Al usar esta aplicación, aceptas nuestros Términos de Servicio y Política de Privacidad...',
-    'welcomeTitle': 'Bienvenido a MoneyT',
-    'readTerms': 'Leer Términos y Condiciones',
-    'totalBalance': 'Balance Total',
-    'monthlyStats': 'Estadísticas del Mes',
-    'income': 'Ingresos',
-    'expenses': 'Gastos',
-    'monthlyBalance': 'Balance Mensual',
-  };
 
   @override
-  String get noAccounts => getText('noAccounts');
+  String get selectAccount => 'Seleccione una cuenta';
 
   @override
-  String get noCategories => getText('noCategories');
+  String get selectCategory => 'Seleccione una categoría';
+
+  // Filter related
+  @override
+  String get filter => 'Filtro';
 
   @override
-  String get noTransactions => getText('noTransactions');
+  String get filterAll => 'Todos';
 
   @override
-  String get recentTransactions => getText('recentTransactions');
+  String get filterIncome => 'Ingresos';
 
   @override
-  String get viewAll => getText('viewAll');
+  String get filterExpense => 'Gastos';
 
   @override
-  String get noRecentTransactions => getText('noRecentTransactions');
+  String get filterTransfer => 'Transferencias';
 
   @override
-  String get sortDateAsc => getText('sortDateAsc');
+  String get all => 'Todo';
 
   @override
-  String get sortDateDesc => getText('sortDateDesc');
+  String get apply => 'Aplicar';
 
   @override
-  String get sortAmountAsc => getText('sortAmountAsc');
+  String get filters => 'Filtros';
 
   @override
-  String get sortAmountDesc => getText('sortAmountDesc');
+  String get from => 'Desde';
 
   @override
-  String get all => getText('all');
+  String get to => 'Hasta';
+
+  // Settings related
+  @override
+  String get settings => 'Configuración';
 
   @override
-  String get filters => getText('filters');
+  String get appearance => 'Apariencia';
 
   @override
-  String get apply => getText('apply');
+  String get about => 'Acerca de';
 
   @override
-  String get darkTheme => getText('darkTheme');
+  String get language => 'Idioma';
 
   @override
-  String get darkThemeDescription => getText('darkThemeDescription');
+  String get english => 'Inglés';
 
   @override
-  String getText(String key) {
-    return _translations[key] ?? key;
-  }
+  String get spanish => 'Español';
+
+  @override
+  String get darkTheme => 'Tema oscuro';
+
+  @override
+  String get darkThemeDescription => 'Activar modo oscuro para una mejor experiencia nocturna';
+
+  // Form Fields and Sections
+  @override
+  String get name => 'Nombre';
+
+  @override
+  String get nameRequired => 'El nombre es requerido';
+
+  @override
+  String get mainCategoryRequired => 'Por favor seleccione una categoría principal';
+
+  @override
+  String get incomeDescription => 'Dinero que ingresa a tus cuentas';
+
+  @override
+  String get expenseDescription => 'Dinero que sale de tus cuentas';
+
+  @override
+  String get create => 'Crear';
+
+  @override
+  String get update => 'Actualizar';
+
+  @override
+  String get fieldRequired => 'Este campo es requerido';
+
+  // Menu sections
+  @override
+  String get main => 'Principal';
+
+  @override
+  String get management => 'Gestión';
+
+  @override
+  String get preferences => 'Preferencias';
+
+  // Stats and Balance
+  @override
+  String get totalBalance => 'Balance total';
+
+  @override
+  String get monthlyStats => 'Estadísticas mensuales';
+
+  @override
+  String get expenses => 'Gastos';
+
+  @override
+  String get monthlyBalance => 'Balance mensual';
+
+  @override
+  String get recentTransactions => 'Transacciones recientes';
+
+  @override
+  String get viewAll => 'Ver todo';
+
+  @override
+  String get noRecentTransactions => 'No hay transacciones recientes';
+
+  @override
+  String get share => 'Compartir';
+
+  @override
+  String get deleteConfirmation => 'Confirmar eliminación';
+
+  @override
+  String get sortDateAsc => 'Fecha ↑';
+
+  @override
+  String get sortDateDesc => 'Fecha ↓';
+
+  @override
+  String get sortAmountAsc => 'Monto ↑';
+
+  @override
+  String get sortAmountDesc => 'Monto ↓';
+
+  @override
+  String getText(String key) => key;
 }
