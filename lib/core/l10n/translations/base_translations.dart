@@ -39,6 +39,9 @@ abstract class BaseTranslations {
   String get accountName;
   String get accountDescription;
   String get balance;
+  String get availableBalance;
+  String get selectAccount;
+  String get toAccount;
   String get newAccount;
   String get editAccount;
   String get deleteAccount;
@@ -49,6 +52,7 @@ abstract class BaseTranslations {
   String get category;
   String get categoryName;
   String get categoryDescription;
+  String get selectCategory;
   String get categoryType;
   String get newCategory;
   String get editCategory;
@@ -71,10 +75,19 @@ abstract class BaseTranslations {
   // Transaction related
   String get transaction;
   String get amount;
+  String get invalidAmount;
+  String get details;
+  String get additionalInformation;
   String get date;
+  String get contact;
   String get description;
   String get reference;
+  String get create;
+  String get update;
   String get newTransaction;
+  String get newIncome;
+  String get newExpense;
+  String get newTransfer;
   String get editTransaction;
   String get deleteTransaction;
   String get deleteTransactionConfirmation => 'Are you sure you want to delete this transaction?';
@@ -85,13 +98,6 @@ abstract class BaseTranslations {
   String get recentTransactions;
   String get viewAll;
   String get noRecentTransactions;
-  String get newExpense => 'New Expense';
-  String get newIncome => 'New Income';
-  String get newTransfer => 'New Transfer';
-  String get toAccount => 'To Account';
-  String get contact => 'Contact';
-  String get details => 'Details';
-  String get additionalInformation => 'Additional Information';
 
   // Transaction Details
   String get transactionDetails => 'Transaction Details';
@@ -132,10 +138,6 @@ abstract class BaseTranslations {
 
   // Validation messages
   String get fieldRequired;
-  String get invalidAmount;
-  String get selectCategory;
-  String get selectAccount;
-
   // Theme
   String get darkTheme => 'Dark Theme';
   String get darkThemeDescription => 'Enable dark mode for a better night experience';
@@ -164,8 +166,6 @@ abstract class BaseTranslations {
   String get mainCategoryRequired => 'Please select a main category';
   String get incomeDescription => 'Money coming into your accounts';
   String get expenseDescription => 'Money going out of your accounts';
-  String get create => 'Create';
-  String get update => 'Update';
 
   // Method to get text by key dynamically
   String getText(String key);
@@ -205,6 +205,9 @@ abstract class BaseTranslations {
       accountName;
       accountDescription;
       balance;
+      availableBalance;
+      selectAccount;
+      toAccount;
       newAccount;
       editAccount;
       deleteAccount;
@@ -213,6 +216,7 @@ abstract class BaseTranslations {
       category;
       categoryName;
       categoryDescription;
+      selectCategory;
       categoryType;
       newCategory;
       editCategory;
@@ -223,10 +227,19 @@ abstract class BaseTranslations {
       noCategories;
       transaction;
       amount;
+      invalidAmount;
+      details;
+      additionalInformation;
       date;
+      contact;
       description;
       reference;
+      create;
+      update;
       newTransaction;
+      newIncome;
+      newExpense;
+      newTransfer;
       editTransaction;
       deleteTransaction;
       deleteTransactionConfirmation;
@@ -237,9 +250,6 @@ abstract class BaseTranslations {
       recentTransactions;
       viewAll;
       noRecentTransactions;
-      newExpense;
-      newIncome;
-      newTransfer;
       toAccount;
       contact;
       details;

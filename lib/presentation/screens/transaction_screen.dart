@@ -215,6 +215,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
           Expanded(
             child: TransactionsListWidget(
               transactionUseCases: widget.transactionUseCases,
+              getCategories: widget.getCategories,
               typeFilter: _selectedType == 'all' ? null : _selectedType,
               startDate: _startDate,
               endDate: _endDate,

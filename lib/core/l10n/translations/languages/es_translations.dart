@@ -62,6 +62,9 @@ class EsTranslations extends BaseTranslations {
   String get balance => 'Balance';
 
   @override
+  String get availableBalance => 'Saldo Disponible';
+
+  @override
   String get newAccount => 'Nueva cuenta';
 
   @override
@@ -196,13 +199,13 @@ class EsTranslations extends BaseTranslations {
   String get newTransfer => 'Nueva transferencia';
 
   @override
-  String get invalidAmount => 'Monto inválido';
+  String get invalidAmount => 'Por favor ingrese un monto válido';
 
   @override
-  String get selectAccount => 'Seleccione una cuenta';
+  String get selectAccount => 'Seleccionar Cuenta';
 
   @override
-  String get selectCategory => 'Seleccione una categoría';
+  String get selectCategory => 'Seleccionar Categoría';
 
   // Filter related
   @override

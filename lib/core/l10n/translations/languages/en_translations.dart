@@ -62,6 +62,9 @@ class EnTranslations extends BaseTranslations {
   String get balance => 'Balance';
 
   @override
+  String get availableBalance => 'Available Balance';
+
+  @override
   String get newAccount => 'New Account';
 
   @override
@@ -196,13 +199,13 @@ class EnTranslations extends BaseTranslations {
   String get newTransfer => 'New Transfer';
 
   @override
-  String get invalidAmount => 'Invalid amount';
+  String get invalidAmount => 'Please enter a valid amount';
 
   @override
-  String get selectAccount => 'Select an account';
+  String get selectAccount => 'Select Account';
 
   @override
-  String get selectCategory => 'Select a category';
+  String get selectCategory => 'Select Category';
 
   // Filter related
   @override

@@ -10,6 +10,8 @@ import '../../domain/usecases/transaction_usecases.dart';
 import '../../domain/usecases/account_usecases.dart';
 import '../../domain/usecases/category_usecases.dart';
 import '../../core/l10n/language_manager.dart';
+import '../widgets/category_selection_modal.dart';
+import '../widgets/account_selection_modal.dart';
 
 class TransactionForm extends StatefulWidget {
   final TransactionEntity? transaction;
@@ -55,6 +57,13 @@ class _TransactionFormState extends State<TransactionForm> {
     _selectedType = widget.transaction?.type ?? widget.type;
     _flow = _selectedType == 'I' ? 'I' : 'O';
     _initializeForm();
+    
+    // Mostrar el modal de categorías al inicio para ingresos y gastos
+    if (!isTransfer && widget.transaction == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showCategorySelectionModal(context);
+      });
+    }
   }
 
   void _initializeForm() {
@@ -95,65 +104,38 @@ class _TransactionFormState extends State<TransactionForm> {
     }
   }
 
-  Widget _buildCategorySelector() {
-    if (isTransfer) return const SizedBox.shrink();
+  void _showAccountSelectionModal(BuildContext context, {bool isToAccount = false}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StreamBuilder<List<AccountEntity>>(
+        stream: widget.getAccounts(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-    final colorScheme = Theme.of(context).colorScheme;
-    final translations = context.watch<LanguageManager>().translations;
-
-    return StreamBuilder<List<CategoryEntity>>(
-      stream: widget.getCategories(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Center(
-            child: CircularProgressIndicator(
-              color: colorScheme.primary,
-            ),
+          return AccountSelectionModal(
+            accounts: snapshot.data!,
+            excludeAccount: isToAccount ? _selectedAccount : null,
+            transactionUseCases: widget.transactionUseCases,
+            onAccountSelected: (account) {
+              setState(() {
+                if (isToAccount) {
+                  _selectedToAccount = account;
+                } else {
+                  _selectedAccount = account;
+                  // Limpiar la cuenta destino si es la misma que la cuenta origen
+                  if (isTransfer && _selectedToAccount == account) {
+                    _selectedToAccount = null;
+                  }
+                }
+              });
+            },
           );
-        }
-
-        final categories = snapshot.data!;
-        final validCategories = categories.where((category) => 
-          category.parentId != null && 
-          ((isExpense && category.type == 'E') || 
-           (isIncome && category.type == 'I'))
-        ).toList();
-
-        return DropdownButtonFormField<CategoryEntity>(
-          value: _selectedCategory,
-          decoration: InputDecoration(
-            labelText: translations.category,
-            prefixIcon: Icon(
-              Icons.category_rounded,
-              color: colorScheme.onSurfaceVariant,
-            ),
-            filled: true,
-            fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          items: validCategories.map((category) {
-            final parent = findParentCategory(categories, category);
-            
-            return DropdownMenuItem(
-              value: category,
-              child: Text('${parent.name} > ${category.name}'),
-            );
-          }).toList(),
-          onChanged: (CategoryEntity? value) {
-            setState(() {
-              _selectedCategory = value;
-            });
-          },
-          validator: (value) {
-            if (!isTransfer && value == null) {
-              return translations.selectCategory;
-            }
-            return null;
-          },
-        );
-      },
+        },
+      ),
     );
   }
 
@@ -172,42 +154,33 @@ class _TransactionFormState extends State<TransactionForm> {
           );
         }
 
-        final accounts = snapshot.data!;
-        return DropdownButtonFormField<AccountEntity>(
-          value: _selectedAccount,
-          decoration: InputDecoration(
-            labelText: translations.account,
-            prefixIcon: Icon(
-              Icons.account_balance_rounded,
-              color: colorScheme.onSurfaceVariant,
+        return InkWell(
+          onTap: () => _showAccountSelectionModal(context),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              labelText: translations.account,
+              prefixIcon: Icon(
+                Icons.account_balance_rounded,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              suffixIcon: Icon(
+                Icons.arrow_drop_down,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              filled: true,
+              fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              errorText: _selectedAccount == null ? translations.selectAccount : null,
             ),
-            filled: true,
-            fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+            child: Text(
+              _selectedAccount?.name ?? '',
+              style: TextStyle(
+                color: colorScheme.onSurface,
+              ),
             ),
           ),
-          items: accounts.map((account) {
-            return DropdownMenuItem(
-              value: account,
-              child: Text(account.name),
-            );
-          }).toList(),
-          onChanged: (AccountEntity? value) {
-            setState(() {
-              _selectedAccount = value;
-              // Limpiar la cuenta destino si es la misma que la cuenta origen
-              if (isTransfer && _selectedToAccount == value) {
-                _selectedToAccount = null;
-              }
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return translations.selectAccount;
-            }
-            return null;
-          },
         );
       },
     );
@@ -230,15 +203,77 @@ class _TransactionFormState extends State<TransactionForm> {
           );
         }
 
-        final accounts = snapshot.data!.where((account) => account != _selectedAccount).toList();
         return Padding(
           padding: const EdgeInsets.only(top: 16.0),
-          child: DropdownButtonFormField<AccountEntity>(
-            value: _selectedToAccount,
+          child: InkWell(
+            onTap: () => _showAccountSelectionModal(context, isToAccount: true),
+            child: InputDecorator(
+              decoration: InputDecoration(
+                labelText: translations.toAccount,
+                prefixIcon: Icon(
+                  Icons.account_balance_rounded,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                suffixIcon: Icon(
+                  Icons.arrow_drop_down,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                filled: true,
+                fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                errorText: isTransfer && _selectedToAccount == null ? translations.selectAccount : null,
+              ),
+              child: Text(
+                _selectedToAccount?.name ?? '',
+                style: TextStyle(
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCategorySelector() {
+    if (isTransfer) return const SizedBox.shrink();
+
+    final colorScheme = Theme.of(context).colorScheme;
+    final translations = context.watch<LanguageManager>().translations;
+
+    return StreamBuilder<List<CategoryEntity>>(
+      stream: widget.getCategories(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: colorScheme.primary,
+            ),
+          );
+        }
+
+        final categories = snapshot.data!;
+        final selectedCategoryName = _selectedCategory != null 
+          ? categories
+              .where((c) => c.id == _selectedCategory!.parentId)
+              .map((parent) => '${parent.name} > ${_selectedCategory!.name}')
+              .first
+          : '';
+
+        return InkWell(
+          onTap: () => _showCategorySelectionModal(context),
+          child: InputDecorator(
             decoration: InputDecoration(
-              labelText: translations.toAccount,
+              labelText: translations.category,
               prefixIcon: Icon(
-                Icons.account_balance_rounded,
+                Icons.category_rounded,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              suffixIcon: Icon(
+                Icons.arrow_drop_down,
                 color: colorScheme.onSurfaceVariant,
               ),
               filled: true,
@@ -246,24 +281,14 @@ class _TransactionFormState extends State<TransactionForm> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+              errorText: _selectedCategory == null ? translations.selectCategory : null,
             ),
-            items: accounts.map((account) {
-              return DropdownMenuItem(
-                value: account,
-                child: Text(account.name),
-              );
-            }).toList(),
-            onChanged: (AccountEntity? value) {
-              setState(() {
-                _selectedToAccount = value;
-              });
-            },
-            validator: (value) {
-              if (isTransfer && value == null) {
-                return translations.selectAccount;
-              }
-              return null;
-            },
+            child: Text(
+              selectedCategoryName,
+              style: TextStyle(
+                color: colorScheme.onSurface,
+              ),
+            ),
           ),
         );
       },
@@ -351,6 +376,32 @@ class _TransactionFormState extends State<TransactionForm> {
         }
       }
     }
+  }
+
+  void _showCategorySelectionModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StreamBuilder<List<CategoryEntity>>(
+        stream: widget.getCategories(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return CategorySelectionModal(
+            categories: snapshot.data!,
+            transactionType: _selectedType,
+            onCategorySelected: (category) {
+              setState(() {
+                _selectedCategory = category;
+              });
+            },
+          );
+        },
+      ),
+    );
   }
 
   @override
