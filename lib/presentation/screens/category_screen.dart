@@ -19,7 +19,7 @@ class CategoryFormArgs {
   });
 }
 
-class CategoryScreen extends StatelessWidget {
+class CategoryScreen extends StatefulWidget {
   // Categorías
   final GetCategories getCategories;
   final CreateCategory createCategory;
@@ -46,6 +46,13 @@ class CategoryScreen extends StatelessWidget {
     required this.deleteAccount,
     required this.transactionUseCases,
   }) : super(key: key);
+
+  @override
+  State<CategoryScreen> createState() => _CategoryScreenState();
+}
+
+class _CategoryScreenState extends State<CategoryScreen> {
+  final Map<int, bool> _expandedStates = {};
 
   Future<void> _navigateToForm(BuildContext context, {CategoryEntity? category}) async {
     await Navigator.pushNamed(
@@ -94,15 +101,15 @@ class CategoryScreen extends StatelessWidget {
           ),
         ),
         drawer: AppDrawer(
-          getCategories: getCategories,
-          createCategory: createCategory,
-          updateCategory: updateCategory,
-          deleteCategory: deleteCategory,
-          getAccounts: getAccounts,
-          createAccount: createAccount,
-          updateAccount: updateAccount,
-          deleteAccount: deleteAccount,
-          transactionUseCases: transactionUseCases,
+          getCategories: widget.getCategories,
+          createCategory: widget.createCategory,
+          updateCategory: widget.updateCategory,
+          deleteCategory: widget.deleteCategory,
+          getAccounts: widget.getAccounts,
+          createAccount: widget.createAccount,
+          updateAccount: widget.updateAccount,
+          deleteAccount: widget.deleteAccount,
+          transactionUseCases: widget.transactionUseCases,
         ),
         body: TabBarView(
           children: [
@@ -129,7 +136,7 @@ class CategoryScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return StreamBuilder<List<CategoryEntity>>(
-      stream: getCategories(),
+      stream: widget.getCategories(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
@@ -170,6 +177,22 @@ class CategoryScreen extends StatelessWidget {
           );
         }
 
+        // Separar categorías padre e hijas
+        final parentCategories = categories
+            .where((category) => category.parentId == null)
+            .toList();
+        
+        final Map<int, List<CategoryEntity>> childrenByParent = {};
+        final childCategories = categories
+            .where((category) => category.parentId != null);
+        
+        for (var child in childCategories) {
+          if (!childrenByParent.containsKey(child.parentId)) {
+            childrenByParent[child.parentId!] = [];
+          }
+          childrenByParent[child.parentId!]!.add(child);
+        }
+
         return Container(
           margin: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -179,43 +202,106 @@ class CategoryScreen extends StatelessWidget {
               color: colorScheme.outline.withOpacity(0.2),
             ),
           ),
-          child: ListView.separated(
+          child: ListView.builder(
             padding: const EdgeInsets.all(8),
-            itemCount: categories.length,
-            separatorBuilder: (context, index) => Divider(
-              color: colorScheme.outline.withOpacity(0.2),
-              height: 1,
-            ),
+            itemCount: parentCategories.length,
             itemBuilder: (context, index) {
-              final category = categories[index];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: colorScheme.primaryContainer,
-                  child: Icon(
-                    Icons.category_outlined,
-                    color: colorScheme.onPrimaryContainer,
-                  ),
-                ),
-                title: Text(
-                  category.name,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                subtitle: category.description?.isNotEmpty ?? false
-                    ? Text(
-                        category.description!,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
+              final parentCategory = parentCategories[index];
+              final children = childrenByParent[parentCategory.id] ?? [];
+
+              return Column(
+                children: [
+                  // Categoría padre como ExpansionTile
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors.transparent,
+                    ),
+                    child: ExpansionTile(
+                      key: Key('category_${parentCategory.id}'),
+                      initiallyExpanded: _expandedStates[parentCategory.id] ?? false,
+                      onExpansionChanged: (expanded) {
+                        setState(() {
+                          _expandedStates[parentCategory.id] = expanded;
+                        });
+                      },
+                      leading: CircleAvatar(
+                        backgroundColor: colorScheme.primaryContainer,
+                        child: Icon(
+                          Icons.folder_outlined,
+                          color: colorScheme.onPrimaryContainer,
                         ),
-                      )
-                    : null,
-                trailing: IconButton(
-                  icon: Icon(
-                    Icons.edit_outlined,
-                    color: colorScheme.primary,
+                      ),
+                      title: Text(
+                        parentCategory.name,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: parentCategory.description?.isNotEmpty ?? false
+                          ? Text(
+                              parentCategory.description!,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            )
+                          : null,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.edit_outlined,
+                              color: colorScheme.primary,
+                            ),
+                            onPressed: () => _navigateToForm(context, category: parentCategory),
+                          ),
+                          Icon(
+                            _expandedStates[parentCategory.id] ?? false 
+                                ? Icons.keyboard_arrow_up 
+                                : Icons.keyboard_arrow_down,
+                            color: colorScheme.primary,
+                          ),
+                        ],
+                      ),
+                      children: children.map((child) => ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: colorScheme.secondaryContainer,
+                          child: Icon(
+                            Icons.category_outlined,
+                            color: colorScheme.onSecondaryContainer,
+                          ),
+                        ),
+                        title: Text(
+                          child.name,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        subtitle: child.description?.isNotEmpty ?? false
+                            ? Text(
+                                child.description!,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              )
+                            : null,
+                        trailing: IconButton(
+                          icon: Icon(
+                            Icons.edit_outlined,
+                            color: colorScheme.primary,
+                          ),
+                          onPressed: () => _navigateToForm(context, category: child),
+                        ),
+                        onTap: () => _navigateToForm(context, category: child),
+                      )).toList(),
+                    ),
                   ),
-                  onPressed: () => _navigateToForm(context, category: category),
-                ),
-                onTap: () => _navigateToForm(context, category: category),
+                  if (index < parentCategories.length - 1)
+                    Divider(
+                      color: colorScheme.outline.withOpacity(0.2),
+                      height: 1,
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                ],
               );
             },
           ),

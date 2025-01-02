@@ -179,11 +179,11 @@ class _CategoryFormState extends State<CategoryForm> {
                             children: [
                               _buildTypeOption(
                                 context: context,
-                                title: translations.expense,
-                                subtitle: translations.expenseDescription,
-                                value: 'E',
+                                title: translations.income,
+                                subtitle: translations.incomeDescription,
+                                value: 'I',
                                 groupValue: type,
-                                icon: Icons.remove_circle_outline_rounded,
+                                icon: Icons.add_circle_outline_rounded,
                                 onChanged: widget.category == null
                                     ? (String? value) {
                                         if (value != null) {
@@ -195,11 +195,11 @@ class _CategoryFormState extends State<CategoryForm> {
                               const SizedBox(height: 8),
                               _buildTypeOption(
                                 context: context,
-                                title: translations.income,
-                                subtitle: translations.incomeDescription,
-                                value: 'I',
+                                title: translations.expense,
+                                subtitle: translations.expenseDescription,
+                                value: 'E',
                                 groupValue: type,
-                                icon: Icons.add_circle_outline_rounded,
+                                icon: Icons.remove_circle_outline_rounded,
                                 onChanged: widget.category == null
                                     ? (String? value) {
                                         if (value != null) {
