@@ -5,7 +5,7 @@ abstract class ContactRepository {
   Stream<List<Contact>> watchAllContacts();
   Future<Contact> getContactById(int id);
   Stream<Contact> watchContactById(int id);
-  Future<int> createContact(Contact contact);
+  Future<Contact> createContact(Contact contact);
   Future<bool> updateContact(Contact contact);
   Future<bool> deleteContact(int id);
 }

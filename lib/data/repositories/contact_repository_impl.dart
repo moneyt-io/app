@@ -73,8 +73,9 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
-  Future<int> createContact(Contact contact) {
-    return _contactDao.insertContact(_mapToCompanion(contact));
+  Future<Contact> createContact(Contact contact) async {
+    final id = await _contactDao.insertContact(_mapToCompanion(contact));
+    return contact.copyWith(id: id);
   }
 
   @override

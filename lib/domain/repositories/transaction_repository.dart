@@ -9,6 +9,7 @@ abstract class TransactionRepository {
   Stream<List<TransactionEntity>> watchTransactionsByTypeAndFlow(String type, String flow);
   Stream<List<TransactionEntity>> watchTransactionsByAccount(int accountId);
   Stream<List<TransactionEntity>> watchTransactionsByCategory(int categoryId);
+  Stream<List<TransactionEntity>> watchTransactionsByContact(int contactId);
   Stream<List<TransactionEntity>> watchTransactionsByDateRange(DateTime startDate, DateTime endDate);
 
   // Operaciones CRUD
@@ -28,6 +29,6 @@ abstract class TransactionRepository {
     required DateTime date,
     String? description,
     String? reference,
-    String? contact,
+    int? contactId,
   });
 }

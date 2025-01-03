@@ -6,12 +6,15 @@ import 'package:provider/provider.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/entities/account.dart';
 import '../../domain/entities/category.dart';
+import '../../domain/entities/contact.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../../domain/usecases/account_usecases.dart';
 import '../../domain/usecases/category_usecases.dart';
 import '../../core/l10n/language_manager.dart';
 import '../widgets/category_selection_modal.dart';
 import '../widgets/account_selection_modal.dart';
+import '../widgets/contact_selection_modal.dart';
+import '../providers/drawer_provider.dart';
 
 class TransactionForm extends StatefulWidget {
   final TransactionEntity? transaction;
@@ -38,7 +41,6 @@ class _TransactionFormState extends State<TransactionForm> {
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _referenceController = TextEditingController();
-  final _contactController = TextEditingController();
 
   late DateTime _selectedDate;
   late String _selectedType;
@@ -46,6 +48,7 @@ class _TransactionFormState extends State<TransactionForm> {
   AccountEntity? _selectedAccount;
   AccountEntity? _selectedToAccount;
   CategoryEntity? _selectedCategory;
+  Contact? _selectedContact;
 
   bool get isTransfer => _selectedType == 'T';
   bool get isExpense => _selectedType == 'E';
@@ -71,7 +74,6 @@ class _TransactionFormState extends State<TransactionForm> {
       _amountController.text = widget.transaction!.amount.toString();
       _descriptionController.text = widget.transaction!.description ?? '';
       _referenceController.text = widget.transaction!.reference ?? '';
-      _contactController.text = widget.transaction!.contact ?? '';
       _selectedDate = widget.transaction!.transactionDate;
     } else {
       _selectedDate = DateTime.now();
@@ -83,7 +85,6 @@ class _TransactionFormState extends State<TransactionForm> {
     _amountController.dispose();
     _descriptionController.dispose();
     _referenceController.dispose();
-    _contactController.dispose();
     super.dispose();
   }
 
@@ -135,6 +136,38 @@ class _TransactionFormState extends State<TransactionForm> {
             },
           );
         },
+      ),
+    );
+  }
+
+  void _showContactSelectionModal(BuildContext context) {
+    final drawerProvider = Provider.of<DrawerProvider>(context, listen: false);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: StreamBuilder<List<Contact>>(
+          stream: drawerProvider.getContacts.call(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return ContactSelectionModal(
+              contacts: snapshot.data!,
+              onContactSelected: (contact) {
+                setState(() {
+                  _selectedContact = contact;
+                });
+              },
+              createContact: drawerProvider.createContact,
+            );
+          },
+        ),
       ),
     );
   }
@@ -338,7 +371,7 @@ class _TransactionFormState extends State<TransactionForm> {
             date: _selectedDate,
             description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
             reference: _referenceController.text.isEmpty ? null : _referenceController.text,
-            contact: _contactController.text.isEmpty ? null : _contactController.text,
+            contactId: _selectedContact?.id,
           );
         } else {
           // Si no es una transferencia, crear una transacción normal
@@ -350,7 +383,7 @@ class _TransactionFormState extends State<TransactionForm> {
             accountId: _selectedAccount!.id,
             categoryId: isTransfer ? null : _selectedCategory!.id,
             reference: _referenceController.text.isEmpty ? null : _referenceController.text,
-            contact: _contactController.text.isEmpty ? null : _contactController.text,
+            contactId: _selectedContact?.id,
             description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
             transactionDate: _selectedDate,
             createdAt: widget.transaction?.createdAt ?? DateTime.now(),
@@ -607,18 +640,30 @@ class _TransactionFormState extends State<TransactionForm> {
                     const SizedBox(height: 16),
 
                     // Contacto
-                    TextFormField(
-                      controller: _contactController,
-                      decoration: InputDecoration(
-                        labelText: translations.contact,
-                        prefixIcon: Icon(
-                          Icons.person_rounded,
-                          color: colorScheme.onSurfaceVariant,
+                    InkWell(
+                      onTap: () => _showContactSelectionModal(context),
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: translations.contact,
+                          prefixIcon: Icon(
+                            Icons.person_rounded,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          suffixIcon: Icon(
+                            Icons.arrow_drop_down,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          filled: true,
+                          fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        filled: true,
-                        fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        child: Text(
+                          _selectedContact?.name ?? '',
+                          style: TextStyle(
+                            color: colorScheme.onSurface,
+                          ),
                         ),
                       ),
                     ),

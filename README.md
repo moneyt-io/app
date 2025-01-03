@@ -1,3 +1,2 @@
-# moneyt_pfm
+# 🪙 MoneyT - Personal Finance Manager
 
-A new Flutter project.

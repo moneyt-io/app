@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/entities/category.dart';
+import '../../domain/entities/contact.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../../routes/app_routes.dart';
 import '../../core/l10n/language_manager.dart';
@@ -150,164 +151,180 @@ class TransactionsListWidget extends StatelessWidget {
                 category.id: category
             };
 
-            return Column(
-              children: [
-                // Resumen de transacciones
-                Card(
-                  margin: const EdgeInsets.all(8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              translations.income,
-                              style: TextStyle(color: colorScheme.primary),
-                            ),
-                            Text(
-                              NumberFormat.currency(symbol: '\$', decimalDigits: 2)
-                                  .format(totalIncome),
-                              style: TextStyle(
-                                color: colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              translations.expense,
-                              style: TextStyle(color: colorScheme.error),
-                            ),
-                            Text(
-                              NumberFormat.currency(symbol: '\$', decimalDigits: 2)
-                                  .format(totalExpense),
-                              style: TextStyle(
-                                color: colorScheme.error,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              translations.transfer,
-                              style: TextStyle(color: colorScheme.tertiary),
-                            ),
-                            Text(
-                              NumberFormat.currency(symbol: '\$', decimalDigits: 2)
-                                  .format(totalTransfer),
-                              style: TextStyle(
-                                color: colorScheme.tertiary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Divider(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              translations.balance,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              NumberFormat.currency(symbol: '\$', decimalDigits: 2)
-                                  .format(totalIncome - totalExpense),
-                              style: TextStyle(
-                                color: totalIncome - totalExpense >= 0
-                                    ? colorScheme.primary
-                                    : colorScheme.error,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Lista de transacciones
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: filteredTransactions.length,
-                    itemBuilder: (context, index) {
-                      final transaction = filteredTransactions[index];
-                      final category = transaction.categoryId != null
-                          ? categories[transaction.categoryId]
-                          : null;
+            return StreamBuilder<List<Contact>>(
+              stream: drawerProvider.getContacts(),
+              builder: (context, contactsSnapshot) {
+                if (!contactsSnapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: transaction.type == 'T'
-                              ? colorScheme.tertiary
-                              : transaction.type == 'I'
-                                  ? colorScheme.primary
-                                  : colorScheme.error,
-                          child: Icon(
-                            transaction.type == 'T'
-                                ? Icons.swap_horiz
-                                : transaction.type == 'I'
-                                    ? Icons.arrow_upward
-                                    : Icons.arrow_downward,
-                            color: colorScheme.onPrimary,
-                          ),
-                        ),
-                        title: Text(
-                          category?.name ?? translations.unknown,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                final contacts = {
+                  for (var contact in contactsSnapshot.data!)
+                    contact.id: contact
+                };
+
+                return Column(
+                  children: [
+                    // Resumen de transacciones
+                    Card(
+                      margin: const EdgeInsets.all(8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
                           children: [
-                            if (transaction.contact != null &&
-                                transaction.contact!.isNotEmpty)
-                              Text(
-                                transaction.contact!,
-                                style: TextStyle(
-                                  color: colorScheme.primary,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  translations.income,
+                                  style: TextStyle(color: colorScheme.primary),
                                 ),
-                              ),
-                            Text(
-                              DateFormat('dd/MM/yyyy')
-                                  .format(transaction.transactionDate),
-                              style: Theme.of(context).textTheme.bodySmall,
+                                Text(
+                                  NumberFormat.currency(symbol: '\$', decimalDigits: 2)
+                                      .format(totalIncome),
+                                  style: TextStyle(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  translations.expense,
+                                  style: TextStyle(color: colorScheme.error),
+                                ),
+                                Text(
+                                  NumberFormat.currency(symbol: '\$', decimalDigits: 2)
+                                      .format(totalExpense),
+                                  style: TextStyle(
+                                    color: colorScheme.error,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  translations.transfer,
+                                  style: TextStyle(color: colorScheme.tertiary),
+                                ),
+                                Text(
+                                  NumberFormat.currency(symbol: '\$', decimalDigits: 2)
+                                      .format(totalTransfer),
+                                  style: TextStyle(
+                                    color: colorScheme.tertiary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Divider(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  translations.balance,
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  NumberFormat.currency(symbol: '\$', decimalDigits: 2)
+                                      .format(totalIncome - totalExpense),
+                                  style: TextStyle(
+                                    color: totalIncome - totalExpense >= 0
+                                        ? colorScheme.primary
+                                        : colorScheme.error,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        trailing: Text(
-                          NumberFormat.currency(symbol: '\$', decimalDigits: 2)
-                              .format(transaction.amount),
-                          style: TextStyle(
-                            color: transaction.type == 'T'
-                                ? colorScheme.tertiary
-                                : transaction.type == 'I'
-                                    ? colorScheme.primary
-                                    : colorScheme.error,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            AppRoutes.transactionDetails,
-                            arguments: transaction,
+                      ),
+                    ),
+                    // Lista de transacciones
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: filteredTransactions.length,
+                        itemBuilder: (context, index) {
+                          final transaction = filteredTransactions[index];
+                          final category = transaction.categoryId != null
+                              ? categories[transaction.categoryId]
+                              : null;
+                          final contact = transaction.contactId != null
+                              ? contacts[transaction.contactId]
+                              : null;
+
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: transaction.type == 'T'
+                                  ? colorScheme.tertiary
+                                  : transaction.type == 'I'
+                                      ? colorScheme.primary
+                                      : colorScheme.error,
+                              child: Icon(
+                                transaction.type == 'T'
+                                    ? Icons.swap_horiz
+                                    : transaction.type == 'I'
+                                        ? Icons.arrow_upward
+                                        : Icons.arrow_downward,
+                                color: colorScheme.onPrimary,
+                              ),
+                            ),
+                            title: Text(
+                              category?.name ?? translations.unknown,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (contact != null)
+                                  Text(
+                                    contact.name,
+                                    style: TextStyle(
+                                      color: colorScheme.primary,
+                                    ),
+                                  ),
+                                Text(
+                                  DateFormat('dd/MM/yyyy')
+                                      .format(transaction.transactionDate),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                            trailing: Text(
+                              NumberFormat.currency(symbol: '\$', decimalDigits: 2)
+                                  .format(transaction.amount),
+                              style: TextStyle(
+                                color: transaction.type == 'T'
+                                    ? colorScheme.tertiary
+                                    : transaction.type == 'I'
+                                        ? colorScheme.primary
+                                        : colorScheme.error,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.transactionDetails,
+                                arguments: transaction,
+                              );
+                            },
                           );
                         },
-                      );
-                    },
-                  ),
-                ),
-              ],
+                      ),
+                    ),
+                  ],
+                );
+              },
             );
           },
         );

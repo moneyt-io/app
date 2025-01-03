@@ -72,13 +72,13 @@ class _ContactFormState extends State<ContactForm> {
 
       if (mounted) {
         final translations = context.read<LanguageManager>().translations;
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(translations.contactSaved),
-            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
           ),
         );
-        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
@@ -86,8 +86,8 @@ class _ContactFormState extends State<ContactForm> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${translations.error}: $e'),
-            behavior: SnackBarBehavior.floating,
             backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -100,169 +100,177 @@ class _ContactFormState extends State<ContactForm> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? translations.editContact : translations.addContact),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            // Información Personal
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(
-                  color: colorScheme.outlineVariant,
-                  width: 1,
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      translations.contactInformation,
-                      style: textTheme.titleMedium?.copyWith(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        labelText: translations.contactName,
-                        prefixIcon: Icon(
-                          Icons.person_outline_rounded,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                        filled: true,
-                        fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return translations.contactNameRequired;
-                        }
-                        return null;
-                      },
-                      textInputAction: TextInputAction.next,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: emailController,
-                      decoration: InputDecoration(
-                        labelText: translations.contactEmail,
-                        prefixIcon: Icon(
-                          Icons.email_outlined,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                        filled: true,
-                        fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: phoneController,
-                      decoration: InputDecoration(
-                        labelText: translations.contactPhone,
-                        prefixIcon: Icon(
-                          Icons.phone_outlined,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                        filled: true,
-                        fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      keyboardType: TextInputType.phone,
-                      textInputAction: TextInputAction.next,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Notas
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(
-                  color: colorScheme.outlineVariant,
-                  width: 1,
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      translations.additionalInformation,
-                      style: textTheme.titleMedium?.copyWith(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: notesController,
-                      decoration: InputDecoration(
-                        labelText: translations.contactNotes,
-                        alignLabelWithHint: true,
-                        prefixIcon: Icon(
-                          Icons.note_outlined,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                        filled: true,
-                        fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      maxLines: 4,
-                      textInputAction: TextInputAction.done,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+    final inputDecoration = InputDecoration(
+      filled: true,
+      fillColor: colorScheme.surfaceVariant.withOpacity(0.5),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: colorScheme.outline,
+          width: 0.5,
         ),
       ),
-      persistentFooterButtons: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: FilledButton(
-            onPressed: _saveContact,
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(double.infinity, 56),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: colorScheme.outline.withOpacity(0.5),
+          width: 0.5,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: colorScheme.primary,
+          width: 1.5,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: colorScheme.error,
+          width: 0.5,
+        ),
+      ),
+      contentPadding: const EdgeInsets.all(16),
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          isEditing ? translations.editContact : translations.addContact,
+          style: textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            children: [
+              Card(
+                elevation: 0,
+                margin: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: colorScheme.outlineVariant,
+                    width: 1,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        translations.contactInformation,
+                        style: textTheme.titleMedium?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      TextFormField(
+                        controller: nameController,
+                        decoration: inputDecoration.copyWith(
+                          labelText: translations.contactName,
+                          prefixIcon: Icon(
+                            Icons.person_outline_rounded,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 24,
+                          ),
+                        ),
+                        style: textTheme.bodyLarge,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return translations.contactNameRequired;
+                          }
+                          return null;
+                        },
+                        textInputAction: TextInputAction.next,
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: emailController,
+                        decoration: inputDecoration.copyWith(
+                          labelText: translations.contactEmail,
+                          prefixIcon: Icon(
+                            Icons.email_outlined,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 24,
+                          ),
+                        ),
+                        style: textTheme.bodyLarge,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: phoneController,
+                        decoration: inputDecoration.copyWith(
+                          labelText: translations.contactPhone,
+                          prefixIcon: Icon(
+                            Icons.phone_outlined,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 24,
+                          ),
+                        ),
+                        style: textTheme.bodyLarge,
+                        keyboardType: TextInputType.phone,
+                        textInputAction: TextInputAction.next,
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: notesController,
+                        decoration: inputDecoration.copyWith(
+                          labelText: translations.contactNotes,
+                          alignLabelWithHint: true,
+                          prefixIcon: Padding(
+                            padding: const EdgeInsets.only(bottom: 64),
+                            child: Icon(
+                              Icons.note_outlined,
+                              color: colorScheme.onSurfaceVariant,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                        style: textTheme.bodyLarge,
+                        maxLines: 4,
+                        textInputAction: TextInputAction.done,
+                      ),
+                    ],
+                  ),
+                ),
               ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.fromLTRB(24, 0, 24, MediaQuery.of(context).padding.bottom + 16),
+        child: FilledButton(
+          onPressed: _saveContact,
+          style: FilledButton.styleFrom(
+            minimumSize: const Size.fromHeight(56),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(
-              translations.save,
-              style: textTheme.titleMedium?.copyWith(
-                color: colorScheme.onPrimary,
-              ),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+          ),
+          child: Text(
+            translations.save,
+            style: textTheme.titleMedium?.copyWith(
+              color: colorScheme.onPrimary,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.1,
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }

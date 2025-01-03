@@ -7,7 +7,7 @@ class TransactionEntity {
   final int accountId;
   final int? categoryId;
   final String? reference;
-  final String? contact;
+  final int? contactId;
   final String? description;
   final DateTime transactionDate;
   final DateTime? createdAt;
@@ -22,7 +22,7 @@ class TransactionEntity {
     required this.accountId,
     this.categoryId,
     this.reference,
-    this.contact,
+    this.contactId,
     this.description,
     required this.transactionDate,
     this.createdAt,
@@ -38,7 +38,7 @@ class TransactionEntity {
     int? accountId,
     int? categoryId,
     String? reference,
-    String? contact,
+    int? contactId,
     String? description,
     DateTime? transactionDate,
     DateTime? createdAt,
@@ -53,12 +53,48 @@ class TransactionEntity {
       accountId: accountId ?? this.accountId,
       categoryId: categoryId ?? this.categoryId,
       reference: reference ?? this.reference,
-      contact: contact ?? this.contact,
+      contactId: contactId ?? this.contactId,
       description: description ?? this.description,
       transactionDate: transactionDate ?? this.transactionDate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       status: status ?? this.status,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'type': type,
+      'flow': flow,
+      'amount': amount,
+      'account_id': accountId,
+      'category_id': categoryId,
+      'reference': reference,
+      'contact_id': contactId,
+      'description': description,
+      'transaction_date': transactionDate.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+      'status': status ? 1 : 0,
+    };
+  }
+
+  factory TransactionEntity.fromMap(Map<String, dynamic> map) {
+    return TransactionEntity(
+      id: map['id'],
+      type: map['type'],
+      flow: map['flow'],
+      amount: map['amount'],
+      accountId: map['account_id'],
+      categoryId: map['category_id'],
+      reference: map['reference'],
+      contactId: map['contact_id'],
+      description: map['description'],
+      transactionDate: DateTime.parse(map['transaction_date']),
+      createdAt: map['created_at'] != null ? DateTime.parse(map['created_at']) : null,
+      updatedAt: map['updated_at'] != null ? DateTime.parse(map['updated_at']) : null,
+      status: map['status'] == 1,
     );
   }
 }

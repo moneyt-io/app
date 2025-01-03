@@ -351,6 +351,12 @@ class EsTranslations extends BaseTranslations {
   String get contacts => 'Contactos';
 
   @override
+  String get selectContact => 'Seleccionar Contacto';
+
+  @override
+  String get searchOrCreateContact => 'Buscar o escribir para crear contacto';
+
+  @override
   String get newContact => 'Nuevo Contacto';
 
   @override
@@ -400,6 +406,9 @@ class EsTranslations extends BaseTranslations {
 
   @override
   String get contactInformation => 'Información del Contacto';
+
+  @override
+  String get createContact => 'Crear Contacto';
 
   @override
   String getText(String key) => key;

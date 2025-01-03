@@ -35,7 +35,7 @@ class TransactionUseCases {
     required DateTime date,
     String? description,
     String? reference,
-    String? contact,
+    int? contactId,
   }) {
     return repository.createTransfer(
       fromAccountId: fromAccountId,
@@ -44,7 +44,7 @@ class TransactionUseCases {
       date: date,
       description: description,
       reference: reference,
-      contact: contact,
+      contactId: contactId,
     );
   }
 
@@ -81,6 +81,11 @@ class TransactionUseCases {
   // Observar transacciones por categoría
   Stream<List<TransactionEntity>> watchTransactionsByCategory(int categoryId) {
     return repository.watchTransactionsByCategory(categoryId);
+  }
+
+  // Observar transacciones por contacto
+  Stream<List<TransactionEntity>> watchTransactionsByContact(int contactId) {
+    return repository.watchTransactionsByContact(contactId);
   }
 
   // Observar transacciones por rango de fechas

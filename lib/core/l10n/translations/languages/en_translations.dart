@@ -212,6 +212,12 @@ class EnTranslations extends BaseTranslations {
   String get contacts => 'Contacts';
 
   @override
+  String get selectContact => 'Select Contact';
+
+  @override
+  String get searchOrCreateContact => 'Search or type to create contact';
+
+  @override
   String get newContact => 'New Contact';
 
   @override
@@ -243,6 +249,9 @@ class EnTranslations extends BaseTranslations {
 
   @override
   String get contactPhone => 'Phone';
+
+  @override
+  String get createContact => 'Create Contact';
 
   // Filter related
   String get filter => 'Filter';

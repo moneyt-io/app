@@ -172,10 +172,12 @@ abstract class BaseTranslations {
 
   // Contacts
   String get contacts;
-  String get newContact => 'New Contact';
-  String get editContact => 'Edit Contact';
-  String get deleteContact => 'Delete Contact';
-  String get deleteContactTitle => 'Delete Contact';
+  String get selectContact => throw UnimplementedError();
+  String get searchOrCreateContact => throw UnimplementedError();
+  String get newContact;
+  String get editContact;
+  String get deleteContact;
+  String get deleteContactTitle;
   String deleteContactMessage(String name) => 'Are you sure you want to delete $name?';
   String get contactDeleted => 'Contact deleted successfully';
   String get noContactsMessage => 'No contacts yet. Add your first contact!';
@@ -189,6 +191,7 @@ abstract class BaseTranslations {
   String get contactSaved => 'Contact saved successfully';
   String get contactNameRequired => 'Contact name is required';
   String get contactInformation => 'Contact Information';
+  String get createContact => throw UnimplementedError();
   
   // Method to get text by key dynamically
   String getText(String key);
@@ -352,6 +355,8 @@ abstract class BaseTranslations {
 
       // Contacts
       contacts;
+      selectContact;
+      searchOrCreateContact;
       newContact;
       editContact;
       deleteContact;
@@ -369,6 +374,7 @@ abstract class BaseTranslations {
       allContacts;
       contactInformation;
       additionalInformation;
+      createContact;
 
       return true;
     } catch (e) {

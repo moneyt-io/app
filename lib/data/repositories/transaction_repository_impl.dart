@@ -20,7 +20,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       accountId: transaction.accountId,
       categoryId: transaction.categoryId,
       reference: transaction.reference,
-      contact: transaction.contact,
+      contactId: transaction.contactId,
       description: transaction.description,
       transactionDate: transaction.transactionDate,
       createdAt: transaction.createdAt,
@@ -39,7 +39,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       accountId: Value(transaction.accountId),
       categoryId: Value(transaction.categoryId),
       reference: Value(transaction.reference),
-      contact: Value(transaction.contact),
+      contactId: Value(transaction.contactId),
       description: Value(transaction.description),
       transactionDate: Value(transaction.transactionDate),
       status: Value(transaction.status),
@@ -73,6 +73,12 @@ class TransactionRepositoryImpl implements TransactionRepository {
   @override
   Stream<List<TransactionEntity>> watchTransactionsByCategory(int categoryId) {
     return _transactionDao.watchTransactionsByCategory(categoryId)
+        .map((list) => list.map(_mapToEntity).toList());
+  }
+
+  @override
+  Stream<List<TransactionEntity>> watchTransactionsByContact(int contactId) {
+    return _transactionDao.watchTransactionsByContact(contactId)
         .map((list) => list.map(_mapToEntity).toList());
   }
 
@@ -135,7 +141,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
     required DateTime date,
     String? description,
     String? reference,
-    String? contact,
+    int? contactId,
   }) async {
     await _transactionDao.createTransfer(
       fromAccountId: fromAccountId,
@@ -144,7 +150,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       date: date,
       description: description,
       reference: reference,
-      contact: contact,
+      contactId: contactId,
     );
   }
 }

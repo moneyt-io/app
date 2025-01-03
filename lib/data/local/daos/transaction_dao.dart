@@ -62,6 +62,14 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
         .watch();
   }
 
+  // Observar transacciones por contacto
+  Stream<List<Transaction>> watchTransactionsByContact(int contactId) {
+    return (select(transactions)
+      ..where((t) => t.contactId.equals(contactId) & t.status.equals(true))
+      ..orderBy([(t) => OrderingTerm(expression: t.transactionDate, mode: OrderingMode.desc)]))
+        .watch();
+  }
+
   // Obtener una transacción por ID
   Future<Transaction?> getTransactionById(int id) =>
       (select(transactions)..where((t) => t.id.equals(id))).getSingleOrNull();
@@ -158,7 +166,7 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
     required DateTime date,
     String? description,
     String? reference,
-    String? contact,
+    int? contactId,
   }) async {
     // Crear la transacción de salida
     final outflowTransaction = TransactionsCompanion(
@@ -169,7 +177,7 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
       transactionDate: Value(date),
       description: Value(description),
       reference: Value(reference),
-      contact: Value(contact),
+      contactId: Value(contactId),
     );
 
     // Crear la transacción de entrada
@@ -181,7 +189,7 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
       transactionDate: Value(date),
       description: Value(description),
       reference: Value(reference),
-      contact: Value(contact),
+      contactId: Value(contactId),
     );
 
     // Insertar ambas transacciones en una sola operación

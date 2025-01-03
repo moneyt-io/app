@@ -9,9 +9,11 @@ import '../../core/l10n/language_manager.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/account.dart';
+import '../../domain/entities/contact.dart';
 import '../../domain/usecases/account_usecases.dart';
 import '../../domain/usecases/category_usecases.dart';
 import '../../domain/usecases/transaction_usecases.dart';
+import '../../presentation/providers/drawer_provider.dart';
 import '../../routes/app_routes.dart';
 
 class TransactionDetailsScreen extends StatelessWidget {
@@ -337,12 +339,31 @@ class TransactionDetailsScreen extends StatelessWidget {
                               },
                             ),
                           ),
-                          if (transaction.contact?.isNotEmpty ?? false)
+                          if (transaction.contactId != null)
                             _buildDetailItem(
                               context: context,
                               label: translations.contactDetails,
                               icon: Icons.person_outline,
-                              content: Text(transaction.contact ?? ''),
+                              content: StreamBuilder<List<Contact>>(
+                                stream: Provider.of<DrawerProvider>(context).getContacts.call(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    final contacts = snapshot.data!;
+                                    final contactName = contacts
+                                        .where((c) => c.id == transaction.contactId)
+                                        .map((c) => c.name)
+                                        .firstOrNull ?? translations.notFound;
+                                    return Text(contactName);
+                                  }
+                                  return const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           if (transaction.reference?.isNotEmpty ?? false)
                             _buildDetailItem(

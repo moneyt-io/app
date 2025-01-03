@@ -10,6 +10,7 @@ class Translations {
   final String availableBalance;
   final String selectCategory;
   final String selectAccount;
+  final String selectContact;
   final String category;
   final String account;
   final String toAccount;
@@ -41,6 +42,7 @@ class Translations {
     required this.availableBalance,
     required this.selectCategory,
     required this.selectAccount,
+    required this.selectContact,
     required this.category,
     required this.account,
     required this.toAccount,
@@ -74,6 +76,7 @@ class Translations {
     availableBalance: 'Available Balance',
     selectCategory: 'Select Category',
     selectAccount: 'Select Account',
+    selectContact: 'Select Contact',
     category: 'Category',
     account: 'Account',
     toAccount: 'To Account',
@@ -107,6 +110,7 @@ class Translations {
     availableBalance: 'Saldo Disponible',
     selectCategory: 'Seleccionar Categoría',
     selectAccount: 'Seleccionar Cuenta',
+    selectContact: 'Seleccionar Contacto',
     category: 'Categoría',
     account: 'Cuenta',
     toAccount: 'Cuenta Destino',

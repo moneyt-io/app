@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/entities/category.dart';
+import '../../domain/entities/contact.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../../routes/app_routes.dart';
 import '../../presentation/providers/drawer_provider.dart';
@@ -33,117 +34,134 @@ class HomeTransactionsWidget extends StatelessWidget {
             category.id: category
         };
 
-        return StreamBuilder<List<TransactionEntity>>(
-          stream: transactionUseCases.watchAllTransactions(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
+        return StreamBuilder<List<Contact>>(
+          stream: drawerProvider.getContacts(),
+          builder: (context, contactsSnapshot) {
+            if (!contactsSnapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            final transactions = snapshot.data!;
-            final recentTransactions = transactions.take(5).toList();
+            final contacts = {
+              for (var contact in contactsSnapshot.data!)
+                contact.id: contact
+            };
 
-            return Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            return StreamBuilder<List<TransactionEntity>>(
+              stream: transactionUseCases.watchAllTransactions(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final transactions = snapshot.data!;
+                final recentTransactions = transactions.take(5).toList();
+
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          translations.recentTransactions,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pushNamed(context, AppRoutes.transactions),
-                          child: Text(translations.viewAll),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    if (recentTransactions.isEmpty)
-                      Center(
-                        child: Text(translations.noRecentTransactions),
-                      )
-                    else
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: recentTransactions.length,
-                        itemBuilder: (context, index) {
-                          final transaction = recentTransactions[index];
-                          final category = transaction.categoryId != null 
-                              ? categories[transaction.categoryId]
-                              : null;
-
-                          return ListTile(
-                            leading: Icon(
-                              transaction.type == 'T' 
-                                  ? Icons.swap_horiz
-                                  : transaction.type == 'I'
-                                      ? Icons.arrow_upward
-                                      : Icons.arrow_downward,
-                              color: transaction.type == 'T'
-                                  ? Colors.blue
-                                  : transaction.type == 'I'
-                                      ? Colors.green
-                                      : Colors.red,
-                            ),
-                            title: Text(
-                              category?.name ?? translations.unknown,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              translations.recentTransactions,
                               style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (transaction.contact != null && transaction.contact!.isNotEmpty)
-                                  Text(
-                                    transaction.contact!,
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                  ),
-                                Text(
-                                  DateFormat('dd/MM/yyyy')
-                                      .format(transaction.transactionDate),
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ],
-                            ),
-                            trailing: Text(
-                              NumberFormat.currency(
-                                symbol: '\$',
-                                decimalDigits: 2,
-                              ).format(transaction.amount),
-                              style: TextStyle(
-                                color: transaction.type == 'T'
-                                    ? Colors.blue
-                                    : transaction.type == 'I'
-                                        ? Colors.green
-                                        : Colors.red,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                AppRoutes.transactionDetails,
-                                arguments: transaction,
+                            TextButton(
+                              onPressed: () => Navigator.pushNamed(context, AppRoutes.transactions),
+                              child: Text(translations.viewAll),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        if (recentTransactions.isEmpty)
+                          Center(
+                            child: Text(translations.noRecentTransactions),
+                          )
+                        else
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: recentTransactions.length,
+                            itemBuilder: (context, index) {
+                              final transaction = recentTransactions[index];
+                              final category = transaction.categoryId != null 
+                                  ? categories[transaction.categoryId]
+                                  : null;
+                              final contact = transaction.contactId != null
+                                  ? contacts[transaction.contactId]
+                                  : null;
+
+                              return ListTile(
+                                leading: Icon(
+                                  transaction.type == 'T' 
+                                      ? Icons.swap_horiz
+                                      : transaction.type == 'I'
+                                          ? Icons.arrow_upward
+                                          : Icons.arrow_downward,
+                                  color: transaction.type == 'T'
+                                      ? Colors.blue
+                                      : transaction.type == 'I'
+                                          ? Colors.green
+                                          : Colors.red,
+                                ),
+                                title: Text(
+                                  category?.name ?? translations.unknown,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (contact != null)
+                                      Text(
+                                        contact.name,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                      ),
+                                    Text(
+                                      DateFormat('dd/MM/yyyy')
+                                          .format(transaction.transactionDate),
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                                trailing: Text(
+                                  NumberFormat.currency(
+                                    symbol: '\$',
+                                    decimalDigits: 2,
+                                  ).format(transaction.amount),
+                                  style: TextStyle(
+                                    color: transaction.type == 'T'
+                                        ? Colors.blue
+                                        : transaction.type == 'I'
+                                            ? Colors.green
+                                            : Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.transactionDetails,
+                                    arguments: transaction,
+                                  );
+                                },
                               );
                             },
-                          );
-                        },
-                      ),
-                  ],
-                ),
-              ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             );
           },
         );

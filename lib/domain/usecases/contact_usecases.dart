@@ -23,7 +23,7 @@ class CreateContact {
 
   CreateContact(this.repository);
 
-  Future<int> call(Contact contact) => repository.createContact(contact);
+  Future<Contact> call(Contact contact) => repository.createContact(contact);
 }
 
 class UpdateContact {

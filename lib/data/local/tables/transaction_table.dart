@@ -2,6 +2,7 @@
 import 'package:drift/drift.dart';
 import 'package:moneyt_pfm/data/local/tables/account_table.dart';
 import 'package:moneyt_pfm/data/local/tables/category_table.dart';
+import 'package:moneyt_pfm/data/local/tables/contact_table.dart';
 
 // Constantes para tipos de transacción
 const String TRANSACTION_TYPE_INCOME = 'I';    // Ingreso
@@ -27,10 +28,10 @@ class Transactions extends Table {
   @ReferenceName('transactionAccount')
   IntColumn get accountId => integer().references(Accounts, #id)();
   IntColumn get categoryId => integer().nullable().references(Categories, #id)();
+  IntColumn get contactId => integer().nullable().references(Contacts, #id)();
   
   // Detalles de la transacción
   TextColumn get reference => text().nullable().withLength(min: 1, max: 50)();
-  TextColumn get contact => text().nullable().withLength(min: 1, max: 100)();
   TextColumn get description => text().nullable().withLength(min: 1, max: 255)();
   
   // Fechas y estado
@@ -42,12 +43,11 @@ class Transactions extends Table {
   @override
   List<String> get customConstraints => [
     'CHECK (amount != 0)',
-    "CHECK (type IN ('I', 'E', 'C', 'D', 'T'))",  // Corregido: comillas simples para valores de texto
-    "CHECK (flow IN ('I', 'O'))",                  // Corregido: comillas simples para valores de texto
+    "CHECK (type IN ('I', 'E', 'C', 'D', 'T'))",
+    "CHECK (flow IN ('I', 'O'))",
     'CHECK (LENGTH(type) = 1)',
     'CHECK (LENGTH(flow) = 1)',
     'CHECK (reference IS NULL OR LENGTH(reference) <= 50)',
-    'CHECK (contact IS NULL OR LENGTH(contact) <= 100)',
     'CHECK (description IS NULL OR LENGTH(description) <= 255)',
   ];
 }
