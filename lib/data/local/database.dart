@@ -9,6 +9,8 @@ import 'tables/category_table.dart';
 import 'tables/account_table.dart';
 import 'daos/category_dao.dart';
 import 'daos/account_dao.dart';
+import 'tables/contact_table.dart';
+import 'daos/contact_dao.dart';
 
 part 'database.g.dart';
 
@@ -21,18 +23,29 @@ LazyDatabase _openConnection() {
 }
 
 @DriftDatabase(
-  tables: [Categories, Accounts, Transactions],
-  daos: [CategoryDao, AccountDao, TransactionDao],
+  tables: [
+    Categories,
+    Accounts,
+    Transactions,
+    Contacts,
+  ],
+  daos: [
+    CategoryDao,
+    AccountDao,
+    TransactionDao,
+    ContactDao,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   CategoryDao get categoryDao => CategoryDao(this);
   AccountDao get accountDao => AccountDao(this);
   TransactionDao get transactionDao => TransactionDao(this);
+  ContactDao get contactDao => ContactDao(this);
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -41,8 +54,11 @@ class AppDatabase extends _$AppDatabase {
     },
     onUpgrade: (Migrator m, int from, int to) async {
       if (from < 3) {
-        // Aquí solo migraciones de esquema
         await m.createAll();
+      }
+      if (from < 4) {
+        // Crear la tabla de contactos en la versión 4
+        await m.createTable(contacts);
       }
     },
   );

@@ -74,7 +74,10 @@ class EsTranslations extends BaseTranslations {
   String get deleteAccount => 'Eliminar cuenta';
 
   @override
-  String get deleteAccountConfirmation => '¿Estás seguro de que deseas eliminar esta cuenta?';
+  String get deleteAccountConfirmation => '¿Está seguro que desea eliminar esta cuenta?';
+
+  @override
+  String get accountDeleted => 'Cuenta eliminada exitosamente';
 
   @override
   String get noAccounts => 'No se encontraron cuentas';
@@ -99,7 +102,10 @@ class EsTranslations extends BaseTranslations {
   String get deleteCategory => 'Eliminar categoría';
 
   @override
-  String get deleteCategoryConfirmation => '¿Estás seguro de que deseas eliminar esta categoría?';
+  String get deleteCategoryConfirmation => '¿Está seguro que desea eliminar esta categoría?';
+
+  @override
+  String get categoryDeleted => 'Categoría eliminada exitosamente';
 
   @override
   String get noCategories => 'No se encontraron categorías';
@@ -199,7 +205,7 @@ class EsTranslations extends BaseTranslations {
   String get newTransfer => 'Nueva transferencia';
 
   @override
-  String get invalidAmount => 'Por favor ingrese un monto válido';
+  String get invalidAmount => 'Monto inválido';
 
   @override
   String get selectAccount => 'Seleccionar Cuenta';
@@ -208,7 +214,6 @@ class EsTranslations extends BaseTranslations {
   String get selectCategory => 'Seleccionar Categoría';
 
   // Filter related
-  @override
   String get filter => 'Filtro';
 
   @override
@@ -288,6 +293,9 @@ class EsTranslations extends BaseTranslations {
   @override
   String get fieldRequired => 'Este campo es requerido';
 
+  @override
+  String get required => 'Este campo es requerido';
+
   // Menu sections
   @override
   String get main => 'Principal';
@@ -337,6 +345,61 @@ class EsTranslations extends BaseTranslations {
 
   @override
   String get sortAmountDesc => 'Monto ↓';
+
+  // Contact related
+  @override
+  String get contacts => 'Contactos';
+
+  @override
+  String get newContact => 'Nuevo Contacto';
+
+  @override
+  String get editContact => 'Editar Contacto';
+
+  @override
+  String get deleteContact => 'Eliminar Contacto';
+
+  @override
+  String get deleteContactTitle => 'Eliminar Contacto';
+
+  @override
+  String deleteContactMessage(String name) => '¿Estás seguro de que deseas eliminar a $name?';
+
+  @override
+  String get contactDeleted => 'Contacto eliminado exitosamente';
+
+  @override
+  String get noContactsMessage => '¡No hay contactos aún. ¡Añade tu primer contacto!';
+
+  @override
+  String get searchContacts => 'Buscar contactos...';
+
+  @override
+  String get allContacts => 'Todos';
+
+  @override
+  String get addContact => 'Añadir Contacto';
+
+  @override
+  String get contactName => 'Nombre';
+
+  @override
+  String get contactEmail => 'Correo electrónico';
+
+  @override
+  String get contactPhone => 'Teléfono';
+
+  @override
+  String get contactNotes => 'Notas';
+
+  @override
+  String get contactSaved => 'Contacto guardado exitosamente';
+
+  @override
+  String get contactNameRequired => 'El nombre del contacto es requerido';
+
+  @override
+  String get contactInformation => 'Información del Contacto';
 
   @override
   String getText(String key) => key;

@@ -5,25 +5,24 @@ import '../../core/l10n/language_manager.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/usecases/transaction_usecases.dart';
-import '../../domain/usecases/category_usecases.dart';
 import '../../routes/app_routes.dart';
+import '../../presentation/providers/drawer_provider.dart';
 
 class HomeTransactionsWidget extends StatelessWidget {
   final TransactionUseCases transactionUseCases;
-  final GetCategories getCategories;
 
   const HomeTransactionsWidget({
     Key? key,
     required this.transactionUseCases,
-    required this.getCategories,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final translations = context.watch<LanguageManager>().translations;
+    final drawerProvider = context.watch<DrawerProvider>();
 
     return StreamBuilder<List<CategoryEntity>>(
-      stream: getCategories(),
+      stream: drawerProvider.getCategories(),
       builder: (context, categoriesSnapshot) {
         if (!categoriesSnapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
@@ -54,27 +53,22 @@ class HomeTransactionsWidget extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          translations.getText('recentTransactions'),
+                          translations.recentTransactions,
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(
-                              context,
-                              AppRoutes.transactions,
-                            );
-                          },
-                          child: Text(translations.getText('viewAll')),
+                          onPressed: () => Navigator.pushNamed(context, AppRoutes.transactions),
+                          child: Text(translations.viewAll),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
                     if (recentTransactions.isEmpty)
                       Center(
-                        child: Text(translations.getText('noRecentTransactions')),
+                        child: Text(translations.noRecentTransactions),
                       )
                     else
                       ListView.builder(
@@ -101,7 +95,7 @@ class HomeTransactionsWidget extends StatelessWidget {
                                       : Colors.red,
                             ),
                             title: Text(
-                              category?.name ?? translations.getText('unknown'),
+                              category?.name ?? translations.unknown,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w500,
                               ),

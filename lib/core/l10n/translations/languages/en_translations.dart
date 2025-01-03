@@ -207,8 +207,44 @@ class EnTranslations extends BaseTranslations {
   @override
   String get selectCategory => 'Select Category';
 
-  // Filter related
+  // Contacts
   @override
+  String get contacts => 'Contacts';
+
+  @override
+  String get newContact => 'New Contact';
+
+  @override
+  String get editContact => 'Edit Contact';
+
+  @override
+  String get deleteContact => 'Delete Contact';
+
+  @override
+  String get deleteContactTitle => 'Delete Contact';
+
+  @override
+  String deleteContactMessage(String name) => 'Are you sure you want to delete $name?';
+
+  @override
+  String get contactDeleted => 'Contact deleted successfully';
+
+  @override
+  String get noContactsMessage => 'No contacts yet. Add your first contact!';
+
+  @override
+  String get addContact => 'Add Contact';
+
+  @override
+  String get contactName => 'Name';
+
+  @override
+  String get contactEmail => 'Email';
+
+  @override
+  String get contactPhone => 'Phone';
+
+  // Filter related
   String get filter => 'Filter';
 
   @override

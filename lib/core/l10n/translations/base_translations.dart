@@ -16,6 +16,8 @@ abstract class BaseTranslations {
   String get noDescription;
   String get unknown;
   String get notFound => 'Not Found';
+  String get required => 'This field is required';
+  String get invalidAmount => 'Invalid amount';
 
   // Login
   String get signInWithGoogle => 'Sign in with Google';
@@ -45,8 +47,9 @@ abstract class BaseTranslations {
   String get newAccount;
   String get editAccount;
   String get deleteAccount;
-  String get deleteAccountConfirmation;
+  String get deleteAccountConfirmation => 'Are you sure you want to delete this account?';
   String get noAccounts;
+  String get accountDeleted => 'Account deleted successfully';
 
   // Category related
   String get category;
@@ -57,7 +60,7 @@ abstract class BaseTranslations {
   String get newCategory;
   String get editCategory;
   String get deleteCategory;
-  String get deleteCategoryConfirmation;
+  String get deleteCategoryConfirmation => 'Are you sure you want to delete this category?';
   String get income;
   String get expense;
   String get noCategories;
@@ -71,11 +74,11 @@ abstract class BaseTranslations {
   String get selectParentCategory;
   String noMainCategoriesAvailable(String type);
   String get errorLoadingCategories;
+  String get categoryDeleted => 'Category deleted successfully';
 
   // Transaction related
   String get transaction;
   String get amount;
-  String get invalidAmount;
   String get details;
   String get additionalInformation;
   String get date;
@@ -167,13 +170,33 @@ abstract class BaseTranslations {
   String get incomeDescription => 'Money coming into your accounts';
   String get expenseDescription => 'Money going out of your accounts';
 
+  // Contacts
+  String get contacts;
+  String get newContact => 'New Contact';
+  String get editContact => 'Edit Contact';
+  String get deleteContact => 'Delete Contact';
+  String get deleteContactTitle => 'Delete Contact';
+  String deleteContactMessage(String name) => 'Are you sure you want to delete $name?';
+  String get contactDeleted => 'Contact deleted successfully';
+  String get noContactsMessage => 'No contacts yet. Add your first contact!';
+  String get searchContacts => 'Search contacts...';
+  String get allContacts => 'All';
+  String get addContact => 'Add Contact';
+  String get contactName => 'Name';
+  String get contactEmail => 'Email';
+  String get contactPhone => 'Phone';
+  String get contactNotes => 'Notes';
+  String get contactSaved => 'Contact saved successfully';
+  String get contactNameRequired => 'Contact name is required';
+  String get contactInformation => 'Contact Information';
+  
   // Method to get text by key dynamically
   String getText(String key);
 
   // Method to validate all translations are present
   bool validateTranslations() {
     try {
-      // Call all getters to verify they return non-null values
+      // App general
       appName;
       welcome;
       welcomeTitle;
@@ -188,19 +211,17 @@ abstract class BaseTranslations {
       noDescription;
       unknown;
       notFound;
-      signInWithGoogle;
-      skipSignIn;
-      termsAndConditions;
-      acceptTerms;
-      acceptTermsAndConditions;
-      acceptMarketing;
-      termsText;
-      readTerms;
+      required;
+      invalidAmount;
+
+      // Navigation
       home;
       accounts;
       categories;
       transactions;
       settings;
+
+      // Account related
       account;
       accountName;
       accountDescription;
@@ -213,6 +234,9 @@ abstract class BaseTranslations {
       deleteAccount;
       deleteAccountConfirmation;
       noAccounts;
+      accountDeleted;
+
+      // Category related
       category;
       categoryName;
       categoryDescription;
@@ -225,6 +249,18 @@ abstract class BaseTranslations {
       income;
       expense;
       noCategories;
+      basicInformation;
+      categoryHierarchy;
+      mainCategory;
+      mainCategoryDescription;
+      subcategory;
+      subcategoryDescription;
+      parentCategory;
+      selectParentCategory;
+      errorLoadingCategories;
+      categoryDeleted;
+
+      // Transaction related
       transaction;
       amount;
       invalidAmount;
@@ -250,10 +286,8 @@ abstract class BaseTranslations {
       recentTransactions;
       viewAll;
       noRecentTransactions;
-      toAccount;
-      contact;
-      details;
-      additionalInformation;
+
+      // Transaction Details
       transactionDetails;
       descriptionDetails;
       dateDetails;
@@ -261,8 +295,12 @@ abstract class BaseTranslations {
       accountDetails;
       contactDetails;
       referenceDetails;
+
+      // Actions
       share;
       deleteConfirmation;
+
+      // Sorting and filtering
       sortDateAsc;
       sortDateDesc;
       sortAmountAsc;
@@ -270,6 +308,8 @@ abstract class BaseTranslations {
       all;
       filters;
       apply;
+
+      // Date Ranges
       today;
       yesterday;
       lastWeek;
@@ -277,44 +317,59 @@ abstract class BaseTranslations {
       lastThreeMonths;
       thisYear;
       custom;
+
+      // Filter Labels
       filterAll;
       filterIncome;
       filterExpense;
       filterTransfer;
+
+      // Validation messages
       fieldRequired;
-      invalidAmount;
-      selectCategory;
-      selectAccount;
+
+      // Theme
       darkTheme;
       darkThemeDescription;
+
+      // Settings
       appearance;
       about;
       language;
       english;
       spanish;
+
+      // Drawer Sections
       main;
       management;
       preferences;
-      totalBalance;
-      monthlyStats;
-      expenses;
-      monthlyBalance;
-      basicInformation;
+
+      // Form Fields and Sections
       name;
       nameRequired;
-      categoryHierarchy;
-      mainCategory;
-      mainCategoryDescription;
-      subcategory;
-      subcategoryDescription;
-      parentCategory;
-      selectParentCategory;
-      errorLoadingCategories;
       mainCategoryRequired;
       incomeDescription;
       expenseDescription;
-      create;
-      update;
+
+      // Contacts
+      contacts;
+      newContact;
+      editContact;
+      deleteContact;
+      deleteContactTitle;
+      deleteContactMessage('');
+      contactDeleted;
+      addContact;
+      contactName;
+      contactEmail;
+      contactPhone;
+      contactNotes;
+      contactSaved;
+      contactNameRequired;
+      searchContacts;
+      allContacts;
+      contactInformation;
+      additionalInformation;
+
       return true;
     } catch (e) {
       return false;

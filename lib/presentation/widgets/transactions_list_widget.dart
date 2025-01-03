@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/usecases/transaction_usecases.dart';
-import '../../domain/usecases/category_usecases.dart';
 import '../../routes/app_routes.dart';
+import '../../core/l10n/language_manager.dart';
+import '../../presentation/providers/drawer_provider.dart';
 import 'package:intl/intl.dart';
 
 class TransactionsListWidget extends StatelessWidget {
   final TransactionUseCases transactionUseCases;
-  final GetCategories getCategories;
   final String? typeFilter;
   final DateTime? startDate;
   final DateTime? endDate;
@@ -16,7 +17,6 @@ class TransactionsListWidget extends StatelessWidget {
   const TransactionsListWidget({
     Key? key,
     required this.transactionUseCases,
-    required this.getCategories,
     this.typeFilter,
     this.startDate,
     this.endDate,
@@ -59,6 +59,10 @@ class TransactionsListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translations = context.watch<LanguageManager>().translations;
+    final drawerProvider = context.watch<DrawerProvider>();
+    final colorScheme = Theme.of(context).colorScheme;
+
     return StreamBuilder<List<TransactionEntity>>(
       stream: startDate != null && endDate != null
           ? transactionUseCases.watchTransactionsByDateRange(startDate!, endDate!)
@@ -76,14 +80,13 @@ class TransactionsListWidget extends StatelessWidget {
                 Icon(
                   Icons.receipt_long,
                   size: 64,
-                  color: Colors.grey[400],
+                  color: colorScheme.onSurfaceVariant.withOpacity(0.5),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'No hay transacciones',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey[600],
+                  translations.noTransactions,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -101,14 +104,13 @@ class TransactionsListWidget extends StatelessWidget {
                 Icon(
                   Icons.filter_list,
                   size: 64,
-                  color: Colors.grey[400],
+                  color: colorScheme.onSurfaceVariant.withOpacity(0.5),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'No hay resultados para los filtros seleccionados',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey[600],
+                  translations.noTransactions,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -137,7 +139,7 @@ class TransactionsListWidget extends StatelessWidget {
         }
 
         return StreamBuilder<List<CategoryEntity>>(
-          stream: getCategories(),
+          stream: drawerProvider.getCategories(),
           builder: (context, categoriesSnapshot) {
             if (!categoriesSnapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
@@ -160,11 +162,15 @@ class TransactionsListWidget extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Ingresos:', style: TextStyle(color: Colors.green[700])),
                             Text(
-                              '\$${totalIncome.toStringAsFixed(2)}',
+                              translations.income,
+                              style: TextStyle(color: colorScheme.primary),
+                            ),
+                            Text(
+                              NumberFormat.currency(symbol: '\$', decimalDigits: 2)
+                                  .format(totalIncome),
                               style: TextStyle(
-                                color: Colors.green[700],
+                                color: colorScheme.primary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -174,11 +180,15 @@ class TransactionsListWidget extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Gastos:', style: TextStyle(color: Colors.red[700])),
                             Text(
-                              '\$${totalExpense.toStringAsFixed(2)}',
+                              translations.expense,
+                              style: TextStyle(color: colorScheme.error),
+                            ),
+                            Text(
+                              NumberFormat.currency(symbol: '\$', decimalDigits: 2)
+                                  .format(totalExpense),
                               style: TextStyle(
-                                color: Colors.red[700],
+                                color: colorScheme.error,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -188,11 +198,15 @@ class TransactionsListWidget extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Transferencias:', style: TextStyle(color: Colors.blue[700])),
                             Text(
-                              '\$${totalTransfer.toStringAsFixed(2)}',
+                              translations.transfer,
+                              style: TextStyle(color: colorScheme.tertiary),
+                            ),
+                            Text(
+                              NumberFormat.currency(symbol: '\$', decimalDigits: 2)
+                                  .format(totalTransfer),
                               style: TextStyle(
-                                color: Colors.blue[700],
+                                color: colorScheme.tertiary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -202,11 +216,17 @@ class TransactionsListWidget extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Balance:', style: TextStyle(fontWeight: FontWeight.bold)),
                             Text(
-                              '\$${(totalIncome - totalExpense).toStringAsFixed(2)}',
+                              translations.balance,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              NumberFormat.currency(symbol: '\$', decimalDigits: 2)
+                                  .format(totalIncome - totalExpense),
                               style: TextStyle(
-                                color: totalIncome - totalExpense >= 0 ? Colors.green[700] : Colors.red[700],
+                                color: totalIncome - totalExpense >= 0
+                                    ? colorScheme.primary
+                                    : colorScheme.error,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -222,53 +242,67 @@ class TransactionsListWidget extends StatelessWidget {
                     itemCount: filteredTransactions.length,
                     itemBuilder: (context, index) {
                       final transaction = filteredTransactions[index];
-                      final category = transaction.categoryId != null 
+                      final category = transaction.categoryId != null
                           ? categories[transaction.categoryId]
                           : null;
 
-                      return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        child: ListTile(
-                          leading: _buildTransactionIcon(transaction),
-                          title: Text(
-                            category?.name ?? 'Unknown',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w500,
-                            ),
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: transaction.type == 'T'
+                              ? colorScheme.tertiary
+                              : transaction.type == 'I'
+                                  ? colorScheme.primary
+                                  : colorScheme.error,
+                          child: Icon(
+                            transaction.type == 'T'
+                                ? Icons.swap_horiz
+                                : transaction.type == 'I'
+                                    ? Icons.arrow_upward
+                                    : Icons.arrow_downward,
+                            color: colorScheme.onPrimary,
                           ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (transaction.contact != null && transaction.contact!.isNotEmpty)
-                                Text(
-                                  transaction.contact!,
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                ),
+                        ),
+                        title: Text(
+                          category?.name ?? translations.unknown,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (transaction.contact != null &&
+                                transaction.contact!.isNotEmpty)
                               Text(
-                                DateFormat('dd/MM/yyyy').format(transaction.transactionDate),
-                                style: Theme.of(context).textTheme.bodySmall,
+                                transaction.contact!,
+                                style: TextStyle(
+                                  color: colorScheme.primary,
+                                ),
                               ),
-                            ],
-                          ),
-                          trailing: Text(
-                            NumberFormat.currency(
-                              symbol: '\$',
-                              decimalDigits: 2,
-                            ).format(transaction.amount),
-                            style: TextStyle(
-                              color: transaction.type == 'I' ? Colors.green : transaction.type == 'E' ? Colors.red : Colors.blue,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                            Text(
+                              DateFormat('dd/MM/yyyy')
+                                  .format(transaction.transactionDate),
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
+                          ],
+                        ),
+                        trailing: Text(
+                          NumberFormat.currency(symbol: '\$', decimalDigits: 2)
+                              .format(transaction.amount),
+                          style: TextStyle(
+                            color: transaction.type == 'T'
+                                ? colorScheme.tertiary
+                                : transaction.type == 'I'
+                                    ? colorScheme.primary
+                                    : colorScheme.error,
+                            fontWeight: FontWeight.bold,
                           ),
-                          onTap: () => Navigator.pushNamed(
+                        ),
+                        onTap: () {
+                          Navigator.pushNamed(
                             context,
                             AppRoutes.transactionDetails,
                             arguments: transaction,
-                          ),
-                        ),
+                          );
+                        },
                       );
                     },
                   ),
@@ -278,34 +312,6 @@ class TransactionsListWidget extends StatelessWidget {
           },
         );
       },
-    );
-  }
-
-  Widget _buildTransactionIcon(TransactionEntity transaction) {
-    IconData icon;
-    Color color;
-
-    switch (transaction.type) {
-      case 'E':
-        icon = Icons.arrow_downward;
-        color = Colors.red;
-        break;
-      case 'I':
-        icon = Icons.arrow_upward;
-        color = Colors.green;
-        break;
-      case 'T':
-        icon = Icons.swap_horiz;
-        color = Colors.blue;
-        break;
-      default:
-        icon = Icons.attach_money;
-        color = Colors.grey;
-    }
-
-    return CircleAvatar(
-      backgroundColor: color.withOpacity(0.2),
-      child: Icon(icon, color: color),
     );
   }
 }

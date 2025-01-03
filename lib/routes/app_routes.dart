@@ -12,9 +12,12 @@ import '../presentation/screens/category_form.dart';
 import '../presentation/screens/account_form.dart';
 import '../presentation/screens/welcome_screen.dart';
 import '../presentation/screens/transaction_details_screen.dart';
+import '../presentation/screens/contact_screen.dart';
+import '../presentation/screens/contact_form.dart';
 import '../domain/usecases/category_usecases.dart';
 import '../domain/usecases/account_usecases.dart';
 import '../domain/usecases/transaction_usecases.dart';
+import '../domain/usecases/contact_usecases.dart';
 import '../domain/entities/transaction.dart';
 
 final getIt = GetIt.instance;
@@ -29,6 +32,8 @@ class AppRoutes {
   static const String transactions = '/transactions';
   static const String transactionForm = '/transaction-form';
   static const String transactionDetails = '/transaction-details';
+  static const String contacts = '/contacts';
+  static const String contactForm = '/contact-form';
   static const String settings = '/settings';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -43,14 +48,6 @@ class AppRoutes {
       case AppRoutes.home:
         return MaterialPageRoute(
           builder: (context) => HomeScreen(
-            getCategories: getIt<GetCategories>(),
-            createCategory: getIt<CreateCategory>(),
-            updateCategory: getIt<UpdateCategory>(),
-            deleteCategory: getIt<DeleteCategory>(),
-            getAccounts: getIt<GetAccounts>(),
-            createAccount: getIt<CreateAccount>(),
-            updateAccount: getIt<UpdateAccount>(),
-            deleteAccount: getIt<DeleteAccount>(),
             transactionUseCases: getIt<TransactionUseCases>(),
           ),
         );
@@ -62,11 +59,6 @@ class AppRoutes {
             createCategory: getIt<CreateCategory>(),
             updateCategory: getIt<UpdateCategory>(),
             deleteCategory: getIt<DeleteCategory>(),
-            getAccounts: getIt<GetAccounts>(),
-            createAccount: getIt<CreateAccount>(),
-            updateAccount: getIt<UpdateAccount>(),
-            deleteAccount: getIt<DeleteAccount>(),
-            transactionUseCases: getIt<TransactionUseCases>(),
           ),
         );
 
@@ -88,10 +80,6 @@ class AppRoutes {
             createAccount: getIt<CreateAccount>(),
             updateAccount: getIt<UpdateAccount>(),
             deleteAccount: getIt<DeleteAccount>(),
-            getCategories: getIt<GetCategories>(),
-            createCategory: getIt<CreateCategory>(),
-            updateCategory: getIt<UpdateCategory>(),
-            deleteCategory: getIt<DeleteCategory>(),
             transactionUseCases: getIt<TransactionUseCases>(),
           ),
         );
@@ -110,14 +98,6 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (context) => TransactionScreen(
             transactionUseCases: getIt<TransactionUseCases>(),
-            getCategories: getIt<GetCategories>(),
-            createCategory: getIt<CreateCategory>(),
-            updateCategory: getIt<UpdateCategory>(),
-            deleteCategory: getIt<DeleteCategory>(),
-            getAccounts: getIt<GetAccounts>(),
-            createAccount: getIt<CreateAccount>(),
-            updateAccount: getIt<UpdateAccount>(),
-            deleteAccount: getIt<DeleteAccount>(),
           ),
         );
 
@@ -170,6 +150,26 @@ class AppRoutes {
           ),
         );
 
+      case AppRoutes.contacts:
+        return MaterialPageRoute(
+          builder: (_) => ContactScreen(
+            getContacts: getIt<GetContacts>(),
+            createContact: getIt<CreateContact>(),
+            updateContact: getIt<UpdateContact>(),
+            deleteContact: getIt<DeleteContact>(),
+          ),
+        );
+
+      case AppRoutes.contactForm:
+        final args = settings.arguments as ContactFormArgs;
+        return MaterialPageRoute(
+          builder: (_) => ContactForm(
+            contact: args.contact,
+            createContact: getIt<CreateContact>(),
+            updateContact: getIt<UpdateContact>(),
+          ),
+        );
+
       case AppRoutes.settings:
         return MaterialPageRoute(
           builder: (context) => const SettingsScreen(),
@@ -177,12 +177,9 @@ class AppRoutes {
 
       default:
         return MaterialPageRoute(
-          builder: (context) => Scaffold(
-            appBar: AppBar(
-              title: const Text('Error'),
-            ),
-            body: const Center(
-              child: Text('Ruta no encontrada'),
+          builder: (context) => const Scaffold(
+            body: Center(
+              child: Text('Route not found'),
             ),
           ),
         );

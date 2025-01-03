@@ -1,46 +1,20 @@
 // lib/presentation/widgets/app_drawer.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:moneyt_pfm/domain/usecases/transaction_usecases.dart';
-import '../../domain/usecases/category_usecases.dart';
-import '../../domain/usecases/account_usecases.dart';
 import '../../routes/app_routes.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../core/navigation/navigation_service.dart';
+import '../providers/drawer_provider.dart';
 
 class AppDrawer extends StatelessWidget {
-  // Categorías
-  final GetCategories getCategories;
-  final CreateCategory createCategory;
-  final UpdateCategory updateCategory;
-  final DeleteCategory deleteCategory;
-
-  // Cuentas
-  final GetAccounts getAccounts;
-  final CreateAccount createAccount;
-  final UpdateAccount updateAccount;
-  final DeleteAccount deleteAccount;
-
-  final TransactionUseCases transactionUseCases;
-
-  const AppDrawer({
-    Key? key,
-    required this.getCategories,
-    required this.createCategory,
-    required this.updateCategory,
-    required this.deleteCategory,
-    required this.getAccounts,
-    required this.createAccount,
-    required this.updateAccount,
-    required this.deleteAccount,
-    required this.transactionUseCases,
-  }) : super(key: key);
+  const AppDrawer({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final translations = context.watch<LanguageManager>().translations;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final provider = context.watch<DrawerProvider>();
 
     return Drawer(
       backgroundColor: colorScheme.surface,
@@ -99,6 +73,9 @@ class AppDrawer extends StatelessWidget {
                       selectedIcon: Icons.receipt_long,
                       label: translations.transactions,
                       route: AppRoutes.transactions,
+                      arguments: {
+                        'transactionUseCases': provider.transactionUseCases,
+                      },
                     ),
                   ],
                 ),
@@ -108,15 +85,27 @@ class AppDrawer extends StatelessWidget {
                   title: translations.management,
                   items: [
                     _DrawerItem(
+                      icon: Icons.contacts,
+                      selectedIcon: Icons.contacts,
+                      label: translations.contacts,
+                      route: AppRoutes.contacts,
+                      arguments: {
+                        'getContacts': provider.getContacts,
+                        'createContact': provider.createContact,
+                        'updateContact': provider.updateContact,
+                        'deleteContact': provider.deleteContact,
+                      },
+                    ),
+                    _DrawerItem(
                       icon: Icons.account_balance_outlined,
                       selectedIcon: Icons.account_balance,
                       label: translations.accounts,
                       route: AppRoutes.accounts,
                       arguments: {
-                        'getAccounts': getAccounts,
-                        'createAccount': createAccount,
-                        'updateAccount': updateAccount,
-                        'deleteAccount': deleteAccount,
+                        'getAccounts': provider.getAccounts,
+                        'createAccount': provider.createAccount,
+                        'updateAccount': provider.updateAccount,
+                        'deleteAccount': provider.deleteAccount,
                       },
                     ),
                     _DrawerItem(
@@ -124,6 +113,12 @@ class AppDrawer extends StatelessWidget {
                       selectedIcon: Icons.category,
                       label: translations.categories,
                       route: AppRoutes.categories,
+                      arguments: {
+                        'getCategories': provider.getCategories,
+                        'createCategory': provider.createCategory,
+                        'updateCategory': provider.updateCategory,
+                        'deleteCategory': provider.deleteCategory,
+                      },
                     ),
                   ],
                 ),
@@ -239,7 +234,7 @@ class AppDrawer extends StatelessWidget {
               arguments: item.arguments,
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }

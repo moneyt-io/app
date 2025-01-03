@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../domain/entities/account.dart';
 import '../../domain/usecases/account_usecases.dart';
-import '../../domain/usecases/category_usecases.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../../routes/app_routes.dart';
 import '../widgets/app_drawer.dart';
@@ -21,18 +20,10 @@ class AccountFormArgs {
 }
 
 class AccountScreen extends StatelessWidget {
-  // Cuentas
   final GetAccounts getAccounts;
   final CreateAccount createAccount;
   final UpdateAccount updateAccount;
   final DeleteAccount deleteAccount;
-
-  // Categorías (necesarias para el drawer)
-  final GetCategories getCategories;
-  final CreateCategory createCategory;
-  final UpdateCategory updateCategory;
-  final DeleteCategory deleteCategory;
-
   final TransactionUseCases transactionUseCases;
 
   const AccountScreen({
@@ -41,10 +32,6 @@ class AccountScreen extends StatelessWidget {
     required this.createAccount,
     required this.updateAccount,
     required this.deleteAccount,
-    required this.getCategories,
-    required this.createCategory,
-    required this.updateCategory,
-    required this.deleteCategory,
     required this.transactionUseCases,
   }) : super(key: key);
 
@@ -70,17 +57,7 @@ class AccountScreen extends StatelessWidget {
         backgroundColor: colorScheme.surface,
         elevation: 0,
       ),
-      drawer: AppDrawer(
-        getCategories: getCategories,
-        createCategory: createCategory,
-        updateCategory: updateCategory,
-        deleteCategory: deleteCategory,
-        getAccounts: getAccounts,
-        createAccount: createAccount,
-        updateAccount: updateAccount,
-        deleteAccount: deleteAccount,
-        transactionUseCases: transactionUseCases,
-      ),
+      drawer: const AppDrawer(),
       body: StreamBuilder<Map<int, double>>(
         stream: transactionUseCases.watchAllAccountBalances(),
         builder: (context, balancesSnapshot) {
@@ -204,23 +181,73 @@ class AccountScreen extends StatelessWidget {
                                   currencyFormat.format(balance),
                                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     color: balance >= 0
-                                        ? Colors.green
-                                        : Colors.red,
+                                        ? colorScheme.primary
+                                        : colorScheme.error,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                IconButton(
+                                PopupMenuButton<String>(
                                   icon: Icon(
-                                    Icons.edit_outlined,
-                                    color: colorScheme.primary,
-                                    size: 20,
+                                    Icons.more_vert,
+                                    color: colorScheme.onSurfaceVariant,
                                   ),
-                                  visualDensity: VisualDensity.compact,
-                                  onPressed: () => _navigateToForm(context, account: account),
+                                  onSelected: (value) {
+                                    if (value == 'edit') {
+                                      _navigateToForm(context, account: account);
+                                    } else if (value == 'delete') {
+                                      // Mostrar diálogo de confirmación
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text(translations.deleteAccount),
+                                          content: Text(translations.deleteAccountConfirmation),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context),
+                                              child: Text(translations.cancel),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                deleteAccount(account.id);
+                                                Navigator.pop(context);
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(translations.accountDeleted),
+                                                  ),
+                                                );
+                                              },
+                                              child: Text(translations.delete),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                      value: 'edit',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.edit, color: colorScheme.primary),
+                                          const SizedBox(width: 8),
+                                          Text(translations.edit),
+                                        ],
+                                      ),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'delete',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.delete, color: colorScheme.error),
+                                          const SizedBox(width: 8),
+                                          Text(translations.delete),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            onTap: () => _navigateToForm(context, account: account),
                           );
                         },
                       ),
@@ -234,11 +261,7 @@ class AccountScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToForm(context),
-        backgroundColor: colorScheme.primaryContainer,
-        child: Icon(
-          Icons.add,
-          color: colorScheme.onPrimaryContainer,
-        ),
+        child: const Icon(Icons.add),
       ),
     );
   }

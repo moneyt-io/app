@@ -3,16 +3,20 @@ import 'package:get_it/get_it.dart';
 import '../../data/local/database.dart';
 import '../../data/local/daos/category_dao.dart';
 import '../../data/local/daos/account_dao.dart';
-import '../../data/local/daos/transaction_dao.dart';  // Nuevo import
+import '../../data/local/daos/transaction_dao.dart';
+import '../../data/local/daos/contact_dao.dart';
 import '../../data/repositories/category_repository_impl.dart';
 import '../../data/repositories/account_repository_impl.dart';
-import '../../data/repositories/transaction_repository_impl.dart';  // Nuevo import
+import '../../data/repositories/transaction_repository_impl.dart';
+import '../../data/repositories/contact_repository_impl.dart';
 import '../../domain/repositories/category_repository.dart';
 import '../../domain/repositories/account_repository.dart';
-import '../../domain/repositories/transaction_repository.dart';  // Nuevo import
+import '../../domain/repositories/transaction_repository.dart';
+import '../../domain/repositories/contact_repository.dart';
 import '../../domain/usecases/category_usecases.dart';
 import '../../domain/usecases/account_usecases.dart';
-import '../../domain/usecases/transaction_usecases.dart';  // Nuevo import
+import '../../domain/usecases/transaction_usecases.dart';
+import '../../domain/usecases/contact_usecases.dart';
 
 final getIt = GetIt.instance;
 
@@ -27,8 +31,11 @@ Future<void> init(AppDatabase database) async {
   getIt.registerLazySingleton<AccountDao>(
     () => AccountDao(getIt<AppDatabase>()),
   );
-  getIt.registerLazySingleton<TransactionDao>(  // Nuevo
+  getIt.registerLazySingleton<TransactionDao>(
     () => TransactionDao(getIt<AppDatabase>()),
+  );
+  getIt.registerLazySingleton<ContactDao>(
+    () => ContactDao(getIt<AppDatabase>()),
   );
 
   // Repositories
@@ -41,19 +48,32 @@ Future<void> init(AppDatabase database) async {
   getIt.registerLazySingleton<TransactionRepository>(
     () => TransactionRepositoryImpl(getIt<TransactionDao>()),
   );
+  getIt.registerLazySingleton<ContactRepository>(
+    () => ContactRepositoryImpl(getIt<ContactDao>()),
+  );
 
   // Use Cases
-  // Categorías
+  // Categories
   getIt.registerLazySingleton(() => GetCategories(getIt<CategoryRepository>()));
   getIt.registerLazySingleton(() => CreateCategory(getIt<CategoryRepository>()));
   getIt.registerLazySingleton(() => UpdateCategory(getIt<CategoryRepository>()));
   getIt.registerLazySingleton(() => DeleteCategory(getIt<CategoryRepository>()));
 
-  // Cuentas
+  // Accounts
   getIt.registerLazySingleton(() => GetAccounts(getIt<AccountRepository>()));
   getIt.registerLazySingleton(() => CreateAccount(getIt<AccountRepository>()));
   getIt.registerLazySingleton(() => UpdateAccount(getIt<AccountRepository>()));
   getIt.registerLazySingleton(() => DeleteAccount(getIt<AccountRepository>()));
-// Transacciones
-  getIt.registerLazySingleton(() => TransactionUseCases(getIt<TransactionRepository>()));
+
+  // Transactions
+  getIt.registerLazySingleton(
+    () => TransactionUseCases(getIt<TransactionRepository>()),
+  );
+
+  // Contacts
+  getIt.registerLazySingleton(() => GetContacts(getIt<ContactRepository>()));
+  getIt.registerLazySingleton(() => GetContactById(getIt<ContactRepository>()));
+  getIt.registerLazySingleton(() => CreateContact(getIt<ContactRepository>()));
+  getIt.registerLazySingleton(() => UpdateContact(getIt<ContactRepository>()));
+  getIt.registerLazySingleton(() => DeleteContact(getIt<ContactRepository>()));
 }

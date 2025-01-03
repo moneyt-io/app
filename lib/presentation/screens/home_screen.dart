@@ -1,8 +1,6 @@
 // lib/presentation/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../domain/usecases/category_usecases.dart';
-import '../../domain/usecases/account_usecases.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/home_accounts_widget.dart';
@@ -16,31 +14,10 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import '../../core/navigation/navigation_service.dart';
 
 class HomeScreen extends StatefulWidget {
-  // Categorías
-  final GetCategories getCategories;
-  final CreateCategory createCategory;
-  final UpdateCategory updateCategory;
-  final DeleteCategory deleteCategory;
-
-  // Cuentas
-  final GetAccounts getAccounts;
-  final CreateAccount createAccount;
-  final UpdateAccount updateAccount;
-  final DeleteAccount deleteAccount;
-
-  // Transacciones
   final TransactionUseCases transactionUseCases;
 
   const HomeScreen({
     Key? key,
-    required this.getCategories,
-    required this.createCategory,
-    required this.updateCategory,
-    required this.deleteCategory,
-    required this.getAccounts,
-    required this.createAccount,
-    required this.updateAccount,
-    required this.deleteAccount,
     required this.transactionUseCases,
   }) : super(key: key);
 
@@ -53,7 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _navigateToTransactionForm(BuildContext context, {required String type}) async {
     await Navigator.pushNamed(context, AppRoutes.transactionForm, arguments: type);
-    // Cuando regrese de la navegación, cerrar el FAB si está abierto
     if (_expandableFabKey.currentState?.isOpen ?? false) {
       _expandableFabKey.currentState?.toggle();
     }
@@ -81,17 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
             color: colorScheme.onSurface,
           ),
         ),
-        drawer: AppDrawer(
-          getCategories: widget.getCategories,
-          createCategory: widget.createCategory,
-          updateCategory: widget.updateCategory,
-          deleteCategory: widget.deleteCategory,
-          getAccounts: widget.getAccounts,
-          createAccount: widget.createAccount,
-          updateAccount: widget.updateAccount,
-          deleteAccount: widget.deleteAccount,
-          transactionUseCases: widget.transactionUseCases,
-        ),
+        drawer: const AppDrawer(),
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -106,16 +72,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 8),
                 HomeAccountsWidget(
-                  getAccounts: widget.getAccounts,
-                  createAccount: widget.createAccount,
-                  updateAccount: widget.updateAccount,
-                  deleteAccount: widget.deleteAccount,
                   transactionUseCases: widget.transactionUseCases,
                 ),
                 const SizedBox(height: 8),
                 HomeTransactionsWidget(
                   transactionUseCases: widget.transactionUseCases,
-                  getCategories: widget.getCategories,
                 ),
               ],
             ),

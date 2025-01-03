@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/usecases/category_usecases.dart';
-import '../../domain/usecases/account_usecases.dart';
-import '../../domain/usecases/transaction_usecases.dart';
 import '../../routes/app_routes.dart';
 import '../widgets/app_drawer.dart';
 import '../../core/l10n/language_manager.dart';
@@ -20,19 +18,10 @@ class CategoryFormArgs {
 }
 
 class CategoryScreen extends StatefulWidget {
-  // Categorías
   final GetCategories getCategories;
   final CreateCategory createCategory;
   final UpdateCategory updateCategory;
   final DeleteCategory deleteCategory;
-
-  // Cuentas (necesarias para el drawer)
-  final GetAccounts getAccounts;
-  final CreateAccount createAccount;
-  final UpdateAccount updateAccount;
-  final DeleteAccount deleteAccount;
-
-  final TransactionUseCases transactionUseCases;
 
   const CategoryScreen({
     Key? key,
@@ -40,11 +29,6 @@ class CategoryScreen extends StatefulWidget {
     required this.createCategory,
     required this.updateCategory,
     required this.deleteCategory,
-    required this.getAccounts,
-    required this.createAccount,
-    required this.updateAccount,
-    required this.deleteAccount,
-    required this.transactionUseCases,
   }) : super(key: key);
 
   @override
@@ -63,6 +47,36 @@ class _CategoryScreenState extends State<CategoryScreen> {
         isEditing: category != null,
       ),
     );
+  }
+
+  Future<void> _deleteCategory(BuildContext context, CategoryEntity category) async {
+    final translations = context.read<LanguageManager>().translations;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(translations.deleteCategory),
+        content: Text(translations.deleteCategoryConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(translations.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(translations.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true && mounted) {
+      await widget.deleteCategory(category.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(translations.categoryDeleted)),
+        );
+      }
+    }
   }
 
   @override
@@ -100,32 +114,16 @@ class _CategoryScreenState extends State<CategoryScreen> {
             ],
           ),
         ),
-        drawer: AppDrawer(
-          getCategories: widget.getCategories,
-          createCategory: widget.createCategory,
-          updateCategory: widget.updateCategory,
-          deleteCategory: widget.deleteCategory,
-          getAccounts: widget.getAccounts,
-          createAccount: widget.createAccount,
-          updateAccount: widget.updateAccount,
-          deleteAccount: widget.deleteAccount,
-          transactionUseCases: widget.transactionUseCases,
-        ),
+        drawer: const AppDrawer(),
         body: TabBarView(
           children: [
-            // Tab de categorías de ingresos
             _buildCategoryList(context, 'I'),
-            // Tab de categorías de gastos
             _buildCategoryList(context, 'E'),
           ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => _navigateToForm(context),
-          backgroundColor: colorScheme.primaryContainer,
-          child: Icon(
-            Icons.add,
-            color: colorScheme.onPrimaryContainer,
-          ),
+          child: const Icon(Icons.add),
         ),
       ),
     );
@@ -177,7 +175,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
           );
         }
 
-        // Separar categorías padre e hijas
         final parentCategories = categories
             .where((category) => category.parentId == null)
             .toList();
@@ -202,74 +199,101 @@ class _CategoryScreenState extends State<CategoryScreen> {
               color: colorScheme.outline.withOpacity(0.2),
             ),
           ),
-          child: ListView.builder(
+          child: ListView.separated(
             padding: const EdgeInsets.all(8),
             itemCount: parentCategories.length,
+            separatorBuilder: (context, index) => Divider(
+              color: colorScheme.outline.withOpacity(0.2),
+              height: 1,
+            ),
             itemBuilder: (context, index) {
-              final parentCategory = parentCategories[index];
-              final children = childrenByParent[parentCategory.id] ?? [];
+              final category = parentCategories[index];
+              final children = childrenByParent[category.id] ?? [];
+              final isExpanded = _expandedStates[category.id] ?? false;
 
               return Column(
                 children: [
-                  // Categoría padre como ExpansionTile
-                  Theme(
-                    data: Theme.of(context).copyWith(
-                      dividerColor: Colors.transparent,
+                  ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: colorScheme.primaryContainer,
+                      child: Icon(
+                        Icons.category_outlined,
+                        color: colorScheme.onPrimaryContainer,
+                      ),
                     ),
-                    child: ExpansionTile(
-                      key: Key('category_${parentCategory.id}'),
-                      initiallyExpanded: _expandedStates[parentCategory.id] ?? false,
-                      onExpansionChanged: (expanded) {
-                        setState(() {
-                          _expandedStates[parentCategory.id] = expanded;
-                        });
-                      },
-                      leading: CircleAvatar(
-                        backgroundColor: colorScheme.primaryContainer,
-                        child: Icon(
-                          Icons.folder_outlined,
-                          color: colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                      title: Text(
-                        parentCategory.name,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: parentCategory.description?.isNotEmpty ?? false
-                          ? Text(
-                              parentCategory.description!,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                            )
-                          : null,
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
+                    title: Text(
+                      category.name,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    subtitle: category.description?.isNotEmpty ?? false
+                        ? Text(
+                            category.description!,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          )
+                        : null,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (children.isNotEmpty)
                           IconButton(
                             icon: Icon(
-                              Icons.edit_outlined,
-                              color: colorScheme.primary,
+                              isExpanded
+                                  ? Icons.expand_less
+                                  : Icons.expand_more,
+                              color: colorScheme.onSurfaceVariant,
                             ),
-                            onPressed: () => _navigateToForm(context, category: parentCategory),
+                            onPressed: () {
+                              setState(() {
+                                _expandedStates[category.id] = !isExpanded;
+                              });
+                            },
                           ),
-                          Icon(
-                            _expandedStates[parentCategory.id] ?? false 
-                                ? Icons.keyboard_arrow_up 
-                                : Icons.keyboard_arrow_down,
-                            color: colorScheme.primary,
+                        PopupMenuButton<String>(
+                          icon: Icon(
+                            Icons.more_vert,
+                            color: colorScheme.onSurfaceVariant,
                           ),
-                        ],
-                      ),
+                          onSelected: (value) {
+                            if (value == 'edit') {
+                              _navigateToForm(context, category: category);
+                            } else if (value == 'delete') {
+                              _deleteCategory(context, category);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.edit, color: colorScheme.primary),
+                                  const SizedBox(width: 8),
+                                  Text(translations.edit),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete, color: colorScheme.error),
+                                  const SizedBox(width: 8),
+                                  Text(translations.delete),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (isExpanded && children.isNotEmpty)
+                    Column(
                       children: children.map((child) => ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: colorScheme.secondaryContainer,
-                          child: Icon(
-                            Icons.category_outlined,
-                            color: colorScheme.onSecondaryContainer,
-                          ),
+                        contentPadding: const EdgeInsets.only(
+                          left: 72,
+                          right: 16,
                         ),
                         title: Text(
                           child.name,
@@ -283,23 +307,42 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                 ),
                               )
                             : null,
-                        trailing: IconButton(
+                        trailing: PopupMenuButton<String>(
                           icon: Icon(
-                            Icons.edit_outlined,
-                            color: colorScheme.primary,
+                            Icons.more_vert,
+                            color: colorScheme.onSurfaceVariant,
                           ),
-                          onPressed: () => _navigateToForm(context, category: child),
+                          onSelected: (value) {
+                            if (value == 'edit') {
+                              _navigateToForm(context, category: child);
+                            } else if (value == 'delete') {
+                              _deleteCategory(context, child);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.edit, color: colorScheme.primary),
+                                  const SizedBox(width: 8),
+                                  Text(translations.edit),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete, color: colorScheme.error),
+                                  const SizedBox(width: 8),
+                                  Text(translations.delete),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        onTap: () => _navigateToForm(context, category: child),
                       )).toList(),
-                    ),
-                  ),
-                  if (index < parentCategories.length - 1)
-                    Divider(
-                      color: colorScheme.outline.withOpacity(0.2),
-                      height: 1,
-                      indent: 16,
-                      endIndent: 16,
                     ),
                 ],
               );

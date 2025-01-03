@@ -3,29 +3,22 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../domain/entities/account.dart';
-import '../../domain/usecases/account_usecases.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../../routes/app_routes.dart';
+import '../../presentation/providers/drawer_provider.dart';
 
 class HomeAccountsWidget extends StatelessWidget {
-  final GetAccounts getAccounts;
-  final CreateAccount createAccount;
-  final UpdateAccount updateAccount;
-  final DeleteAccount deleteAccount;
   final TransactionUseCases transactionUseCases;
 
   const HomeAccountsWidget({
     Key? key,
-    required this.getAccounts,
-    required this.createAccount,
-    required this.updateAccount,
-    required this.deleteAccount,
     required this.transactionUseCases,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final translations = context.watch<LanguageManager>().translations;
+    final drawerProvider = context.watch<DrawerProvider>();
 
     return StreamBuilder<Map<int, double>>(
       stream: transactionUseCases.watchAllAccountBalances(),
@@ -33,7 +26,7 @@ class HomeAccountsWidget extends StatelessWidget {
         final balances = balancesSnapshot.data ?? {};
 
         return StreamBuilder<List<AccountEntity>>(
-          stream: getAccounts(),
+          stream: drawerProvider.getAccounts(),
           builder: (context, accountsSnapshot) {
             if (!accountsSnapshot.hasData || !balancesSnapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
@@ -58,26 +51,15 @@ class HomeAccountsWidget extends StatelessWidget {
                           ),
                         ),
                         TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(
-                              context,
-                              AppRoutes.accounts,
-                              arguments: {
-                                'getAccounts': getAccounts,
-                                'createAccount': createAccount,
-                                'updateAccount': updateAccount,
-                                'deleteAccount': deleteAccount,
-                              },
-                            );
-                          },
-                          child: Text(translations.getText('viewAll')),
+                          onPressed: () => Navigator.pushNamed(context, AppRoutes.accounts),
+                          child: Text(translations.viewAll),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
                     if (accounts.isEmpty)
                       Center(
-                        child: Text(translations.getText('noAccounts')),
+                        child: Text(translations.noAccounts),
                       )
                     else
                       ListView.builder(
@@ -114,18 +96,7 @@ class HomeAccountsWidget extends StatelessWidget {
                                 const Icon(Icons.arrow_forward_ios, size: 16),
                               ],
                             ),
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                AppRoutes.accounts,
-                                arguments: {
-                                  'getAccounts': getAccounts,
-                                  'createAccount': createAccount,
-                                  'updateAccount': updateAccount,
-                                  'deleteAccount': deleteAccount,
-                                },
-                              );
-                            },
+                            onTap: () => Navigator.pushNamed(context, AppRoutes.accounts),
                           );
                         },
                       ),

@@ -7,18 +7,21 @@ import 'data/local/database.dart';
 import 'data/local/daos/category_dao.dart';
 import 'data/local/daos/account_dao.dart';
 import 'data/local/daos/transaction_dao.dart';
+import 'data/local/daos/contact_dao.dart';
 import 'data/repositories/category_repository_impl.dart';
 import 'data/repositories/account_repository_impl.dart';
 import 'data/repositories/transaction_repository_impl.dart';
+import 'data/repositories/contact_repository_impl.dart';
 import 'domain/repositories/category_repository.dart';
 import 'domain/repositories/account_repository.dart';
 import 'domain/repositories/transaction_repository.dart';
-import 'domain/repositories/auth_repository.dart';
+import 'domain/repositories/contact_repository.dart';
 import 'domain/usecases/category_usecases.dart';
 import 'domain/usecases/account_usecases.dart';
 import 'domain/usecases/transaction_usecases.dart';
+import 'domain/usecases/contact_usecases.dart';
 import 'presentation/providers/theme_provider.dart';
-import 'presentation/providers/auth_provider.dart';
+import 'presentation/providers/drawer_provider.dart';
 import 'core/l10n/language_manager.dart';
 import 'routes/app_routes.dart';
 
@@ -31,6 +34,7 @@ Future<void> initializeDependencies() async {
   GetIt.I.registerSingleton(database.categoryDao);
   GetIt.I.registerSingleton(database.accountDao);
   GetIt.I.registerSingleton(database.transactionDao);
+  GetIt.I.registerSingleton(database.contactDao);
 
   // Repositories
   GetIt.I.registerSingleton<CategoryRepository>(
@@ -41,6 +45,9 @@ Future<void> initializeDependencies() async {
   );
   GetIt.I.registerSingleton<TransactionRepository>(
     TransactionRepositoryImpl(GetIt.I<TransactionDao>()),
+  );
+  GetIt.I.registerSingleton<ContactRepository>(
+    ContactRepositoryImpl(GetIt.I<ContactDao>()),
   );
   
   // Use Cases
@@ -56,13 +63,18 @@ Future<void> initializeDependencies() async {
   GetIt.I.registerFactory(() => UpdateAccount(GetIt.I()));
   GetIt.I.registerFactory(() => DeleteAccount(GetIt.I()));
 
+  // Contacts
+  GetIt.I.registerFactory(() => GetContacts(GetIt.I()));
+  GetIt.I.registerFactory(() => CreateContact(GetIt.I()));
+  GetIt.I.registerFactory(() => UpdateContact(GetIt.I()));
+  GetIt.I.registerFactory(() => DeleteContact(GetIt.I()));
+
   // Transactions
   GetIt.I.registerFactory(() => TransactionUseCases(GetIt.I()));
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
   
   // Inicializar dependencias
   await initializeDependencies();
@@ -78,15 +90,29 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => languageManager),
         ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)),
-        Provider<AuthRepository>(
-          create: (_) => GetIt.I<AuthRepository>(),
+        ChangeNotifierProvider(
+          create: (context) => DrawerProvider(
+            // Categories
+            getCategories: GetIt.I<GetCategories>(),
+            createCategory: GetIt.I<CreateCategory>(),
+            updateCategory: GetIt.I<UpdateCategory>(),
+            deleteCategory: GetIt.I<DeleteCategory>(),
+            // Accounts
+            getAccounts: GetIt.I<GetAccounts>(),
+            createAccount: GetIt.I<CreateAccount>(),
+            updateAccount: GetIt.I<UpdateAccount>(),
+            deleteAccount: GetIt.I<DeleteAccount>(),
+            // Contacts
+            getContacts: GetIt.I<GetContacts>(),
+            createContact: GetIt.I<CreateContact>(),
+            updateContact: GetIt.I<UpdateContact>(),
+            deleteContact: GetIt.I<DeleteContact>(),
+            // Transactions
+            transactionUseCases: GetIt.I<TransactionUseCases>(),
+          ),
         ),
-        ChangeNotifierProxyProvider<AuthRepository, AuthProvider>(
-          create: (context) => AuthProvider(context.read<AuthRepository>()),
-          update: (context, auth, previous) => previous ?? AuthProvider(auth),
-        ),
+        ChangeNotifierProvider.value(value: languageManager),
       ],
       child: Consumer<LanguageManager>(
         builder: (context, languageManager, child) {
@@ -136,7 +162,7 @@ void main() async {
                     ),
                   ),
                 ),
-                themeMode: themeProvider.themeMode, // Usar el themeMode del provider
+                themeMode: themeProvider.themeMode,
                 initialRoute: isFirstRun ? AppRoutes.welcome : AppRoutes.home,
                 onGenerateRoute: AppRoutes.onGenerateRoute,
               );
@@ -147,4 +173,3 @@ void main() async {
     ),
   );
 }
-

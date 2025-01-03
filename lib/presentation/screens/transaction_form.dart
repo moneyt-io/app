@@ -296,11 +296,14 @@ class _TransactionFormState extends State<TransactionForm> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    final DateTime now = DateTime.now();
+    final DateTime lastDate = DateTime(now.year + 1, 12, 31);
+    
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime(2025),
+      lastDate: lastDate,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -413,33 +416,42 @@ class _TransactionFormState extends State<TransactionForm> {
     String title;
     switch (_selectedType) {
       case 'E':
-        title = translations.newExpense;
+        title = translations.expense;
         break;
       case 'I':
-        title = translations.newIncome;
+        title = translations.income;
         break;
       case 'T':
-        title = translations.newTransfer;
+        title = translations.transfer;
         break;
       default:
-        title = translations.newTransaction;
-    }
-
-    if (widget.transaction != null) {
-      title = translations.editTransaction;
+        title = translations.transaction;
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          title,
-          style: textTheme.titleLarge?.copyWith(
-            color: colorScheme.onSurface,
+        title: Text(title),
+      ),
+      persistentFooterButtons: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: FilledButton(
+            onPressed: _onSave,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(double.infinity, 56),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            child: Text(
+              widget.transaction == null ? translations.create : translations.update,
+              style: textTheme.titleMedium?.copyWith(
+                color: colorScheme.onPrimary,
+              ),
+            ),
           ),
         ),
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-      ),
+      ],
       body: Form(
         key: _formKey,
         child: ListView(
@@ -527,16 +539,18 @@ class _TransactionFormState extends State<TransactionForm> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Categoría (no para transferencias)
-                    _buildCategorySelector(),
-                    if (!isTransfer) const SizedBox(height: 16),
-
                     // Cuenta origen
                     _buildAccountSelector(),
                     const SizedBox(height: 16),
 
                     // Cuenta destino (solo para transferencias)
-                    _buildToAccountSelector(),
+                    if (isTransfer) ...[
+                      _buildToAccountSelector(),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // Categoría (no para transferencias)
+                    if (!isTransfer) _buildCategorySelector(),
                   ],
                 ),
               ),
@@ -568,23 +582,25 @@ class _TransactionFormState extends State<TransactionForm> {
                     ),
                     const SizedBox(height: 16),
                     // Fecha
-                    InkWell(
+                    GestureDetector(
                       onTap: () => _selectDate(context),
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: translations.date,
-                          prefixIcon: Icon(
-                            Icons.calendar_today_rounded,
-                            color: colorScheme.onSurfaceVariant,
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          controller: TextEditingController(
+                            text: DateFormat('dd/MM/yyyy').format(_selectedDate),
                           ),
-                          filled: true,
-                          fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                          decoration: InputDecoration(
+                            labelText: translations.date,
+                            prefixIcon: Icon(
+                              Icons.calendar_today_rounded,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                            filled: true,
+                            fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          DateFormat('dd/MM/yyyy').format(_selectedDate),
                         ),
                       ),
                     ),
@@ -644,24 +660,6 @@ class _TransactionFormState extends State<TransactionForm> {
                       ),
                     ),
                   ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Botón guardar
-            FilledButton(
-              onPressed: _onSave,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(double.infinity, 56),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: Text(
-                widget.transaction == null ? translations.create : translations.update,
-                style: textTheme.titleMedium?.copyWith(
-                  color: colorScheme.onPrimary,
                 ),
               ),
             ),
