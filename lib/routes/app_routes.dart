@@ -19,6 +19,7 @@ import '../domain/usecases/account_usecases.dart';
 import '../domain/usecases/transaction_usecases.dart';
 import '../domain/usecases/contact_usecases.dart';
 import '../domain/entities/transaction.dart';
+import '../presentation/screens/backup_screen.dart';
 
 final getIt = GetIt.instance;
 
@@ -35,6 +36,7 @@ class AppRoutes {
   static const String contacts = '/contacts';
   static const String contactForm = '/contact-form';
   static const String settings = '/settings';
+  static const String backup = '/backup';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     final String? routeName = settings.name;
@@ -173,6 +175,11 @@ class AppRoutes {
       case AppRoutes.settings:
         return MaterialPageRoute(
           builder: (context) => const SettingsScreen(),
+        );
+
+      case AppRoutes.backup:
+        return MaterialPageRoute(
+          builder: (_) => const BackupScreen(),
         );
 
       default:

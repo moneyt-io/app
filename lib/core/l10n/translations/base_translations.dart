@@ -142,15 +142,24 @@ abstract class BaseTranslations {
   // Validation messages
   String get fieldRequired;
   // Theme
-  String get darkTheme => 'Dark Theme';
-  String get darkThemeDescription => 'Enable dark mode for a better night experience';
+  String get appearance => 'Appearance';
+  String get darkMode => 'Dark Mode';
+  String get darkModeDescription => 'Enable dark mode for better night viewing';
 
   // Settings
-  String get appearance => 'Appearance';
   String get about => 'About';
   String get language => 'Language';
   String get english => 'English';
   String get spanish => 'Spanish';
+
+  // About and Social
+  String get webSite => 'Web Site';
+  String get linkedIn => 'LinkedIn';
+  String get gitHub => 'GitHub';
+  String get reddit => 'Reddit';
+  String get discord => 'Discord';
+  String get email => 'Email';
+  String get joinOurCommunity => 'Join our community';
 
   // Drawer Sections
   String get main => 'Main';
@@ -192,7 +201,34 @@ abstract class BaseTranslations {
   String get contactNameRequired => 'Contact name is required';
   String get contactInformation => 'Contact Information';
   String get createContact => throw UnimplementedError();
-  
+
+  // Backup
+  String get backups => 'Backups';
+  String get backup => 'Backup';
+  String get createBackup => 'Create Backup';
+  String get restoreBackup => 'Restore Backup';
+  String get deleteBackup => 'Delete Backup';
+  String get backupSettings => 'Backup Settings';
+  String get backupDirectory => 'Backup Directory';
+  String get changeDirectory => 'Change Directory';
+  String get resetDirectory => 'Reset Directory';
+  String get selectBackupDirectory => 'Select Backup Directory';
+  String get selectExportDirectory => 'Select Export Directory';
+  String get backupDirectoryUpdated => 'Backup directory updated';
+  String get backupDirectoryReset => 'Backup directory reset to default';
+  String get backupCreated => 'Backup created successfully';
+  String get backupRestored => 'Backup restored successfully';
+  String get backupDeleted => 'Backup deleted successfully';
+  String get backupExported => 'Backup exported successfully';
+  String get backupError => 'Error during backup operation';
+  String get noBackups => 'No backups available';
+  String get restoreBackupConfirmation => 'Are you sure you want to restore this backup? Current data will be replaced.';
+  String get deleteBackupConfirmation => 'Are you sure you want to delete this backup?';
+
+  // Database and Settings
+  String get data => 'Database';
+  String get manageBackups => 'Manage Backups';
+
   // Method to get text by key dynamically
   String getText(String key);
 
@@ -331,15 +367,24 @@ abstract class BaseTranslations {
       fieldRequired;
 
       // Theme
-      darkTheme;
-      darkThemeDescription;
+      appearance;
+      darkMode;
+      darkModeDescription;
 
       // Settings
-      appearance;
       about;
       language;
       english;
       spanish;
+
+      // About and Social
+      webSite;
+      linkedIn;
+      gitHub;
+      reddit;
+      discord;
+      email;
+      joinOurCommunity;
 
       // Drawer Sections
       main;
@@ -375,6 +420,33 @@ abstract class BaseTranslations {
       contactInformation;
       additionalInformation;
       createContact;
+
+      // Backup
+      backups;
+      backup;
+      createBackup;
+      restoreBackup;
+      deleteBackup;
+      backupSettings;
+      backupDirectory;
+      changeDirectory;
+      resetDirectory;
+      selectBackupDirectory;
+      selectExportDirectory;
+      backupDirectoryUpdated;
+      backupDirectoryReset;
+      backupCreated;
+      backupRestored;
+      backupDeleted;
+      backupExported;
+      backupError;
+      noBackups;
+      restoreBackupConfirmation;
+      deleteBackupConfirmation;
+
+      // Database and Settings
+      data;
+      manageBackups;
 
       return true;
     } catch (e) {

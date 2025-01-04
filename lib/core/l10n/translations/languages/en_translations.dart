@@ -302,10 +302,8 @@ class EnTranslations extends BaseTranslations {
   @override
   String get spanish => 'Spanish';
 
-  @override
   String get darkTheme => 'Dark Theme';
 
-  @override
   String get darkThemeDescription => 'Enable dark mode for a better night experience';
 
   // Form Fields and Sections

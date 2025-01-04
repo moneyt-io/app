@@ -243,7 +243,50 @@ class EsTranslations extends BaseTranslations {
   @override
   String get to => 'Hasta';
 
-  // Settings related
+  // Database and Settings
+  @override
+  String get data => 'Base de Datos';
+
+  @override
+  String get manageBackups => 'Administrar Respaldos';
+
+  // Backup related
+  @override
+  String get backup => 'Respaldo';
+
+  @override
+  String get backups => 'Respaldos';
+
+  @override
+  String get createBackup => 'Crear Respaldo';
+
+  @override
+  String get restoreBackup => 'Restaurar Respaldo';
+
+  @override
+  String get deleteBackup => 'Eliminar Respaldo';
+
+  @override
+  String get noBackups => 'No hay respaldos disponibles';
+
+  @override
+  String get backupCreated => 'Respaldo creado exitosamente';
+
+  @override
+  String get backupRestored => 'Respaldo restaurado exitosamente';
+
+  @override
+  String get backupDeleted => 'Respaldo eliminado exitosamente';
+
+  @override
+  String get backupError => 'Error al realizar la operación de respaldo';
+
+  @override
+  String get restoreBackupConfirmation => '¿Está seguro de restaurar este respaldo? Los datos actuales se perderán.';
+
+  @override
+  String get deleteBackupConfirmation => '¿Está seguro de eliminar este respaldo?';
+
   @override
   String get settings => 'Configuración';
 
@@ -263,10 +306,32 @@ class EsTranslations extends BaseTranslations {
   String get spanish => 'Español';
 
   @override
-  String get darkTheme => 'Tema oscuro';
+  String get darkMode => 'Modo Oscuro';
 
   @override
-  String get darkThemeDescription => 'Activar modo oscuro para una mejor experiencia nocturna';
+  String get darkModeDescription => 'Activar modo oscuro para mejor visualización nocturna';
+
+  // About and Social
+  @override
+  String get webSite => 'Sitio Web';
+
+  @override
+  String get linkedIn => 'LinkedIn';
+
+  @override
+  String get gitHub => 'GitHub';
+
+  @override
+  String get reddit => 'Reddit';
+
+  @override
+  String get discord => 'Discord';
+
+  @override
+  String get email => 'Correo';
+
+  @override
+  String get joinOurCommunity => 'Únete a nuestra comunidad';
 
   // Form Fields and Sections
   @override

@@ -1,7 +1,16 @@
+# MoneyT - Personal Finance Manager App
+# Este archivo pubspec.yaml define las dependencias y configuración del proyecto
+# Principales dependencias:
+#  - drift: Para base de datos SQLite
+#  - provider: Para manejo de estado
+#  - google_sign_in: Para autenticación con Google
+#  - flutter_svg: Para manejo de imágenes SVG
+#  - shared_preferences: Para almacenamiento local de preferencias
+
 name: moneyt_pfm
 description: "Personal Finance Manager"
 publish_to: 'none'
-version: 0.1.1+2
+version: 0.1.1+3
 
 environment:
   sdk: ^3.5.4
@@ -23,6 +32,8 @@ dependencies:
   flutter_expandable_fab: ^2.3.0
   screenshot: ^3.0.0
   share_plus: ^10.1.3
+  file_picker: ^8.1.7
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:
