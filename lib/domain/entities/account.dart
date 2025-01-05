@@ -6,18 +6,21 @@ class AccountEntity implements ListItemInterface {
   final int id;
   @override
   final String name;
-  @override
+  
   final String? description;
   @override
   final DateTime createdAt;
-  final double balance;  // Nuevo campo
+  @override
+  final DateTime? updatedAt;
+  final double balance;
 
   AccountEntity({
     required this.id,
     required this.name,
     this.description,
     required this.createdAt,
-    this.balance = 0.0,  // Valor por defecto
+    this.updatedAt,
+    this.balance = 0.0,
   });
 
   @override
@@ -31,5 +34,5 @@ class AccountEntity implements ListItemInterface {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'AccountEntity(id: $id, name: $name, balance: $balance)';
+  String toString() => 'AccountEntity(id: $id, name: $name, balance: $balance, updatedAt: $updatedAt)';
 }

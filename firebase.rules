@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Función para verificar si el usuario está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Función para verificar si el documento pertenece al usuario actual
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Reglas para la colección de usuarios
+    match /users/{userId} {
+      // Solo el propio usuario puede leer y escribir sus datos
+      allow read, write: if isAuthenticated() && isOwner(userId);
+
+      // Reglas para las subcollecciones
+      match /accounts/{accountId} {
+        allow read, write: if isAuthenticated() && isOwner(userId);
+      }
+
+      match /categories/{categoryId} {
+        allow read, write: if isAuthenticated() && isOwner(userId);
+      }
+
+      match /transactions/{transactionId} {
+        allow read, write: if isAuthenticated() && isOwner(userId);
+      }
+
+      match /syncInfo/{document=**} {
+        allow read, write: if isAuthenticated() && isOwner(userId);
+      }
+    }
+
+    // Denegar acceso a todo lo demás
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

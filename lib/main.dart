@@ -1,7 +1,8 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:moneyt_pfm/data/local/backup/backup_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:moneyt_pfm/data/services/backup_service.dart';
+import 'package:moneyt_pfm/presentation/providers/auth_provider.dart';
 import 'package:moneyt_pfm/data/repositories/backup_repository_impl.dart';
 import 'package:moneyt_pfm/domain/repositories/backup_repository.dart';
 import 'package:moneyt_pfm/domain/usecases/account_usecases.dart';
@@ -19,8 +20,11 @@ import 'routes/app_routes.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Inicializar Firebase
+  await Firebase.initializeApp();
+
   // Inicializar dependencias
-  initializeDependencies();
+  await initializeDependencies();
   
   // Inicializar SharedPreferences
   final prefs = await SharedPreferences.getInstance();
@@ -33,29 +37,30 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => getIt<AppAuthProvider>()),
         ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)),
         Provider<BackupRepository>(
-          create: (_) => BackupRepositoryImpl(GetIt.I<BackupService>()),
+          create: (_) => BackupRepositoryImpl(getIt<BackupService>()),
         ),
         ChangeNotifierProvider(
           create: (context) => DrawerProvider(
             // Categories
-            getCategories: GetIt.I<GetCategories>(),
-            createCategory: GetIt.I<CreateCategory>(),
-            updateCategory: GetIt.I<UpdateCategory>(),
-            deleteCategory: GetIt.I<DeleteCategory>(),
+            getCategories: getIt<GetCategories>(),
+            createCategory: getIt<CreateCategory>(),
+            updateCategory: getIt<UpdateCategory>(),
+            deleteCategory: getIt<DeleteCategory>(),
             // Accounts
-            getAccounts: GetIt.I<GetAccounts>(),
-            createAccount: GetIt.I<CreateAccount>(),
-            updateAccount: GetIt.I<UpdateAccount>(),
-            deleteAccount: GetIt.I<DeleteAccount>(),
+            getAccounts: getIt<GetAccounts>(),
+            createAccount: getIt<CreateAccount>(),
+            updateAccount: getIt<UpdateAccount>(),
+            deleteAccount: getIt<DeleteAccount>(),
             // Contacts
-            getContacts: GetIt.I<GetContacts>(),
-            createContact: GetIt.I<CreateContact>(),
-            updateContact: GetIt.I<UpdateContact>(),
-            deleteContact: GetIt.I<DeleteContact>(),
+            getContacts: getIt<GetContacts>(),
+            createContact: getIt<CreateContact>(),
+            updateContact: getIt<UpdateContact>(),
+            deleteContact: getIt<DeleteContact>(),
             // Transactions
-            transactionUseCases: GetIt.I<TransactionUseCases>(),
+            transactionUseCases: getIt<TransactionUseCases>(),
           ),
         ),
         ChangeNotifierProvider.value(value: languageManager),
@@ -70,7 +75,11 @@ Future<void> main() async {
                 darkTheme: themeProvider.darkTheme,
                 themeMode: themeProvider.themeMode,
                 onGenerateRoute: AppRoutes.onGenerateRoute,
-                initialRoute: isFirstRun ? AppRoutes.welcome : AppRoutes.home,
+                initialRoute: isFirstRun 
+                  ? AppRoutes.welcome 
+                  : context.watch<AppAuthProvider>().isAuthenticated 
+                    ? AppRoutes.home 
+                    : AppRoutes.welcome,
               );
             },
           );

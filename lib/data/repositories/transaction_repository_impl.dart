@@ -25,7 +25,6 @@ class TransactionRepositoryImpl implements TransactionRepository {
       transactionDate: transaction.transactionDate,
       createdAt: transaction.createdAt,
       updatedAt: transaction.updatedAt,
-      status: transaction.status,
     );
   }
 
@@ -42,7 +41,6 @@ class TransactionRepositoryImpl implements TransactionRepository {
       contactId: Value(transaction.contactId),
       description: Value(transaction.description),
       transactionDate: Value(transaction.transactionDate),
-      status: Value(transaction.status),
     );
   }
 
@@ -109,7 +107,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   Future<bool> deleteTransaction(int id) async {
-    return await _transactionDao.deleteTransaction(id);
+    final result = await _transactionDao.deleteTransaction(id);
+    return result > 0;
   }
 
   @override

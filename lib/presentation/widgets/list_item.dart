@@ -82,11 +82,11 @@ class ListItem<T extends ListItemInterface> extends StatelessWidget {
                   ),
                 ],
               ),
-            if (item.description != null)
+            if (item.updatedAt != null)
               Text(
-                item.description!,
+                'Última actualización: ${item.updatedAt!.toLocal().toString().split('.')[0]}',
                 style: Theme.of(context).textTheme.bodySmall,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
           ],
@@ -133,10 +133,9 @@ class ListItem<T extends ListItemInterface> extends StatelessWidget {
                         children: [
                           if (item is CategoryEntity)
                             Text('Tipo: ${(item as CategoryEntity).type == 'I' ? 'Ingreso' : 'Egreso'}'),
-                          if (item.description != null)
-                            Text('Descripción: ${item.description}'),
-                          const SizedBox(height: 8),
-                          Text('Creado: ${item.createdAt.toString()}'),
+                          Text('Creado: ${item.createdAt.toLocal().toString().split('.')[0]}'),
+                          if (item.updatedAt != null)
+                            Text('Actualizado: ${item.updatedAt!.toLocal().toString().split('.')[0]}'),
                         ],
                       ),
                       actions: [

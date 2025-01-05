@@ -1,4 +1,3 @@
-// lib/data/local/daos/transaction_dao.dart
 import 'package:drift/drift.dart';
 import '../database.dart';
 import '../tables/transaction_table.dart';
@@ -9,156 +8,108 @@ part 'transaction_dao.g.dart';
 class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDaoMixin {
   TransactionDao(AppDatabase db) : super(db);
 
-  // Observar todas las transacciones activas
-  Stream<List<Transaction>> watchAllTransactions() {
-    return (select(transactions)
-      ..where((t) => t.status.equals(true))
-      ..orderBy([
-        (t) => OrderingTerm(
-              expression: t.transactionDate,
-              mode: OrderingMode.desc,
-            ),
-      ]))
-        .watch();
-  }
+  Future<List<Transaction>> getAllTransactions() => select(transactions).get();
 
-  // Observar transacciones por tipo
-  Stream<List<Transaction>> watchTransactionsByType(String type) {
-    return (select(transactions)
-      ..where((t) => t.type.equals(type) & t.status.equals(true))
-      ..orderBy([(t) => OrderingTerm(expression: t.transactionDate, mode: OrderingMode.desc)]))
-        .watch();
-  }
+  Stream<List<Transaction>> watchAllTransactions() => select(transactions).watch();
 
-  // Observar transacciones por flujo (entrada/salida)
-  Stream<List<Transaction>> watchTransactionsByFlow(String flow) {
-    return (select(transactions)
-      ..where((t) => t.flow.equals(flow) & t.status.equals(true))
-      ..orderBy([(t) => OrderingTerm(expression: t.transactionDate, mode: OrderingMode.desc)]))
-        .watch();
-  }
+  Future<Transaction> getTransactionById(int id) =>
+      (select(transactions)..where((t) => t.id.equals(id))).getSingle();
 
-  // Observar transacciones por tipo y flujo
-  Stream<List<Transaction>> watchTransactionsByTypeAndFlow(String type, String flow) {
-    return (select(transactions)
-      ..where((t) => t.type.equals(type) & t.flow.equals(flow) & t.status.equals(true))
-      ..orderBy([(t) => OrderingTerm(expression: t.transactionDate, mode: OrderingMode.desc)]))
-        .watch();
-  }
-
-  // Observar transacciones por cuenta
-  Stream<List<Transaction>> watchTransactionsByAccount(int accountId) {
-    return (select(transactions)
-      ..where((t) => t.accountId.equals(accountId) & t.status.equals(true))
-      ..orderBy([(t) => OrderingTerm(expression: t.transactionDate, mode: OrderingMode.desc)]))
-        .watch();
-  }
-
-  // Observar transacciones por categoría
-  Stream<List<Transaction>> watchTransactionsByCategory(int categoryId) {
-    return (select(transactions)
-      ..where((t) => t.categoryId.equals(categoryId) & t.status.equals(true))
-      ..orderBy([(t) => OrderingTerm(expression: t.transactionDate, mode: OrderingMode.desc)]))
-        .watch();
-  }
-
-  // Observar transacciones por contacto
-  Stream<List<Transaction>> watchTransactionsByContact(int contactId) {
-    return (select(transactions)
-      ..where((t) => t.contactId.equals(contactId) & t.status.equals(true))
-      ..orderBy([(t) => OrderingTerm(expression: t.transactionDate, mode: OrderingMode.desc)]))
-        .watch();
-  }
-
-  // Obtener una transacción por ID
-  Future<Transaction?> getTransactionById(int id) =>
-      (select(transactions)..where((t) => t.id.equals(id))).getSingleOrNull();
-
-  // Insertar una nueva transacción
   Future<int> insertTransaction(TransactionsCompanion transaction) =>
       into(transactions).insert(transaction);
 
-  // Insertar múltiples transacciones (útil para transferencias)
-  Future<void> insertMultipleTransactions(List<TransactionsCompanion> transactions) async {
-    await batch((batch) {
-      batch.insertAll(this.transactions, transactions);
-    });
-  }
+  Future<bool> updateTransaction(TransactionsCompanion transaction) =>
+      update(transactions).replace(transaction);
 
-  // Actualizar una transacción
-  Future<bool> updateTransaction(TransactionsCompanion transaction) async {
-    return await update(transactions).replace(transaction);
-  }
+  Future<int> deleteTransaction(int id) =>
+      (delete(transactions)..where((t) => t.id.equals(id))).go();
 
-  // Eliminar una transacción (borrado lógico)
-  Future<bool> deleteTransaction(int id) async {
-    final result = await (update(transactions)..where((t) => t.id.equals(id)))
-        .write(const TransactionsCompanion(status: Value(false)));
-    return result > 0;
-  }
+  Future<void> upsertTransaction(TransactionsCompanion transaction) =>
+      into(transactions).insertOnConflictUpdate(transaction);
 
-  // Obtener transacciones por rango de fechas
-  Stream<List<Transaction>> watchTransactionsByDateRange(
-      DateTime startDate, DateTime endDate) {
-    return (select(transactions)
-      ..where((t) => t.transactionDate.isBetweenValues(startDate, endDate) & 
-                     t.status.equals(true))
-      ..orderBy([(t) => OrderingTerm(expression: t.transactionDate, mode: OrderingMode.desc)]))
+  Future<List<Transaction>> getTransactionsByAccount(int accountId) =>
+      (select(transactions)..where((t) => t.accountId.equals(accountId))).get();
+
+  Future<List<Transaction>> getTransactionsByCategory(int categoryId) =>
+      (select(transactions)..where((t) => t.categoryId.equals(categoryId))).get();
+
+  Future<List<Transaction>> getTransactionsByType(String type) =>
+      (select(transactions)..where((t) => t.type.equals(type))).get();
+
+  Stream<List<Transaction>> watchTransactionsByType(String type) =>
+      (select(transactions)..where((t) => t.type.equals(type))).watch();
+
+  Stream<List<Transaction>> watchTransactionsByFlow(String flow) =>
+      (select(transactions)..where((t) => t.flow.equals(flow))).watch();
+
+  Stream<List<Transaction>> watchTransactionsByAccount(int accountId) =>
+      (select(transactions)..where((t) => t.accountId.equals(accountId))).watch();
+
+  Stream<List<Transaction>> watchTransactionsByCategory(int categoryId) =>
+      (select(transactions)..where((t) => t.categoryId.equals(categoryId))).watch();
+
+  Stream<List<Transaction>> watchTransactionsByContact(int contactId) =>
+      (select(transactions)..where((t) => t.contactId.equals(contactId))).watch();
+
+  Stream<List<Transaction>> watchTransactionsByTypeAndFlow(String type, String flow) =>
+      (select(transactions)
+        ..where((t) => t.type.equals(type) & t.flow.equals(flow)))
         .watch();
-  }
 
-  // Obtener el balance de una cuenta
   Future<double> getAccountBalance(int accountId) async {
-    final query = select(transactions)
-      ..where((t) => t.accountId.equals(accountId) & t.status.equals(true));
+    final inflows = await (selectOnly(transactions)
+      ..where(transactions.accountId.equals(accountId) & transactions.flow.equals(FLOW_TYPE_INFLOW))
+      ..addColumns([transactions.amount.sum()]))
+        .getSingleOrNull();
 
-    final results = await query.get();
-    double balance = 0;
+    final outflows = await (selectOnly(transactions)
+      ..where(transactions.accountId.equals(accountId) & transactions.flow.equals(FLOW_TYPE_OUTFLOW))
+      ..addColumns([transactions.amount.sum()]))
+        .getSingleOrNull();
 
-    for (final transaction in results) {
-      if (transaction.flow == FLOW_TYPE_INFLOW) {
-        balance += transaction.amount;
-      } else if (transaction.flow == FLOW_TYPE_OUTFLOW) {
-        balance -= transaction.amount;
-      }
-    }
-    return balance;
+    final inflowAmount = (inflows?.read(transactions.amount.sum()) ?? 0.0) as double;
+    final outflowAmount = (outflows?.read(transactions.amount.sum()) ?? 0.0) as double;
+    
+    return inflowAmount - outflowAmount;
   }
 
-  // Observar el balance de una cuenta
   Stream<double> watchAccountBalance(int accountId) {
-    final query = select(transactions)
-      ..where((t) => t.accountId.equals(accountId) & t.status.equals(true));
-
-    return query.watch().map((transactions) {
-      double balance = 0;
-      for (final transaction in transactions) {
-        if (transaction.flow == FLOW_TYPE_INFLOW) {
-          balance += transaction.amount;
-        } else if (transaction.flow == FLOW_TYPE_OUTFLOW) {
-          balance -= transaction.amount;
-        }
-      }
-      return balance;
-    });
+    final query = customSelect(
+      'SELECT COALESCE(SUM(CASE WHEN flow = ? THEN amount ELSE -amount END), 0.0) as balance '
+      'FROM transactions WHERE account_id = ?',
+      variables: [Variable.withString(FLOW_TYPE_INFLOW), Variable.withInt(accountId)],
+      readsFrom: {transactions},
+    );
+    return query.watchSingle().map((row) => row.read<double>('balance'));
   }
 
-  // Obtener el balance de todas las cuentas en una sola consulta
   Stream<Map<int, double>> watchAllAccountBalances() {
-    return (select(transactions)..where((t) => t.status.equals(true)))
-        .watch()
-        .map((transactions) {
+    final query = customSelect(
+      'SELECT account_id, '
+      'COALESCE(SUM(CASE WHEN flow = ? THEN amount ELSE -amount END), 0.0) as balance '
+      'FROM transactions GROUP BY account_id',
+      variables: [Variable.withString(FLOW_TYPE_INFLOW)],
+      readsFrom: {transactions},
+    );
+    return query.watch().map((rows) {
       final balances = <int, double>{};
-      for (final transaction in transactions) {
-        final currentBalance = balances[transaction.accountId] ?? 0.0;
-        balances[transaction.accountId] = currentBalance + 
-            (transaction.flow == FLOW_TYPE_INFLOW ? transaction.amount : -transaction.amount);
+      for (final row in rows) {
+        balances[row.read<int>('account_id')] = row.read<double>('balance');
       }
       return balances;
     });
   }
 
-  // Crear una transferencia entre cuentas
+  Stream<List<Transaction>> watchTransactionsByDateRange(
+    DateTime startDate,
+    DateTime endDate,
+  ) =>
+      (select(transactions)
+        ..where((t) =>
+            t.transactionDate.isBiggerOrEqualValue(startDate) &
+            t.transactionDate.isSmallerOrEqualValue(endDate)))
+        .watch();
+
   Future<void> createTransfer({
     required int fromAccountId,
     required int toAccountId,
@@ -168,31 +119,50 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
     String? reference,
     int? contactId,
   }) async {
-    // Crear la transacción de salida
-    final outflowTransaction = TransactionsCompanion(
+    final now = DateTime.now();
+    final outgoing = TransactionsCompanion(
       type: const Value(TRANSACTION_TYPE_TRANSFER),
       flow: const Value(FLOW_TYPE_OUTFLOW),
       amount: Value(amount),
       accountId: Value(fromAccountId),
-      transactionDate: Value(date),
-      description: Value(description),
-      reference: Value(reference),
+      categoryId: const Value(null),
       contactId: Value(contactId),
+      reference: Value(reference),
+      description: Value(description),
+      transactionDate: Value(date),
+      createdAt: Value(now),
+      updatedAt: Value(now),
+      status: const Value(true),
     );
 
-    // Crear la transacción de entrada
-    final inflowTransaction = TransactionsCompanion(
+    final incoming = TransactionsCompanion(
       type: const Value(TRANSACTION_TYPE_TRANSFER),
       flow: const Value(FLOW_TYPE_INFLOW),
       amount: Value(amount),
       accountId: Value(toAccountId),
-      transactionDate: Value(date),
-      description: Value(description),
-      reference: Value(reference),
+      categoryId: const Value(null),
       contactId: Value(contactId),
+      reference: Value(reference),
+      description: Value(description),
+      transactionDate: Value(date),
+      createdAt: Value(now),
+      updatedAt: Value(now),
+      status: const Value(true),
     );
 
-    // Insertar ambas transacciones en una sola operación
-    await insertMultipleTransactions([outflowTransaction, inflowTransaction]);
+    await transaction(() async {
+      await insertTransaction(outgoing);
+      await insertTransaction(incoming);
+    });
   }
+
+  Future<List<Transaction>> getTransactionsByDateRange(
+    DateTime startDate,
+    DateTime endDate,
+  ) =>
+      (select(transactions)
+        ..where((t) =>
+            t.transactionDate.isBiggerOrEqualValue(startDate) &
+            t.transactionDate.isSmallerOrEqualValue(endDate)))
+        .get();
 }

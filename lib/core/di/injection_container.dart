@@ -1,6 +1,13 @@
 // lib/core/di/injection_container.dart
 import 'package:get_it/get_it.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:moneyt_pfm/data/services/sync_manager.dart';
 import '../../data/local/database.dart';
+import '../../data/repositories/auth_repository_impl.dart';
+import '../../domain/repositories/auth_repository.dart';
+import '../../data/services/sync_service.dart';
 import '../../data/local/daos/category_dao.dart';
 import '../../data/local/daos/account_dao.dart';
 import '../../data/local/daos/transaction_dao.dart';
@@ -19,12 +26,18 @@ import '../../domain/usecases/category_usecases.dart';
 import '../../domain/usecases/account_usecases.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../../domain/usecases/contact_usecases.dart';
-import '../../data/local/backup/backup_service.dart';
+import '../../data/services/backup_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../presentation/providers/auth_provider.dart';
 
 final getIt = GetIt.instance;
 
 Future<void> initializeDependencies() async {
+  // Firebase
+  getIt.registerSingleton<FirebaseAuth>(FirebaseAuth.instance);
+  getIt.registerSingleton<FirebaseFirestore>(FirebaseFirestore.instance);
+  getIt.registerSingleton<GoogleSignIn>(GoogleSignIn());
+
   // Database
   final database = AppDatabase();
   getIt.registerSingleton<AppDatabase>(database);
@@ -39,13 +52,31 @@ Future<void> initializeDependencies() async {
   getIt.registerSingleton(database.transactionDao);
   getIt.registerSingleton(database.contactDao);
 
+  // Services
+  getIt.registerLazySingleton<SyncService>(
+    () => SyncService(
+      auth: getIt<FirebaseAuth>(),
+      firestore: getIt<FirebaseFirestore>(),
+      localDb: getIt<AppDatabase>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<SyncManager>(
+    () => SyncManager(getIt<SyncService>()),
+  );
+
   // Repositories
   getIt.registerSingleton<CategoryRepository>(
     CategoryRepositoryImpl(getIt<CategoryDao>()),
   );
+  
   getIt.registerSingleton<AccountRepository>(
-    AccountRepositoryImpl(getIt<AccountDao>()),
+    AccountRepositoryImpl(
+      getIt<AccountDao>(),
+      getIt<SyncManager>(),
+    ),
   );
+  
   getIt.registerSingleton<TransactionRepository>(
     TransactionRepositoryImpl(getIt<TransactionDao>()),
   );
@@ -58,6 +89,16 @@ Future<void> initializeDependencies() async {
     () => BackupService(
       database: getIt<AppDatabase>(),
       prefs: getIt<SharedPreferences>(),
+    ),
+  );
+
+  // Auth
+  getIt.registerSingleton<AuthRepository>(
+    AuthRepositoryImpl(
+      auth: getIt<FirebaseAuth>(),
+      firestore: getIt<FirebaseFirestore>(),
+      googleSignIn: getIt<GoogleSignIn>(),
+      syncService: getIt<SyncService>(),
     ),
   );
 
@@ -87,4 +128,7 @@ Future<void> initializeDependencies() async {
 
   // Transactions
   getIt.registerFactory(() => TransactionUseCases(getIt<TransactionRepository>()));
+
+  // Providers
+  getIt.registerLazySingleton(() => AppAuthProvider(getIt<AuthRepository>()));
 }

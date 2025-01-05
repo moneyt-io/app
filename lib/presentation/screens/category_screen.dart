@@ -225,9 +225,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       category.name,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    subtitle: category.description?.isNotEmpty ?? false
+                    subtitle: category.updatedAt != null
                         ? Text(
-                            category.description!,
+                            'Última actualización: ${category.updatedAt!.toLocal().toString().split('.')[0]}',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -299,9 +299,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           child.name,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        subtitle: child.description?.isNotEmpty ?? false
+                        subtitle: child.updatedAt != null
                             ? Text(
-                                child.description!,
+                                'Última actualización: ${child.updatedAt!.toLocal().toString().split('.')[0]}',
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: colorScheme.onSurfaceVariant,
                                 ),

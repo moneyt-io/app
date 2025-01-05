@@ -76,7 +76,9 @@ class HomeAccountsWidget extends StatelessWidget {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             title: Text(account.name),
-                            subtitle: Text(account.description ?? ''),
+                            subtitle: account.updatedAt != null
+                              ? Text('Última actualización: ${account.updatedAt!.toLocal().toString().split('.')[0]}')
+                              : null,
                             trailing: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.end,

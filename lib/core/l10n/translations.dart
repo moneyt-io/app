@@ -3,6 +3,19 @@ class Translations {
   final String welcome;
   final String selectLanguage;
   final String continue_;
+  final String signIn;
+  final String signUp;
+  final String signInWithEmail;
+  final String signInWithGoogle;
+  final String email;
+  final String password;
+  final String emailRequired;
+  final String invalidEmail;
+  final String passwordRequired;
+  final String passwordTooShort;
+  final String forgotPassword;
+  final String alreadyHaveAccount;
+  final String dontHaveAccount;
   final String settings;
   final String darkMode;
   final String darkModeDescription;
@@ -35,6 +48,19 @@ class Translations {
     required this.welcome,
     required this.selectLanguage,
     required this.continue_,
+    required this.signIn,
+    required this.signUp,
+    required this.signInWithEmail,
+    required this.signInWithGoogle,
+    required this.email,
+    required this.password,
+    required this.emailRequired,
+    required this.invalidEmail,
+    required this.passwordRequired,
+    required this.passwordTooShort,
+    required this.forgotPassword,
+    required this.alreadyHaveAccount,
+    required this.dontHaveAccount,
     required this.settings,
     required this.darkMode,
     required this.darkModeDescription,
@@ -69,6 +95,19 @@ class Translations {
     welcome: 'Welcome to MoneyT',
     selectLanguage: 'Select your language',
     continue_: 'Continue',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    signInWithEmail: 'Sign in with Email',
+    signInWithGoogle: 'Sign in with Google',
+    email: 'Email',
+    password: 'Password',
+    emailRequired: 'Email is required',
+    invalidEmail: 'Please enter a valid email',
+    passwordRequired: 'Password is required',
+    passwordTooShort: 'Password must be at least 6 characters',
+    forgotPassword: 'Forgot Password?',
+    alreadyHaveAccount: 'Already have an account? Sign in',
+    dontHaveAccount: 'Don\'t have an account? Sign up',
     settings: 'Settings',
     darkMode: 'Dark Mode',
     darkModeDescription: 'Switch between light and dark theme',
@@ -103,6 +142,19 @@ class Translations {
     welcome: 'Bienvenido a MoneyT',
     selectLanguage: 'Selecciona tu idioma',
     continue_: 'Continuar',
+    signIn: 'Iniciar Sesión',
+    signUp: 'Registrarse',
+    signInWithEmail: 'Iniciar sesión con Email',
+    signInWithGoogle: 'Iniciar sesión con Google',
+    email: 'Correo electrónico',
+    password: 'Contraseña',
+    emailRequired: 'El correo electrónico es requerido',
+    invalidEmail: 'Por favor ingrese un correo válido',
+    passwordRequired: 'La contraseña es requerida',
+    passwordTooShort: 'La contraseña debe tener al menos 6 caracteres',
+    forgotPassword: '¿Olvidaste tu contraseña?',
+    alreadyHaveAccount: '¿Ya tienes una cuenta? Inicia sesión',
+    dontHaveAccount: '¿No tienes una cuenta? Regístrate',
     settings: 'Configuración',
     darkMode: 'Modo Oscuro',
     darkModeDescription: 'Cambiar entre tema claro y oscuro',

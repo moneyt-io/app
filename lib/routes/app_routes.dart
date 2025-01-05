@@ -1,7 +1,7 @@
 // lib/routes/app_routes.dart
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import '../core/di/injection_container.dart';
 import '../presentation/screens/home_screen.dart';
 import '../presentation/screens/category_screen.dart';
 import '../presentation/screens/account_screen.dart';
@@ -11,6 +11,7 @@ import '../presentation/screens/transaction_form.dart';
 import '../presentation/screens/category_form.dart';
 import '../presentation/screens/account_form.dart';
 import '../presentation/screens/welcome_screen.dart';
+import '../presentation/screens/auth/login_screen.dart';
 import '../presentation/screens/transaction_details_screen.dart';
 import '../presentation/screens/contact_screen.dart';
 import '../presentation/screens/contact_form.dart';
@@ -21,10 +22,9 @@ import '../domain/usecases/contact_usecases.dart';
 import '../domain/entities/transaction.dart';
 import '../presentation/screens/backup_screen.dart';
 
-final getIt = GetIt.instance;
-
 class AppRoutes {
   static const String welcome = '/welcome';
+  static const String login = '/auth/login';
   static const String home = '/';
   static const String categories = '/categories';
   static const String categoryForm = '/category-form';
@@ -45,6 +45,12 @@ class AppRoutes {
       case AppRoutes.welcome:
         return MaterialPageRoute(
           builder: (context) => const WelcomeScreen(),
+        );
+
+      case AppRoutes.login:
+        return MaterialPageRoute(
+          builder: (context) => const LoginScreen(),
+          fullscreenDialog: true,
         );
 
       case AppRoutes.home:

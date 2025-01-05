@@ -20,7 +20,10 @@ abstract class BaseTranslations {
   String get invalidAmount => 'Invalid amount';
 
   // Login
+  String get signIn => 'Sign In';
+  String get signUp => 'Sign Up';
   String get signInWithGoogle => 'Sign in with Google';
+  String get signInWithEmail => 'Sign in with Email';
   String get skipSignIn => 'Skip Sign In';
   String get termsAndConditions => 'Terms and Conditions';
   String get acceptTerms => 'I accept the Terms and Conditions';
@@ -28,6 +31,14 @@ abstract class BaseTranslations {
   String get acceptMarketing => 'I would like to receive marketing emails';
   String get termsText => 'By using this app, you agree to our Terms of Service and Privacy Policy...';
   String get readTerms => 'Read Terms and Conditions';
+  String get emailRequired => 'Email is required';
+  String get invalidEmail => 'Please enter a valid email';
+  String get password => 'Password';
+  String get passwordRequired => 'Password is required';
+  String get passwordTooShort => 'Password must be at least 6 characters';
+  String get forgotPassword => 'Forgot Password?';
+  String get alreadyHaveAccount => 'Already have an account? Sign in';
+  String get dontHaveAccount => "Don't have an account? Sign up";
 
   // Navigation
   String get home;
@@ -239,6 +250,17 @@ abstract class BaseTranslations {
       appName;
       welcome;
       welcomeTitle;
+      signIn;
+      signUp;
+      signInWithEmail;
+      emailRequired;
+      invalidEmail;
+      password;
+      passwordRequired;
+      passwordTooShort;
+      forgotPassword;
+      alreadyHaveAccount;
+      dontHaveAccount;
       selectLanguage;
       continue_;
       cancel;

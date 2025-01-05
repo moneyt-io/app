@@ -1,39 +1,30 @@
-import 'package:flutter/material.dart';
-import '../../domain/entities/user_entity.dart';
+import 'package:flutter/foundation.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../domain/entities/user_entity.dart';
 
-class AuthProvider extends ChangeNotifier {
+class AppAuthProvider extends ChangeNotifier {
   final AuthRepository _authRepository;
   UserEntity? _currentUser;
   bool _isLoading = false;
 
-  AuthProvider(this._authRepository) {
+  AppAuthProvider(AuthRepository authRepository) : _authRepository = authRepository {
     _init();
   }
 
-  UserEntity? get currentUser => _currentUser;
-  bool get isLoading => _isLoading;
   bool get isAuthenticated => _currentUser != null;
+  bool get isLoading => _isLoading;
+  UserEntity? get currentUser => _currentUser;
 
   Future<void> _init() async {
-    _isLoading = true;
+    _currentUser = await _authRepository.getCurrentUser();
     notifyListeners();
-
-    try {
-      _currentUser = await _authRepository.getCurrentUser();
-    } catch (e) {
-      debugPrint('Error initializing auth: $e');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
   }
 
   Future<void> signInWithGoogle() async {
-    _isLoading = true;
-    notifyListeners();
-
     try {
+      _isLoading = true;
+      notifyListeners();
+
       _currentUser = await _authRepository.signInWithGoogle();
       notifyListeners();
     } finally {
@@ -42,11 +33,37 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> signOut() async {
-    _isLoading = true;
-    notifyListeners();
-
+  Future<void> signInWithEmailPassword(String email, String password) async {
     try {
+      _isLoading = true;
+      notifyListeners();
+
+      _currentUser = await _authRepository.signInWithEmailPassword(email, password);
+      notifyListeners();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> signUpWithEmailPassword(String email, String password) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      _currentUser = await _authRepository.signUpWithEmailPassword(email, password);
+      notifyListeners();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> signOut() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
       await _authRepository.signOut();
       _currentUser = null;
       notifyListeners();
@@ -56,21 +73,29 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updateMarketingPreferences(bool acceptedMarketing) async {
-    if (_currentUser == null) return;
-
+  Future<void> resetPassword(String email) async {
     try {
+      _isLoading = true;
+      notifyListeners();
+
+      await _authRepository.resetPassword(email);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateUserPreferences({required bool acceptedMarketing}) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
       await _authRepository.updateUserPreferences(
         acceptedMarketing: acceptedMarketing,
       );
-      
-      _currentUser = _currentUser!.copyWith(
-        acceptedMarketing: acceptedMarketing,
-      );
+    } finally {
+      _isLoading = false;
       notifyListeners();
-    } catch (e) {
-      debugPrint('Error updating marketing preferences: $e');
-      rethrow;
     }
   }
 }

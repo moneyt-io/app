@@ -13,14 +13,17 @@ class AccountModel implements AccountEntity {
   @override
   final DateTime createdAt;
   @override
-  final double balance;  // Nuevo campo
+  final DateTime? updatedAt;
+  @override
+  final double balance;
 
   AccountModel({
     required this.id,
     required this.name,
     this.description,
     required this.createdAt,
-    this.balance = 0.0,  // Valor por defecto
+    this.updatedAt,
+    this.balance = 0.0,
   });
 
   factory AccountModel.fromDriftAccount(Account driftAccount) {
@@ -29,7 +32,8 @@ class AccountModel implements AccountEntity {
       name: driftAccount.name,
       description: driftAccount.description,
       createdAt: driftAccount.createdAt,
-      balance: 0.0,  // El balance se calculará después con las transacciones
+      updatedAt: driftAccount.updatedAt,
+      balance: driftAccount.balance,
     );
   }
 
@@ -38,6 +42,7 @@ class AccountModel implements AccountEntity {
       name: Value(name),
       description: Value(description),
       createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
     );
   }
 
@@ -47,6 +52,7 @@ class AccountModel implements AccountEntity {
       name: Value(name),
       description: Value(description),
       createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
     );
   }
 

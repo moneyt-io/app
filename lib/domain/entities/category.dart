@@ -8,21 +8,17 @@ class CategoryEntity implements ListItemInterface {
   final int? parentId;
   @override
   final String name;
-  @override
-  final String? description;
   final String type;
-  @override
   final DateTime createdAt;
-  final bool status;  // Nuevo campo
+  final DateTime? updatedAt;
 
   CategoryEntity({
     required this.id,
     this.parentId,
     required this.name,
-    this.description,
     required this.type,
     required this.createdAt,
-    this.status = true,  // Valor por defecto
+    this.updatedAt,
   });
 
   bool get isMainCategory => parentId == null;
@@ -38,5 +34,5 @@ class CategoryEntity implements ListItemInterface {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'CategoryEntity(id: $id, name: $name, type: $type)';
+  String toString() => 'CategoryEntity(id: $id, name: $name, type: $type, updatedAt: $updatedAt)';
 }

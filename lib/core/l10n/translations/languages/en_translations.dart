@@ -8,6 +8,64 @@ class EnTranslations extends BaseTranslations {
   @override
   String get appName => 'MoneyT';
 
+  // Authentication
+  @override
+  String get signIn => 'Sign In';
+
+  @override
+  String get signUp => 'Sign Up';
+
+  @override
+  String get signInWithEmail => 'Sign in with Email';
+
+  @override
+  String get signInWithGoogle => 'Sign in with Google';
+
+  @override
+  String get skipSignIn => 'Skip Sign In';
+
+  @override
+  String get emailRequired => 'Email is required';
+
+  @override
+  String get invalidEmail => 'Please enter a valid email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get passwordRequired => 'Password is required';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get forgotPassword => 'Forgot Password?';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account? Sign in';
+
+  @override
+  String get dontHaveAccount => "Don't have an account? Sign up";
+
+  @override
+  String get termsAndConditions => 'Terms and Conditions';
+
+  @override
+  String get acceptTerms => 'I accept the Terms and Conditions';
+
+  @override
+  String get acceptTermsAndConditions => 'I accept the Terms and Conditions';
+
+  @override
+  String get acceptMarketing => 'I would like to receive marketing emails';
+
+  @override
+  String get termsText => 'By using this app, you agree to our Terms of Service and Privacy Policy...';
+
+  @override
+  String get readTerms => 'Read Terms and Conditions';
+
   @override
   String get welcome => 'Welcome';
 

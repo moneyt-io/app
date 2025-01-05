@@ -99,8 +99,7 @@ class _TransactionFormState extends State<TransactionForm> {
         type: childCategory.type,
         createdAt: DateTime.now(),
         parentId: null,
-        description: null,
-        status: true,
+        updatedAt: null,
       );
     }
   }
@@ -387,7 +386,7 @@ class _TransactionFormState extends State<TransactionForm> {
             description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
             transactionDate: _selectedDate,
             createdAt: widget.transaction?.createdAt ?? DateTime.now(),
-            status: true,
+            updatedAt: DateTime.now(),
           );
 
           if (widget.transaction == null) {

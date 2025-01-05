@@ -2,6 +2,6 @@
 abstract class ListItemInterface {
   int get id;
   String get name;
-  String? get description;
   DateTime get createdAt;
+  DateTime? get updatedAt;
 }

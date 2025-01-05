@@ -1,4 +1,3 @@
-// lib/data/local/daos/account_dao.dart
 import 'package:drift/drift.dart';
 import '../database.dart';
 import '../tables/account_table.dart';
@@ -9,26 +8,25 @@ part 'account_dao.g.dart';
 class AccountDao extends DatabaseAccessor<AppDatabase> with _$AccountDaoMixin {
   AccountDao(AppDatabase db) : super(db);
 
-  Stream<List<Account>> watchAllAccounts() {
-    return (select(accounts)..orderBy([(a) => OrderingTerm(expression: a.name)]))
-        .watch();
-  }
+  Future<List<Account>> getAllAccounts() => select(accounts).get();
 
-  Future<List<Account>> getAllAccounts() {
-    return (select(accounts)..orderBy([(a) => OrderingTerm(expression: a.name)]))
-        .get();
-  }
+  Stream<List<Account>> watchAllAccounts() => select(accounts).watch();
 
-  Future<void> insertAccount(AccountsCompanion account) {
-    return into(accounts).insert(account);
-  }
+  Future<Account> getAccountById(int id) =>
+      (select(accounts)..where((a) => a.id.equals(id))).getSingle();
 
-  Future<void> updateAccount(AccountsCompanion account) {
-    return (update(accounts)..where((t) => t.id.equals(account.id.value)))
-        .write(account);
-  }
+  Future<int> insertAccount(AccountsCompanion account) =>
+      into(accounts).insert(account);
 
-  Future<void> deleteAccount(int id) {
-    return (delete(accounts)..where((t) => t.id.equals(id))).go();
-  }
+  Future<bool> updateAccount(AccountsCompanion account) =>
+      update(accounts).replace(account);
+
+  Future<int> deleteAccount(int id) =>
+      (delete(accounts)..where((a) => a.id.equals(id))).go();
+
+  Future<void> upsertAccount(AccountsCompanion account) =>
+      into(accounts).insertOnConflictUpdate(account);
+
+  Future<Account?> getAccountByName(String name) =>
+      (select(accounts)..where((a) => a.name.equals(name))).getSingleOrNull();
 }

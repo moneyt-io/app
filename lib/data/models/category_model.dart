@@ -11,22 +11,19 @@ class CategoryModel implements CategoryEntity {
   @override
   final String name;
   @override
-  final String? description;
-  @override
   final String type;
   @override
   final DateTime createdAt;
   @override
-  final bool status;
+  final DateTime? updatedAt;
 
   CategoryModel({
     required this.id,
     this.parentId,
     required this.name,
-    this.description,
     required this.type,
     required this.createdAt,
-    this.status = true,
+    this.updatedAt,
   });
 
   factory CategoryModel.fromDriftCategory(Category driftCategory) {
@@ -34,10 +31,9 @@ class CategoryModel implements CategoryEntity {
       id: driftCategory.id,
       parentId: driftCategory.parentId,
       name: driftCategory.name,
-      description: driftCategory.description,
       type: driftCategory.type,
       createdAt: driftCategory.createdAt,
-      status: driftCategory.status,
+      updatedAt: driftCategory.updatedAt,
     );
   }
 
@@ -45,7 +41,6 @@ class CategoryModel implements CategoryEntity {
     return CategoriesCompanion.insert(
       parentId: Value(parentId),
       name: name,
-      description: Value(description),
       type: type,
       createdAt: Value(createdAt),  // Envuelto en Value()
     );
@@ -56,7 +51,6 @@ class CategoryModel implements CategoryEntity {
       id: Value(id),
       parentId: Value(parentId),
       name: Value(name),
-      description: Value(description),
       type: Value(type),
       createdAt: Value(createdAt),  // Envuelto en Value()
     );
@@ -76,5 +70,5 @@ class CategoryModel implements CategoryEntity {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'CategoryModel(id: $id, name: $name, type: $type, status: $status)';
+  String toString() => 'CategoryModel(id: $id, name: $name, type: $type, updatedAt: $updatedAt)';
 }

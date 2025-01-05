@@ -27,7 +27,6 @@ class CategoryForm extends StatefulWidget {
 class _CategoryFormState extends State<CategoryForm> {
   final _formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
-  final descriptionController = TextEditingController();
   late final ValueNotifier<String> typeValue;
   late final ValueNotifier<bool> isSubcategoryValue;
   CategoryEntity? selectedParentCategory;
@@ -36,7 +35,6 @@ class _CategoryFormState extends State<CategoryForm> {
   void initState() {
     super.initState();
     nameController.text = widget.category?.name ?? '';
-    descriptionController.text = widget.category?.description ?? '';
     typeValue = ValueNotifier(widget.category?.type ?? 'E');
     isSubcategoryValue = ValueNotifier(widget.category?.parentId != null);
     typeValue.addListener(_onTypeChanged);
@@ -45,7 +43,6 @@ class _CategoryFormState extends State<CategoryForm> {
   @override
   void dispose() {
     nameController.dispose();
-    descriptionController.dispose();
     typeValue.removeListener(_onTypeChanged);
     typeValue.dispose();
     isSubcategoryValue.dispose();
@@ -130,18 +127,6 @@ class _CategoryFormState extends State<CategoryForm> {
                           },
                         ),
                         const SizedBox(height: 16),
-                        TextFormField(
-                          controller: descriptionController,
-                          decoration: InputDecoration(
-                            labelText: translations.description,
-                            filled: true,
-                            fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          maxLines: 2,
-                        ),
                       ],
                     ),
                   ),
@@ -403,7 +388,7 @@ class _CategoryFormState extends State<CategoryForm> {
         parentId:
             isSubcategoryValue.value ? selectedParentCategory?.id : null,
         name: nameController.text.trim(),
-        description: descriptionController.text.trim(),
+        updatedAt: DateTime.now(),
         type: typeValue.value,
         createdAt: widget.category?.createdAt ?? DateTime.now(),
       );

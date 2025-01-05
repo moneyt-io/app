@@ -5,10 +5,9 @@ class Categories extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get parentId => integer().nullable()();
   TextColumn get name => text().withLength(min: 1, max: 50)();
-  TextColumn get description => text().nullable()();
   TextColumn get type => text().withLength(min: 1, max: 1)();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-  BoolColumn get status => boolean().withDefault(const Constant(true))();  // Nuevo campo
+  DateTimeColumn get updatedAt => dateTime().nullable()();
 
   @override
   List<String> get customConstraints => [

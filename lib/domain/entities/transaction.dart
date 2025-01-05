@@ -12,8 +12,6 @@ class TransactionEntity {
   final DateTime transactionDate;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final bool status;
-
   TransactionEntity({
     this.id,
     required this.type,
@@ -27,7 +25,6 @@ class TransactionEntity {
     required this.transactionDate,
     this.createdAt,
     this.updatedAt,
-    this.status = true,
   });
 
   TransactionEntity copyWith({
@@ -43,7 +40,6 @@ class TransactionEntity {
     DateTime? transactionDate,
     DateTime? createdAt,
     DateTime? updatedAt,
-    bool? status,
   }) {
     return TransactionEntity(
       id: id ?? this.id,
@@ -58,7 +54,6 @@ class TransactionEntity {
       transactionDate: transactionDate ?? this.transactionDate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      status: status ?? this.status,
     );
   }
 
@@ -76,7 +71,6 @@ class TransactionEntity {
       'transaction_date': transactionDate.toIso8601String(),
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
-      'status': status ? 1 : 0,
     };
   }
 
@@ -94,7 +88,6 @@ class TransactionEntity {
       transactionDate: DateTime.parse(map['transaction_date']),
       createdAt: map['created_at'] != null ? DateTime.parse(map['created_at']) : null,
       updatedAt: map['updated_at'] != null ? DateTime.parse(map['updated_at']) : null,
-      status: map['status'] == 1,
     );
   }
 }

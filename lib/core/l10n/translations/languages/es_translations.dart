@@ -8,6 +8,64 @@ class EsTranslations extends BaseTranslations {
   @override
   String get appName => 'MoneyT';
 
+  // Authentication
+  @override
+  String get signIn => 'Iniciar Sesión';
+
+  @override
+  String get signUp => 'Registrarse';
+
+  @override
+  String get signInWithEmail => 'Iniciar sesión con Email';
+
+  @override
+  String get signInWithGoogle => 'Iniciar sesión con Google';
+
+  @override
+  String get skipSignIn => 'Omitir inicio de sesión';
+
+  @override
+  String get emailRequired => 'El correo electrónico es requerido';
+
+  @override
+  String get invalidEmail => 'Por favor ingrese un correo válido';
+
+  @override
+  String get password => 'Contraseña';
+
+  @override
+  String get passwordRequired => 'La contraseña es requerida';
+
+  @override
+  String get passwordTooShort => 'La contraseña debe tener al menos 6 caracteres';
+
+  @override
+  String get forgotPassword => '¿Olvidaste tu contraseña?';
+
+  @override
+  String get alreadyHaveAccount => '¿Ya tienes una cuenta? Inicia sesión';
+
+  @override
+  String get dontHaveAccount => '¿No tienes una cuenta? Regístrate';
+
+  @override
+  String get termsAndConditions => 'Términos y Condiciones';
+
+  @override
+  String get acceptTerms => 'Acepto los Términos y Condiciones';
+
+  @override
+  String get acceptTermsAndConditions => 'Acepto los Términos y Condiciones';
+
+  @override
+  String get acceptMarketing => 'Me gustaría recibir correos de marketing';
+
+  @override
+  String get termsText => 'Al usar esta aplicación, aceptas nuestros Términos de Servicio y Política de Privacidad...';
+
+  @override
+  String get readTerms => 'Leer Términos y Condiciones';
+
   @override
   String get welcome => 'Bienvenido';
 
