@@ -3,32 +3,35 @@ import 'package:get_it/get_it.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:moneyt_pfm/data/services/sync_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../data/local/database.dart';
 import '../../data/repositories/auth_repository_impl.dart';
-import '../../domain/repositories/auth_repository.dart';
-import '../../data/services/sync_service.dart';
-import '../../data/local/daos/category_dao.dart';
-import '../../data/local/daos/account_dao.dart';
-import '../../data/local/daos/transaction_dao.dart';
-import '../../data/local/daos/contact_dao.dart';
+import '../../data/repositories/backup_repository_impl.dart';
 import '../../data/repositories/category_repository_impl.dart';
 import '../../data/repositories/account_repository_impl.dart';
 import '../../data/repositories/transaction_repository_impl.dart';
 import '../../data/repositories/contact_repository_impl.dart';
-import '../../data/repositories/backup_repository_impl.dart';
+import '../../data/local/daos/category_dao.dart';
+import '../../data/local/daos/account_dao.dart';
+import '../../data/local/daos/transaction_dao.dart';
+import '../../data/local/daos/contact_dao.dart';
+import '../../data/services/sync_service.dart';
+import '../../data/services/sync_manager.dart';
+import '../../data/services/backup_service.dart';
+import '../../domain/repositories/auth_repository.dart';
+import '../../domain/repositories/backup_repository.dart';
 import '../../domain/repositories/category_repository.dart';
 import '../../domain/repositories/account_repository.dart';
 import '../../domain/repositories/transaction_repository.dart';
 import '../../domain/repositories/contact_repository.dart';
-import '../../domain/repositories/backup_repository.dart';
 import '../../domain/usecases/category_usecases.dart';
 import '../../domain/usecases/account_usecases.dart';
-import '../../domain/usecases/transaction_usecases.dart';
 import '../../domain/usecases/contact_usecases.dart';
-import '../../data/services/backup_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../domain/usecases/transaction_usecases.dart';
 import '../../presentation/providers/auth_provider.dart';
+import '../../presentation/providers/drawer_provider.dart';
+import '../l10n/language_manager.dart'; // Import LanguageManager
 
 final getIt = GetIt.instance;
 
@@ -46,11 +49,16 @@ Future<void> initializeDependencies() async {
   final prefs = await SharedPreferences.getInstance();
   getIt.registerSingleton<SharedPreferences>(prefs);
 
+  // Language Manager
+  final languageManager = LanguageManager();
+  await languageManager.initialize();
+  getIt.registerSingleton<LanguageManager>(languageManager);
+
   // DAOs
-  getIt.registerSingleton(database.categoryDao);
-  getIt.registerSingleton(database.accountDao);
-  getIt.registerSingleton(database.transactionDao);
-  getIt.registerSingleton(database.contactDao);
+  getIt.registerSingleton<CategoryDao>(database.categoryDao);
+  getIt.registerSingleton<AccountDao>(database.accountDao);
+  getIt.registerSingleton<TransactionDao>(database.transactionDao);
+  getIt.registerSingleton<ContactDao>(database.contactDao);
 
   // Services
   getIt.registerLazySingleton<SyncService>(
@@ -65,7 +73,18 @@ Future<void> initializeDependencies() async {
     () => SyncManager(getIt<SyncService>()),
   );
 
+  getIt.registerLazySingleton<BackupService>(
+    () => BackupService(
+      database: getIt<AppDatabase>(),
+      prefs: getIt<SharedPreferences>(),
+    ),
+  );
+
   // Repositories
+  getIt.registerSingleton<TransactionRepository>(
+    TransactionRepositoryImpl(getIt<TransactionDao>()),
+  );
+
   getIt.registerSingleton<CategoryRepository>(
     CategoryRepositoryImpl(getIt<CategoryDao>()),
   );
@@ -77,22 +96,14 @@ Future<void> initializeDependencies() async {
     ),
   );
   
-  getIt.registerSingleton<TransactionRepository>(
-    TransactionRepositoryImpl(getIt<TransactionDao>()),
-  );
   getIt.registerSingleton<ContactRepository>(
     ContactRepositoryImpl(getIt<ContactDao>()),
   );
 
-  // Services
-  getIt.registerLazySingleton<BackupService>(
-    () => BackupService(
-      database: getIt<AppDatabase>(),
-      prefs: getIt<SharedPreferences>(),
-    ),
+  getIt.registerSingleton<BackupRepository>(
+    BackupRepositoryImpl(getIt<BackupService>()),
   );
 
-  // Auth
   getIt.registerSingleton<AuthRepository>(
     AuthRepositoryImpl(
       auth: getIt<FirebaseAuth>(),
@@ -102,33 +113,81 @@ Future<void> initializeDependencies() async {
     ),
   );
 
-  // Backup
-  getIt.registerSingleton<BackupRepository>(
-    BackupRepositoryImpl(getIt<BackupService>()),
+  // Use Cases
+  // Transactions
+  getIt.registerSingleton<TransactionUseCases>(
+    TransactionUseCases(getIt<TransactionRepository>()),
   );
 
-  // Use Cases
   // Categories
-  getIt.registerLazySingleton(() => GetCategories(getIt<CategoryRepository>()));
-  getIt.registerLazySingleton(() => CreateCategory(getIt<CategoryRepository>()));
-  getIt.registerLazySingleton(() => UpdateCategory(getIt<CategoryRepository>()));
-  getIt.registerLazySingleton(() => DeleteCategory(getIt<CategoryRepository>()));
+  getIt.registerFactory<GetCategories>(
+    () => GetCategories(getIt<CategoryRepository>()),
+  );
+  getIt.registerFactory<CreateCategory>(
+    () => CreateCategory(getIt<CategoryRepository>()),
+  );
+  getIt.registerFactory<UpdateCategory>(
+    () => UpdateCategory(getIt<CategoryRepository>()),
+  );
+  getIt.registerFactory<DeleteCategory>(
+    () => DeleteCategory(getIt<CategoryRepository>()),
+  );
 
   // Accounts
-  getIt.registerLazySingleton(() => GetAccounts(getIt<AccountRepository>()));
-  getIt.registerLazySingleton(() => CreateAccount(getIt<AccountRepository>()));
-  getIt.registerLazySingleton(() => UpdateAccount(getIt<AccountRepository>()));
-  getIt.registerLazySingleton(() => DeleteAccount(getIt<AccountRepository>()));
+  getIt.registerFactory<GetAccounts>(
+    () => GetAccounts(getIt<AccountRepository>()),
+  );
+  getIt.registerFactory<CreateAccount>(
+    () => CreateAccount(getIt<AccountRepository>()),
+  );
+  getIt.registerFactory<UpdateAccount>(
+    () => UpdateAccount(getIt<AccountRepository>()),
+  );
+  getIt.registerFactory<DeleteAccount>(
+    () => DeleteAccount(getIt<AccountRepository>()),
+  );
 
   // Contacts
-  getIt.registerLazySingleton(() => GetContacts(getIt<ContactRepository>()));
-  getIt.registerLazySingleton(() => CreateContact(getIt<ContactRepository>()));
-  getIt.registerLazySingleton(() => UpdateContact(getIt<ContactRepository>()));
-  getIt.registerLazySingleton(() => DeleteContact(getIt<ContactRepository>()));
-
-  // Transactions
-  getIt.registerFactory(() => TransactionUseCases(getIt<TransactionRepository>()));
+  getIt.registerFactory<GetContacts>(
+    () => GetContacts(getIt<ContactRepository>()),
+  );
+  getIt.registerFactory<CreateContact>(
+    () => CreateContact(getIt<ContactRepository>()),
+  );
+  getIt.registerFactory<UpdateContact>(
+    () => UpdateContact(getIt<ContactRepository>()),
+  );
+  getIt.registerFactory<DeleteContact>(
+    () => DeleteContact(getIt<ContactRepository>()),
+  );
 
   // Providers
-  getIt.registerLazySingleton(() => AppAuthProvider(getIt<AuthRepository>()));
+  getIt.registerLazySingleton<AppAuthProvider>(
+    () => AppAuthProvider(
+      getIt<AuthRepository>(),
+      getIt<SharedPreferences>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<DrawerProvider>(
+    () => DrawerProvider(
+      // Categories
+      getCategories: getIt<GetCategories>(),
+      createCategory: getIt<CreateCategory>(),
+      updateCategory: getIt<UpdateCategory>(),
+      deleteCategory: getIt<DeleteCategory>(),
+      // Accounts
+      getAccounts: getIt<GetAccounts>(),
+      createAccount: getIt<CreateAccount>(),
+      updateAccount: getIt<UpdateAccount>(),
+      deleteAccount: getIt<DeleteAccount>(),
+      // Contacts
+      getContacts: getIt<GetContacts>(),
+      createContact: getIt<CreateContact>(),
+      updateContact: getIt<UpdateContact>(),
+      deleteContact: getIt<DeleteContact>(),
+      // Transactions
+      transactionUseCases: getIt<TransactionUseCases>(),
+    ),
+  );
 }

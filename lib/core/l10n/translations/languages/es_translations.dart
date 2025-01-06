@@ -40,6 +40,9 @@ class EsTranslations extends BaseTranslations {
   String get passwordTooShort => 'La contraseña debe tener al menos 6 caracteres';
 
   @override
+  String get passwordResetEmailSent => 'Correo de restablecimiento de contraseña enviado exitosamente';
+
+  @override
   String get forgotPassword => '¿Olvidaste tu contraseña?';
 
   @override
@@ -532,6 +535,21 @@ class EsTranslations extends BaseTranslations {
 
   @override
   String get createContact => 'Crear Contacto';
+
+  @override
+  String get invalidCredentials => 'Correo o contraseña inválidos';
+
+  @override
+  String get emailAlreadyInUse => 'Este correo ya está registrado';
+
+  @override
+  String get weakPassword => 'La contraseña es demasiado débil';
+
+  @override
+  String get networkError => 'Error de red. Por favor verifica tu conexión';
+
+  @override
+  String get unknownError => 'Ha ocurrido un error desconocido';
 
   @override
   String getText(String key) => key;

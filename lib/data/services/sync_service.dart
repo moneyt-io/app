@@ -15,6 +15,12 @@ class SyncService {
   });
 
   Future<void> syncData() async {
+    // Verificar si la sincronización está habilitada antes de proceder
+    if (!await isSyncEnabled()) {
+      print('Sync is disabled. Skipping sync process.');
+      return;
+    }
+
     final user = auth.currentUser;
     if (user == null) return;
 
@@ -53,13 +59,16 @@ class SyncService {
         
         if (lastSync == null || (accountUpdatedAt != null && accountUpdatedAt.isAfter(lastSync))) {
           print('Subiendo cuenta a Firebase: ${account.id}');
-          await userDoc.collection('accounts').doc(account.id.toString()).set({
+          // Convertir el ID a string de manera segura
+          final accountId = account.id.toString();
+          await userDoc.collection('accounts').doc(accountId).set({
+            'id': account.id, // Guardamos el ID numérico como campo
             'name': account.name,
             'description': account.description,
             'balance': account.balance,
             'createdAt': Timestamp.fromDate(account.createdAt),
             'updatedAt': Timestamp.fromDate(account.updatedAt ?? DateTime.now()),
-          }, SetOptions(merge: true));  // Agregamos merge: true para evitar sobrescribir datos
+          }, SetOptions(merge: true));
         }
       }
 
@@ -73,12 +82,14 @@ class SyncService {
           final data = doc.data();
           print('Procesando cuenta remota: ${doc.id}');
           
+          // Obtener el ID numérico del campo 'id' en lugar del doc.id
+          final accountId = data['id'] as int;
           final updatedAt = (data['updatedAt'] as Timestamp).toDate();
           
           if (lastSync == null || updatedAt.isAfter(lastSync)) {
-            print('Actualizando cuenta local: ${doc.id}');
+            print('Actualizando cuenta local: $accountId');
             await localDb.accountDao.upsertAccount(AccountsCompanion(
-              id: Value(int.parse(doc.id)),
+              id: Value(accountId),
               name: Value(data['name'] as String),
               description: Value(data['description'] as String? ?? ''),
               balance: Value((data['balance'] as num).toDouble()),
@@ -88,11 +99,14 @@ class SyncService {
           }
         } catch (e) {
           print('Error procesando cuenta remota ${doc.id}: $e');
+          print('Data de la cuenta: ${doc.data()}');
+          rethrow;
         }
       }
     } catch (e, stackTrace) {
       print('Error en sincronización de cuentas: $e');
       print('Stack trace: $stackTrace');
+      rethrow;
     }
   }
 
@@ -209,5 +223,35 @@ class SyncService {
     userDoc.collection('transactions').snapshots().listen((_) {
       syncOnRemoteChange();
     });
+  }
+
+  Future<bool> isSyncEnabled() async {
+    final user = auth.currentUser;
+    if (user == null) return false;
+
+    final userDoc = await firestore.collection('users').doc(user.uid).get();
+    return userDoc.data()?['syncEnabled'] ?? false;
+  }
+
+  Future<void> setSyncEnabled(bool enabled) async {
+    final user = auth.currentUser;
+    if (user == null) return;
+
+    await firestore.collection('users').doc(user.uid).update({
+      'syncEnabled': enabled,
+    });
+
+    if (enabled) {
+      // Si se habilita la sincronización, realizar sincronización inicial
+      await syncData();
+      setupRemoteChangeListeners();
+    } else {
+      // Si se deshabilita, remover los listeners
+      removeRemoteChangeListeners();
+    }
+  }
+
+  void removeRemoteChangeListeners() {
+    // Implementar la lógica para remover los listeners aquí
   }
 }

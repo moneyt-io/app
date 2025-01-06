@@ -1,90 +1,81 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:moneyt_pfm/data/services/backup_service.dart';
-import 'package:moneyt_pfm/presentation/providers/auth_provider.dart';
-import 'package:moneyt_pfm/data/repositories/backup_repository_impl.dart';
 import 'package:moneyt_pfm/domain/repositories/backup_repository.dart';
-import 'package:moneyt_pfm/domain/usecases/account_usecases.dart';
-import 'package:moneyt_pfm/domain/usecases/category_usecases.dart';
-import 'package:moneyt_pfm/domain/usecases/contact_usecases.dart';
-import 'package:moneyt_pfm/domain/usecases/transaction_usecases.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/di/injection_container.dart';
 import 'core/l10n/language_manager.dart';
 import 'presentation/providers/theme_provider.dart';
+import 'presentation/providers/auth_provider.dart';
 import 'presentation/providers/drawer_provider.dart';
 import 'routes/app_routes.dart';
+import 'firebase_options.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Inicializar Firebase
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-  // Inicializar dependencias
+  // Inicializar GetIt y dependencias
   await initializeDependencies();
-  
-  // Inicializar SharedPreferences
+
+  // Verificar si es la primera vez que se abre la app
   final prefs = await SharedPreferences.getInstance();
-  final bool isFirstRun = prefs.getBool('is_first_run') ?? true;
+  final bool hasCompletedOnboarding = prefs.getBool('has_completed_onboarding') ?? false;
   
-  // Inicializar el administrador de idiomas
-  final languageManager = LanguageManager();
-  await languageManager.initialize();
+  // Si el usuario está autenticado o ha completado el onboarding, no mostrar la pantalla de bienvenida
+  final authProvider = getIt<AppAuthProvider>();
+  final bool skipWelcome = hasCompletedOnboarding || authProvider.isAuthenticated;
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => getIt<AppAuthProvider>()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)),
-        Provider<BackupRepository>(
-          create: (_) => BackupRepositoryImpl(getIt<BackupService>()),
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(prefs),
         ),
         ChangeNotifierProvider(
-          create: (context) => DrawerProvider(
-            // Categories
-            getCategories: getIt<GetCategories>(),
-            createCategory: getIt<CreateCategory>(),
-            updateCategory: getIt<UpdateCategory>(),
-            deleteCategory: getIt<DeleteCategory>(),
-            // Accounts
-            getAccounts: getIt<GetAccounts>(),
-            createAccount: getIt<CreateAccount>(),
-            updateAccount: getIt<UpdateAccount>(),
-            deleteAccount: getIt<DeleteAccount>(),
-            // Contacts
-            getContacts: getIt<GetContacts>(),
-            createContact: getIt<CreateContact>(),
-            updateContact: getIt<UpdateContact>(),
-            deleteContact: getIt<DeleteContact>(),
-            // Transactions
-            transactionUseCases: getIt<TransactionUseCases>(),
-          ),
+          create: (_) => getIt<LanguageManager>(),
         ),
-        ChangeNotifierProvider.value(value: languageManager),
+        ChangeNotifierProvider(
+          create: (_) => authProvider,
+        ),
+        ChangeNotifierProvider(
+          create: (_) => getIt<DrawerProvider>(),
+        ),
+        Provider<BackupRepository>(
+          create: (_) => getIt<BackupRepository>(),
+        ),
       ],
-      child: Consumer<LanguageManager>(
-        builder: (context, languageManager, child) {
-          return Consumer<ThemeProvider>(
-            builder: (context, themeProvider, child) {
-              return MaterialApp(
-                title: 'MoneyT',
-                theme: themeProvider.lightTheme,
-                darkTheme: themeProvider.darkTheme,
-                themeMode: themeProvider.themeMode,
-                onGenerateRoute: AppRoutes.onGenerateRoute,
-                initialRoute: isFirstRun 
-                  ? AppRoutes.welcome 
-                  : context.watch<AppAuthProvider>().isAuthenticated 
-                    ? AppRoutes.home 
-                    : AppRoutes.welcome,
-              );
-            },
-          );
-        },
-      ),
+      child: MyApp(skipWelcome: skipWelcome),
     ),
   );
+}
+
+class MyApp extends StatelessWidget {
+  final bool skipWelcome;
+
+  const MyApp({
+    Key? key,
+    required this.skipWelcome,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    final languageManager = context.watch<LanguageManager>();
+    
+    return MaterialApp(
+      title: 'MoneyT',
+      theme: themeProvider.lightTheme,
+      darkTheme: themeProvider.darkTheme,
+      themeMode: themeProvider.themeMode,
+      locale: Locale(languageManager.currentLanguage.code),
+      onGenerateRoute: AppRoutes.onGenerateRoute,
+      initialRoute: skipWelcome ? AppRoutes.home : AppRoutes.welcome,
+    );
+  }
 }

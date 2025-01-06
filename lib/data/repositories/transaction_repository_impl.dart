@@ -31,16 +31,30 @@ class TransactionRepositoryImpl implements TransactionRepository {
   // Convertir TransactionEntity a TransactionsCompanion
   TransactionsCompanion _mapToCompanion(TransactionEntity transaction) {
     return TransactionsCompanion(
-      id: transaction.id == null ? const Value.absent() : Value(transaction.id!),
+      id: transaction.id == null 
+          ? const Value.absent() 
+          : Value(transaction.id!),
       type: Value(transaction.type),
       flow: Value(transaction.flow),
       amount: Value(transaction.amount),
       accountId: Value(transaction.accountId),
-      categoryId: Value(transaction.categoryId),
-      reference: Value(transaction.reference),
-      contactId: Value(transaction.contactId),
-      description: Value(transaction.description),
+      categoryId: transaction.categoryId == null 
+          ? const Value.absent() 
+          : Value(transaction.categoryId!),
+      reference: transaction.reference == null 
+          ? const Value.absent() 
+          : Value(transaction.reference!),
+      contactId: transaction.contactId == null 
+          ? const Value.absent() 
+          : Value(transaction.contactId!),
+      description: transaction.description == null 
+          ? const Value.absent() 
+          : Value(transaction.description!),
       transactionDate: Value(transaction.transactionDate),
+      createdAt: transaction.createdAt == null 
+          ? Value(DateTime.now()) 
+          : Value(transaction.createdAt!),
+      updatedAt: Value(DateTime.now()),
     );
   }
 
@@ -91,8 +105,12 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   Future<TransactionEntity?> getTransactionById(int id) async {
-    final transaction = await _transactionDao.getTransactionById(id);
-    return transaction != null ? _mapToEntity(transaction) : null;
+    try {
+      final transaction = await _transactionDao.getTransactionById(id);
+      return _mapToEntity(transaction);
+    } catch (e) {
+      return null;
+    }
   }
 
   @override

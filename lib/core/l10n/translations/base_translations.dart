@@ -22,6 +22,7 @@ abstract class BaseTranslations {
   // Login
   String get signIn => 'Sign In';
   String get signUp => 'Sign Up';
+  String get signOut => 'Sign Out';
   String get signInWithGoogle => 'Sign in with Google';
   String get signInWithEmail => 'Sign in with Email';
   String get skipSignIn => 'Skip Sign In';
@@ -37,8 +38,16 @@ abstract class BaseTranslations {
   String get passwordRequired => 'Password is required';
   String get passwordTooShort => 'Password must be at least 6 characters';
   String get forgotPassword => 'Forgot Password?';
+  String get passwordResetEmailSent => 'Password reset email sent successfully';
   String get alreadyHaveAccount => 'Already have an account? Sign in';
   String get dontHaveAccount => "Don't have an account? Sign up";
+
+  // Auth errors
+  String get invalidCredentials => 'Invalid email or password';
+  String get emailAlreadyInUse => 'This email is already registered';
+  String get weakPassword => 'Password is too weak';
+  String get networkError => 'Network error. Please check your connection';
+  String get unknownError => 'An unknown error occurred';
 
   // Navigation
   String get home;
@@ -259,6 +268,7 @@ abstract class BaseTranslations {
       passwordRequired;
       passwordTooShort;
       forgotPassword;
+      passwordResetEmailSent;
       alreadyHaveAccount;
       dontHaveAccount;
       selectLanguage;
@@ -274,6 +284,13 @@ abstract class BaseTranslations {
       notFound;
       required;
       invalidAmount;
+
+      // Auth errors
+      invalidCredentials;
+      emailAlreadyInUse;
+      weakPassword;
+      networkError;
+      unknownError;
 
       // Navigation
       home;

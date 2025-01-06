@@ -40,6 +40,9 @@ class EnTranslations extends BaseTranslations {
   String get passwordTooShort => 'Password must be at least 6 characters';
 
   @override
+  String get passwordResetEmailSent => 'Password reset email sent successfully';
+
+  @override
   String get forgotPassword => 'Forgot Password?';
 
   @override

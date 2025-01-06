@@ -9,16 +9,22 @@ class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
   final GoogleSignIn googleSignIn;
-  final SyncService _syncService;
+  final SyncService syncService;
 
   AuthRepositoryImpl({
     required this.auth,
     required this.firestore,
     required this.googleSignIn,
-    required SyncService syncService,
-  }) : _syncService = syncService;
+    required this.syncService,
+  });
 
   UserEntity _mapUserToEntity(User user) {
+    print('Mapping Firebase user to entity:'); // Debug log
+    print('  uid: ${user.uid}'); // Debug log
+    print('  email: ${user.email}'); // Debug log
+    print('  displayName: ${user.displayName}'); // Debug log
+    print('  photoURL: ${user.photoURL}'); // Debug log
+    
     return UserEntity(
       id: user.uid,
       email: user.email ?? '',
@@ -36,6 +42,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserEntity> signInWithEmailPassword(String email, String password) async {
     try {
+      print('Attempting to sign in with email: $email'); // Debug log
       final userCredential = await auth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -43,13 +50,25 @@ class AuthRepositoryImpl implements AuthRepository {
       
       final user = userCredential.user;
       if (user == null) {
+        print('Sign in failed: user is null'); // Debug log
         throw Exception('Failed to sign in');
       }
       
+      print('Sign in successful for user: ${user.uid}'); // Debug log
+      
+      // Crear o actualizar el documento del usuario
       await _createUserDocument(user);
-      return _mapUserToEntity(user);
+      
+      // Mapear el usuario a nuestra entidad
+      final userEntity = _mapUserToEntity(user);
+      
+      return userEntity;
     } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException during sign in: ${e.code}'); // Debug log
       throw _handleAuthException(e);
+    } catch (e) {
+      print('Unexpected error during sign in: $e'); // Debug log
+      rethrow;
     }
   }
 
@@ -138,55 +157,92 @@ class AuthRepositoryImpl implements AuthRepository {
     });
   }
 
+  Future<void> enableSync() async {
+    final user = auth.currentUser;
+    if (user == null) return;
+
+    await firestore.collection('users').doc(user.uid).update({
+      'syncEnabled': true,
+    });
+
+    await syncService.syncData();
+    syncService.setupRemoteChangeListeners();
+  }
+
+  Future<void> disableSync() async {
+    final user = auth.currentUser;
+    if (user == null) return;
+
+    await firestore.collection('users').doc(user.uid).update({
+      'syncEnabled': false,
+    });
+
+    syncService.removeRemoteChangeListeners();
+  }
+
+  Future<bool> isSyncEnabled() async {
+    final user = auth.currentUser;
+    if (user == null) return false;
+
+    final doc = await firestore.collection('users').doc(user.uid).get();
+    return doc.data()?['syncEnabled'] ?? false;
+  }
+
   Future<void> _createUserDocument(User user) async {
-    final userDoc = firestore.collection('users').doc(user.uid);
-    final docSnapshot = await userDoc.get();
+    try {
+      final userDoc = firestore.collection('users').doc(user.uid);
+      final docSnapshot = await userDoc.get();
 
-    if (!docSnapshot.exists) {
-      await userDoc.set({
+      final userData = {
         'email': user.email,
-        'displayName': user.displayName,
-        'photoUrl': user.photoURL,
-        'createdAt': FieldValue.serverTimestamp(),
+        'displayName': user.displayName ?? '',
+        'photoUrl': user.photoURL ?? '',
         'lastLogin': FieldValue.serverTimestamp(),
-        'preferences': {
-          'acceptedMarketing': false,
-          'createdAt': FieldValue.serverTimestamp(),
-        },
-      });
-    } else {
-      await userDoc.update({
-        'lastLogin': FieldValue.serverTimestamp(),
-      });
-    }
+        'syncEnabled': false, // Por defecto, la sincronización está desactivada
+      };
 
-    // Iniciar sincronización y configurar listeners
-    await _syncService.syncData();
-    _syncService.setupRemoteChangeListeners();
+      if (!docSnapshot.exists) {
+        print('Creating new user document for ${user.uid}'); // Debug log
+        await userDoc.set({
+          ...userData,
+          'createdAt': FieldValue.serverTimestamp(),
+          'preferences': {
+            'acceptedMarketing': false,
+            'createdAt': FieldValue.serverTimestamp(),
+          },
+        });
+      } else {
+        print('Updating existing user document for ${user.uid}'); // Debug log
+        await userDoc.update(userData);
+      }
+
+      // Verificar que el documento se creó/actualizó correctamente
+      final updatedDoc = await userDoc.get();
+      if (!updatedDoc.exists) {
+        throw Exception('User document not found after creation');
+      }
+      
+      print('User document data:'); // Debug log
+      print(updatedDoc.data()); // Debug log
+    } catch (e) {
+      print('Error in _createUserDocument: $e'); // Debug log
+      throw Exception('Failed to create/update user document: $e');
+    }
   }
 
   String _handleAuthException(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'user-not-found':
-        return 'No user found with this email';
-      case 'wrong-password':
-        return 'Wrong password';
-      case 'email-already-in-use':
-        return 'Email is already in use';
-      case 'invalid-email':
-        return 'Invalid email address';
-      case 'weak-password':
-        return 'Password is too weak';
-      case 'operation-not-allowed':
-        return 'Operation not allowed';
-      case 'user-disabled':
-        return 'User has been disabled';
-      case 'too-many-requests':
-        return 'Too many attempts. Please try again later';
-      case 'network-request-failed':
-        return 'Network error. Please check your connection';
-      default:
-        return 'Authentication error: ${e.message}';
-    }
+    final errorCode = switch (e.code) {
+      'user-not-found' || 'wrong-password' || 'invalid-credential' => 'invalid-credentials',
+      'email-already-in-use' => 'email-already-in-use',
+      'invalid-email' => 'invalid-email',
+      'weak-password' => 'weak-password',
+      'operation-not-allowed' => 'operation-not-allowed',
+      'user-disabled' => 'user-disabled',
+      'too-many-requests' => 'too-many-requests',
+      'network-request-failed' => 'network-error',
+      _ => 'unknown-error'
+    };
+    print('Mapped error code ${e.code} to $errorCode'); // Debug log
+    return errorCode;
   }
 }

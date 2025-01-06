@@ -9,6 +9,8 @@ import '../../routes/app_routes.dart';
 import '../../data/local/database.dart';
 import '../../core/di/injection_container.dart';
 import '../../data/services/initialization_service.dart';
+import '../../domain/usecases/transaction_usecases.dart';
+import '../screens/home_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -105,16 +107,38 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Future<void> _continueToApp() async {
-    if (_selectedLanguage == null) return;
+    print('_continueToApp called');
+    if (_selectedLanguage == null) {
+      print('No language selected');
+      return;
+    }
 
+    if (!_acceptedTerms) {
+      print('Terms not accepted');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.read<LanguageManager>().translations.acceptTermsAndConditions),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+
+    print('Setting loading state');
     setState(() => _isLoading = true);
 
     try {
+      print('Initializing app...');
       // Inicializar datos por defecto con el idioma seleccionado
       final prefs = await SharedPreferences.getInstance();
-      final bool isFirstRun = prefs.getBool('is_first_run') ?? true;
       
+      // Marcar que el onboarding se ha completado
+      await prefs.setBool('has_completed_onboarding', true);
+      
+      // Inicializar datos por defecto si es necesario
+      final bool isFirstRun = prefs.getBool('first_run') ?? true;
       if (isFirstRun) {
+        print('First run, initializing default data');
         final initService = InitializationService(
           getIt<AppDatabase>(),
           prefs,
@@ -122,23 +146,33 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         );
         
         await initService.initializeDefaultDataIfNeeded();
-        await prefs.setBool('is_first_run', false);
+        await prefs.setBool('first_run', false);
       }
 
       if (!mounted) return;
 
-      // Navegar a la pantalla principal
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (!mounted) return;
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
+      print('Navigating to home screen');
+      // Usar Navigator.pushReplacement para reemplazar la pantalla actual
+      final navigator = Navigator.of(context);
+      final route = MaterialPageRoute(
+        builder: (context) => HomeScreen(
+          transactionUseCases: getIt<TransactionUseCases>(),
         ),
       );
+      await navigator.pushReplacement(route);
+      
+    } catch (e, stackTrace) {
+      print('Error in _continueToApp: $e');
+      print('Stack trace: $stackTrace');
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
     }
   }
 
@@ -146,105 +180,159 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget build(BuildContext context) {
     final translations = context.watch<LanguageManager>().translations;
     final languages = context.watch<LanguageManager>().supportedLanguages;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return LoadingOverlay(
       isLoading: _isLoading,
       child: Scaffold(
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo de la app
-                const SizedBox(height: 24),
-                Text(
-                  translations.welcomeTitle,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                DropdownButtonFormField<Language>(
-                  value: _selectedLanguage,
-                  decoration: InputDecoration(
-                    labelText: translations.selectLanguage,
-                    border: const OutlineInputBorder(),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 48),
+                  // Logo y título
+                  Icon(
+                    Icons.account_balance_wallet,
+                    size: 72,
+                    color: colorScheme.primary,
                   ),
-                  items: languages.map((Language language) {
-                    return DropdownMenuItem<Language>(
-                      value: language,
-                      child: Text('${language.flag} ${language.nativeName}'),
-                    );
-                  }).toList(),
-                  onChanged: _onLanguageChanged,
-                ),
-                const SizedBox(height: 24),
-                CheckboxListTile(
-                  title: Text(translations.acceptTermsAndConditions),
-                  value: _acceptedTerms,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      _acceptedTerms = value ?? false;
-                    });
-                  },
-                ),
-                TextButton(
-                  onPressed: _showTermsDialog,
-                  child: Text(translations.readTerms),
-                ),
-                const SizedBox(height: 8),
-                CheckboxListTile(
-                  title: Text(translations.acceptMarketing),
-                  value: _acceptedMarketing,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      _acceptedMarketing = value ?? true;
-                    });
-                  },
-                ),
-                const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: _signInWithGoogle,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(12.0),
-                    backgroundColor: Colors.white,
-                    elevation: 2,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.g_translate, size: 24),
-                      const SizedBox(width: 12),
-                      Text(
-                        translations.signInWithGoogle,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
+                  const SizedBox(height: 24),
+                  Text(
+                    translations.welcomeTitle,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary,
                         ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 48),
+                  
+                  // Selector de idioma
+                  DropdownButtonFormField<Language>(
+                    value: _selectedLanguage,
+                    decoration: InputDecoration(
+                      labelText: translations.selectLanguage,
+                      border: const OutlineInputBorder(),
+                      filled: true,
+                      fillColor: colorScheme.surface,
+                    ),
+                    items: languages.map((Language language) {
+                      return DropdownMenuItem<Language>(
+                        value: language,
+                        child: Text('${language.flag} ${language.nativeName}'),
+                      );
+                    }).toList(),
+                    onChanged: _onLanguageChanged,
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  // Términos y condiciones
+                  Card(
+                    elevation: 0,
+                    color: colorScheme.surfaceVariant,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          CheckboxListTile(
+                            title: Text(translations.acceptTermsAndConditions),
+                            value: _acceptedTerms,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                _acceptedTerms = value ?? false;
+                              });
+                            },
+                          ),
+                          TextButton(
+                            onPressed: _showTermsDialog,
+                            child: Text(translations.readTerms),
+                          ),
+                          CheckboxListTile(
+                            title: Text(translations.acceptMarketing),
+                            value: _acceptedMarketing,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                _acceptedMarketing = value ?? true;
+                              });
+                            },
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, AppRoutes.login),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(12.0),
+                  const SizedBox(height: 32),
+                  
+                  // Botones de inicio de sesión
+                  ElevatedButton(
+                    onPressed: _signInWithGoogle,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                      backgroundColor: colorScheme.surface,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.g_mobiledata,
+                          size: 28,
+                          color: colorScheme.primary,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          translations.signInWithGoogle,
+                          style: TextStyle(
+                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.email, size: 24, color: Theme.of(context).colorScheme.onPrimary),
-                      const SizedBox(width: 12),
-                      Text(translations.signInWithEmail),
-                    ],
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, AppRoutes.login),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                      backgroundColor: colorScheme.primary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.email, color: colorScheme.onPrimary),
+                        const SizedBox(width: 12),
+                        Text(
+                          translations.signInWithEmail,
+                          style: TextStyle(
+                            color: colorScheme.onPrimary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: _continueToApp,
-                  child: Text(translations.skipSignIn),
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  TextButton(
+                    onPressed: _acceptedTerms ? _continueToApp : null,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    ),
+                    child: Text(translations.skipSignIn),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

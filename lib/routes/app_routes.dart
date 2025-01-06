@@ -11,7 +11,7 @@ import '../presentation/screens/transaction_form.dart';
 import '../presentation/screens/category_form.dart';
 import '../presentation/screens/account_form.dart';
 import '../presentation/screens/welcome_screen.dart';
-import '../presentation/screens/auth/login_screen.dart';
+import '../presentation/screens/login_screen.dart';
 import '../presentation/screens/transaction_details_screen.dart';
 import '../presentation/screens/contact_screen.dart';
 import '../presentation/screens/contact_form.dart';
@@ -54,9 +54,11 @@ class AppRoutes {
         );
 
       case AppRoutes.home:
+        final transactionUseCases = getIt<TransactionUseCases>();
+        print('Creating HomeScreen with TransactionUseCases: $transactionUseCases');
         return MaterialPageRoute(
           builder: (context) => HomeScreen(
-            transactionUseCases: getIt<TransactionUseCases>(),
+            transactionUseCases: transactionUseCases,
           ),
         );
 

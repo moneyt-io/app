@@ -1,6 +1,7 @@
 // lib/presentation/widgets/app_drawer.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../routes/app_routes.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../core/navigation/navigation_service.dart';
@@ -8,6 +9,11 @@ import '../providers/drawer_provider.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
+
+  Future<String> _getAppVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    return 'v${packageInfo.version}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,11 +175,16 @@ class AppDrawer extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
-                          'v1.0.0',
-                          style: textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
+                        FutureBuilder<String>(
+                          future: _getAppVersion(),
+                          builder: (context, snapshot) {
+                            return Text(
+                              snapshot.data ?? 'Loading...',
+                              style: textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
