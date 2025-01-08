@@ -207,20 +207,35 @@ abstract class BaseTranslations {
   String get editContact;
   String get deleteContact;
   String get deleteContactTitle;
-  String deleteContactMessage(String name) => 'Are you sure you want to delete $name?';
+  String get deleteContactMessage;
+  String get deleteContactSuccess;
+  String get noContacts;
+  String get noContactsDescription;
   String get contactDeleted => 'Contact deleted successfully';
   String get noContactsMessage => 'No contacts yet. Add your first contact!';
   String get searchContacts => 'Search contacts...';
-  String get allContacts => 'All';
+  String get allContacts;  
   String get addContact => 'Add Contact';
   String get contactName => 'Name';
   String get contactEmail => 'Email';
   String get contactPhone => 'Phone';
   String get contactNotes => 'Notes';
+  String get contactUpdated => 'Contact updated successfully';
+  String get contactCreated => 'Contact created successfully';
+  String get requiredField => 'This field is required';
   String get contactSaved => 'Contact saved successfully';
-  String get contactNameRequired => 'Contact name is required';
-  String get contactInformation => 'Contact Information';
-  String get createContact => throw UnimplementedError();
+  String get contactNameRequired;
+  String get contactInformation;
+  String get createContact;
+  String get importContacts;
+  String get contactsError;
+  String get noContactsFound;
+  String get contactsPermissionDenied;
+  String contactsImported(int count);
+  String contactsImportedMessage(int count);
+  String get pickContact;
+  String get selectFromContacts;
+  String get search;
 
   // Backup
   String get backups => 'Backups';
@@ -445,13 +460,18 @@ abstract class BaseTranslations {
       editContact;
       deleteContact;
       deleteContactTitle;
-      deleteContactMessage('');
+      deleteContactMessage;
+      deleteContactSuccess;
+      noContacts;
+      noContactsDescription;
       contactDeleted;
       addContact;
       contactName;
       contactEmail;
       contactPhone;
       contactNotes;
+      contactUpdated;
+      contactCreated;
       contactSaved;
       contactNameRequired;
       searchContacts;
@@ -459,6 +479,15 @@ abstract class BaseTranslations {
       contactInformation;
       additionalInformation;
       createContact;
+      importContacts;
+      contactsError;
+      noContactsFound;
+      contactsPermissionDenied;
+      contactsImported(0);
+      contactsImportedMessage(0);
+      pickContact;
+      selectFromContacts;
+      search;
 
       // Backup
       backups;

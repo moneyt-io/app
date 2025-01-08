@@ -41,6 +41,7 @@ class _TransactionFormState extends State<TransactionForm> {
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _referenceController = TextEditingController();
+  final _amountFocusNode = FocusNode();
 
   late DateTime _selectedDate;
   late String _selectedType;
@@ -61,10 +62,21 @@ class _TransactionFormState extends State<TransactionForm> {
     _flow = _selectedType == 'I' ? 'I' : 'O';
     _initializeForm();
     
-    // Mostrar el modal de categorías al inicio para ingresos y gastos
-    if (!isTransfer && widget.transaction == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showCategorySelectionModal(context);
+    // Solo mostrar modales si es una nueva transacción
+    if (widget.transaction == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        // Primero mostrar el modal de cuenta
+        await _showAccountSelectionModal(context);
+        
+        // Luego mostrar el modal de categoría para ingresos y gastos
+        if (!isTransfer && context.mounted) {
+          await _showCategorySelectionModal(context);
+        }
+        
+        // Finalmente, enfocar el campo de monto
+        if (context.mounted) {
+          FocusScope.of(context).requestFocus(_amountFocusNode);
+        }
       });
     }
   }
@@ -85,6 +97,7 @@ class _TransactionFormState extends State<TransactionForm> {
     _amountController.dispose();
     _descriptionController.dispose();
     _referenceController.dispose();
+    _amountFocusNode.dispose();
     super.dispose();
   }
 
@@ -104,68 +117,51 @@ class _TransactionFormState extends State<TransactionForm> {
     }
   }
 
-  void _showAccountSelectionModal(BuildContext context, {bool isToAccount = false}) {
-    showModalBottomSheet(
+  Future<void> _showAccountSelectionModal(BuildContext context, {bool isToAccount = false}) async {
+    final accounts = await widget.getAccounts().first;
+    if (!context.mounted) return;
+
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => StreamBuilder<List<AccountEntity>>(
-        stream: widget.getAccounts(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          return AccountSelectionModal(
-            accounts: snapshot.data!,
-            excludeAccount: isToAccount ? _selectedAccount : null,
-            transactionUseCases: widget.transactionUseCases,
-            onAccountSelected: (account) {
-              setState(() {
-                if (isToAccount) {
-                  _selectedToAccount = account;
-                } else {
-                  _selectedAccount = account;
-                  // Limpiar la cuenta destino si es la misma que la cuenta origen
-                  if (isTransfer && _selectedToAccount == account) {
-                    _selectedToAccount = null;
-                  }
-                }
-              });
-            },
-          );
+      builder: (context) => AccountSelectionModal(
+        accounts: accounts,
+        excludeAccount: isToAccount ? _selectedAccount : null,
+        transactionUseCases: widget.transactionUseCases,
+        onAccountSelected: (account) {
+          setState(() {
+            if (isToAccount) {
+              _selectedToAccount = account;
+            } else {
+              _selectedAccount = account;
+              // Limpiar la cuenta destino si es la misma que la cuenta origen
+              if (isTransfer && _selectedToAccount == account) {
+                _selectedToAccount = null;
+              }
+            }
+          });
         },
       ),
     );
   }
 
-  void _showContactSelectionModal(BuildContext context) {
+  Future<void> _showContactSelectionModal(BuildContext context) async {
     final drawerProvider = Provider.of<DrawerProvider>(context, listen: false);
-    showModalBottomSheet(
+    final contacts = await drawerProvider.getContacts().first;
+    if (!context.mounted) return;
+
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: StreamBuilder<List<Contact>>(
-          stream: drawerProvider.getContacts.call(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            return ContactSelectionModal(
-              contacts: snapshot.data!,
-              onContactSelected: (contact) {
-                setState(() {
-                  _selectedContact = contact;
-                });
-              },
-              createContact: drawerProvider.createContact,
-            );
+      builder: (context) => FractionallySizedBox(
+        heightFactor: 0.5,
+        child: ContactSelectionModal(
+          contacts: contacts,
+          onContactSelected: (contact) {
+            setState(() => _selectedContact = contact);
           },
+          createContact: drawerProvider.createContact,
         ),
       ),
     );
@@ -413,27 +409,21 @@ class _TransactionFormState extends State<TransactionForm> {
     }
   }
 
-  void _showCategorySelectionModal(BuildContext context) {
-    showModalBottomSheet(
+  Future<void> _showCategorySelectionModal(BuildContext context) async {
+    final categories = await widget.getCategories().first;
+    if (!context.mounted) return;
+
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => StreamBuilder<List<CategoryEntity>>(
-        stream: widget.getCategories(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          return CategorySelectionModal(
-            categories: snapshot.data!,
-            transactionType: _selectedType,
-            onCategorySelected: (category) {
-              setState(() {
-                _selectedCategory = category;
-              });
-            },
-          );
+      builder: (context) => CategorySelectionModal(
+        categories: categories,
+        transactionType: _selectedType,
+        onCategorySelected: (category) {
+          setState(() {
+            _selectedCategory = category;
+          });
         },
       ),
     );
@@ -515,19 +505,12 @@ class _TransactionFormState extends State<TransactionForm> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _amountController,
+                      focusNode: _amountFocusNode,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: InputDecoration(
                         labelText: translations.amount,
-                        prefixIcon: Icon(
-                          Icons.attach_money_rounded,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                        filled: true,
-                        fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        prefixIcon: const Icon(Icons.attach_money_rounded),
                       ),
-                      keyboardType: TextInputType.number,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                       ],

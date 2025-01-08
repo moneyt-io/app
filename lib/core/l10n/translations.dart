@@ -43,6 +43,8 @@ class Translations {
   final String newExpense;
   final String newTransfer;
   final String editTransaction;
+  final String importContacts;
+  final String contactsPermissionDenied;
 
   const Translations({
     required this.welcome,
@@ -88,7 +90,20 @@ class Translations {
     required this.newExpense,
     required this.newTransfer,
     required this.editTransaction,
+    required this.importContacts,
+    required this.contactsPermissionDenied,
   });
+
+  String contactsImportedMessage(int count) {
+    switch (languageCode) {
+      case 'es':
+        return '$count contactos importados exitosamente';
+      default:
+        return '$count contacts imported successfully';
+    }
+  }
+
+  String get languageCode => 'en';
 
   // English translations
   static const en = Translations(
@@ -135,10 +150,12 @@ class Translations {
     newExpense: 'New Expense',
     newTransfer: 'New Transfer',
     editTransaction: 'Edit Transaction',
+    importContacts: 'Import Contacts',
+    contactsPermissionDenied: 'Permission to access contacts is required',
   );
 
   // Spanish translations
-  static const es = Translations(
+  static const es = _SpanishTranslations(
     welcome: 'Bienvenido a MoneyT',
     selectLanguage: 'Selecciona tu idioma',
     continue_: 'Continuar',
@@ -182,5 +199,60 @@ class Translations {
     newExpense: 'Nuevo Gasto',
     newTransfer: 'Nueva Transferencia',
     editTransaction: 'Editar Transacción',
+    importContacts: 'Importar Contactos',
+    contactsPermissionDenied: 'Se requiere permiso para acceder a los contactos',
   );
+}
+
+class _SpanishTranslations extends Translations {
+  const _SpanishTranslations({
+    required super.welcome,
+    required super.selectLanguage,
+    required super.continue_,
+    required super.signIn,
+    required super.signUp,
+    required super.signInWithEmail,
+    required super.signInWithGoogle,
+    required super.email,
+    required super.password,
+    required super.emailRequired,
+    required super.invalidEmail,
+    required super.passwordRequired,
+    required super.passwordTooShort,
+    required super.forgotPassword,
+    required super.alreadyHaveAccount,
+    required super.dontHaveAccount,
+    required super.settings,
+    required super.darkMode,
+    required super.darkModeDescription,
+    required super.language,
+    required super.availableBalance,
+    required super.selectCategory,
+    required super.selectAccount,
+    required super.selectContact,
+    required super.category,
+    required super.account,
+    required super.toAccount,
+    required super.amount,
+    required super.invalidAmount,
+    required super.details,
+    required super.additionalInformation,
+    required super.date,
+    required super.contact,
+    required super.description,
+    required super.reference,
+    required super.create,
+    required super.update,
+    required super.unknown,
+    required super.newTransaction,
+    required super.newIncome,
+    required super.newExpense,
+    required super.newTransfer,
+    required super.editTransaction,
+    required super.importContacts,
+    required super.contactsPermissionDenied,
+  });
+
+  @override
+  String get languageCode => 'es';
 }

@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSContactsUsageDescription</key>
+	<string>Esta app necesita acceso a tus contactos para importarlos a la aplicación.</string>
 </dict>
 </plist>

@@ -495,19 +495,22 @@ class EsTranslations extends BaseTranslations {
   String get deleteContactTitle => 'Eliminar Contacto';
 
   @override
-  String deleteContactMessage(String name) => '¿Estás seguro de que deseas eliminar a $name?';
+  String get deleteContactMessage => '¿Estás seguro de que deseas eliminar este contacto?';
+
+  @override
+  String get deleteContactSuccess => 'Contacto eliminado exitosamente';
 
   @override
   String get contactDeleted => 'Contacto eliminado exitosamente';
 
   @override
-  String get noContactsMessage => '¡No hay contactos aún. ¡Añade tu primer contacto!';
+  String get noContacts => 'Sin Contactos';
 
   @override
-  String get searchContacts => 'Buscar contactos...';
+  String get noContactsDescription => 'Aún no has agregado ningún contacto. Agrega tu primer contacto presionando el botón +.';
 
   @override
-  String get allContacts => 'Todos';
+  String get search => 'Buscar';
 
   @override
   String get addContact => 'Añadir Contacto';
@@ -528,6 +531,12 @@ class EsTranslations extends BaseTranslations {
   String get contactSaved => 'Contacto guardado exitosamente';
 
   @override
+  String get contactUpdated => 'Contacto actualizado exitosamente';
+
+  @override
+  String get contactCreated => 'Contacto creado exitosamente';
+
+  @override
   String get contactNameRequired => 'El nombre del contacto es requerido';
 
   @override
@@ -535,6 +544,30 @@ class EsTranslations extends BaseTranslations {
 
   @override
   String get createContact => 'Crear Contacto';
+
+  @override
+  String get importContacts => 'Importar Contactos';
+
+  @override
+  String get contactsPermissionDenied => 'Se denegó el permiso para acceder a los contactos';
+
+  @override
+  String get contactsError => 'Error al acceder a los contactos';
+
+  @override
+  String get noContactsFound => 'No se encontraron contactos con esa búsqueda';
+
+  @override
+  String contactsImported(int count) => '$count contactos importados exitosamente';
+
+  @override
+  String contactsImportedMessage(int count) => '$count contactos importados exitosamente';
+
+  @override
+  String get pickContact => 'Seleccionar Contacto';
+
+  @override
+  String get selectFromContacts => 'Seleccionar de Contactos';
 
   @override
   String get invalidCredentials => 'Correo o contraseña inválidos';
@@ -553,4 +586,10 @@ class EsTranslations extends BaseTranslations {
 
   @override
   String getText(String key) => key;
+
+  @override
+  String get allContacts => 'Todos los Contactos';
+
+  @override
+  String get requiredField => 'Este campo es requerido';
 }

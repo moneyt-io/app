@@ -291,13 +291,19 @@ class EnTranslations extends BaseTranslations {
   String get deleteContactTitle => 'Delete Contact';
 
   @override
-  String deleteContactMessage(String name) => 'Are you sure you want to delete $name?';
+  String get deleteContactMessage => 'Are you sure you want to delete this contact?';
+
+  @override
+  String get deleteContactSuccess => 'Contact deleted successfully';
 
   @override
   String get contactDeleted => 'Contact deleted successfully';
 
   @override
-  String get noContactsMessage => 'No contacts yet. Add your first contact!';
+  String get noContacts => 'No Contacts';
+
+  @override
+  String get noContactsDescription => 'You haven\'t added any contacts yet. Add your first contact by tapping the + button.';
 
   @override
   String get addContact => 'Add Contact';
@@ -314,6 +320,45 @@ class EnTranslations extends BaseTranslations {
   @override
   String get createContact => 'Create Contact';
 
+  @override
+  String get contactNameRequired => 'Contact name is required';
+
+  @override
+  String get contactInformation => 'Contact Information';
+
+  @override
+  String get importContacts => 'Import Contacts';
+
+  @override
+  String get contactsPermissionDenied => 'Permission to access contacts was denied';
+
+  @override
+  String get contactsError => 'Error accessing contacts';
+
+  @override
+  String get noContactsFound => 'No contacts found with that search';
+
+  @override
+  String contactsImported(int count) => '$count contact(s) imported successfully';
+
+  @override
+  String contactsImportedMessage(int count) => '$count contact(s) imported successfully';
+
+  @override
+  String get pickContact => 'Pick Contact';
+
+  @override
+  String get selectFromContacts => 'Select from Contacts';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get allContacts => 'All Contacts';
+
+  @override
+  String get all => 'All';
+
   // Filter related
   String get filter => 'Filter';
 
@@ -328,9 +373,6 @@ class EnTranslations extends BaseTranslations {
 
   @override
   String get filterTransfer => 'Transfer';
-
-  @override
-  String get all => 'All';
 
   @override
   String get apply => 'Apply';
@@ -441,6 +483,18 @@ class EnTranslations extends BaseTranslations {
 
   @override
   String get sortAmountDesc => 'Amount ↓';
+
+  @override
+  String get contactSaved => 'Contact saved successfully';
+
+  @override
+  String get contactUpdated => 'Contact updated successfully';
+
+  @override
+  String get contactCreated => 'Contact created successfully';
+
+  @override
+  String get requiredField => 'This field is required';
 
   @override
   String getText(String key) => key;

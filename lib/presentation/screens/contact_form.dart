@@ -1,20 +1,35 @@
 // lib/presentation/screens/contact_form.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_contacts/flutter_contacts.dart' as device_contacts;
 import '../../domain/entities/contact.dart';
 import '../../domain/usecases/contact_usecases.dart';
 import '../../core/l10n/language_manager.dart';
+
+class ContactFormArgs {
+  final Contact? contact;
+  final bool isEditing;
+  final device_contacts.Contact? deviceContact;
+
+  ContactFormArgs({
+    this.contact,
+    this.isEditing = false,
+    this.deviceContact,
+  });
+}
 
 class ContactForm extends StatefulWidget {
   final Contact? contact;
   final CreateContact createContact;
   final UpdateContact updateContact;
+  final device_contacts.Contact? deviceContact;
 
   const ContactForm({
     Key? key,
     this.contact,
     required this.createContact,
     required this.updateContact,
+    this.deviceContact,
   }) : super(key: key);
 
   @override
@@ -28,6 +43,12 @@ class _ContactFormState extends State<ContactForm> {
   final phoneController = TextEditingController();
   final notesController = TextEditingController();
 
+  // Expresión regular para validar email
+  final _emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    caseSensitive: false,
+  );
+
   bool get isEditing => widget.contact != null;
 
   @override
@@ -38,6 +59,18 @@ class _ContactFormState extends State<ContactForm> {
       emailController.text = widget.contact!.email ?? '';
       phoneController.text = widget.contact!.phone ?? '';
       notesController.text = widget.contact!.notes ?? '';
+    } else if (widget.deviceContact != null) {
+      // Prellenar con datos del contacto del dispositivo
+      final deviceContact = widget.deviceContact!;
+      nameController.text = deviceContact.displayName;
+      if (deviceContact.emails.isNotEmpty) {
+        emailController.text = deviceContact.emails.first.address;
+      }
+      if (deviceContact.phones.isNotEmpty) {
+        phoneController.text = deviceContact.phones.first.normalizedNumber.isNotEmpty 
+            ? deviceContact.phones.first.normalizedNumber 
+            : deviceContact.phones.first.number;
+      }
     }
   }
 
@@ -72,22 +105,24 @@ class _ContactFormState extends State<ContactForm> {
 
       if (mounted) {
         final translations = context.read<LanguageManager>().translations;
-        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(translations.contactSaved),
-            duration: const Duration(seconds: 2),
+            content: Text(
+              isEditing
+                  ? translations.contactUpdated
+                  : translations.contactCreated,
+            ),
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        final translations = context.read<LanguageManager>().translations;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${translations.error}: $e'),
+            content: Text(e.toString()),
             backgroundColor: Theme.of(context).colorScheme.error,
-            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -96,7 +131,7 @@ class _ContactFormState extends State<ContactForm> {
 
   @override
   Widget build(BuildContext context) {
-    final translations = context.watch<LanguageManager>().translations;
+    final translations = context.read<LanguageManager>().translations;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -187,7 +222,7 @@ class _ContactFormState extends State<ContactForm> {
                         style: textTheme.bodyLarge,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return translations.contactNameRequired;
+                            return translations.requiredField;
                           }
                           return null;
                         },
@@ -207,6 +242,15 @@ class _ContactFormState extends State<ContactForm> {
                         style: textTheme.bodyLarge,
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return null; // Email es opcional
+                          }
+                          if (!_emailRegex.hasMatch(value.trim())) {
+                            return translations.invalidEmail;
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 20),
                       TextFormField(

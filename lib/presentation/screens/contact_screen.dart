@@ -1,21 +1,12 @@
 // lib/presentation/screens/contact_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../domain/entities/contact.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
+import '../../domain/entities/contact.dart' as domain;
 import '../../domain/usecases/contact_usecases.dart';
 import '../../routes/app_routes.dart';
-import '../widgets/app_drawer.dart';
 import '../../core/l10n/language_manager.dart';
-
-class ContactFormArgs {
-  final Contact? contact;
-  final bool isEditing;
-
-  ContactFormArgs({
-    this.contact,
-    this.isEditing = false,
-  });
-}
+import './contact_form.dart';
 
 class ContactScreen extends StatefulWidget {
   final GetContacts getContacts;
@@ -36,20 +27,13 @@ class ContactScreen extends StatefulWidget {
 }
 
 class _ContactScreenState extends State<ContactScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  final _searchController = TextEditingController();
   String _searchQuery = '';
-  String _selectedGroup = 'all';
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _navigateToForm(BuildContext context, {Contact? contact}) async {
+  Future<void> _navigateToForm(BuildContext context, {domain.Contact? contact, Contact? deviceContact}) async {
     final args = ContactFormArgs(
       contact: contact,
-      isEditing: contact != null,
+      deviceContact: deviceContact,
     );
     await Navigator.pushNamed(
       context,
@@ -58,7 +42,47 @@ class _ContactScreenState extends State<ContactScreen> {
     );
   }
 
-  Future<void> _showDeleteDialog(BuildContext context, Contact contact) async {
+  Future<void> _pickContact(BuildContext context) async {
+    try {
+      final permission = await FlutterContacts.requestPermission(readonly: true);
+      if (!permission) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.read<LanguageManager>().translations.contactsPermissionDenied),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+        return;
+      }
+
+      final contact = await FlutterContacts.openExternalPick();
+      if (contact == null || !context.mounted) return;
+
+      final fullContact = await FlutterContacts.getContact(contact.id);
+      if (fullContact == null) return;
+
+      final args = ContactFormArgs(
+        deviceContact: fullContact,
+      );
+      
+      await Navigator.pushNamed(
+        context,
+        AppRoutes.contactForm,
+        arguments: args,
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.read<LanguageManager>().translations.contactsError),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
+  Future<void> _deleteContact(domain.Contact contact) async {
     final translations = context.read<LanguageManager>().translations;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -66,7 +90,7 @@ class _ContactScreenState extends State<ContactScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(translations.deleteContactTitle),
-        content: Text(translations.deleteContactMessage(contact.name)),
+        content: Text(translations.deleteContactMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -86,10 +110,11 @@ class _ContactScreenState extends State<ContactScreen> {
     if (confirmed == true && mounted) {
       try {
         await widget.deleteContact(contact.id!);
+        setState(() {});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(translations.contactDeleted),
+              content: Text(translations.deleteContactSuccess),
               backgroundColor: colorScheme.primary,
             ),
           );
@@ -98,7 +123,7 @@ class _ContactScreenState extends State<ContactScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${translations.error}: $e'),
+              content: Text(e.toString()),
               backgroundColor: colorScheme.error,
             ),
           );
@@ -107,254 +132,376 @@ class _ContactScreenState extends State<ContactScreen> {
     }
   }
 
-  String _getInitialLetter(String name) {
-    return name.isNotEmpty ? name[0].toUpperCase() : '?';
-  }
-
-  List<Contact> _filterContacts(List<Contact> contacts) {
-    if (_searchQuery.isEmpty && _selectedGroup == 'all') return contacts;
-
-    return contacts.where((contact) {
-      final matchesSearch = _searchQuery.isEmpty ||
-          contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          (contact.email?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
-          (contact.phone?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
-
-      if (_selectedGroup == 'all') return matchesSearch;
-
-      final initialLetter = _getInitialLetter(contact.name);
-      return matchesSearch && initialLetter == _selectedGroup;
-    }).toList();
-  }
-
-  List<String> _getAvailableGroups(List<Contact> contacts) {
-    final groups = contacts
-        .map((contact) => _getInitialLetter(contact.name))
-        .toSet()
-        .toList()
-      ..sort();
-    return ['all', ...groups];
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final translations = context.watch<LanguageManager>().translations;
+    final translations = context.read<LanguageManager>().translations;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(translations.contacts),
-      ),
-      drawer: const AppDrawer(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _navigateToForm(context),
-        icon: const Icon(Icons.person_add_rounded),
-        label: Text(translations.newContact),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                // Barra de búsqueda
-                SearchBar(
-                  controller: _searchController,
-                  hintText: 'Buscar contactos...',
-                  leading: const Icon(Icons.search_rounded),
-                  padding: const MaterialStatePropertyAll(
-                    EdgeInsets.symmetric(horizontal: 16.0),
-                  ),
-                  onChanged: (value) => setState(() => _searchQuery = value),
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
+        title: Text(
+          translations.contacts,
+          style: textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w500,
           ),
-          Expanded(
-            child: StreamBuilder<List<Contact>>(
-              stream: widget.getContacts(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline_rounded,
-                          size: 64,
-                          color: colorScheme.error,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          '${translations.error}: ${snapshot.error}',
-                          style: textTheme.bodyLarge?.copyWith(
-                            color: colorScheme.error,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+        ),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+              child: SearchBar(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+                hintText: translations.searchContacts,
+                leading: Icon(
+                  Icons.search_rounded,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                trailing: [
+                  if (_searchQuery.isNotEmpty)
+                    IconButton(
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {
+                          _searchQuery = '';
+                        });
+                      },
+                      icon: Icon(
+                        Icons.clear_rounded,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                  );
-                }
-
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: colorScheme.primary,
+                ],
+                padding: MaterialStateProperty.all(
+                  const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                backgroundColor: MaterialStateProperty.all(
+                  colorScheme.surfaceVariant.withOpacity(0.3),
+                ),
+                elevation: MaterialStateProperty.all(0),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: colorScheme.outline.withOpacity(0.5),
+                      width: 0.5,
                     ),
-                  );
-                }
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: StreamBuilder<List<domain.Contact>>(
+                stream: widget.getContacts(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
 
-                final allContacts = snapshot.data!;
-                final groups = _getAvailableGroups(allContacts);
-                final filteredContacts = _filterContacts(allContacts);
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        snapshot.error.toString(),
+                        style: TextStyle(color: colorScheme.error),
+                      ),
+                    );
+                  }
 
-                if (allContacts.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                  final contacts = snapshot.data ?? [];
+                  if (contacts.isEmpty) {
+                    return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.people_outline_rounded,
+                            Icons.person_search_rounded,
                             size: 64,
                             color: colorScheme.primary.withOpacity(0.5),
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            translations.noContactsMessage,
-                            style: textTheme.bodyLarge?.copyWith(
-                              color: colorScheme.onSurface.withOpacity(0.7),
-                            ),
+                            _searchQuery.isEmpty
+                                ? translations.noContactsMessage
+                                : translations.noContactsFound,
                             textAlign: TextAlign.center,
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  );
-                }
+                    );
+                  }
 
-                return Column(
-                  children: [
-                    if (allContacts.length > 10) ...[
-                      SizedBox(
-                        height: 48,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: groups.length,
+                  final filteredContacts = contacts
+                      .where((contact) =>
+                          contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                          (contact.email?.toLowerCase() ?? '').contains(_searchQuery.toLowerCase()) ||
+                          (contact.phone?.toLowerCase() ?? '').contains(_searchQuery.toLowerCase()))
+                      .toList()
+                    ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
+                  if (filteredContacts.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.person_search_rounded,
+                            size: 64,
+                            color: colorScheme.primary.withOpacity(0.5),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _searchQuery.isEmpty
+                                ? translations.noContactsMessage
+                                : translations.noContactsFound,
+                            textAlign: TextAlign.center,
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // Agrupar contactos por letra inicial
+                  final groupedContacts = <String, List<domain.Contact>>{};
+                  for (final contact in filteredContacts) {
+                    final initial = contact.name[0].toUpperCase();
+                    groupedContacts.putIfAbsent(initial, () => []).add(contact);
+                  }
+
+                  final sortedKeys = groupedContacts.keys.toList()..sort();
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                    itemCount: sortedKeys.length * 2, // multiplicamos por 2 para incluir los headers
+                    itemBuilder: (context, index) {
+                      if (index.isOdd) {
+                        // Construir la lista de contactos para esta letra
+                        final letterIndex = index ~/ 2;
+                        final letter = sortedKeys[letterIndex];
+                        final contactsInGroup = groupedContacts[letter]!;
+
+                        return ListView.separated(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: contactsInGroup.length,
+                          separatorBuilder: (context, index) => const SizedBox(height: 8),
                           itemBuilder: (context, index) {
-                            final group = groups[index];
-                            final isSelected = _selectedGroup == group;
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: FilterChip(
-                                label: Text(group == 'all' ? 'Todos' : group),
-                                selected: isSelected,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    _selectedGroup = group;
-                                  });
-                                },
+                            final contact = contactsInGroup[index];
+                            return Card(
+                              elevation: 0,
+                              margin: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: colorScheme.outlineVariant,
+                                  width: 1,
+                                ),
+                              ),
+                              child: InkWell(
+                                onTap: () => _navigateToForm(context, contact: contact),
+                                borderRadius: BorderRadius.circular(12),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 48,
+                                        height: 48,
+                                        decoration: BoxDecoration(
+                                          color: colorScheme.primary.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            contact.name[0].toUpperCase(),
+                                            style: textTheme.titleLarge?.copyWith(
+                                              color: colorScheme.primary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              contact.name,
+                                              style: textTheme.titleMedium?.copyWith(
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            if (contact.email != null || contact.phone != null) ...[
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                contact.email ?? contact.phone ?? '',
+                                                style: textTheme.bodyMedium?.copyWith(
+                                                  color: colorScheme.onSurfaceVariant,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: () => _deleteContact(contact),
+                                        icon: Icon(
+                                          Icons.delete_outline_rounded,
+                                          color: colorScheme.error,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             );
                           },
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: filteredContacts.length,
-                        itemBuilder: (context, index) {
-                          final contact = filteredContacts[index];
-                          return Card(
-                            elevation: 0,
-                            margin: const EdgeInsets.only(bottom: 8),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(
-                                color: colorScheme.outlineVariant,
-                                width: 1,
-                              ),
+                        );
+                      } else {
+                        // Construir el header de la letra
+                        final letterIndex = index ~/ 2;
+                        final letter = sortedKeys[letterIndex];
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          child: Text(
+                            letter,
+                            style: textTheme.titleMedium?.copyWith(
+                              color: colorScheme.primary,
+                              fontWeight: FontWeight.bold,
                             ),
-                            child: InkWell(
-                              onTap: () => _navigateToForm(context, contact: contact),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Row(
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundColor: colorScheme.primaryContainer,
-                                      child: Text(
-                                        _getInitialLetter(contact.name),
-                                        style: textTheme.titleMedium?.copyWith(
-                                          color: colorScheme.onPrimaryContainer,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            contact.name,
-                                            style: textTheme.titleMedium?.copyWith(
-                                              color: colorScheme.onSurface,
-                                            ),
-                                          ),
-                                          if (contact.email?.isNotEmpty ?? false)
-                                            Padding(
-                                              padding: const EdgeInsets.only(top: 4),
-                                              child: Text(
-                                                contact.email!,
-                                                style: textTheme.bodyMedium?.copyWith(
-                                                  color: colorScheme.onSurfaceVariant,
-                                                ),
-                                              ),
-                                            ),
-                                          if (contact.phone?.isNotEmpty ?? false)
-                                            Padding(
-                                              padding: const EdgeInsets.only(top: 4),
-                                              child: Text(
-                                                contact.phone!,
-                                                style: textTheme.bodyMedium?.copyWith(
-                                                  color: colorScheme.onSurfaceVariant,
-                                                ),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.delete_outline_rounded,
-                                        color: colorScheme.error,
-                                      ),
-                                      onPressed: () => _showDeleteDialog(context, contact),
-                                      tooltip: translations.deleteContact,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              },
+                          ),
+                        );
+                      }
+                    },
+                  );
+                },
+              ),
             ),
+          ],
+        ),
+      ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'pickContact',
+            onPressed: () => _pickContact(context),
+            backgroundColor: colorScheme.secondaryContainer,
+            foregroundColor: colorScheme.onSecondaryContainer,
+            elevation: 4,
+            child: const Icon(Icons.person_add_alt_1_rounded),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            heroTag: 'addContact',
+            onPressed: () => _navigateToForm(context),
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
+            elevation: 4,
+            child: const Icon(Icons.add_rounded),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ContactPickerDialog extends StatefulWidget {
+  final List<Contact> contacts;
+  final TextEditingController searchController;
+
+  const ContactPickerDialog({
+    Key? key,
+    required this.contacts,
+    required this.searchController,
+  }) : super(key: key);
+
+  @override
+  State<ContactPickerDialog> createState() => _ContactPickerDialogState();
+}
+
+class _ContactPickerDialogState extends State<ContactPickerDialog> {
+  String _searchQuery = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final translations = context.read<LanguageManager>().translations;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Dialog(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text(
+              translations.pickContact,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: widget.searchController,
+              decoration: InputDecoration(
+                hintText: translations.search,
+                prefixIcon: const Icon(Icons.search_rounded),
+                border: const OutlineInputBorder(),
+              ),
+              onChanged: (value) => setState(() => _searchQuery = value),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                itemCount: widget.contacts.length,
+                itemBuilder: (context, index) {
+                  final contact = widget.contacts[index];
+                  if (_searchQuery.isNotEmpty &&
+                      !contact.displayName
+                          .toLowerCase()
+                          .contains(_searchQuery.toLowerCase())) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return ListTile(
+                    leading: CircleAvatar(
+                      child: Text(
+                        contact.displayName[0].toUpperCase(),
+                        style: TextStyle(color: colorScheme.onPrimary),
+                      ),
+                      backgroundColor: colorScheme.primary,
+                    ),
+                    title: Text(contact.displayName),
+                    subtitle: contact.phones.isNotEmpty
+                        ? Text(contact.phones.first.number)
+                        : null,
+                    onTap: () => Navigator.pop(context, contact),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

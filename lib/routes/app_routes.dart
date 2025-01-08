@@ -175,6 +175,7 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => ContactForm(
             contact: args.contact,
+            deviceContact: args.deviceContact,
             createContact: getIt<CreateContact>(),
             updateContact: getIt<UpdateContact>(),
           ),
