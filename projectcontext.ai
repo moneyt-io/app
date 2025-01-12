@@ -1,0 +1,67 @@
+## Resumen del Proyecto
+
+### Descripción General
+El proyecto es una aplicación de gestión financiera personal llamada "MoneyT". La aplicación permite a los usuarios organizar y realizar un seguimiento de sus finanzas, incluyendo ingresos, gastos, transferencias y gestión de contactos.
+
+### Estructura del Proyecto
+El proyecto está estructurado en varias carpetas y archivos, cada uno con una responsabilidad específica. A continuación se presenta una descripción de las carpetas y algunos archivos clave:
+
+- **lib/**: Contiene el código fuente principal de la aplicación.
+  - **core/**: Contiene la lógica central de la aplicación, incluyendo la gestión de idiomas y eventos.
+    - **l10n/**: Gestión de localización e idiomas.
+    - **events/**: Definición de eventos de sincronización.
+  - **data/**: Contiene los servicios y repositorios para la gestión de datos.
+    - **local/**: Acceso a la base de datos local.
+    - **services/**: Servicios para la inicialización y sincronización de datos.
+  - **domain/**: Contiene las entidades y casos de uso de la aplicación.
+    - **entities/**: Definición de entidades como transacciones y cuentas.
+    - **repositories/**: Interfaces de repositorios para la gestión de datos.
+    - **usecases/**: Casos de uso para la gestión de transacciones.
+  - **presentation/**: Contiene las pantallas y widgets de la interfaz de usuario.
+    - **screens/**: Pantallas principales de la aplicación.
+    - **widgets/**: Componentes reutilizables de la interfaz de usuario.
+  - **routes/**: Definición de rutas de navegación en la aplicación.
+  - **main.dart**: Punto de entrada principal de la aplicación.
+
+### Funcionalidades Principales
+1. **Gestión de Transacciones**: Permite a los usuarios registrar y gestionar ingresos, gastos y transferencias.
+2. **Gestión de Contactos**: Permite a los usuarios añadir, editar y eliminar contactos.
+3. **Sincronización de Datos**: Sincroniza los datos locales con Firebase Firestore.
+4. **Autenticación**: Soporta autenticación con correo electrónico y Google Sign-In.
+5. **Localización**: Soporta múltiples idiomas, incluyendo inglés y español.
+6. **Temas**: Soporta temas claros y oscuros.
+
+### Configuración de Firebase
+El proyecto está configurado para usar Firebase para la autenticación y la sincronización de datos. Los pasos de configuración incluyen:
+1. Crear un proyecto en Firebase.
+2. Configurar Firebase en las aplicaciones Android e iOS.
+3. Configurar Firestore y la autenticación.
+
+### Dependencias Clave
+- **flutter_svg**: Para manejar imágenes SVG.
+- **drift**: Para la gestión de la base de datos SQLite.
+- **provider**: Para la gestión del estado.
+- **google_sign_in**: Para la autenticación con Google.
+- **shared_preferences**: Para el almacenamiento local de preferencias.
+
+### Código Destacado
+#### main.dart
+El archivo main.dart inicializa Firebase, configura las dependencias y define el widget principal de la aplicación:
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inicializar Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Inicializar GetIt y dependencias
+  await initializeDependencies();
+
+  // Verificar si es la primera vez que se abre la app
+  final prefs = await SharedPreferences.getInstance();
+  final bool hasCompletedOnboarding = prefs.getBool('has_completed_onboarding') ?? false;
+
+  runApp(MyApp(skipWelcome: hasCompletedOnboarding));
+}

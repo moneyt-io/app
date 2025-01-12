@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../data/local/database.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../data/repositories/backup_repository_impl.dart';
@@ -143,9 +142,10 @@ Future<void> initializeDependencies() async {
   getIt.registerFactory<UpdateAccount>(
     () => UpdateAccount(getIt<AccountRepository>()),
   );
-  getIt.registerFactory<DeleteAccount>(
-    () => DeleteAccount(getIt<AccountRepository>()),
-  );
+  getIt.registerLazySingleton(() => DeleteAccount(
+    getIt<AccountRepository>(),
+    getIt<SyncService>(),
+  ));
 
   // Contacts
   getIt.registerFactory<GetContacts>(

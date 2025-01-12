@@ -1,4 +1,6 @@
 // lib/domain/usecases/account_usecases.dart
+import 'package:moneyt_pfm/data/services/sync_service.dart';
+
 import '../entities/account.dart';
 import '../repositories/account_repository.dart';
 
@@ -28,8 +30,12 @@ class UpdateAccount {
 
 class DeleteAccount {
   final AccountRepository repository;
+  final SyncService syncService;
 
-  DeleteAccount(this.repository);
+  DeleteAccount(this.repository, this.syncService);
 
-  Future<void> call(int id) => repository.deleteAccount(id);
+  Future<void> call(int id) async {
+    await syncService.handleAccountDeletion(id);
+    // La eliminación local ocurrirá en la próxima sincronización
+  }
 }

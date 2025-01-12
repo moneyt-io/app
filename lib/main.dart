@@ -1,6 +1,8 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
+import 'package:moneyt_pfm/data/local/database.dart';
 import 'package:moneyt_pfm/domain/repositories/backup_repository.dart';
+import 'package:moneyt_pfm/presentation/providers/sync_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +13,9 @@ import 'presentation/providers/auth_provider.dart';
 import 'presentation/providers/drawer_provider.dart';
 import 'routes/app_routes.dart';
 import 'firebase_options.dart';
+import 'data/services/sync_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +39,13 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        Provider<SyncService>(
+          create: (_) => SyncService(
+            auth: FirebaseAuth.instance,
+            firestore: FirebaseFirestore.instance,
+            localDb: AppDatabase(),
+          ),
+        ),
         ChangeNotifierProvider(
           create: (_) => ThemeProvider(prefs),
         ),
@@ -48,6 +60,9 @@ void main() async {
         ),
         Provider<BackupRepository>(
           create: (_) => getIt<BackupRepository>(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SyncProvider(syncService: getIt<SyncService>()),
         ),
       ],
       child: MyApp(skipWelcome: skipWelcome),

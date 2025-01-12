@@ -1,5 +1,6 @@
 // lib/presentation/screens/home_screen.dart
 import 'package:flutter/material.dart';
+import 'package:moneyt_pfm/presentation/widgets/sync_action_button.dart';
 import 'package:provider/provider.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../widgets/app_drawer.dart';
@@ -45,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onWillPop: () => NavigationService.handleWillPop(context),
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: Text(
             translations.home,
             style: textTheme.titleLarge?.copyWith(
@@ -56,6 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
           iconTheme: IconThemeData(
             color: colorScheme.onSurface,
           ),
+          actions: [
+            const SyncActionButton(),
+          ],
         ),
         drawer: const AppDrawer(),
         body: SingleChildScrollView(

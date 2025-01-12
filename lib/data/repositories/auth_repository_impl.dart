@@ -19,11 +19,7 @@ class AuthRepositoryImpl implements AuthRepository {
   });
 
   UserEntity _mapUserToEntity(User user) {
-    print('Mapping Firebase user to entity:'); // Debug log
-    print('  uid: ${user.uid}'); // Debug log
     print('  email: ${user.email}'); // Debug log
-    print('  displayName: ${user.displayName}'); // Debug log
-    print('  photoURL: ${user.photoURL}'); // Debug log
     
     return UserEntity(
       id: user.uid,

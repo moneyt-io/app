@@ -211,12 +211,10 @@ class AccountScreen extends StatelessWidget {
                                                 deleteAccount(account.id);
                                                 Navigator.pop(context);
                                                 ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(translations.accountDeleted),
-                                                  ),
+                                                  SnackBar(content: Text(translations.accountDeleted)),
                                                 );
                                               },
-                                              child: Text(translations.delete),
+                                              child: Text(translations.delete), // Añadimos el child requerido
                                             ),
                                           ],
                                         ),

@@ -6,6 +6,7 @@ import '../../core/l10n/language_manager.dart';
 import '../../routes/app_routes.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../widgets/social_links.dart';
+import '../widgets/sync_button.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -237,7 +238,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
 
-          // Sección de Base de Datos
+          // Opción de Sincronización
           Container(
             margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             decoration: BoxDecoration(
@@ -260,6 +261,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                   ),
                 ),
+                const SyncButton(),
                 // Respaldos
                 ListTile(
                   leading: Icon(

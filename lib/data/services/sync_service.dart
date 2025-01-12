@@ -7,13 +7,43 @@ class SyncService {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
   final AppDatabase localDb;
+  bool _initialized = false;
 
   SyncService({
     required this.auth,
     required this.firestore,
     required this.localDb,
-  });
+  }) {
+    _initialize();
+  }
 
+  Future<void> _initialize() async {
+    auth.authStateChanges().listen((user) async {
+      if (user != null) {
+        final userDoc = firestore.collection('users').doc(user.uid);
+        if (!(await userDoc.get()).exists) {
+          await userDoc.set({
+            'syncEnabled': false,
+            'email': user.email,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
+        _initialized = true;
+      }
+    });
+  }
+
+  Future<bool> isSyncEnabled() async {
+    if (!_initialized) {
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+    final user = auth.currentUser;
+    if (user == null) return false;
+
+    final userDoc = await firestore.collection('users').doc(user.uid).get();
+    return userDoc.data()?['syncEnabled'] ?? false;
+  }
+  
   Future<void> syncData() async {
     // Verificar si la sincronización está habilitada antes de proceder
     if (!await isSyncEnabled()) {
@@ -49,64 +79,108 @@ class SyncService {
     try {
       print('Iniciando sincronización de cuentas...');
       
-      // Subir cuentas locales nuevas o modificadas
+      // Obtener cuentas locales
       final localAccounts = await localDb.accountDao.getAllAccounts();
       print('Cuentas locales encontradas: ${localAccounts.length}');
       
+      // Obtener cuentas remotas
+      final remoteAccounts = await userDoc.collection('accounts').get();
+      final remoteAccountIds = remoteAccounts.docs.map((doc) => int.parse(doc.id)).toSet();
+      
+      // Sincronizar cuentas locales
       for (final account in localAccounts) {
-        final accountUpdatedAt = account.updatedAt;
         print('Procesando cuenta local: ${account.id} - ${account.name}');
         
-        if (lastSync == null || (accountUpdatedAt != null && accountUpdatedAt.isAfter(lastSync))) {
+        final shouldSync = !remoteAccountIds.contains(account.id) || 
+                          lastSync == null ||
+                          (account.updatedAt?.isAfter(lastSync) ?? true);
+        
+        if (shouldSync) {
           print('Subiendo cuenta a Firebase: ${account.id}');
-          // Convertir el ID a string de manera segura
-          final accountId = account.id.toString();
-          await userDoc.collection('accounts').doc(accountId).set({
-            'id': account.id, // Guardamos el ID numérico como campo
+          await userDoc.collection('accounts').doc(account.id.toString()).set({
+            'id': account.id,
             'name': account.name,
             'description': account.description,
             'balance': account.balance,
             'createdAt': Timestamp.fromDate(account.createdAt),
-            'updatedAt': Timestamp.fromDate(account.updatedAt ?? DateTime.now()),
+            'updatedAt': Timestamp.fromDate(account.updatedAt ?? account.createdAt),
+            'isDeleted': false, // Agregamos el flag de eliminación
           }, SetOptions(merge: true));
+          print('Cuenta subida exitosamente: ${account.id}');
         }
       }
 
-      // Descargar cuentas remotas nuevas o modificadas
-      print('Obteniendo cuentas remotas...');
-      final remoteAccounts = await userDoc.collection('accounts').get();
-      print('Cuentas remotas encontradas: ${remoteAccounts.docs.length}');
-      
+      // Procesar cuentas remotas
+      print('Procesando cuentas remotas...');
       for (final doc in remoteAccounts.docs) {
-        try {
-          final data = doc.data();
-          print('Procesando cuenta remota: ${doc.id}');
-          
-          // Obtener el ID numérico del campo 'id' en lugar del doc.id
-          final accountId = data['id'] as int;
-          final updatedAt = (data['updatedAt'] as Timestamp).toDate();
-          
-          if (lastSync == null || updatedAt.isAfter(lastSync)) {
-            print('Actualizando cuenta local: $accountId');
-            await localDb.accountDao.upsertAccount(AccountsCompanion(
-              id: Value(accountId),
-              name: Value(data['name'] as String),
-              description: Value(data['description'] as String? ?? ''),
-              balance: Value((data['balance'] as num).toDouble()),
-              createdAt: Value((data['createdAt'] as Timestamp).toDate()),
-              updatedAt: Value(updatedAt),
-            ));
-          }
-        } catch (e) {
-          print('Error procesando cuenta remota ${doc.id}: $e');
-          print('Data de la cuenta: ${doc.data()}');
-          rethrow;
+        print('Procesando cuenta remota: ${doc.id}');
+        final data = doc.data();
+        
+        // Si la cuenta está marcada como eliminada, eliminarla localmente
+        if (data['isDeleted'] == true) {
+          await localDb.accountDao.deleteAccount(int.parse(doc.id));
+          continue;
         }
+
+        final updatedAt = (data['updatedAt'] as Timestamp).toDate();
+        
+        await localDb.accountDao.upsertAccount(AccountsCompanion(
+          id: Value(int.parse(doc.id)),
+          name: Value(data['name'] as String),
+          description: Value(data['description'] as String? ?? ''),
+          balance: Value((data['balance'] as num).toDouble()),
+          createdAt: Value((data['createdAt'] as Timestamp).toDate()),
+          updatedAt: Value(updatedAt),
+        ));
       }
     } catch (e, stackTrace) {
       print('Error en sincronización de cuentas: $e');
       print('Stack trace: $stackTrace');
       rethrow;
+    }
+  }
+    // Add method to handle account deletion
+  Future<void> handleAccountDeletion(int accountId) async {
+    final user = auth.currentUser;
+    if (user == null) return;
+
+    final userDoc = firestore.collection('users').doc(user.uid);
+    
+    // Marcar la cuenta como eliminada en Firestore
+    await userDoc.collection('accounts').doc(accountId.toString()).update({
+      'isDeleted': true,
+      'deletedAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+    
+    // Forzar sincronización después de marcar como eliminado
+    await syncData();
+  }
+
+  Future<void> deleteAccountAndSync(int accountId) async {
+    // Marcar la cuenta como eliminada en Firebase
+    await handleAccountDeletion(accountId);
+
+    // Eliminar la cuenta localmente
+    await localDb.accountDao.deleteAccount(accountId);
+
+    // Opcional: forzar sincronización
+    await syncData();
+  }
+
+  Future<void> ensureAccountDeletion(int accountId) async {
+    // Llamar siempre a deleteAccountAndSync
+    await deleteAccountAndSync(accountId);
+
+    // Comprobar si Firestore pudo actualizar el flag de isDeleted
+    final user = auth.currentUser;
+    if (user == null) return;
+    final userDoc = firestore.collection('users').doc(user.uid);
+    final docRef = userDoc.collection('accounts').doc(accountId.toString());
+    final docSnap = await docRef.get();
+
+    if (docSnap.exists && docSnap.data()?['isDeleted'] != true) {
+      print('No se logró marcar como eliminada. Verifica permisos de Firestore.');
     }
   }
 
@@ -137,7 +211,9 @@ class SyncService {
           id: Value(int.parse(doc.id)),
           name: Value(data['name'] as String),
           type: Value(data['type'] as String),
-          parentId: Value(data['parentId'] != null ? int.parse(data['parentId'] as String) : null),
+          parentId: Value(data['parentId'] != null ? (data['parentId'] is String ? 
+          int.parse(data['parentId'] as String) : data['parentId'] as int)
+  : null),
           createdAt: Value((data['createdAt'] as Timestamp).toDate()),
           updatedAt: Value(updatedAt),
         ));
@@ -192,6 +268,9 @@ class SyncService {
     }
   }
 
+
+
+
   // Método para sincronizar cuando hay cambios locales
   Future<void> syncOnLocalChange() async {
     await syncData();
@@ -223,14 +302,6 @@ class SyncService {
     userDoc.collection('transactions').snapshots().listen((_) {
       syncOnRemoteChange();
     });
-  }
-
-  Future<bool> isSyncEnabled() async {
-    final user = auth.currentUser;
-    if (user == null) return false;
-
-    final userDoc = await firestore.collection('users').doc(user.uid).get();
-    return userDoc.data()?['syncEnabled'] ?? false;
   }
 
   Future<void> setSyncEnabled(bool enabled) async {
