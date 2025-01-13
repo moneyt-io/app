@@ -154,15 +154,14 @@ class _TransactionFormState extends State<TransactionForm> {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => FractionallySizedBox(
-        heightFactor: 0.5,
-        child: ContactSelectionModal(
-          contacts: contacts,
-          onContactSelected: (contact) {
-            setState(() => _selectedContact = contact);
-          },
-          createContact: drawerProvider.createContact,
-        ),
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      builder: (context) => ContactSelectionModal(
+        contacts: contacts,
+        onContactSelected: (contact) {
+          setState(() => _selectedContact = contact);
+        },
+        createContact: drawerProvider.createContact,
       ),
     );
   }

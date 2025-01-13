@@ -53,4 +53,8 @@ class SyncManager {
   void setupRemoteListeners() {
     _syncService.setupRemoteChangeListeners();
   }
+
+  Future<void> syncNow() async {
+    await _syncService.syncData();
+  }
 }

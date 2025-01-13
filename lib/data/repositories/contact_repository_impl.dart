@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:moneyt_pfm/data/local/daos/contact_dao.dart';
 import 'package:moneyt_pfm/data/local/database.dart';
 import 'package:moneyt_pfm/domain/entities/contact.dart';
-import 'package:moneyt_pfm/domain/repositories/contact_repository.dart';
+import '../../domain/repositories/contact_repository.dart';
 
 class ContactRepositoryImpl implements ContactRepository {
   final ContactDao _contactDao;
@@ -86,5 +86,24 @@ class ContactRepositoryImpl implements ContactRepository {
   @override
   Future<bool> deleteContact(int id) async {
     return await _contactDao.deleteContact(id) > 0;
+  }
+
+  @override
+  Future<Contact?> findExistingContact(String? email, String? phone) async {
+    if ((email == null || email.isEmpty) && (phone == null || phone.isEmpty)) {
+      return null;
+    }
+
+    final contacts = await _contactDao.getAllContacts();
+    try {
+      final existingContact = contacts.firstWhere(
+        (contact) =>
+          (email != null && email.isNotEmpty && contact.email == email) ||
+          (phone != null && phone.isNotEmpty && contact.phone == phone),
+      );
+      return _mapToEntity(existingContact);
+    } catch (e) {
+      return null;
+    }
   }
 }

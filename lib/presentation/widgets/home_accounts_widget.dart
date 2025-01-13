@@ -9,6 +9,7 @@ import '../../presentation/providers/drawer_provider.dart';
 
 class HomeAccountsWidget extends StatelessWidget {
   final TransactionUseCases transactionUseCases;
+  final int maxAccounts = 3; // Nueva constante
 
   const HomeAccountsWidget({
     Key? key,
@@ -33,6 +34,8 @@ class HomeAccountsWidget extends StatelessWidget {
             }
 
             final accounts = accountsSnapshot.data!;
+            // Tomar solo las primeras 5 cuentas
+            final limitedAccounts = accounts.take(maxAccounts).toList();
 
             return Card(
               child: Padding(
@@ -65,9 +68,9 @@ class HomeAccountsWidget extends StatelessWidget {
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: accounts.length,
+                        itemCount: limitedAccounts.length,
                         itemBuilder: (context, index) {
-                          final account = accounts[index];
+                          final account = limitedAccounts[index];
                           final balance = balances[account.id] ?? 0.0;
 
                           return ListTile(

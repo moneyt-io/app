@@ -114,20 +114,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ] else ...[
             ListTile(
               leading: Icon(
-                Icons.login,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              title: Text(translations.signInWithEmail),
-              onTap: () async {
-                await Navigator.pushNamed(context, AppRoutes.login);
-                // Forzar la reconstrucción del widget después del login
-                if (mounted) {
-                  setState(() {});
-                }
-              },
-            ),
-            ListTile(
-              leading: Icon(
                 Icons.g_mobiledata,
                 color: Theme.of(context).colorScheme.primary,
               ),
@@ -148,6 +134,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     );
                   }
+                }
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.login,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              title: Text(translations.signInWithEmail),
+              onTap: () async {
+                await Navigator.pushNamed(context, AppRoutes.login);
+                // Forzar la reconstrucción del widget después del login
+                if (mounted) {
+                  setState(() {});
                 }
               },
             ),

@@ -189,6 +189,7 @@ class _AccountFormState extends State<AccountForm> {
             behavior: SnackBarBehavior.floating,
           ),
         );
+        Navigator.pop(context); // Asegurar que regrese al screen account
       }
     }
   }

@@ -264,6 +264,14 @@ abstract class BaseTranslations {
   String get data => 'Database';
   String get manageBackups => 'Manage Backups';
 
+  // Sync related
+  String get sync => 'Sync';
+  String get syncing => 'Syncing...';
+  String get syncSuccess => 'Sync successful';
+  String get syncError => 'Sync error';
+  String get lastSync => 'Last sync';
+  String get syncNever => 'Never';
+
   // Method to get text by key dynamically
   String getText(String key);
 
@@ -515,6 +523,14 @@ abstract class BaseTranslations {
       // Database and Settings
       data;
       manageBackups;
+
+      // Sync related
+      sync;
+      syncing;
+      syncSuccess;
+      syncError;
+      lastSync;
+      syncNever;
 
       return true;
     } catch (e) {

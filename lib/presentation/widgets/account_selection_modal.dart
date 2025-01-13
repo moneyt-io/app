@@ -25,6 +25,7 @@ class AccountSelectionModal extends StatelessWidget {
     final translations = context.watch<LanguageManager>().translations;
     final mediaQuery = MediaQuery.of(context);
     final bottomPadding = mediaQuery.viewInsets.bottom + mediaQuery.padding.bottom;
+    final screenHeight = mediaQuery.size.height;
     final numberFormat = NumberFormat.currency(
       symbol: '\$',
       decimalDigits: 2,
@@ -37,17 +38,26 @@ class AccountSelectionModal extends StatelessWidget {
 
     return Container(
       constraints: BoxConstraints(
-        maxHeight: mediaQuery.size.height * 0.75,
+        maxHeight: screenHeight * 0.7, // Limitamos al 70% de la altura de la pantalla
       ),
       padding: EdgeInsets.only(
-        top: 16 + mediaQuery.padding.top,
+        top: 16,
         left: 16,
         right: 16,
         bottom: bottomPadding + 16,
       ),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(28),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

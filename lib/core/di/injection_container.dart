@@ -137,7 +137,10 @@ Future<void> initializeDependencies() async {
     () => GetAccounts(getIt<AccountRepository>()),
   );
   getIt.registerFactory<CreateAccount>(
-    () => CreateAccount(getIt<AccountRepository>()),
+    () => CreateAccount(
+      getIt<AccountRepository>(),
+      getIt<SyncManager>(),
+    ),
   );
   getIt.registerFactory<UpdateAccount>(
     () => UpdateAccount(getIt<AccountRepository>()),
@@ -189,5 +192,12 @@ Future<void> initializeDependencies() async {
       // Transactions
       transactionUseCases: getIt<TransactionUseCases>(),
     ),
+  );
+}
+
+void _registerRepositories() {
+  // Registrar ContactRepository como singleton
+  getIt.registerLazySingleton<ContactRepository>(
+    () => ContactRepositoryImpl(getIt<ContactDao>()),
   );
 }

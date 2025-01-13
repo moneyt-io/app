@@ -46,6 +46,18 @@ class Translations {
   final String importContacts;
   final String contactsPermissionDenied;
 
+  // Sección de sincronización
+  final String sync;
+  final String syncing;
+  final String syncSuccess;
+  final String syncError;
+  final String lastSync;
+  final String syncNever;
+  final String data;
+  final String appearance;
+  final String manageBackups;
+  final String backup;
+
   const Translations({
     required this.welcome,
     required this.selectLanguage,
@@ -92,6 +104,16 @@ class Translations {
     required this.editTransaction,
     required this.importContacts,
     required this.contactsPermissionDenied,
+    required this.sync,
+    required this.syncing,
+    required this.syncSuccess,
+    required this.syncError,
+    required this.lastSync,
+    required this.syncNever,
+    required this.data,
+    required this.appearance,
+    required this.manageBackups,
+    required this.backup,
   });
 
   String contactsImportedMessage(int count) {
@@ -152,6 +174,16 @@ class Translations {
     editTransaction: 'Edit Transaction',
     importContacts: 'Import Contacts',
     contactsPermissionDenied: 'Permission to access contacts is required',
+    sync: 'Sync',
+    syncing: 'Syncing...',
+    syncSuccess: 'Sync successful',
+    syncError: 'Sync error',
+    lastSync: 'Last sync',
+    syncNever: 'Never',
+    data: 'Data',
+    appearance: 'Appearance',
+    manageBackups: 'Manage Backups',
+    backup: 'Create backups and restore data',
   );
 
   // Spanish translations
@@ -201,6 +233,16 @@ class Translations {
     editTransaction: 'Editar Transacción',
     importContacts: 'Importar Contactos',
     contactsPermissionDenied: 'Se requiere permiso para acceder a los contactos',
+    sync: 'Sincronizar',
+    syncing: 'Sincronizando...',
+    syncSuccess: 'Sincronización exitosa',
+    syncError: 'Error al sincronizar',
+    lastSync: 'Última sincronización',
+    syncNever: 'Nunca',
+    data: 'Datos',
+    appearance: 'Apariencia',
+    manageBackups: 'Gestionar Respaldos',
+    backup: 'Crear respaldos y restaurar datos'
   );
 }
 
@@ -251,6 +293,16 @@ class _SpanishTranslations extends Translations {
     required super.editTransaction,
     required super.importContacts,
     required super.contactsPermissionDenied,
+    required super.sync,
+    required super.syncing,
+    required super.syncSuccess,
+    required super.syncError,
+    required super.lastSync,
+    required super.syncNever,
+    required super.data,
+    required super.appearance,
+    required super.manageBackups,
+    required super.backup,
   });
 
   @override

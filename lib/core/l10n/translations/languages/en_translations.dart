@@ -497,5 +497,23 @@ class EnTranslations extends BaseTranslations {
   String get requiredField => 'This field is required';
 
   @override
+  String get sync => 'Sync';
+
+  @override
+  String get syncing => 'Syncing...';
+
+  @override
+  String get syncSuccess => 'Sync successful';
+
+  @override
+  String get syncError => 'Sync error';
+
+  @override
+  String get lastSync => 'Last sync';
+
+  @override
+  String get syncNever => 'Never';
+
+  @override
   String getText(String key) => key;
 }

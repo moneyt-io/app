@@ -1,4 +1,3 @@
-// lib/presentation/widgets/contact_selection_modal.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as device_contacts;
@@ -30,7 +29,8 @@ class _ContactSelectionModalState extends State<ContactSelectionModal> {
   @override
   void initState() {
     super.initState();
-    _filteredContacts = widget.contacts;
+    _filteredContacts = List.from(widget.contacts)..sort((a, b) => 
+      a.name.toLowerCase().compareTo(b.name.toLowerCase()));
   }
 
   @override
@@ -77,87 +77,71 @@ class _ContactSelectionModalState extends State<ContactSelectionModal> {
 
   @override
   Widget build(BuildContext context) {
-    final translations = context.read<LanguageManager>().translations;
+    final translations = context.watch<LanguageManager>().translations;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final mediaQuery = MediaQuery.of(context);
+    final bottomPadding = mediaQuery.viewInsets.bottom + mediaQuery.padding.bottom;
+    final screenHeight = mediaQuery.size.height;
+    
+    // Calcula el alto dinámicamente
+    final bool isKeyboardOpen = mediaQuery.viewInsets.bottom > 0;
+    final double modalHeight = isKeyboardOpen ? screenHeight * 0.85 : screenHeight * 0.5;
 
-    return Container(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(28),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      height: modalHeight,
+      child: Container(
+        padding: EdgeInsets.only(
+          top: 16,
+          left: 16,
+          right: 16,
+          bottom: bottomPadding + 16,
         ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-            child: Row(
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(28),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Barra de arrastre
+            Center(
+              child: Container(
+                width: 32,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+
+            // Header
+            Row(
               children: [
                 Expanded(
                   child: Text(
                     translations.selectContact,
                     style: textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w500,
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 IconButton(
-                  onPressed: () async {
-                    try {
-                      final permission = await device_contacts.FlutterContacts.requestPermission(readonly: true);
-                      if (!permission) {
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(translations.contactsPermissionDenied),
-                            backgroundColor: colorScheme.error,
-                          ),
-                        );
-                        return;
-                      }
-
-                      final contact = await device_contacts.FlutterContacts.openExternalPick();
-                      if (contact == null || !context.mounted) return;
-
-                      final fullContact = await device_contacts.FlutterContacts.getContact(contact.id);
-                      if (fullContact == null) return;
-
-                      // Crear un nuevo contacto con los datos importados
-                      final newContact = Contact(
-                        id: null,
-                        name: fullContact.displayName,
-                        email: fullContact.emails.isNotEmpty ? fullContact.emails.first.address : null,
-                        phone: fullContact.phones.isNotEmpty 
-                            ? (fullContact.phones.first.normalizedNumber.isNotEmpty 
-                                ? fullContact.phones.first.normalizedNumber 
-                                : fullContact.phones.first.number)
-                            : null,
-                        notes: '',
-                        createdAt: DateTime.now(),
-                        updatedAt: DateTime.now(),
-                      );
-
-                      final createdContact = await widget.createContact(newContact);
-                      if (!context.mounted) return;
-                      
-                      widget.onContactSelected(createdContact);
-                      Navigator.pop(context);
-                    } catch (e) {
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(translations.contactsError),
-                          backgroundColor: colorScheme.error,
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: _pickDeviceContact,
                   icon: Icon(
                     Icons.person_add_alt_1_rounded,
                     color: colorScheme.primary,
@@ -173,19 +157,24 @@ class _ContactSelectionModalState extends State<ContactSelectionModal> {
                 ),
               ],
             ),
-          ),
-          const Divider(height: 1),
+            const SizedBox(height: 16),
 
-          // Barra de búsqueda
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
+            // Barra de búsqueda
+            TextField(
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: translations.searchOrCreateContact,
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(
+                  Icons.search_rounded,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                filled: true,
+                fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: colorScheme.outline,
+                  ),
                 ),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               ),
@@ -196,59 +185,145 @@ class _ContactSelectionModalState extends State<ContactSelectionModal> {
                 }
               },
             ),
-          ),
+            const SizedBox(height: 16),
 
-          // Lista de contactos
-          Expanded(
-            child: ListView.separated(
-              padding: EdgeInsets.zero,
-              itemCount: _filteredContacts.isEmpty && _searchQuery.isNotEmpty
-                  ? 1 // Mostrar opción de crear contacto
-                  : _filteredContacts.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                if (_filteredContacts.isEmpty && _searchQuery.isNotEmpty) {
-                  // Mostrar opción para crear nuevo contacto
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: colorScheme.primaryContainer,
-                      child: Icon(
-                        Icons.add,
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                    title: Text(
-                      '${translations.createContact}: $_searchQuery',
-                      style: textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                    onTap: () => _createAndSelectContact(_searchQuery),
-                  );
-                }
-
-                final contact = _filteredContacts[index];
-                return ListTile(
-                  leading: const CircleAvatar(
-                    child: Icon(Icons.person),
-                  ),
-                  title: Text(contact.name),
-                  subtitle: contact.email != null || contact.phone != null
-                      ? Text([
-                          if (contact.email != null) contact.email,
-                          if (contact.phone != null) contact.phone,
-                        ].where((e) => e != null).join(' • '))
-                      : null,
-                  onTap: () {
-                    Navigator.pop(context);
-                    widget.onContactSelected(contact);
-                  },
-                );
-              },
+            // Lista de contactos
+            Flexible(
+              child: ListView.builder(
+                itemCount: _filteredContacts.isEmpty && _searchQuery.isNotEmpty
+                    ? 1
+                    : _filteredContacts.length,
+                itemBuilder: (context, index) {
+                  if (_filteredContacts.isEmpty && _searchQuery.isNotEmpty) {
+                    return _buildCreateContactCard(_searchQuery);
+                  }
+                  return _buildContactCard(_filteredContacts[index]);
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildContactCard(Contact contact) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Card(
+      elevation: 0,
+      color: colorScheme.surfaceVariant.withOpacity(0.3),
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: colorScheme.primaryContainer,
+          child: Text(
+            contact.name[0].toUpperCase(),
+            style: TextStyle(
+              color: colorScheme.onPrimaryContainer,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        title: Text(
+          contact.name,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: contact.email != null || contact.phone != null
+            ? Text(
+                [
+                  if (contact.email != null) contact.email,
+                  if (contact.phone != null) contact.phone,
+                ].where((e) => e != null).join(' • '),
+                style: TextStyle(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              )
+            : null,
+        onTap: () {
+          Navigator.pop(context);
+          widget.onContactSelected(contact);
+        },
+      ),
+    );
+  }
+
+  Widget _buildCreateContactCard(String name) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final translations = context.read<LanguageManager>().translations;
+
+    return Card(
+      elevation: 0,
+      color: colorScheme.surfaceVariant.withOpacity(0.3),
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: colorScheme.primaryContainer,
+          child: Icon(
+            Icons.add,
+            color: colorScheme.onPrimaryContainer,
+          ),
+        ),
+        title: Text(
+          '${translations.createContact}: $name',
+          style: TextStyle(
+            color: colorScheme.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onTap: () => _createAndSelectContact(name),
+      ),
+    );
+  }
+
+  Future<void> _pickDeviceContact() async {
+    try {
+      final permission = await device_contacts.FlutterContacts.requestPermission(readonly: true);
+      if (!permission) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.read<LanguageManager>().translations.contactsPermissionDenied),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+        return;
+      }
+
+      final contact = await device_contacts.FlutterContacts.openExternalPick();
+      if (contact == null || !context.mounted) return;
+
+      final fullContact = await device_contacts.FlutterContacts.getContact(contact.id);
+      if (fullContact == null) return;
+
+      // Crear un nuevo contacto con los datos importados
+      final newContact = Contact(
+        id: null,
+        name: fullContact.displayName,
+        email: fullContact.emails.isNotEmpty ? fullContact.emails.first.address : null,
+        phone: fullContact.phones.isNotEmpty 
+            ? (fullContact.phones.first.normalizedNumber.isNotEmpty 
+                ? fullContact.phones.first.normalizedNumber 
+                : fullContact.phones.first.number)
+            : null,
+        notes: '',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      final createdContact = await widget.createContact(newContact);
+      if (!context.mounted) return;
+      
+      widget.onContactSelected(createdContact);
+      Navigator.pop(context);
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.read<LanguageManager>().translations.contactsError),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 }

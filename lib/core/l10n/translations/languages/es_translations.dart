@@ -592,4 +592,22 @@ class EsTranslations extends BaseTranslations {
 
   @override
   String get requiredField => 'Este campo es requerido';
+
+  @override
+  String get sync => 'Sincronizar';
+
+  @override
+  String get syncing => 'Sincronizando...';
+
+  @override
+  String get syncSuccess => 'Sincronización exitosa';
+
+  @override
+  String get syncError => 'Error al sincronizar';
+
+  @override
+  String get lastSync => 'Última sincronización';
+
+  @override
+  String get syncNever => 'Nunca';
 }

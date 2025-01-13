@@ -1,4 +1,4 @@
-import 'package:moneyt_pfm/domain/entities/contact.dart';
+import '../entities/contact.dart';
 
 abstract class ContactRepository {
   Future<List<Contact>> getAllContacts();
@@ -8,4 +8,5 @@ abstract class ContactRepository {
   Future<Contact> createContact(Contact contact);
   Future<bool> updateContact(Contact contact);
   Future<bool> deleteContact(int id);
+  Future<Contact?> findExistingContact(String? email, String? phone);
 }

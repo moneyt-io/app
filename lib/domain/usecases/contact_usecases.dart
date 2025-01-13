@@ -23,7 +23,36 @@ class CreateContact {
 
   CreateContact(this.repository);
 
-  Future<Contact> call(Contact contact) => repository.createContact(contact);
+  Future<Contact> call(Contact contact) async {
+    // Buscar si existe un contacto con el mismo email o teléfono
+    final existingContact = await repository.findExistingContact(
+      contact.email,
+      contact.phone,
+    );
+
+    if (existingContact != null) {
+      // Crear una nueva versión del contacto existente con los datos actualizados
+      final updatedContact = Contact(
+        id: existingContact.id,
+        name: contact.name,
+        email: contact.email,
+        phone: contact.phone,
+        notes: contact.notes,
+        createdAt: existingContact.createdAt,
+        updatedAt: DateTime.now(),
+      );
+      
+      // Actualizar y devolver el contacto actualizado
+      final success = await repository.updateContact(updatedContact);
+      if (!success) {
+        throw Exception('Failed to update existing contact');
+      }
+      return updatedContact;
+    }
+
+    // Si no existe, crear nuevo contacto
+    return repository.createContact(contact);
+  }
 }
 
 class UpdateContact {

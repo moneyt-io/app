@@ -11,6 +11,7 @@ import '../../presentation/providers/drawer_provider.dart';
 
 class HomeTransactionsWidget extends StatelessWidget {
   final TransactionUseCases transactionUseCases;
+  final int maxTransactions = 5; // Nueva constante
 
   const HomeTransactionsWidget({
     Key? key,
@@ -53,8 +54,12 @@ class HomeTransactionsWidget extends StatelessWidget {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                final transactions = snapshot.data!;
-                final recentTransactions = transactions.take(5).toList();
+                // Crear una lista mutable y ordenarla
+                final sortedTransactions = List<TransactionEntity>.from(snapshot.data!)
+                  ..sort((a, b) => b.transactionDate.compareTo(a.transactionDate));
+                
+                // Tomar los primeros elementos
+                final recentTransactions = sortedTransactions.take(maxTransactions).toList();
 
                 return Card(
                   child: Padding(

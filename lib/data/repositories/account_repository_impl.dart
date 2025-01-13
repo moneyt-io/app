@@ -35,24 +35,8 @@ class AccountRepositoryImpl implements AccountRepository {
 
   @override
   Future<void> createAccount(AccountEntity account) async {
-    try {
-      if (account is AccountModel) {
-        print('Creando cuenta: ${account.name}');
-        final id = await _accountDao.insertAccount(account.toCompanion());
-        print('Cuenta creada con ID: $id');
-        
-        _syncManager.notifyChange(
-          AccountSyncEvent(
-            accountId: id,
-            operation: SyncOperation.create,
-          ),
-        );
-        print('Evento de sincronización enviado');
-      }
-    } catch (e, stackTrace) {
-      print('Error creando cuenta: $e');
-      print('Stack trace: $stackTrace');
-      rethrow;
+    if (account is AccountModel) {
+      await _accountDao.insertAccount(account.toCompanion());
     }
   }
 
