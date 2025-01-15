@@ -14,6 +14,7 @@ import 'presentation/providers/drawer_provider.dart';
 import 'routes/app_routes.dart';
 import 'firebase_options.dart';
 import 'data/services/sync_service.dart';
+import 'data/services/backup_service.dart'; // Importar BackupService
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -63,6 +64,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => SyncProvider(syncService: getIt<SyncService>()),
+        ),
+        Provider<BackupService>( // Agregar BackupService al MultiProvider
+          create: (_) => getIt<BackupService>(),
         ),
       ],
       child: MyApp(skipWelcome: skipWelcome),

@@ -349,6 +349,24 @@ class EsTranslations extends BaseTranslations {
   String get deleteBackupConfirmation => '¿Está seguro de eliminar este respaldo?';
 
   @override
+  String get backupSettings => 'Configuración de Respaldos';
+
+  @override
+  String get backupDirectory => 'Directorio de Respaldos';
+
+  @override
+  String get changeDirectory => 'Cambiar Directorio';
+
+  @override
+  String get resetDirectory => 'Restablecer Directorio';
+
+  @override
+  String get backupDirectoryUpdated => 'Directorio de respaldo actualizado';
+
+  @override
+  String get backupDirectoryReset => 'Directorio de respaldo restablecido a predeterminado';
+
+  @override
   String get settings => 'Configuración';
 
   @override
@@ -610,4 +628,7 @@ class EsTranslations extends BaseTranslations {
 
   @override
   String get syncNever => 'Nunca';
+
+  @override
+  String get restore => 'Restaurar';
 }

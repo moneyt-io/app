@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
-import 'package:path/path.dart' as p;
 import 'package:file_picker/file_picker.dart';
+import 'package:intl/intl.dart'; // Agregar este import
 import '../../domain/repositories/backup_repository.dart';
 import '../../data/services/backup_service.dart';
 import '../../core/l10n/language_manager.dart';
@@ -16,8 +16,8 @@ class BackupScreen extends StatefulWidget {
 }
 
 class _BackupScreenState extends State<BackupScreen> {
+  late final BackupService _backupService;
   late Future<String> _backupPathFuture;
-  late BackupService _backupService;
   late Future<List<FileSystemEntity>> _backupsFuture;
 
   @override
@@ -34,37 +34,78 @@ class _BackupScreenState extends State<BackupScreen> {
     });
   }
 
-  Future<void> _selectBackupPath() async {
-    final translations = context.read<LanguageManager>().translations;
-    
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
-      dialogTitle: translations.selectBackupDirectory,
-    );
-
-    if (selectedDirectory != null && context.mounted) {
-      await _backupService.setBackupPath(selectedDirectory);
-      setState(() {
-        _backupPathFuture = _backupService.currentBackupPath;
-      });
-      if (context.mounted) {
+  Future<void> _handleDirectoryChange() async {
+    try {
+      final String? selectedPath = await FilePicker.platform.getDirectoryPath();
+      if (selectedPath != null) {
+        await _backupService.setBackupPath(selectedPath);
+        if (mounted) {
+          setState(() {});
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.read<LanguageManager>().translations.backupDirectoryUpdated)),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(translations.backupDirectoryUpdated)),
+          SnackBar(content: Text(e.toString())),
         );
       }
     }
   }
 
-  Future<void> _resetBackupPath() async {
-    final translations = context.read<LanguageManager>().translations;
-    
-    await _backupService.resetBackupPath();
-    setState(() {
-      _backupPathFuture = _backupService.currentBackupPath;
-    });
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(translations.backupDirectoryReset)),
-      );
+  Future<void> _handleResetDirectory() async {
+    try {
+      await _backupService.resetBackupPath();
+      if (mounted) {
+        setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.read<LanguageManager>().translations.backupDirectoryReset)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
+  Future<void> _restoreBackup(File backupFile) async {
+    try {
+      await _backupService.restoreBackup(backupFile);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.read<LanguageManager>().translations.backupRestored)),
+        );
+        _refreshBackups();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteBackup(File backupFile) async {
+    try {
+      await _backupService.deleteBackup(backupFile);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.read<LanguageManager>().translations.backupDeleted)),
+        );
+        _refreshBackups();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
     }
   }
 
@@ -131,13 +172,13 @@ class _BackupScreenState extends State<BackupScreen> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 TextButton.icon(
-                                  onPressed: _resetBackupPath,
+                                  onPressed: _handleResetDirectory,
                                   icon: const Icon(Icons.restore),
                                   label: Text(translations.resetDirectory),
                                 ),
                                 const SizedBox(width: 8),
                                 FilledButton.icon(
-                                  onPressed: _selectBackupPath,
+                                  onPressed: _handleDirectoryChange,
                                   icon: const Icon(Icons.folder),
                                   label: Text(translations.changeDirectory),
                                 ),
@@ -197,184 +238,160 @@ class _BackupScreenState extends State<BackupScreen> {
 
                 // Lista de respaldos
                 Expanded(
-                  child: FutureBuilder<List<FileSystemEntity>>(
-                    future: _backupsFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.backup_outlined,
-                                size: 64,
-                                color: colorScheme.onSurface.withOpacity(0.5),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                translations.noBackups,
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      color: colorScheme.onSurface.withOpacity(0.5),
-                                    ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-
-                      final backups = snapshot.data!;
-                      return ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: backups.length,
-                        itemBuilder: (context, index) {
-                          final backup = backups[index];
-                          final fileName = p.basename(backup.path);
-                          return Card(
-                            child: ListTile(
-                              title: Text(
-                                fileName,
-                                style: Theme.of(context).textTheme.bodyLarge,
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.restore,
-                                      color: colorScheme.primary,
-                                    ),
-                                    onPressed: () async {
-                                      final confirm = await showDialog<bool>(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                          title: Text(translations.restoreBackup),
-                                          content: Text(translations.restoreBackupConfirmation),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(context, false),
-                                              child: Text(translations.cancel),
-                                            ),
-                                            FilledButton(
-                                              onPressed: () => Navigator.pop(context, true),
-                                              child: Text(translations.restoreBackup),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-
-                                      if (confirm == true && context.mounted) {
-                                        try {
-                                          await backupRepository.restoreBackup(backup.path);
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text(translations.backupRestored)),
-                                            );
-                                            Navigator.pop(context);
-                                          }
-                                        } catch (e) {
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text(translations.backupError)),
-                                            );
-                                          }
-                                        }
-                                      }
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.share,
-                                      color: colorScheme.primary,
-                                    ),
-                                    onPressed: () async {
-                                      final destinationPath = await FilePicker.platform.getDirectoryPath(
-                                        dialogTitle: translations.selectExportDirectory,
-                                      );
-
-                                      if (destinationPath != null && context.mounted) {
-                                        try {
-                                          final exportedPath = await _backupService.exportBackup(
-                                            backup.path,
-                                            destinationPath,
-                                          );
-                                          if (exportedPath != null && context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text(translations.backupExported)),
-                                            );
-                                          }
-                                        } catch (e) {
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text(translations.backupError)),
-                                            );
-                                          }
-                                        }
-                                      }
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.delete_outline,
-                                      color: colorScheme.error,
-                                    ),
-                                    onPressed: () async {
-                                      final confirm = await showDialog<bool>(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                          title: Text(translations.deleteBackup),
-                                          content: Text(translations.deleteBackupConfirmation),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(context, false),
-                                              child: Text(translations.cancel),
-                                            ),
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(context, true),
-                                              style: TextButton.styleFrom(
-                                                foregroundColor: colorScheme.error,
-                                              ),
-                                              child: Text(translations.delete),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-
-                                      if (confirm == true && context.mounted) {
-                                        try {
-                                          await backupRepository.deleteBackup(backup.path);
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text(translations.backupDeleted)),
-                                            );
-                                            _refreshBackups();
-                                          }
-                                        } catch (e) {
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text(translations.backupError)),
-                                            );
-                                          }
-                                        }
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
+                  child: _buildBackupList(context),
                 ),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildBackupList(BuildContext context) {
+    return FutureBuilder<List<File>>(
+      future: context.read<BackupService>().listBackups(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        final backups = snapshot.data ?? [];
+        if (backups.isEmpty) {
+          return Center(child: Text(context.read<LanguageManager>().translations.noBackups));
+        }
+
+        return ListView.builder(
+          itemCount: backups.length,
+          itemBuilder: (context, index) {
+            final backup = backups[index];
+            final fileName = backup.path.split('/').last;
+            final fileStats = backup.statSync();
+            
+            return ListTile(
+              title: Text(fileName),
+              subtitle: Text(
+                DateFormat('yyyy-MM-dd HH:mm:ss').format(fileStats.modified),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () => _handleShareBackup(context, backup),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.restore),
+                    onPressed: () => _showRestoreDialog(context, backup),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () => _showDeleteDialog(context, backup),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _handleShareBackup(BuildContext context, File backup) async {
+    try {
+      await context.read<BackupService>().shareBackup(backup);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleRestoreBackup(BuildContext context, File backup) async {
+    try {
+      await context.read<BackupService>().restoreBackup(backup);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.read<LanguageManager>().translations.backupRestored)),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleDeleteBackup(BuildContext context, File backup) async {
+    try {
+      await context.read<BackupService>().deleteBackup(backup);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.read<LanguageManager>().translations.backupDeleted)),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
+  Future<void> _showRestoreDialog(BuildContext context, File backup) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.read<LanguageManager>().translations.restoreBackup),
+        content: Text(context.read<LanguageManager>().translations.restoreBackupConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(context.read<LanguageManager>().translations.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _handleRestoreBackup(context, backup);
+            },
+            child: Text(context.read<LanguageManager>().translations.restore),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showDeleteDialog(BuildContext context, File backup) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.read<LanguageManager>().translations.deleteBackup),
+        content: Text(context.read<LanguageManager>().translations.deleteBackupConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(context.read<LanguageManager>().translations.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _handleDeleteBackup(context, backup);
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: Text(context.read<LanguageManager>().translations.delete),
+          ),
+        ],
       ),
     );
   }

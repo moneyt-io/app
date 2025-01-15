@@ -18,6 +18,7 @@ abstract class BaseTranslations {
   String get notFound => 'Not Found';
   String get required => 'This field is required';
   String get invalidAmount => 'Invalid amount';
+  String get restore => 'Restore';
 
   // Login
   String get signIn => 'Sign In';
@@ -307,6 +308,7 @@ abstract class BaseTranslations {
       notFound;
       required;
       invalidAmount;
+      restore;
 
       // Auth errors
       invalidCredentials;

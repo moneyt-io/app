@@ -516,4 +516,62 @@ class EnTranslations extends BaseTranslations {
 
   @override
   String getText(String key) => key;
+
+  // Backup related
+  @override
+  String get backup => 'Backup';
+
+  @override
+  String get backups => 'Backups';
+
+  @override
+  String get createBackup => 'Create Backup';
+
+  @override
+  String get restoreBackup => 'Restore Backup';
+
+  @override
+  String get deleteBackup => 'Delete Backup';
+
+  @override
+  String get noBackups => 'No backups available';
+
+  @override
+  String get backupCreated => 'Backup created successfully';
+
+  @override
+  String get backupRestored => 'Backup restored successfully';
+
+  @override
+  String get backupDeleted => 'Backup deleted successfully';
+
+  @override
+  String get backupError => 'Error during backup operation';
+
+  @override
+  String get restoreBackupConfirmation => 'Are you sure you want to restore this backup? Current data will be replaced.';
+
+  @override
+  String get deleteBackupConfirmation => 'Are you sure you want to delete this backup?';
+
+  @override
+  String get backupSettings => 'Backup Settings';
+
+  @override
+  String get backupDirectory => 'Backup Directory';
+
+  @override
+  String get changeDirectory => 'Change Directory';
+
+  @override
+  String get resetDirectory => 'Reset Directory';
+
+  @override
+  String get backupDirectoryUpdated => 'Backup directory updated';
+
+  @override
+  String get backupDirectoryReset => 'Backup directory reset to default';
+
+  @override
+  String get restore => 'Restore';
 }

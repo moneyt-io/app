@@ -47,6 +47,12 @@ class AppDatabase extends _$AppDatabase {
   TransactionDao get transactionDao => TransactionDao(this);
   ContactDao get contactDao => ContactDao(this);
 
+  Future<String> getDatabasePath() async {
+    final dbFolder = await getApplicationDocumentsDirectory();
+    final file = File(p.join(dbFolder.path, 'app_database.sqlite'));
+    return file.path;
+  }
+
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (Migrator m) async {

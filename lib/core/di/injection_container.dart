@@ -6,7 +6,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/local/database.dart';
 import '../../data/repositories/auth_repository_impl.dart';
-import '../../data/repositories/backup_repository_impl.dart';
 import '../../data/repositories/category_repository_impl.dart';
 import '../../data/repositories/account_repository_impl.dart';
 import '../../data/repositories/transaction_repository_impl.dart';
@@ -31,6 +30,7 @@ import '../../domain/usecases/transaction_usecases.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../../presentation/providers/drawer_provider.dart';
 import '../l10n/language_manager.dart'; // Import LanguageManager
+import '../../data/repositories/backup_repository_impl.dart' as backup_impl;
 
 final getIt = GetIt.instance;
 
@@ -59,7 +59,19 @@ Future<void> initializeDependencies() async {
   getIt.registerSingleton<TransactionDao>(database.transactionDao);
   getIt.registerSingleton<ContactDao>(database.contactDao);
 
-  // Services
+  // First register BackupRepository
+  getIt.registerSingleton<BackupRepository>(
+    backup_impl.BackupRepositoryImpl(database: getIt<AppDatabase>()),
+  );
+
+  // Then register services that depend on repositories
+  getIt.registerLazySingleton<BackupService>(
+    () => BackupService(
+      getIt<BackupRepository>(),
+      getIt<SharedPreferences>(),
+    ),
+  );
+
   getIt.registerLazySingleton<SyncService>(
     () => SyncService(
       auth: getIt<FirebaseAuth>(),
@@ -70,13 +82,6 @@ Future<void> initializeDependencies() async {
 
   getIt.registerLazySingleton<SyncManager>(
     () => SyncManager(getIt<SyncService>()),
-  );
-
-  getIt.registerLazySingleton<BackupService>(
-    () => BackupService(
-      database: getIt<AppDatabase>(),
-      prefs: getIt<SharedPreferences>(),
-    ),
   );
 
   // Repositories
@@ -97,10 +102,6 @@ Future<void> initializeDependencies() async {
   
   getIt.registerSingleton<ContactRepository>(
     ContactRepositoryImpl(getIt<ContactDao>()),
-  );
-
-  getIt.registerSingleton<BackupRepository>(
-    BackupRepositoryImpl(getIt<BackupService>()),
   );
 
   getIt.registerSingleton<AuthRepository>(
