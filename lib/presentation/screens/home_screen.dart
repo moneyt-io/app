@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final translations = context.watch<LanguageManager>().translations;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-
+    
     return WillPopScope(
       onWillPop: () => NavigationService.handleWillPop(context),
       child: Scaffold(

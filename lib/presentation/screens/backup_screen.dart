@@ -18,7 +18,7 @@ class BackupScreen extends StatefulWidget {
 class _BackupScreenState extends State<BackupScreen> {
   late final BackupService _backupService;
   late Future<String> _backupPathFuture;
-  late Future<List<FileSystemEntity>> _backupsFuture;
+  late Future<List<File>> _backupsFuture;
 
   @override
   void initState() {
@@ -30,7 +30,7 @@ class _BackupScreenState extends State<BackupScreen> {
 
   void _refreshBackups() {
     setState(() {
-      _backupsFuture = context.read<BackupRepository>().listBackups();
+      _backupsFuture = _backupService.listBackups();
     });
   }
 
@@ -238,66 +238,62 @@ class _BackupScreenState extends State<BackupScreen> {
 
                 // Lista de respaldos
                 Expanded(
-                  child: _buildBackupList(context),
+                  child: FutureBuilder<List<File>>(
+                    future: _backupsFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+
+                      final backups = snapshot.data ?? [];
+                      if (backups.isEmpty) {
+                        return Center(child: Text(context.read<LanguageManager>().translations.noBackups));
+                      }
+
+                      return ListView.builder(
+                        itemCount: backups.length,
+                        itemBuilder: (context, index) {
+                          final backup = backups[index];
+                          final fileName = backup.path.split('/').last;
+                          final fileStats = backup.statSync();
+                          
+                          return ListTile(
+                            title: Text(fileName),
+                            subtitle: Text(
+                              DateFormat('yyyy-MM-dd HH:mm:ss').format(fileStats.modified),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.share),
+                                  onPressed: () => _handleShareBackup(context, backup),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.restore),
+                                  onPressed: () => _showRestoreDialog(context, backup),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () => _showDeleteDialog(context, backup),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
           );
         },
       ),
-    );
-  }
-
-  Widget _buildBackupList(BuildContext context) {
-    return FutureBuilder<List<File>>(
-      future: context.read<BackupService>().listBackups(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-
-        final backups = snapshot.data ?? [];
-        if (backups.isEmpty) {
-          return Center(child: Text(context.read<LanguageManager>().translations.noBackups));
-        }
-
-        return ListView.builder(
-          itemCount: backups.length,
-          itemBuilder: (context, index) {
-            final backup = backups[index];
-            final fileName = backup.path.split('/').last;
-            final fileStats = backup.statSync();
-            
-            return ListTile(
-              title: Text(fileName),
-              subtitle: Text(
-                DateFormat('yyyy-MM-dd HH:mm:ss').format(fileStats.modified),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.share),
-                    onPressed: () => _handleShareBackup(context, backup),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.restore),
-                    onPressed: () => _showRestoreDialog(context, backup),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => _showDeleteDialog(context, backup),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
     );
   }
 

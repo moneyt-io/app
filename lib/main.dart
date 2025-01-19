@@ -17,6 +17,8 @@ import 'data/services/sync_service.dart';
 import 'data/services/backup_service.dart'; // Importar BackupService
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +35,15 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final bool hasCompletedOnboarding = prefs.getBool('has_completed_onboarding') ?? false;
   
+  // Registrar la última vez que el usuario abrió la app
+  final analytics = FirebaseAnalytics.instance;
+  await analytics.logEvent(
+    name: 'app_open',
+    parameters: <String, Object>{
+      'last_opened': DateTime.now().toIso8601String(),
+    },
+  );
+
   // Si el usuario está autenticado o ha completado el onboarding, no mostrar la pantalla de bienvenida
   final authProvider = getIt<AppAuthProvider>();
   final bool skipWelcome = hasCompletedOnboarding || authProvider.isAuthenticated;
@@ -68,6 +79,9 @@ void main() async {
         Provider<BackupService>( // Agregar BackupService al MultiProvider
           create: (_) => getIt<BackupService>(),
         ),
+        Provider<FirebaseAnalytics>(
+          create: (_) => FirebaseAnalytics.instance,
+        ),
       ],
       child: MyApp(skipWelcome: skipWelcome),
     ),
@@ -86,15 +100,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final languageManager = context.watch<LanguageManager>();
-    
+    final analytics = context.read<FirebaseAnalytics>();
+
     return MaterialApp(
       title: 'MoneyT',
       theme: themeProvider.lightTheme,
       darkTheme: themeProvider.darkTheme,
       themeMode: themeProvider.themeMode,
+      initialRoute: skipWelcome ? AppRoutes.home : AppRoutes.welcome,
       locale: Locale(languageManager.currentLanguage.code),
       onGenerateRoute: AppRoutes.onGenerateRoute,
-      initialRoute: skipWelcome ? AppRoutes.home : AppRoutes.welcome,
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: analytics),
+      ],
     );
   }
 }
