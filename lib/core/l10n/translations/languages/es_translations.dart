@@ -390,6 +390,64 @@ class EsTranslations extends BaseTranslations {
   @override
   String get darkModeDescription => 'Activar modo oscuro para mejor visualización nocturna';
 
+  @override
+  String get automaticBackups => 'Copias de seguridad automáticas';
+
+  @override
+  String get enableAutomaticBackups => 'Habilitar copias automáticas';
+
+  @override
+  String get backupFrequency => 'Frecuencia de respaldo';
+
+  @override
+  String get every => 'Cada';
+
+  @override
+  String get hours => 'horas';
+
+  @override
+  String get saveSettings => 'Guardar configuración';
+
+  @override
+  String get settingsSaved => 'Configuración guardada exitosamente';
+
+  String get settingsError => 'Error al guardar la configuración';
+
+  String get lastBackup => 'Último respaldo';
+
+  String get nextBackup => 'Próximo respaldo';
+
+  @override
+  String get importBackup => 'Importar Respaldo';
+
+  String get fileReadError => 'No se pudo leer el archivo';
+
+  String get invalidFileFormat => 'Formato de archivo inválido. Por favor use archivos .db, .sqlite, o .backup';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get backupTime => 'Hora de Respaldo';
+
+  @override
+  String get selectBackupDirectory => 'Seleccionar Directorio de Respaldo';
+
+  @override
+  String get selectExportDirectory => 'Seleccionar Directorio de Exportación';
+
+  @override
+  String get backupExported => 'Respaldo exportado exitosamente';
+
+  @override
+  String get retentionDays => 'Días de Retención';
+
+  @override
+  String get days => 'días';
+
   // About and Social
   @override
   String get webSite => 'Sitio Web';
@@ -631,4 +689,7 @@ class EsTranslations extends BaseTranslations {
 
   @override
   String get restore => 'Restaurar';
+
+  @override
+  String get notSet => 'No Establecido';
 }

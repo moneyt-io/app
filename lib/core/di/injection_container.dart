@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:moneyt_pfm/presentation/providers/backup_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/local/database.dart';
 import '../../data/repositories/auth_repository_impl.dart';
@@ -31,6 +32,8 @@ import '../../presentation/providers/auth_provider.dart';
 import '../../presentation/providers/drawer_provider.dart';
 import '../l10n/language_manager.dart'; // Import LanguageManager
 import '../../data/repositories/backup_repository_impl.dart' as backup_impl;
+import '../../data/services/automatic_backup_service.dart';
+import '../../data/services/notification_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -83,6 +86,23 @@ Future<void> initializeDependencies() async {
   getIt.registerLazySingleton<SyncManager>(
     () => SyncManager(getIt<SyncService>()),
   );
+
+  // Register NotificationService
+  getIt.registerLazySingleton<NotificationService>(
+    () => NotificationService(),
+  );
+
+  // Register AutomaticBackupService
+  getIt.registerLazySingleton<AutomaticBackupService>(
+    () => AutomaticBackupService(
+      backupRepository: getIt<BackupRepository>(),
+      prefs: getIt<SharedPreferences>(),
+      notificationService: getIt<NotificationService>(),
+    ),
+  );
+
+  // Initialize AutomaticBackupService
+  await getIt<AutomaticBackupService>().initialize();
 
   // Repositories
   getIt.registerSingleton<TransactionRepository>(
@@ -193,6 +213,11 @@ Future<void> initializeDependencies() async {
       // Transactions
       transactionUseCases: getIt<TransactionUseCases>(),
     ),
+  );
+
+  // Register BackupProvider
+  getIt.registerLazySingleton<BackupProvider>(
+    () => BackupProvider(getIt<BackupRepository>()),
   );
 }
 

@@ -409,6 +409,9 @@ class EnTranslations extends BaseTranslations {
 
   String get darkThemeDescription => 'Enable dark mode for a better night experience';
 
+  @override
+  String get settingsSaved => 'Settings saved successfully';
+
   // Form Fields and Sections
   @override
   String get name => 'Name';
@@ -574,4 +577,58 @@ class EnTranslations extends BaseTranslations {
 
   @override
   String get restore => 'Restore';
+
+  @override
+  String get automaticBackups => 'Automatic Backups';
+
+  @override
+  String get enableAutomaticBackups => 'Enable Automatic Backups';
+  
+  @override
+  String get backupFrequency => 'Backup Frequency';
+  
+  @override
+  String get every => 'Every';
+  
+  @override
+  String get hours => 'hours';
+  
+  @override
+  String get saveSettings => 'Save Settings';
+
+  @override
+  String get importBackup => 'Import Backup';
+  
+  @override
+  String get fileReadError => 'Could not read the file';
+
+  @override
+  String get invalidFileFormat => 'Invalid file format. Please use .db, .sqlite, or .backup files';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get backupTime => 'Backup Time';
+
+  @override
+  String get selectBackupDirectory => 'Select Backup Directory';
+
+  @override
+  String get selectExportDirectory => 'Select Export Directory';
+
+  @override
+  String get backupExported => 'Backup exported successfully';
+
+  @override
+  String get notSet => 'Not Set';
+
+  @override
+  String get retentionDays => 'Retention Days';
+
+  @override
+  String get days => 'days';
 }

@@ -88,23 +88,25 @@ class _ContactScreenState extends State<ContactScreen> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(translations.deleteContactTitle),
-        content: Text(translations.deleteContactMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(translations.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(
-              foregroundColor: colorScheme.error,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(translations.deleteContactTitle),
+          content: Text(translations.deleteContactMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(translations.cancel),
             ),
-            child: Text(translations.delete),
-          ),
-        ],
-      ),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              style: TextButton.styleFrom(
+                foregroundColor: colorScheme.error,
+              ),
+              child: Text(translations.delete),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed == true && mounted) {

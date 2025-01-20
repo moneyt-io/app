@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:injectable/injectable.dart';
 import '../../domain/repositories/backup_repository.dart';
 import 'package:path_provider/path_provider.dart';
@@ -42,13 +43,28 @@ class BackupService {
     }
   }
 
-  Future<bool> importBackup() async {
-    final file = await _repository.importBackup();
-    if (file != null) {
-      await _repository.restoreBackup(file);
-      return true;
+  Future<void> importBackup({
+    required Uint8List bytes, 
+    required String fileName,
+  }) async {
+    try {
+      // Crear un archivo temporal con el nombre original
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/$fileName');
+      
+      // Escribir los bytes al archivo temporal
+      await tempFile.writeAsBytes(bytes);
+      
+      // Realizar la restauración usando el archivo temporal
+      await _repository.restoreBackup(tempFile);
+      
+      // Limpiar el archivo temporal
+      if (await tempFile.exists()) {
+        await tempFile.delete();
+      }
+    } catch (e) {
+      throw Exception('Error al importar el respaldo: $e');
     }
-    return false;
   }
 
   Future<List<File>> listBackups() => _repository.listBackups();

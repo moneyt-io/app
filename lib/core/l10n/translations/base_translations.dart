@@ -260,6 +260,13 @@ abstract class BaseTranslations {
   String get noBackups => 'No backups available';
   String get restoreBackupConfirmation => 'Are you sure you want to restore this backup? Current data will be replaced.';
   String get deleteBackupConfirmation => 'Are you sure you want to delete this backup?';
+  String get importBackup => 'Import Backup';
+  String get backupTime;  // Nueva clave de traducción
+  String get fileReadError;  // Nueva clave de traducción
+  String get invalidFileFormat;  // Nueva clave de traducción
+  String get notSet;  // Nueva clave de traducción
+  String get retentionDays;  // Nueva clave de traducción
+  String get days;  // Nueva clave de traducción
 
   // Database and Settings
   String get data => 'Database';
@@ -521,6 +528,13 @@ abstract class BaseTranslations {
       noBackups;
       restoreBackupConfirmation;
       deleteBackupConfirmation;
+      importBackup;
+      backupTime;  // Nueva clave de traducción
+      fileReadError;  // Nueva clave de traducción
+      invalidFileFormat;  // Nueva clave de traducción
+      notSet;  // Nueva clave de traducción
+      retentionDays;  // Nueva clave de traducción
+      days;  // Nueva clave de traducción
 
       // Database and Settings
       data;
@@ -539,4 +553,12 @@ abstract class BaseTranslations {
       return false;
     }
   }
+
+  String get settingsSaved;
+  String get automaticBackups;
+  String get enableAutomaticBackups;
+  String get backupFrequency;
+  String get every;
+  String get hours;
+  String get saveSettings;
 }
