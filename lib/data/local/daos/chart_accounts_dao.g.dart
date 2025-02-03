@@ -1,11 +1,9 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'category_dao.dart';
+part of 'chart_accounts_dao.dart';
 
 // ignore_for_file: type=lint
-mixin _$CategoryDaoMixin on DatabaseAccessor<AppDatabase> {
-  $DocumentTypesTable get documentTypes => attachedDatabase.documentTypes;
+mixin _$ChartAccountsDaoMixin on DatabaseAccessor<AppDatabase> {
   $AccountingTypesTable get accountingTypes => attachedDatabase.accountingTypes;
   $ChartAccountsTable get chartAccounts => attachedDatabase.chartAccounts;
-  $CategoriesTable get categories => attachedDatabase.categories;
 }

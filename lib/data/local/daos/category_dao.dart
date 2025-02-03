@@ -15,17 +15,14 @@ class CategoryDao extends DatabaseAccessor<AppDatabase> with _$CategoryDaoMixin 
   Future<Category> getCategoryById(int id) =>
       (select(categories)..where((c) => c.id.equals(id))).getSingle();
 
-  Future<int> insertCategory(CategoriesCompanion category) =>
+  Future<int> insertCategory(Category category) =>
       into(categories).insert(category);
 
-  Future<bool> updateCategory(CategoriesCompanion category) =>
+  Future<bool> updateCategory(Category category) =>
       update(categories).replace(category);
 
   Future<int> deleteCategory(int id) =>
       (delete(categories)..where((c) => c.id.equals(id))).go();
-
-  Future<void> upsertCategory(CategoriesCompanion category) =>
-      into(categories).insertOnConflictUpdate(category);
 
   Future<Category?> getCategoryByName(String name) =>
       (select(categories)..where((c) => c.name.equals(name))).getSingleOrNull();

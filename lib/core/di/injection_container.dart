@@ -133,6 +133,13 @@ Future<void> initializeDependencies() async {
     ),
   );
 
+  // Chart Accounts
+  getIt.registerLazySingleton<ChartAccountsRepository>(
+    () => ChartAccountsRepositoryImpl(
+      getIt<AppDatabase>().chartAccountsDao,
+    ),
+  );
+
   // Use Cases
   // Transactions
   getIt.registerSingleton<TransactionUseCases>(

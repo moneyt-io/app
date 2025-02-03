@@ -1,53 +1,90 @@
-## Resumen del Proyecto
+========================================================================
+                        MoneyT - Contexto Unificado
+========================================================================
 
-### Descripción General
-El proyecto es una aplicación de gestión financiera personal llamada "MoneyT". La aplicación permite a los usuarios organizar y realizar un seguimiento de sus finanzas, incluyendo ingresos, gastos, transferencias y gestión de contactos.
+1. DESCRIPCIÓN GENERAL
+----------------------
+MoneyT es una aplicación de gestión financiera personal desarrollada en Flutter. La app tiene dos grandes enfoques:
 
-### Estructura del Proyecto
-El proyecto está estructurado en varias carpetas y archivos, cada uno con una responsabilidad específica. A continuación se presenta una descripción de las carpetas y algunos archivos clave:
+a) Funcionalidades tradicionales de finanzas personales:
+   - Registro y seguimiento de ingresos, gastos, transferencias y contactos.
+   - Interfaz sencilla y fácil de usar, pensada para el usuario cotidiano.
 
-- **lib/**: Contiene el código fuente principal de la aplicación.
-  - **core/**: Contiene la lógica central de la aplicación, incluyendo la gestión de idiomas y eventos.
-    - **l10n/**: Gestión de localización e idiomas.
-    - **events/**: Definición de eventos de sincronización.
-  - **data/**: Contiene los servicios y repositorios para la gestión de datos.
-    - **local/**: Acceso a la base de datos local.
-    - **services/**: Servicios para la inicialización y sincronización de datos.
-  - **domain/**: Contiene las entidades y casos de uso de la aplicación.
-    - **entities/**: Definición de entidades como transacciones y cuentas.
-    - **repositories/**: Interfaces de repositorios para la gestión de datos.
-    - **usecases/**: Casos de uso para la gestión de transacciones.
-  - **presentation/**: Contiene las pantallas y widgets de la interfaz de usuario.
-    - **screens/**: Pantallas principales de la aplicación.
-    - **widgets/**: Componentes reutilizables de la interfaz de usuario.
-  - **routes/**: Definición de rutas de navegación en la aplicación.
-  - **main.dart**: Punto de entrada principal de la aplicación.
+b) Integración de principios contables avanzados:
+   - Implementación de conceptos como el plan de cuentas y la partida doble.
+   - Automatización de la generación de cuentas contables al crear categorías, cuentas de caja/banco o tarjetas de crédito.
+   - Generación automática de diarios contables en cada transacción (ingresos, egresos, transferencias, préstamos y gastos compartidos).
 
-### Funcionalidades Principales
-1. **Gestión de Transacciones**: Permite a los usuarios registrar y gestionar ingresos, gastos y transferencias.
-2. **Gestión de Contactos**: Permite a los usuarios añadir, editar y eliminar contactos.
-3. **Sincronización de Datos**: Sincroniza los datos locales con Firebase Firestore.
-4. **Autenticación**: Soporta autenticación con correo electrónico y Google Sign-In.
-5. **Localización**: Soporta múltiples idiomas, incluyendo inglés y español.
-6. **Temas**: Soporta temas claros y oscuros.
+------------------------------------------------------------------------
+2. ESTRUCTURA DEL PROYECTO
+---------------------------
+La aplicación sigue una arquitectura organizada en capas:
 
-### Configuración de Firebase
-El proyecto está configurado para usar Firebase para la autenticación y la sincronización de datos. Los pasos de configuración incluyen:
-1. Crear un proyecto en Firebase.
-2. Configurar Firebase en las aplicaciones Android e iOS.
-3. Configurar Firestore y la autenticación.
+• lib/
+  ├── core/
+  │     ├── l10n/          -> Gestión de localización e idiomas.
+  │     └── events/        -> Eventos de sincronización y otros eventos centrales.
+  │
+  ├── data/
+  │     ├── local/         -> Acceso a la base de datos local (ej. usando Drift para SQLite).
+  │     └── services/      -> Servicios para inicialización y sincronización de datos (incluyendo Firebase).
+  │
+  ├── domain/
+  │     ├── entities/      -> Definición de entidades (transacciones, cuentas, etc.).
+  │     ├── repositories/  -> Interfaces para la gestión de datos.
+  │     └── usecases/      -> Lógica de negocio y casos de uso (por ejemplo, generación de diarios contables).
+  │
+  ├── presentation/
+  │     ├── screens/       -> Pantallas principales de la aplicación.
+  │     └── widgets/       -> Componentes de interfaz reutilizables.
+  │
+  ├── routes/             -> Definición de rutas de navegación.
+  └── main.dart           -> Punto de entrada; inicializa Firebase, dependencias y verifica el estado del onboarding.
 
-### Dependencias Clave
-- **flutter_svg**: Para manejar imágenes SVG.
-- **drift**: Para la gestión de la base de datos SQLite.
-- **provider**: Para la gestión del estado.
-- **google_sign_in**: Para la autenticación con Google.
-- **shared_preferences**: Para el almacenamiento local de preferencias.
+------------------------------------------------------------------------
+3. FUNCIONALIDADES PRINCIPALES
+-------------------------------
+1. Gestión de Transacciones:
+   - Registro de ingresos, egresos y transferencias.
+   - Cada transacción genera automáticamente su diario contable para mantener la partida doble.
 
-### Código Destacado
-#### main.dart
-El archivo main.dart inicializa Firebase, configura las dependencias y define el widget principal de la aplicación:
-```dart
+2. Gestión de Contactos:
+   - Creación, edición y eliminación de contactos, asociados a transacciones, préstamos y gastos compartidos.
+
+3. Sincronización de Datos:
+   - Uso de Firebase Firestore para mantener los datos actualizados en tiempo real.
+
+4. Autenticación:
+   - Soporte para autenticación mediante correo electrónico y Google Sign-In.
+
+5. Localización y Temas:
+   - Soporte multilingüe (ej. español e inglés) y modos claro/oscuro.
+
+6. Principios Contables y Plan de Cuentas:
+   - Generación automática de cuentas contables al crear categorías, cuentas de caja/banco y tarjetas de crédito.
+   - Registro de diarios contables (journal y journal_details) para cada transacción, asegurando la partida doble.
+
+7. Módulos Avanzados:
+   a) Préstamos:
+      - Permite prestar dinero (dar o recibir) con su respectiva generación de transacciones y diarios contables.
+      - Soporta escenarios mixtos (por ejemplo, registrar un ingreso o gasto vinculado a un préstamo).
+   
+   b) Gastos Compartidos:
+      - Al registrar un gasto compartido, se genera la transacción del gasto personal y se crean automáticamente préstamos a contactos involucrados, con sus respectivos diarios contables.
+
+------------------------------------------------------------------------
+4. CONFIGURACIÓN DE FIREBASE Y DEPENDENCIAS CLAVE
+----------------------------------------------------
+- La aplicación se conecta a Firebase para la autenticación y sincronización de datos.
+- Dependencias importantes:
+    • flutter_svg         -> Manejo de imágenes SVG.
+    • drift               -> Gestión de la base de datos SQLite.
+    • provider            -> Gestión del estado.
+    • google_sign_in      -> Autenticación con Google.
+    • shared_preferences  -> Almacenamiento local (por ejemplo, para verificar el onboarding).
+
+Ejemplo de inicialización en main.dart:
+--------------------------------------------------
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -56,7 +93,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Inicializar GetIt y dependencias
+  // Inicializar dependencias (por ejemplo, con GetIt)
   await initializeDependencies();
 
   // Verificar si es la primera vez que se abre la app
@@ -65,3 +102,107 @@ void main() async {
 
   runApp(MyApp(skipWelcome: hasCompletedOnboarding));
 }
+--------------------------------------------------
+
+------------------------------------------------------------------------
+5. ESTRUCTURA DE LA BASE DE DATOS
+----------------------------------
+La base de datos se ha diseñado para soportar tanto la gestión financiera básica como la contabilidad avanzada. A continuación se muestran las principales tablas y ejemplos de consultas:
+
+a) Plan de Cuentas:
+   - Tabla chart_accounts:
+     SELECT id, accounting_type_id, parent_id, code, name, level, active, created_at, updated_at, deleted_at
+     FROM chart_accounts;
+
+b) Categorías:
+   - Tabla categories (crea cuentas contables en la sección correspondiente de ingreso o egreso):
+     SELECT id, document_type_id, chart_account_id, parent_id, name, active, created_at, updated_at, deleted_at
+     FROM categories;
+
+c) Cuentas de Caja y Banco:
+   - Tabla cash_banks:
+     SELECT id, document_type_id, chart_account_id, name, description, active, created_at, updated_at, deleted_at
+     FROM cash_banks;
+
+d) Tarjetas de Crédito:
+   - Tabla credit_cards:
+     SELECT id, chart_account_id, name, description, quota, closing_date, active, created_at, updated_at, deleted_at
+     FROM credit_cards;
+
+e) Contactos:
+   - Tabla contacts:
+     SELECT id, name, email, phone, note, active, created_at, updated_at, deleted_at
+     FROM contacts;
+
+f) Diarios Contables:
+   - Tabla journal:
+     SELECT id, document_type_id, date, description, active, created_at, updated_at, deleted_at
+     FROM journal;
+   - Tabla journal_details:
+     SELECT id, journal_id, chart_account_id, credit, debit
+     FROM journal_details;
+
+g) Transacciones y Detalles:
+   - Tabla transactions:
+     SELECT id, document_type_id, journal_id, contact_id, secuencial, amount, date, description, active, created_at, updated_at, deleted_at
+     FROM transactions;
+   - Tabla transactions_details:
+     SELECT id, transaction_id, flow_id, account_id, category_id, amount
+     FROM transactions_details;
+
+h) Préstamos:
+   - Tabla loans:
+     SELECT id, document_type_id, contact_id, secuencial, amount, date, description, status, active, created_at, updated_at, deleted_at
+     FROM loans;
+   - Tabla loans_details:
+     SELECT id, loan_id, account_id, journal_id, transaction_id, amount, active, created_at, updated_at, deleted_at
+     FROM loans_details;
+
+i) Gastos Compartidos:
+   - Tabla shared_expenses:
+     SELECT id, document_type_id, secuencial, amount, active, created_at, updated_at, deleted_at
+     FROM shared_expenses;
+   - Tabla shared_expenses_details:
+     SELECT id, shared_expenses_id, loan_id, transaction_id, percentage, amount, status, active, created_at, updated_at, deleted_at
+     FROM shared_expenses_details;
+
+j) Tablas de Referencia:
+   - Tipos de Cuentas (accounting_type):
+     SELECT id, name FROM accounting_type;
+     Datos de ejemplo: Assets, Liabilities, Equity, Income, Expenses.
+   - Tipos de Documentos (document_type):
+     SELECT id, name FROM document_type;
+     Datos de ejemplo: Income, Expense, Transfer, Lend, Borrow.
+   - Tipos de Flujo (flow_type):
+     SELECT id, name FROM flow_type;
+     Datos de ejemplo: From, To.
+
+------------------------------------------------------------------------
+6. CASOS DE USO DESTACADOS
+---------------------------
+• Ingresos y Egresos:
+   - Al registrar un ingreso o gasto se inserta un registro en la tabla transactions y se crea el detalle en transactions_details.
+   - Se genera automáticamente un diario contable (journal y journal_details).
+
+• Transferencias:
+   - Registro como transacción del tipo TRANSFERENCIA, generando dos entradas en los detalles (origen y destino) y su diario contable.
+
+• Plan de Cuentas y Categorías:
+   - La creación de una categoría, cuenta de caja/banco o tarjeta de crédito desencadena la generación automática de la cuenta contable correspondiente.
+
+• Préstamos:
+   - Manejo de préstamos (dar o recibir) con generación de transacciones, diarios contables y operaciones mixtas (cuando se vincula con un ingreso o gasto).
+
+• Gastos Compartidos:
+   - Registro de un gasto que se divide entre varios contactos, generando tanto la transacción del gasto personal como los préstamos a cada uno, con su correspondiente diario contable.
+
+------------------------------------------------------------------------
+7. NOTAS ADICIONALES
+---------------------
+- La aplicación busca combinar la sencillez de uso con una robusta gestión contable interna.
+- La interfaz es intuitiva, mientras que la lógica de negocio y la estructura de datos están diseñadas para soportar operaciones financieras y contables complejas.
+- El uso de Firebase, SQLite y otras dependencias garantiza una alta escalabilidad y sincronización en tiempo real.
+
+========================================================================
+Fin del Contexto
+========================================================================

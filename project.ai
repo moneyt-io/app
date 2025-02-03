@@ -1,0 +1,106 @@
+Hola Poderosísimo, razonador e inigualable Chat,
+
+Estoy realizando una app de finanzas personales que tiene principios contables, como plan de cuentas y partida doble.
+
+Ya tengo el aplicativo hecho sin embargo como agregué principios contables estoy refactorizando la estructura de datos y añadiendo nuevas funciones.
+
+Aunque esta app tendrá principios contables, uno de los objetivos es que no sea abrumadora ni difícil de utilizar, debe ser fácil de utilizar como una app simple de finanzas personales pero debe de ser simple y poderosa
+
+#Estructura de base de datos
+
+##tabla de plan de cuentas
+SELECT id, accounting_type_id, parent_id, code, name, level, active, created_at, updated_at, deleted_at
+FROM chart_accounts;
+
+## Al crear categorías crearan cuentas en su sección correspondiente, ingreso o egreso
+SELECT id, document_type_id, chart_account_id, parent_id, name, active, created_at, updated_at, deleted_at
+FROM categories;
+
+##Esta contendrá las cuentas de caja y banco, al crear una cuenta aquí automáticamente creara una nueva cuenta en el plan de cuentas
+SELECT id, document_type_id, chart_account_id, name, description, active, created_at, updated_at, deleted_at
+FROM cash_banks;
+
+##tarjetas de crédito
+SELECT id, chart_account_id, name, description, quota, closing_date, active, created_at, updated_at, deleted_at
+FROM credit_cards;
+
+##Tabla de contactos
+SELECT id, name, email, phone, note, active, created_at, updated_at, deleted_at
+FROM contacts;
+
+## Estas tablas contendrán los diferentes diarios contables de cada tipo de documento como, ingresos, egresos, gastos, transferencias, prestamos, gastos compartidos
+SELECT id, document_type_id, date, description, active, created_at, updated_at, deleted_at
+FROM journal;
+SELECT id, journal_id, chart_account_id, credit, debit
+FROM journal_details;
+
+##En esta tabla se guardaran las transacciones de ingresos, egresos y transferencias
+SELECT id, document_type_id, journal_id, contact_id, secuencial, amount, date, description, active, created_at, updated_at, deleted_at
+FROM transactions;
+SELECT id, transaction_id, account_id, category_id, flow, amount
+FROM transactions_details;
+
+##tabla de prestamos
+SELECT id, document_type_id, contact_id, secuencial, amount, date, description, status, active, created_at, updated_at, deleted_at
+FROM loans;
+SELECT id, loan_id, account_id, journal_id, transaction_id, amount, active, created_at, updated_at, deleted_at
+FROM loans_details;
+
+##Tabla de gastos compartidos, el objetivo de esto, es que a veces con mis amigos compramos algo entre todos, y esta opción debe dividir el gasto entre todos, ósea internamente, agregar al gasto mi parte y agregar al préstamo la parte de mis amigos
+SELECT id, document_type_id, secuencial, amount, active, created_at, updated_at, deleted_at
+FROM shared_expenses;
+SELECT id, shared_expenses_id, loan_id, transaction_id, percentage, amount, status, active, created_at, updated_at, deleted_at
+FROM shared_expenses_details;
+
+##Tipos de cuentas contables como Activos, pasivos, patrimonio, ingresos y gastos
+SELECT id, name
+FROM accounting_type;
+data: Assets, Liabilities, Equity, Income, Expenses
+
+##tipos de documentos, ingreso, egreso, transferencia, prestamos, prestamos, gastos compartidos
+SELECT id, name
+FROM document_type;
+data: Income, Expense, Transfer, Lend, Borrow
+
+##Utilizado en el detalle de las transacciones para las transferencias
+SELECT id, name
+FROM flow_type;
+data: From, to
+
+##Casos de uso
+
+Ingresos
+Los ingresos se realizaran en la tabla transacciones con el tipo INGRESO y transacción detalle, de momento solo tendrán un solo movimiento, se implementó el detalle aparte para no limitar la estructura en un futuro por si acaso, al guardar automáticamente se creará el diario contable de la transacción
+
+Egresos
+Los Egresos se realizaran en la tabla transacciones con el tipo GASTO y transacción detalle, de momento solo tendrán un solo movimiento, se implementó el detalle aparte para no limitar la estructura en un futuro por si acaso, al guardar automáticamente se creará el diario contable de la transacción
+
+Transferencias
+Las transferencias se realizaran en la tabla transacciones con el tipo TRANSFERENCIA y transacción detalle, al guardar se crearan dos registros en el detalle, uno de origen y otro de destino, así como también su diario contable
+
+Plan de cuentas
+Creación de plan de cuentas, por defecto ya vendrá uno
+
+Categorías
+Al crear categorías automáticamente se crearan las cuentas contables en el plan de cuentas
+
+Caja Banco
+Al crear cuentas de caja banco automáticamente se crearan las cuentas contables en el plan de cuentas
+
+Tarjetas de crédito
+Al crear tarjetas de crédito automáticamente se crearan las cuentas contables en el plan de cuentas
+
+Contactos
+Creación de contactos
+
+Prestamos
+Desde este modulo se puede:
+1. Prestar dinero (Dar), al guardar genera su contable y al cobrar también
+2. Prestar dinero (Recibir), al guardar genera su contable y al pagar también
+3. Prestar dinero (Dar), realizando una transacción de Ingreso: Ejemplo, realicé un trabajo y no me lo pagaron, entre comillas es un préstamo pero debe constar también como un ingreso de dinero, en este caso si se habilita que es transacción pide una categoría y genera el préstamo, una transacción de ingreso y su diario
+4. Prestar dinero (Recibir), realizando una transacción de Gasto: Ejemplo, Me hicieron un trabajo y no lo pagué, entre comillas es un préstamo pero debe constar también como un Gasto de dinero, en este caso si se habilita que es transacción pide una categoría y genera el préstamo, una transacción de ingreso y su diario
+
+
+Gastos compartidos
+Al ingresar un gasto en este modulo, genera una transacción de gasto (Mio) y prestamos a mis contactos, junto con su diario
+

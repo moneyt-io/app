@@ -15,18 +15,13 @@ class AccountDao extends DatabaseAccessor<AppDatabase> with _$AccountDaoMixin {
   Future<Account> getAccountById(int id) =>
       (select(accounts)..where((a) => a.id.equals(id))).getSingle();
 
+  // Temporalmente comentados hasta resolver el problema
+  /*
   Future<int> insertAccount(AccountsCompanion account) =>
       into(accounts).insert(account);
 
   Future<bool> updateAccount(AccountsCompanion account) =>
       update(accounts).replace(account);
+  */
 
-  Future<int> deleteAccount(int id) =>
-      (delete(accounts)..where((a) => a.id.equals(id))).go();
-
-  Future<void> upsertAccount(AccountsCompanion account) =>
-      into(accounts).insertOnConflictUpdate(account);
-
-  Future<Account?> getAccountByName(String name) =>
-      (select(accounts)..where((a) => a.name.equals(name))).getSingleOrNull();
-}
+  Future<int> deleteAccount(int id) =>      (delete(accounts)..where((a) => a.id.equals(id))).go();}

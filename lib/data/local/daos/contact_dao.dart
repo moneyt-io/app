@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
-import 'package:moneyt_pfm/data/local/database.dart';
-import 'package:moneyt_pfm/data/local/tables/contact_table.dart';
+import '../database.dart';
+import '../tables/contact_table.dart';
 
 part 'contact_dao.g.dart';
 
@@ -8,22 +8,50 @@ part 'contact_dao.g.dart';
 class ContactDao extends DatabaseAccessor<AppDatabase> with _$ContactDaoMixin {
   ContactDao(AppDatabase db) : super(db);
 
-  Future<List<ContactTableData>> getAllContacts() => select(contacts).get();
+  // Consultas básicas
+  Future<List<Contact>> getAllContacts() => 
+      (select(contacts)..where((c) => c.active.equals(true))).get();
 
-  Stream<List<ContactTableData>> watchAllContacts() => select(contacts).watch();
+  Stream<List<Contact>> watchAllContacts() => 
+      (select(contacts)..where((c) => c.active.equals(true))).watch();
 
-  Future<ContactTableData> getContactById(int id) =>
-      (select(contacts)..where((t) => t.id.equals(id))).getSingle();
+  Future<Contact?> getContactById(int id) =>
+      (select(contacts)..where((c) => c.id.equals(id))).getSingleOrNull();
 
-  Stream<ContactTableData> watchContactById(int id) =>
-      (select(contacts)..where((t) => t.id.equals(id))).watchSingle();
-
-  Future<int> insertContact(ContactsCompanion contact) =>
+  // Operaciones CRUD
+  Future<int> insertContact(Contact contact) =>
       into(contacts).insert(contact);
 
-  Future<bool> updateContact(ContactsCompanion contact) =>
+  Future<bool> updateContact(Contact contact) =>
       update(contacts).replace(contact);
 
-  Future<int> deleteContact(int id) =>
-      (delete(contacts)..where((t) => t.id.equals(id))).go();
+  // Soft delete usando customUpdate
+  Future<int> softDeleteContact(int id) =>
+      customUpdate(
+        'UPDATE contacts SET active = FALSE, deleted_at = ? WHERE id = ?',
+        variables: [Variable.withDateTime(DateTime.now()), Variable.withInt(id)],
+        updates: {contacts},
+      );
+
+  // Búsqueda de contactos existentes
+  Future<Contact?> findExistingContact(String? email, String? phone) {
+    if (email == null && phone == null) return Future.value(null);
+    
+    return (select(contacts)
+      ..where((c) => 
+          c.active.equals(true) &
+          (c.email.equals(email ?? '') | c.phone.equals(phone ?? '')))
+    ).getSingleOrNull();
+  }
+
+  // Búsqueda por texto
+  Future<List<Contact>> searchContacts(String query) => 
+      (select(contacts)
+        ..where((c) => 
+            c.active.equals(true) &
+            (c.name.like('%$query%') |
+             c.email.like('%$query%') |
+             c.phone.like('%$query%')))
+        ..orderBy([(t) => OrderingTerm(expression: t.name)]))
+      .get();
 }

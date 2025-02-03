@@ -8,23 +8,77 @@ part 'transaction_dao.g.dart';
 class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDaoMixin {
   TransactionDao(AppDatabase db) : super(db);
 
+  // Métodos básicos
   Future<List<Transaction>> getAllTransactions() => select(transactions).get();
-
   Stream<List<Transaction>> watchAllTransactions() => select(transactions).watch();
-
+  
   Future<Transaction> getTransactionById(int id) =>
       (select(transactions)..where((t) => t.id.equals(id))).getSingle();
 
-  Future<int> insertTransaction(TransactionsCompanion transaction) =>
+  // Método de inserción simplificado
+  Future<int> insertTransaction(Transaction transaction) =>
       into(transactions).insert(transaction);
 
-  Future<bool> updateTransaction(TransactionsCompanion transaction) =>
+  Future<bool> updateTransaction(Transaction transaction) =>
       update(transactions).replace(transaction);
 
   Future<int> deleteTransaction(int id) =>
       (delete(transactions)..where((t) => t.id.equals(id))).go();
 
-  Future<void> upsertTransaction(TransactionsCompanion transaction) =>
+  // Método de transferencia simplificado
+  Future<void> createTransfer({
+    required int fromAccountId,
+    required int toAccountId,
+    required double amount,
+    required DateTime date,
+    String? description,
+    String? reference,
+    int? contactId,
+  }) async {
+    final now = DateTime.now();
+    
+    // Crear transacción de salida usando el constructor básico
+    final outgoing = Transaction(
+      id: 0,  // Se auto-incrementará
+      type: TRANSACTION_TYPE_TRANSFER,
+      flow: FLOW_TYPE_OUTFLOW,
+      amount: amount,
+      accountId: fromAccountId,
+      categoryId: null,
+      contactId: contactId,
+      reference: reference,
+      description: description,
+      transactionDate: date,
+      createdAt: now,
+      updatedAt: now,
+      status: true,
+    );
+
+    // Crear transacción de entrada usando el constructor básico
+    final incoming = Transaction(
+      id: 0,  // Se auto-incrementará
+      type: TRANSACTION_TYPE_TRANSFER,
+      flow: FLOW_TYPE_INFLOW,
+      amount: amount,
+      accountId: toAccountId,
+      categoryId: null,
+      contactId: contactId,
+      reference: reference,
+      description: description,
+      transactionDate: date,
+      createdAt: now,
+      updatedAt: now,
+      status: true,
+    );
+
+    await transaction(() async {
+      await insertTransaction(outgoing);
+      await insertTransaction(incoming);
+    });
+  }
+
+  // Simplificamos el upsert también
+  Future<void> upsertTransaction(Insertable<Transaction> transaction) =>
       into(transactions).insertOnConflictUpdate(transaction);
 
   Future<List<Transaction>> getTransactionsByAccount(int accountId) =>
@@ -106,55 +160,9 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
   ) =>
       (select(transactions)
         ..where((t) =>
-            t.transactionDate.isBiggerOrEqualValue(startDate) &
+            t.transactionDate.isBiggerOrEqualValue(startDate) & 
             t.transactionDate.isSmallerOrEqualValue(endDate)))
         .watch();
-
-  Future<void> createTransfer({
-    required int fromAccountId,
-    required int toAccountId,
-    required double amount,
-    required DateTime date,
-    String? description,
-    String? reference,
-    int? contactId,
-  }) async {
-    final now = DateTime.now();
-    final outgoing = TransactionsCompanion(
-      type: const Value(TRANSACTION_TYPE_TRANSFER),
-      flow: const Value(FLOW_TYPE_OUTFLOW),
-      amount: Value(amount),
-      accountId: Value(fromAccountId),
-      categoryId: const Value(null),
-      contactId: Value(contactId),
-      reference: Value(reference),
-      description: Value(description),
-      transactionDate: Value(date),
-      createdAt: Value(now),
-      updatedAt: Value(now),
-      status: const Value(true),
-    );
-
-    final incoming = TransactionsCompanion(
-      type: const Value(TRANSACTION_TYPE_TRANSFER),
-      flow: const Value(FLOW_TYPE_INFLOW),
-      amount: Value(amount),
-      accountId: Value(toAccountId),
-      categoryId: const Value(null),
-      contactId: Value(contactId),
-      reference: Value(reference),
-      description: Value(description),
-      transactionDate: Value(date),
-      createdAt: Value(now),
-      updatedAt: Value(now),
-      status: const Value(true),
-    );
-
-    await transaction(() async {
-      await insertTransaction(outgoing);
-      await insertTransaction(incoming);
-    });
-  }
 
   Future<List<Transaction>> getTransactionsByDateRange(
     DateTime startDate,
@@ -162,7 +170,7 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
   ) =>
       (select(transactions)
         ..where((t) =>
-            t.transactionDate.isBiggerOrEqualValue(startDate) &
+            t.transactionDate.isBiggerOrEqualValue(startDate) & 
             t.transactionDate.isSmallerOrEqualValue(endDate)))
         .get();
 }
