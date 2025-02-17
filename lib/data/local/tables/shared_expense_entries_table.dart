@@ -1,13 +1,13 @@
 import 'package:drift/drift.dart';
-import 'document_type_table.dart';
-import 'currency_table.dart';
+import 'document_types_table.dart';
+import 'currencies_table.dart';
 
-@DataClassName('SharedExpense')
-class SharedExpenses extends Table {
+@DataClassName('SharedExpenseEntries')
+class SharedExpenseEntry extends Table {
   // Relational fields
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get documentTypeId => text().withLength(min: 1, max: 1).references(DocumentTypes, #id)();
-  TextColumn get currencyId => text().withLength(min: 3, max: 3).references(Currencies, #id)();
+  TextColumn get documentTypeId => text().withLength(min: 1, max: 1).references(DocumentType, #id)();
+  TextColumn get currencyId => text().withLength(min: 3, max: 3).references(Currency, #id)();
   
   // Main data fields
   IntColumn get secuencial => integer()();

@@ -1,19 +1,15 @@
 import 'package:drift/drift.dart';
-import 'currency_table.dart';
-import 'chart_accounts_table.dart';
 
-@DataClassName('CreditCard')
-class CreditCards extends Table {
+@DataClassName('Contacts')
+class Contact extends Table {
   // Relational fields
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get currencyId => text().withLength(min: 3, max: 3).references(Currencies, #id)();
-  TextColumn get chartAccountId => text().withLength(min: 1, max: 1).references(ChartAccounts, #id)();
   
   // Main data fields
   TextColumn get name => text().withLength(min: 1, max: 50)();
-  TextColumn get description => text().nullable()();
-  RealColumn get quota => real()();
-  IntColumn get closingDate => integer()();
+  TextColumn get email => text().nullable()();
+  TextColumn get phone => text().nullable()();
+  TextColumn get note => text().nullable()();
 
   // Audit fields
   BoolColumn get active => boolean().withDefault(const Constant(true))();

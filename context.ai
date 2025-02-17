@@ -136,46 +136,46 @@ e) Contactos:
      FROM contacts;
 
 f) Diarios Contables:
-   - Tabla journal:
+   - Tabla journal_entries:
      SELECT id, document_type_id, secuencial, date, description, active, created_at, updated_at, deleted_at
-     FROM journal;
+     FROM journal_entries;
    - Tabla journal_details:
      SELECT id, journal_id, currency_id, chart_account_id, credit, debit, rate_exchange
      FROM journal_details;
 
 g) Transacciones y Detalles:
-   - Tabla transactions:
+   - Tabla transaction_entries:
      SELECT id, document_type_id, currency_id, journal_id, contact_id, secuencial, date, amount, rate_exchange, description, active, created_at, updated_at, deleted_at
-     FROM transactions;
-   - Tabla transactions_details:
+     FROM transaction_entries;
+   - Tabla transaction_details:
      SELECT id, transaction_id, currency_id, flow_id, payment_type_id, payment_id, category_id, amount, rate_exchange
-     FROM transactions_details;
+     FROM transaction_details;
 
 h) Préstamos:
-   - Tabla loans:
+   - Tabla loan_entries:
      SELECT id, document_type_id, currency_id, contact_id, secuencial, date, amount, rate_exchange, description, status, active, created_at, updated_at, deleted_at
-     FROM loans;
-   - Tabla loans_details:
+     FROM loan_entries;
+   - Tabla loan_details:
      SELECT id, loan_id, currency_id, payment_type_id, payment_id, journal_id, transaction_id, amount, rate_exchange, active, created_at, updated_at, deleted_at
-     FROM loans_details;
+     FROM loan_details;
 
 i) Gastos Compartidos:
-   - Tabla shared_expenses:
+   - Tabla shared_expense_entries:
      SELECT id, document_type_id, currency_id, secuencial, date, amount, rate_exchange, active, created_at, updated_at, deleted_at
-     FROM shared_expenses;
-   - Tabla shared_expenses_details:
-     SELECT id, shared_expenses_id, currency_id, loan_id, transaction_id, percentage, amount, rate_exchange, status, active, created_at, updated_at, deleted_at
-     FROM shared_expenses_details;
+     FROM shared_expense_entries;
+   - Tabla shared_expense_details:
+     SELECT id, shared_expense_id, currency_id, loan_id, transaction_id, percentage, amount, rate_exchange, status, active, created_at, updated_at, deleted_at
+     FROM shared_expense_details;
 
 j) Tablas de Referencia:
-   - Tipos de Cuentas (accounting_type):
-      SELECT id, name FROM accounting_type;
+   - Tipos de Cuentas (accounting_types):
+      SELECT id, name FROM accounting_types;
       Data default: (As, Assets), (Li,Liabilities), (Eq,Equity), (In,Income), (Ex,Expenses)
-   - Tipos de Documentos (document_type):
-      SELECT id, name FROM document_type;
+   - Tipos de Documentos (document_types):
+      SELECT id, name FROM document_types;
       Data default: (I,Income), (E,Expense), (T,Transfer), (L,Lend), (B,Borrow)
-   - Tipos de Flujo (flow_type):
-      SELECT id, name FROM flow_type;
+   - Tipos de Flujo (flow_types):
+      SELECT id, name FROM flow_types;
       Data default: (F,From), (T,To)
    - Tipos de Metodos de Pago (payment_types)
       SELECT id, name FROM payment_types;

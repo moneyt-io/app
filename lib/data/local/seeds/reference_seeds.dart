@@ -15,7 +15,7 @@ class ReferenceSeeds {
   static Future<void> _seedAccountingTypes(AppDatabase db) async {
     await db.batch((batch) {
       batch.insertAll(
-        db.accountingTypes,
+        db.accountingType,
         [
           AccountingTypesCompanion.insert(id: 'As', name: 'Assets'),
           AccountingTypesCompanion.insert(id: 'Li', name: 'Liabilities'),
@@ -31,7 +31,7 @@ class ReferenceSeeds {
   static Future<void> _seedDocumentTypes(AppDatabase db) async {
     await db.batch((batch) {
       batch.insertAll(
-        db.documentTypes,
+        db.documentType,
         [
           DocumentTypesCompanion.insert(id: 'I', name: 'Income'),
           DocumentTypesCompanion.insert(id: 'E', name: 'Expense'),
@@ -47,7 +47,7 @@ class ReferenceSeeds {
   static Future<void> _seedFlowTypes(AppDatabase db) async {
     await db.batch((batch) {
       batch.insertAll(
-        db.flowTypes,
+        db.flowType,
         [
           FlowTypesCompanion.insert(id: 'F', name: 'From'),
           FlowTypesCompanion.insert(id: 'T', name: 'To'),
@@ -60,7 +60,7 @@ class ReferenceSeeds {
   static Future<void> _seedPaymentTypes(AppDatabase db) async {
     await db.batch((batch) {
       batch.insertAll(
-        db.paymentTypes,
+        db.paymentType,
         [
           PaymentTypesCompanion.insert(id: 'W', name: 'Wallet'),
           PaymentTypesCompanion.insert(id: 'C', name: 'Credit Card'),
@@ -73,7 +73,7 @@ class ReferenceSeeds {
   static Future<void> _seedDefaultCurrencies(AppDatabase db) async {
     await db.batch((batch) {
       batch.insertAll(
-        db.currencies,
+        db.currency,
         [
           CurrenciesCompanion.insert(
             id: 'USD',

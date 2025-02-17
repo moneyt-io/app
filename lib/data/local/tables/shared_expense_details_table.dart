@@ -1,17 +1,17 @@
 import 'package:drift/drift.dart';
-import 'shared_expense_table.dart';
-import 'currency_table.dart';
-import 'loan_table.dart';
-import 'transaction_table.dart';
+import 'shared_expense_entries_table.dart';
+import 'currencies_table.dart';
+import 'loan_entries_table.dart';
+import 'transaction_entries_table.dart';
 
-@DataClassName('SharedExpenseDetail')
-class SharedExpenseDetails extends Table {
+@DataClassName('SharedExpenseDetails')
+class SharedExpenseDetail extends Table {
   // Relational fields
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get sharedExpensesId => integer().references(SharedExpenses, #id)();
-  TextColumn get currencyId => text().withLength(min: 3, max: 3).references(Currencies, #id)();
-  IntColumn get loanId => integer().references(Loans, #id)();
-  IntColumn get transactionId => integer().references(Transactions, #id)();
+  IntColumn get sharedExpenseId => integer().references(SharedExpenseEntry, #id)();
+  TextColumn get currencyId => text().withLength(min: 3, max: 3).references(Currency, #id)();
+  IntColumn get loanId => integer().references(LoanEntry, #id)();
+  IntColumn get transactionId => integer().references(TransactionEntry, #id)();
   
   // Main data fields
   RealColumn get percentage => real()();

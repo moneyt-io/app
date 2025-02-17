@@ -1,13 +1,13 @@
 import 'package:drift/drift.dart';
-import 'currency_table.dart';
+import 'currencies_table.dart';
 import 'chart_accounts_table.dart';
 
-@DataClassName('Wallet')
-class Wallets extends Table {
+@DataClassName('Wallets')
+class Wallet extends Table {
   // Relational fields
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get currencyId => text().withLength(min: 3, max: 3).references(Currencies, #id)();
-  TextColumn get chartAccountId => text().withLength(min: 1, max: 1).references(ChartAccounts, #id)();
+  TextColumn get currencyId => text().withLength(min: 3, max: 3).references(Currency, #id)();
+  TextColumn get chartAccountId => text().withLength(min: 1, max: 1).references(ChartAccount, #id)();
   
   // Main data fields
   TextColumn get name => text().withLength(min: 1, max: 50)();

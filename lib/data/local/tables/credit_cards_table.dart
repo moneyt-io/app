@@ -1,16 +1,19 @@
 import 'package:drift/drift.dart';
-import 'package:moneyt_pfm/data/local/tables/document_type_table.dart';
+import 'currencies_table.dart';
+import 'chart_accounts_table.dart';
 
-@DataClassName('Journal')
-class Journal extends Table {
+@DataClassName('CreditCards')
+class CreditCard extends Table {
   // Relational fields
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get documentTypeId => text().withLength(min: 1, max: 1).references(DocumentTypes, #id)();
+  TextColumn get currencyId => text().withLength(min: 3, max: 3).references(Currency, #id)();
+  TextColumn get chartAccountId => text().withLength(min: 1, max: 1).references(ChartAccount, #id)();
   
   // Main data fields
-  IntColumn get secuencial => integer()();
-  DateTimeColumn get date => dateTime()();
+  TextColumn get name => text().withLength(min: 1, max: 50)();
   TextColumn get description => text().nullable()();
+  RealColumn get quota => real()();
+  IntColumn get closingDate => integer()();
 
   // Audit fields
   BoolColumn get active => boolean().withDefault(const Constant(true))();

@@ -1,31 +1,28 @@
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:moneyt_pfm/data/local/tables/loan_details_table.dart';
+import 'package:moneyt_pfm/data/local/tables/loan_entries_table.dart';
+import 'package:moneyt_pfm/data/local/tables/shared_expense_details_table.dart';
+import 'package:moneyt_pfm/data/local/tables/shared_expense_entries_table.dart';
+import 'package:moneyt_pfm/data/local/tables/wallets_table.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 // Importar todas las tablas
-import 'tables/category_table.dart';
-import 'tables/transaction_table.dart';
+import 'tables/categories_table.dart';
+import 'tables/transaction_entries_table.dart';
 import 'tables/transaction_details_table.dart';
-import 'tables/contact_table.dart';
-import 'tables/accounting_type_table.dart';
-import 'tables/document_type_table.dart';
-import 'tables/flow_type_table.dart';
-import 'tables/payment_type_table.dart';
-import 'tables/currency_table.dart';
+import 'tables/contacts_table.dart';
+import 'tables/accounting_types_tables.dart';
+import 'tables/document_types_table.dart';
+import 'tables/flow_types_table.dart';
+import 'tables/payment_types_table.dart';
+import 'tables/currencies_table.dart';
 import 'tables/chart_accounts_table.dart';
-import 'tables/credit_card_table.dart';
-import 'tables/journal_table.dart';
+import 'tables/credit_cards_table.dart';
+import 'tables/journal_entries_table.dart';
 import 'tables/journal_details_table.dart';
-
-// Importar todos los DAOs
-import 'daos/category_dao.dart';
-import 'daos/contact_dao.dart';
-import 'daos/chart_accounts_dao.dart';
-import 'daos/cash_bank_dao.dart';
-import 'daos/credit_card_dao.dart';
-import 'daos/journal_dao.dart';
 
 import 'seeds/reference_seeds.dart';
 
@@ -41,46 +38,37 @@ LazyDatabase _openConnection() {
 
 @DriftDatabase(
   tables: [
-    // Primero las tablas referenciales
-    AccountingTypes,
-    DocumentTypes,
-    FlowTypes,
-    PaymentTypes,
-    Currencies,
+    // Tablas referenciales
+    AccountingType,
+    DocumentType,
+    FlowType,
+    PaymentType,
+    Currency,
     
-    // Luego las tablas principales
-    ChartAccounts,
-    Categories,
-    Contacts,
-    CreditCards,
+    // Tablas principales
+    ChartAccount,
+    Category,
+    Contact,
+    Wallet,
+    CreditCard,
     
-    Journal,
-    JournalDetails,
-    Transactions,
-    TransactionDetails,
-  ],
-  daos: [
-    ChartAccountsDao,
-    CategoryDao,
-    CashBankDao,
-    ContactDao,
-    CreditCardDao,
-    JournalDao,
-  ],
+    
+    // Tablas transaccionales
+    JournalEntry,
+    JournalDetail,
+    TransactionEntry,
+    TransactionDetail,
+    LoanEntry,
+    LoanDetail,
+    SharedExpenseEntry,
+    SharedExpenseDetail,
+  ]
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
   int get schemaVersion => 1;
-
-  // DAOs getters
-  CategoryDao get categoryDao => CategoryDao(this);
-  ContactDao get contactDao => ContactDao(this);
-  ChartAccountsDao get chartAccountsDao => ChartAccountsDao(this);
-  CashBankDao get cashBankDao => CashBankDao(this);
-  CreditCardDao get creditCardDao => CreditCardDao(this);
-  JournalDao get journalDao => JournalDao(this);
 
   // Método necesario para backups locales
   Future<String> getDatabasePath() async {
