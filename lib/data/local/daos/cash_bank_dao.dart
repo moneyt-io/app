@@ -19,10 +19,10 @@ class CashBankDao extends DatabaseAccessor<AppDatabase> with _$CashBankDaoMixin 
       (select(cashBanks)..where((b) => b.id.equals(id))).getSingle();
 
   // Operaciones CRUD
-  Future<int> insertCashBank(CashBank cashBank) =>
+  Future<int> insertCashBank(Insertable<CashBank> cashBank) =>
       into(cashBanks).insert(cashBank);
 
-  Future<bool> updateCashBank(CashBank cashBank) =>
+  Future<bool> updateCashBank(Insertable<CashBank> cashBank) =>
       update(cashBanks).replace(cashBank);
 
   // Soft delete

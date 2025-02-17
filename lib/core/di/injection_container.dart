@@ -12,7 +12,6 @@ import '../../data/repositories/account_repository_impl.dart';
 import '../../data/repositories/transaction_repository_impl.dart';
 import '../../data/repositories/contact_repository_impl.dart';
 import '../../data/local/daos/category_dao.dart';
-import '../../data/local/daos/account_dao.dart';
 import '../../data/local/daos/transaction_dao.dart';
 import '../../data/local/daos/contact_dao.dart';
 import '../../data/services/sync_service.dart';

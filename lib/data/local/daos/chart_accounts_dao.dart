@@ -21,6 +21,7 @@ class ChartAccountsDao extends DatabaseAccessor<AppDatabase> with _$ChartAccount
   Future<List<ChartAccount>> getChildAccounts(int parentId) =>
       (select(chartAccounts)..where((t) => t.parentId.equals(parentId))).get();
 
+  // Simplificamos temporalmente estos métodos
   Future<int> insertChartAccount(ChartAccount account) =>
       into(chartAccounts).insert(account);
 

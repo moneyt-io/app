@@ -1,5 +1,5 @@
 ========================================================================
-                        MoneyT - Contexto Unificado
+                        MoneyT - Contexto Unificado V.0.2.0
 ========================================================================
 
 1. DESCRIPCIÓN GENERAL
@@ -7,12 +7,13 @@
 MoneyT es una aplicación de gestión financiera personal desarrollada en Flutter. La app tiene dos grandes enfoques:
 
 a) Funcionalidades tradicionales de finanzas personales:
-   - Registro y seguimiento de ingresos, gastos, transferencias y contactos.
+   - Registro y seguimiento de ingresos, gastos, transferencias, prestamos y contactos.
+   - Manejo de multi divisa
    - Interfaz sencilla y fácil de usar, pensada para el usuario cotidiano.
 
 b) Integración de principios contables avanzados:
    - Implementación de conceptos como el plan de cuentas y la partida doble.
-   - Automatización de la generación de cuentas contables al crear categorías, cuentas de caja/banco o tarjetas de crédito.
+   - Automatización de la generación de cuentas contables al crear categorías, wallets o tarjetas de crédito.
    - Generación automática de diarios contables en cada transacción (ingresos, egresos, transferencias, préstamos y gastos compartidos).
 
 ------------------------------------------------------------------------
@@ -61,7 +62,7 @@ La aplicación sigue una arquitectura organizada en capas:
    - Soporte multilingüe (ej. español e inglés) y modos claro/oscuro.
 
 6. Principios Contables y Plan de Cuentas:
-   - Generación automática de cuentas contables al crear categorías, cuentas de caja/banco y tarjetas de crédito.
+   - Generación automática de cuentas contables al crear categorías, wallets y tarjetas de crédito.
    - Registro de diarios contables (journal y journal_details) para cada transacción, asegurando la partida doble.
 
 7. Módulos Avanzados:
@@ -111,22 +112,22 @@ La base de datos se ha diseñado para soportar tanto la gestión financiera bás
 
 a) Plan de Cuentas:
    - Tabla chart_accounts:
-     SELECT id, accounting_type_id, parent_id, code, name, level, active, created_at, updated_at, deleted_at
+     SELECT id, parent_id, accounting_type_id, code, level, name, active, created_at, updated_at, deleted_at
      FROM chart_accounts;
 
 b) Categorías:
    - Tabla categories (crea cuentas contables en la sección correspondiente de ingreso o egreso):
-     SELECT id, document_type_id, chart_account_id, parent_id, name, active, created_at, updated_at, deleted_at
+     SELECT id, parent_id, document_type_id, chart_account_id, name, active, created_at, updated_at, deleted_at
      FROM categories;
 
-c) Cuentas de Caja y Banco:
-   - Tabla cash_banks:
-     SELECT id, document_type_id, chart_account_id, name, description, active, created_at, updated_at, deleted_at
-     FROM cash_banks;
+c) Cuentas Bancarias y Efectvo:
+   - Tabla wallets:
+     SELECT id, currency_id, chart_account_id, name, description, active, created_at, updated_at, deleted_at
+     FROM wallets;
 
 d) Tarjetas de Crédito:
    - Tabla credit_cards:
-     SELECT id, chart_account_id, name, description, quota, closing_date, active, created_at, updated_at, deleted_at
+     SELECT id, currency_id, chart_account_id, name, description, quota, closing_date, active, created_at, updated_at, deleted_at
      FROM credit_cards;
 
 e) Contactos:
@@ -136,46 +137,53 @@ e) Contactos:
 
 f) Diarios Contables:
    - Tabla journal:
-     SELECT id, document_type_id, date, description, active, created_at, updated_at, deleted_at
+     SELECT id, document_type_id, secuencial, date, description, active, created_at, updated_at, deleted_at
      FROM journal;
    - Tabla journal_details:
-     SELECT id, journal_id, chart_account_id, credit, debit
+     SELECT id, journal_id, currency_id, chart_account_id, credit, debit, rate_exchange
      FROM journal_details;
 
 g) Transacciones y Detalles:
    - Tabla transactions:
-     SELECT id, document_type_id, journal_id, contact_id, secuencial, amount, date, description, active, created_at, updated_at, deleted_at
+     SELECT id, document_type_id, currency_id, journal_id, contact_id, secuencial, date, amount, rate_exchange, description, active, created_at, updated_at, deleted_at
      FROM transactions;
    - Tabla transactions_details:
-     SELECT id, transaction_id, flow_id, account_id, category_id, amount
+     SELECT id, transaction_id, currency_id, flow_id, payment_type_id, payment_id, category_id, amount, rate_exchange
      FROM transactions_details;
 
 h) Préstamos:
    - Tabla loans:
-     SELECT id, document_type_id, contact_id, secuencial, amount, date, description, status, active, created_at, updated_at, deleted_at
+     SELECT id, document_type_id, currency_id, contact_id, secuencial, date, amount, rate_exchange, description, status, active, created_at, updated_at, deleted_at
      FROM loans;
    - Tabla loans_details:
-     SELECT id, loan_id, account_id, journal_id, transaction_id, amount, active, created_at, updated_at, deleted_at
+     SELECT id, loan_id, currency_id, payment_type_id, payment_id, journal_id, transaction_id, amount, rate_exchange, active, created_at, updated_at, deleted_at
      FROM loans_details;
 
 i) Gastos Compartidos:
    - Tabla shared_expenses:
-     SELECT id, document_type_id, secuencial, amount, active, created_at, updated_at, deleted_at
+     SELECT id, document_type_id, currency_id, secuencial, date, amount, rate_exchange, active, created_at, updated_at, deleted_at
      FROM shared_expenses;
    - Tabla shared_expenses_details:
-     SELECT id, shared_expenses_id, loan_id, transaction_id, percentage, amount, status, active, created_at, updated_at, deleted_at
+     SELECT id, shared_expenses_id, currency_id, loan_id, transaction_id, percentage, amount, rate_exchange, status, active, created_at, updated_at, deleted_at
      FROM shared_expenses_details;
 
 j) Tablas de Referencia:
    - Tipos de Cuentas (accounting_type):
-     SELECT id, name FROM accounting_type;
-     Datos de ejemplo: Assets, Liabilities, Equity, Income, Expenses.
+      SELECT id, name FROM accounting_type;
+      Data default: (As, Assets), (Li,Liabilities), (Eq,Equity), (In,Income), (Ex,Expenses)
    - Tipos de Documentos (document_type):
-     SELECT id, name FROM document_type;
-     Datos de ejemplo: Income, Expense, Transfer, Lend, Borrow.
+      SELECT id, name FROM document_type;
+      Data default: (I,Income), (E,Expense), (T,Transfer), (L,Lend), (B,Borrow)
    - Tipos de Flujo (flow_type):
-     SELECT id, name FROM flow_type;
-     Datos de ejemplo: From, To.
+      SELECT id, name FROM flow_type;
+      Data default: (F,From), (T,To)
+   - Tipos de Metodos de Pago (payment_types)
+      SELECT id, name FROM payment_types;
+      Data default: (W,Wallet), (C,Credit Card)
+   - Tabla de Divisas (currencies):
+      SELECT id, name, symbol, rate_exchange
+      FROM currencies;
+      Data default: (USD, Dolar Americano, $, 1), (EUR, Euro, €, 1.2)
 
 ------------------------------------------------------------------------
 6. CASOS DE USO DESTACADOS
@@ -186,9 +194,10 @@ j) Tablas de Referencia:
 
 • Transferencias:
    - Registro como transacción del tipo TRANSFERENCIA, generando dos entradas en los detalles (origen y destino) y su diario contable.
+   - Las transferencias entre distintas divisas generan 3 movimientos, Salida del Origen, Entrada al Destino y Ajuste en el Destino (Puede ser Ingreso o Egreso para justar la cantidad de unidades)
 
 • Plan de Cuentas y Categorías:
-   - La creación de una categoría, cuenta de caja/banco o tarjeta de crédito desencadena la generación automática de la cuenta contable correspondiente.
+   - La creación de una categoría, Wallet o tarjeta de crédito desencadena la generación automática de la cuenta contable correspondiente.
 
 • Préstamos:
    - Manejo de préstamos (dar o recibir) con generación de transacciones, diarios contables y operaciones mixtas (cuando se vincula con un ingreso o gasto).

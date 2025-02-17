@@ -7,7 +7,5 @@ targets:
           named_parameters: true
           apply_converters_on_variables: true
           override_hash_and_equals_in_result_sets: true
+          generate_values_in_copy_with: true
           use_data_class_name_for_companions: true
-          mutable_classes: false
-          generate_connect_constructor: false
-          write_to_columns_mixins: false

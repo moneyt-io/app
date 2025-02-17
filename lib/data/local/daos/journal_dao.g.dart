@@ -1,11 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'credit_card_dao.dart';
+part of 'journal_dao.dart';
 
 // ignore_for_file: type=lint
-mixin _$CreditCardDaoMixin on DatabaseAccessor<AppDatabase> {
+mixin _$JournalDaoMixin on DatabaseAccessor<AppDatabase> {
+  $DocumentTypesTable get documentTypes => attachedDatabase.documentTypes;
+  $JournalTable get journal => attachedDatabase.journal;
   $CurrenciesTable get currencies => attachedDatabase.currencies;
   $AccountingTypesTable get accountingTypes => attachedDatabase.accountingTypes;
   $ChartAccountsTable get chartAccounts => attachedDatabase.chartAccounts;
-  $CreditCardsTable get creditCards => attachedDatabase.creditCards;
+  $JournalDetailsTable get journalDetails => attachedDatabase.journalDetails;
 }

@@ -19,10 +19,10 @@ class CreditCardDao extends DatabaseAccessor<AppDatabase> with _$CreditCardDaoMi
       (select(creditCards)..where((c) => c.id.equals(id))).getSingle();
 
   // Operaciones CRUD
-  Future<int> insertCreditCard(CreditCard creditCard) =>
+  Future<int> insertCreditCard(Insertable<CreditCard> creditCard) =>
       into(creditCards).insert(creditCard);
 
-  Future<bool> updateCreditCard(CreditCard creditCard) =>
+  Future<bool> updateCreditCard(Insertable<CreditCard> creditCard) =>
       update(creditCards).replace(creditCard);
 
   // Soft delete con customUpdate

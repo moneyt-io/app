@@ -2,6 +2,6 @@ import 'package:drift/drift.dart';
 
 @DataClassName('AccountingType')
 class AccountingTypes extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get name => text()();
+  TextColumn get id => text().withLength(min: 2, max: 2)();
+  TextColumn get name => text().withLength(min: 1, max: 50)();
 }
