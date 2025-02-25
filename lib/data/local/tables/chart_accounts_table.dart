@@ -4,8 +4,8 @@ import 'accounting_types_tables.dart';
 @DataClassName('ChartAccounts')
 class ChartAccount extends Table {
   // Relational fields
-  TextColumn get id => text().withLength(min: 1, max: 1)();
-  TextColumn get parentId => text().nullable().withLength(min: 1, max: 1).references(ChartAccount, #id)();
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get parentId => integer().nullable().references(ChartAccount, #id)();
   TextColumn get accountingTypeId => text().withLength(min: 1, max: 1).references(AccountingType, #id)();
   
   // Main data fields

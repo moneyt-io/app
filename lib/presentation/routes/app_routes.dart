@@ -1,26 +1,26 @@
 // lib/routes/app_routes.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../core/di/injection_container.dart';
-import '../presentation/screens/home_screen.dart';
-import '../presentation/screens/category_screen.dart';
-import '../presentation/screens/account_screen.dart';
-import '../presentation/screens/transaction_screen.dart';
-import '../presentation/screens/settings_screen.dart';
-import '../presentation/screens/transaction_form.dart';
-import '../presentation/screens/category_form.dart';
-import '../presentation/screens/account_form.dart';
-import '../presentation/screens/welcome_screen.dart';
-import '../presentation/screens/login_screen.dart';
-import '../presentation/screens/transaction_details_screen.dart';
-import '../presentation/screens/contact_screen.dart';
-import '../presentation/screens/contact_form.dart';
-import '../domain/usecases/category_usecases.dart';
-import '../domain/usecases/account_usecases.dart';
-import '../domain/usecases/transaction_usecases.dart';
-import '../domain/usecases/contact_usecases.dart';
-import '../domain/entities/transaction.dart';
-import '../presentation/screens/backup_screen.dart';
+import '../../core/di/injection_container.dart';
+import '../screens/home_screen.dart';
+import '../screens/category_screen.dart';
+import '../screens/account_screen.dart';
+import '../screens/transaction_screen.dart';
+import '../screens/settings_screen.dart';
+import '../screens/transaction_form.dart';
+import '../screens/category_form.dart';
+import '../screens/account_form.dart';
+import '../screens/welcome_screen.dart';
+import '../screens/login_screen.dart';
+import '../screens/transaction_details_screen.dart';
+import '../screens/contact_screen.dart';
+import '../screens/contact_form.dart';
+import '../../domain/usecases/category_usecases.dart';
+import '../../domain/usecases/account_usecases.dart';
+import '../../domain/usecases/transaction_usecases.dart';
+import '../../domain/usecases/contact_usecases.dart';
+import '../../domain/entities/transaction.dart';
+import '../screens/backup_screen.dart';
 
 class AppRoutes {
   static const String welcome = '/welcome';

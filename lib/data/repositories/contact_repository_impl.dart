@@ -1,91 +1,111 @@
-import 'package:drift/drift.dart';
-import 'package:moneyt_pfm/data/local/daos/contact_dao.dart';
-import 'package:moneyt_pfm/data/local/database.dart';
-import 'package:moneyt_pfm/domain/entities/contact.dart';
+import 'package:injectable/injectable.dart';
+import '../../domain/entities/contact.dart';
 import '../../domain/repositories/contact_repository.dart';
+import '../local/daos/contact_dao.dart';
+import '../models/contact_model.dart';
 
+@Injectable(as: ContactRepository)
 class ContactRepositoryImpl implements ContactRepository {
-  final ContactDao _contactDao;
+  final ContactDao _dao;
 
-  ContactRepositoryImpl(this._contactDao);
-
-  Contact _mapToEntity(ContactTableData data) {
-    return Contact(
-      id: data.id,
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      notes: data.notes,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-    );
-  }
-
-  ContactTableData _mapToData(Contact contact) {
-    if (contact.id == null) {
-      throw ArgumentError('Contact id cannot be null when mapping to TableData');
-    }
-    return ContactTableData(
-      id: contact.id!,
-      name: contact.name,
-      email: contact.email,
-      phone: contact.phone,
-      notes: contact.notes,
-      createdAt: contact.createdAt,
-      updatedAt: contact.updatedAt,
-    );
-  }
-
-  ContactsCompanion _mapToCompanion(Contact contact) {
-    return ContactsCompanion(
-      id: contact.id == null ? const Value.absent() : Value(contact.id!),
-      name: Value(contact.name),
-      email: Value(contact.email),
-      phone: Value(contact.phone),
-      notes: Value(contact.notes),
-      createdAt: Value(contact.createdAt),
-      updatedAt: Value(contact.updatedAt),
-    );
-  }
+  ContactRepositoryImpl(this._dao);
 
   @override
   Future<List<Contact>> getAllContacts() async {
-    final contacts = await _contactDao.getAllContacts();
-    return contacts.map(_mapToEntity).toList();
+    final contacts = await _dao.getAllContacts();
+    return contacts.map((contact) => ContactModel(
+      id: contact.id,
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+      note: contact.note,
+      active: contact.active,
+      createdAt: contact.createdAt,
+      updatedAt: contact.updatedAt,
+      deletedAt: contact.deletedAt,
+    ).toEntity()).toList();
   }
 
   @override
   Stream<List<Contact>> watchAllContacts() {
-    return _contactDao.watchAllContacts().map(
-          (list) => list.map(_mapToEntity).toList(),
-        );
+    return _dao.watchAllContacts().map(
+      (contacts) => contacts.map((contact) => ContactModel(
+        id: contact.id,
+        name: contact.name,
+        email: contact.email,
+        phone: contact.phone,
+        note: contact.note,
+        active: contact.active,
+        createdAt: contact.createdAt,
+        updatedAt: contact.updatedAt,
+        deletedAt: contact.deletedAt,
+      ).toEntity()).toList()
+    );
   }
 
   @override
   Future<Contact> getContactById(int id) async {
-    final contact = await _contactDao.getContactById(id);
-    return _mapToEntity(contact);
-  }
-
-  @override
-  Stream<Contact> watchContactById(int id) {
-    return _contactDao.watchContactById(id).map(_mapToEntity);
+    final contact = await _dao.getContactById(id);
+    if (contact == null) {
+      throw Exception('Contact not found');  // Lanzar excepción si no se encuentra
+    }
+    
+    return ContactModel(
+      id: contact.id,
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+      note: contact.note,
+      active: contact.active,
+      createdAt: contact.createdAt,
+      updatedAt: contact.updatedAt,
+      deletedAt: contact.deletedAt,
+    ).toEntity();
   }
 
   @override
   Future<Contact> createContact(Contact contact) async {
-    final id = await _contactDao.insertContact(_mapToCompanion(contact));
-    return contact.copyWith(id: id);
+    final model = ContactModel.fromEntity(contact);
+    final id = await _dao.insertContact(model.toCompanion());
+    final createdContact = await _dao.getContactById(id);
+    if (createdContact == null) {
+      throw Exception('Failed to create contact');
+    }
+    return ContactModel(
+      id: createdContact.id,
+      name: createdContact.name,
+      email: createdContact.email,
+      phone: createdContact.phone,
+      note: createdContact.note,
+      active: createdContact.active,
+      createdAt: createdContact.createdAt,
+      updatedAt: createdContact.updatedAt,
+      deletedAt: createdContact.deletedAt,
+    ).toEntity();
   }
 
   @override
-  Future<bool> updateContact(Contact contact) {
-    return _contactDao.updateContact(_mapToCompanion(contact));
+  Future<void> updateContact(Contact contact) async {
+    final model = ContactModel.fromEntity(contact);
+    await _dao.updateContact(model.toCompanion());
   }
 
   @override
-  Future<bool> deleteContact(int id) async {
-    return await _contactDao.deleteContact(id) > 0;
+  Future<void> deleteContact(int id) => _dao.deleteContact(id);
+
+  @override
+  Stream<Contact> watchContactById(int id) {
+    return _dao.watchContactById(id).map((contact) => ContactModel(
+      id: contact.id,
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+      note: contact.note,
+      active: contact.active,
+      createdAt: contact.createdAt,
+      updatedAt: contact.updatedAt,
+      deletedAt: contact.deletedAt,
+    ).toEntity());
   }
 
   @override
@@ -94,14 +114,25 @@ class ContactRepositoryImpl implements ContactRepository {
       return null;
     }
 
-    final contacts = await _contactDao.getAllContacts();
+    final contacts = await _dao.getAllContacts();
     try {
       final existingContact = contacts.firstWhere(
         (contact) =>
           (email != null && email.isNotEmpty && contact.email == email) ||
           (phone != null && phone.isNotEmpty && contact.phone == phone),
       );
-      return _mapToEntity(existingContact);
+      
+      return ContactModel(
+        id: existingContact.id,
+        name: existingContact.name,
+        email: existingContact.email,
+        phone: existingContact.phone,
+        note: existingContact.note,
+        active: existingContact.active,
+        createdAt: existingContact.createdAt,
+        updatedAt: existingContact.updatedAt,
+        deletedAt: existingContact.deletedAt,
+      ).toEntity();
     } catch (e) {
       return null;
     }

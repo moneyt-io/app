@@ -1,40 +1,41 @@
-// lib/data/models/category_model.dart
 import 'package:drift/drift.dart';
-import '../../domain/entities/category.dart' as entity;
-import '../local/database.dart';
+import 'package:moneyt_pfm/data/local/database.dart';
+import '../../domain/entities/credit_card.dart';
 
-class CategoryModel {
+class CreditCardModel {
   final int id;
-  final int? parentId;
-  final String documentTypeId;
+  final String currencyId;
   final int chartAccountId;
   final String name;
-  final String icon;
+  final String? description;
+  final double quota;
+  final int closingDate;
   final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
 
-  CategoryModel({
+  CreditCardModel({
     required this.id,
-    this.parentId,
-    required this.documentTypeId,
+    required this.currencyId,
     required this.chartAccountId,
     required this.name,
-    required this.icon,
+    this.description,
+    required this.quota,
+    required this.closingDate,
     required this.active,
     required this.createdAt,
     this.updatedAt,
     this.deletedAt,
   });
 
-  // Constructor para nuevas categorías
-  CategoryModel.create({
-    this.parentId,
-    required this.documentTypeId,
+  CreditCardModel.create({
+    required this.currencyId,
     required this.chartAccountId,
     required this.name,
-    required this.icon,
+    this.description,
+    required this.quota,
+    required this.closingDate,
     bool? active,
   })  : id = 0,
         active = active ?? true,
@@ -42,41 +43,42 @@ class CategoryModel {
         updatedAt = null,
         deletedAt = null;
 
-  // Convertir a Companion para Drift
-  CategoriesCompanion toCompanion() => CategoriesCompanion(
+  CreditCardsCompanion toCompanion() => CreditCardsCompanion(
     id: id == 0 ? const Value.absent() : Value(id),
-    parentId: Value(parentId),
-    documentTypeId: Value(documentTypeId),
+    currencyId: Value(currencyId),
     chartAccountId: Value(chartAccountId),
     name: Value(name),
-    icon: Value(icon),
+    description: Value(description),
+    quota: Value(quota),
+    closingDate: Value(closingDate),
     active: Value(active),
     createdAt: Value(createdAt),
     updatedAt: Value(updatedAt),
     deletedAt: Value(deletedAt),
   );
 
-  // Conversión desde/hacia Domain Entity
-  entity.Category toEntity() => entity.Category(
+  CreditCard toEntity() => CreditCard(
     id: id,
-    parentId: parentId,
-    documentTypeId: documentTypeId,
+    currencyId: currencyId,
     chartAccountId: chartAccountId,
     name: name,
-    icon: icon,
+    description: description,
+    quota: quota,
+    closingDate: closingDate,
     active: active,
     createdAt: createdAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,
   );
 
-  factory CategoryModel.fromEntity(entity.Category entity) => CategoryModel(
+  factory CreditCardModel.fromEntity(CreditCard entity) => CreditCardModel(
     id: entity.id,
-    parentId: entity.parentId,
-    documentTypeId: entity.documentTypeId,
+    currencyId: entity.currencyId,
     chartAccountId: entity.chartAccountId,
     name: entity.name,
-    icon: entity.icon,
+    description: entity.description,
+    quota: entity.quota,
+    closingDate: entity.closingDate,
     active: entity.active,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,

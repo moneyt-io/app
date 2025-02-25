@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/usecases/category_usecases.dart';
-import '../../routes/app_routes.dart';
+import '../routes/app_routes.dart';
 import '../widgets/app_drawer.dart';
 import '../../core/l10n/language_manager.dart';
 

@@ -10,7 +10,7 @@ import '../widgets/home_balance_widget.dart';
 import '../widgets/home_monthly_stats_widget.dart';
 import '../widgets/expandable_fab_widget.dart';
 import '../../core/l10n/language_manager.dart';
-import '../../routes/app_routes.dart';
+import '../routes/app_routes.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import '../../core/navigation/navigation_service.dart';
 

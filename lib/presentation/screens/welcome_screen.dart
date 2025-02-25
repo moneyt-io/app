@@ -5,7 +5,7 @@ import '../widgets/loading_overlay.dart';
 import '../providers/auth_provider.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../core/l10n/models/language.dart';
-import '../../routes/app_routes.dart';
+import '../routes/app_routes.dart';
 import '../../data/local/database.dart';
 import '../../core/di/injection_container.dart';
 import '../../data/services/initialization_service.dart';

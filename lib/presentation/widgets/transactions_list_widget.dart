@@ -4,7 +4,7 @@ import '../../domain/entities/transaction.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/usecases/transaction_usecases.dart';
-import '../../routes/app_routes.dart';
+import '../routes/app_routes.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../presentation/providers/drawer_provider.dart';
 import 'package:intl/intl.dart';

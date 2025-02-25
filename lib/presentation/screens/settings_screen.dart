@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../core/l10n/language_manager.dart';
-import '../../routes/app_routes.dart';
+import '../routes/app_routes.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../widgets/social_links.dart';
 import '../widgets/sync_button.dart';

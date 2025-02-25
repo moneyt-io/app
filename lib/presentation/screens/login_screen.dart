@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart' show AppAuthProvider;
 import '../widgets/loading_overlay.dart';
 import '../../core/l10n/language_manager.dart';
-import '../../routes/app_routes.dart';
+import '../routes/app_routes.dart';
 
 // Estado del formulario de login
 class LoginFormState {

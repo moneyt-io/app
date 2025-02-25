@@ -1,63 +1,60 @@
-class Contact {
-  final int? id;
+import 'package:equatable/equatable.dart';
+
+class Contact extends Equatable {
+  final int id;
   final String name;
   final String? email;
   final String? phone;
-  final String? notes;
+  final String? note;
+  final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DateTime? deletedAt;
 
   const Contact({
-    this.id,
+    required this.id,
     required this.name,
     this.email,
     this.phone,
-    this.notes,
+    this.note,
+    required this.active,
     required this.createdAt,
     this.updatedAt,
+    this.deletedAt,
   });
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Contact &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          name == other.name &&
-          email == other.email &&
-          phone == other.phone &&
-          notes == other.notes &&
-          createdAt == other.createdAt &&
-          updatedAt == other.updatedAt;
-
-  @override
-  int get hashCode => Object.hash(
-        id,
-        name,
-        email,
-        phone,
-        notes,
-        createdAt,
-        updatedAt,
-      );
+  List<Object?> get props => [
+    id,
+    name,
+    email,
+    phone,
+    note,
+    active,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
 
   Contact copyWith({
     int? id,
     String? name,
     String? email,
     String? phone,
-    String? notes,
+    String? note,
+    bool? active,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) {
-    return Contact(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      email: email ?? this.email,
-      phone: phone ?? this.phone,
-      notes: notes ?? this.notes,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+    DateTime? deletedAt,
+  }) => Contact(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    email: email ?? this.email,
+    phone: phone ?? this.phone,
+    note: note ?? this.note,
+    active: active ?? this.active,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt ?? this.deletedAt,
+  );
 }

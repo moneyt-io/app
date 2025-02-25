@@ -11,7 +11,7 @@ import 'core/l10n/language_manager.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/providers/auth_provider.dart';
 import 'presentation/providers/drawer_provider.dart';
-import 'routes/app_routes.dart';
+import 'presentation/routes/app_routes.dart';
 import 'firebase_options.dart';
 import 'data/services/sync_service.dart';
 import 'data/services/backup_service.dart'; // Importar BackupService

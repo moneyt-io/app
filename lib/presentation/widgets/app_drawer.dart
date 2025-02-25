@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import '../../routes/app_routes.dart';
+import '../routes/app_routes.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../core/navigation/navigation_service.dart';
 import '../providers/drawer_provider.dart';

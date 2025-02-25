@@ -117,7 +117,7 @@ a) Plan de Cuentas:
 
 b) Categorías:
    - Tabla categories (crea cuentas contables en la sección correspondiente de ingreso o egreso):
-     SELECT id, parent_id, document_type_id, chart_account_id, name, active, created_at, updated_at, deleted_at
+     SELECT id, parent_id, document_type_id, chart_account_id, name, icon, active, created_at, updated_at, deleted_at
      FROM categories;
 
 c) Cuentas Bancarias y Efectvo:
@@ -211,6 +211,103 @@ j) Tablas de Referencia:
 - La aplicación busca combinar la sencillez de uso con una robusta gestión contable interna.
 - La interfaz es intuitiva, mientras que la lógica de negocio y la estructura de datos están diseñadas para soportar operaciones financieras y contables complejas.
 - El uso de Firebase, SQLite y otras dependencias garantiza una alta escalabilidad y sincronización en tiempo real.
+
+------------------------------------------------------------------------
+8. ESTRUCTURA DE LA CAPA DE DATOS (DATA LAYER)
+----------------------------------
+La capa de datos sigue una estructura consistente para cada entidad:
+
+a) Estructura de Archivos:
+   lib/data/
+   ├── local/
+   │   ├── tables/              -> Definiciones de tablas Drift
+   │   ├── daos/               -> Data Access Objects
+   │   └── database.dart       -> Configuración central de Drift
+   ├── models/                 -> Modelos de datos
+   └── repositories/           -> Implementaciones de repositorios
+
+b) Convenciones de Nombrado (ACTUALIZADO):
+   - Tablas: Singular para la clase, Plural para el DataClassName 
+     Ejemplo: 
+     ```dart
+     @DataClassName('Categories')
+     class Category extends Table { }
+     ```
+   - DAOs: Singular (ej: CategoryDao, WalletDao)
+   - Modelos: Singular (ej: CategoryModel, WalletModel)
+   - Repositorios: Singular (ej: CategoryRepository, WalletRepository)
+
+c) Estructura por Componente:
+
+1. Entidad del Dominio (xxx.dart):
+```dart
+class XXX extends Equatable {
+  final int id;
+  // ... campos ...
+  
+  @override
+  List<Object?> get props => [id, ...];
+}
+```
+
+2. Tabla (xxx_table.dart):
+```dart
+@DataClassName('XXXs')
+class XXX extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  // ... campos ...
+}
+```
+
+3. Modelo (xxx_model.dart):
+```dart
+class XXXModel {
+  final int id;
+  // ... campos ...
+
+  XXXModel({required this.id, ...});
+  XXXModel.create({...});  // Para nuevas instancias
+  
+  XXXsCompanion toCompanion() => ...
+  XXX toEntity() => ...
+  factory XXXModel.fromEntity(XXX entity) => ...
+}
+```
+
+4. Repositorio del Dominio (xxx_repository.dart):
+```dart
+abstract class XXXRepository {
+  Future<List<XXX>> getAll();
+  Future<XXX?> getById(int id);
+  Stream<List<XXX>> watchAll();
+  Future<XXX> create(XXX xxx);
+  Future<void> update(XXX xxx);
+  Future<void> delete(int id);
+}
+```
+
+d) Patrones y Prácticas:
+   - Uso de Drift para el manejo de SQLite
+   - Inyección de dependencias con Injectable
+   - Mapeo entre modelos y entidades
+   - Manejo de errores consistente
+   - Uso de Companions para operaciones CRUD
+   - Stream para observación de cambios
+
+e) Flujo de Datos:
+   1. La UI solicita datos a través del repositorio del dominio
+   2. La implementación del repositorio usa el DAO
+   3. El DAO accede a la base de datos mediante Drift
+   4. Los resultados se mapean a modelos
+   5. Los modelos se convierten a entidades
+   6. Las entidades se devuelven a la UI
+
+f) Convenciones de Código:
+   - Nombres de archivos en snake_case
+   - Clases en PascalCase
+   - Métodos en camelCase
+   - IDs son tipo int para tablas principales
+   - IDs son String(1) para tablas referenciales
 
 ========================================================================
 Fin del Contexto

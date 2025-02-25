@@ -2,9 +2,9 @@
 import '../entities/category.dart';
 
 abstract class CategoryRepository {
-  Stream<List<CategoryEntity>> watchCategories();
-  Future<List<CategoryEntity>> getCategories();
-  Future<void> createCategory(CategoryEntity category);
-  Future<void> updateCategory(CategoryEntity category);
+  Stream<List<Category>> watchCategories();
+  Future<List<Category>> getCategories();
+  Future<void> createCategory(Category category);
+  Future<void> updateCategory(Category category);
   Future<void> deleteCategory(int id);
 }

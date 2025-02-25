@@ -2,11 +2,11 @@ import '../entities/contact.dart';
 
 abstract class ContactRepository {
   Future<List<Contact>> getAllContacts();
-  Stream<List<Contact>> watchAllContacts();
-  Future<Contact> getContactById(int id);
-  Stream<Contact> watchContactById(int id);
+  Future<Contact?> getContactById(int id);
   Future<Contact> createContact(Contact contact);
-  Future<bool> updateContact(Contact contact);
-  Future<bool> deleteContact(int id);
+  Future<void> updateContact(Contact contact);
+  Future<void> deleteContact(int id);
+  Stream<List<Contact>> watchAllContacts();
+  Stream<Contact> watchContactById(int id);
   Future<Contact?> findExistingContact(String? email, String? phone);
 }

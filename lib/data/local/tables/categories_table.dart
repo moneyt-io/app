@@ -9,10 +9,11 @@ class Category extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get parentId => integer().nullable().references(Category, #id)();
   TextColumn get documentTypeId => text().withLength(min: 1, max: 1).references(DocumentType, #id)();
-  TextColumn get chartAccountId => text().withLength(min: 1, max: 1).references(ChartAccount, #id)();
+  IntColumn get chartAccountId => integer().references(ChartAccount, #id)();
 
   // Main Data Fields
   TextColumn get name => text().withLength(min: 1, max: 50)();
+  TextColumn get icon => text().withLength(min: 1, max: 50)();
   
   // Audit fields
   BoolColumn get active => boolean().withDefault(const Constant(true))();

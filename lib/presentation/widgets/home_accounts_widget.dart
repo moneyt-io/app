@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../domain/entities/account.dart';
 import '../../domain/usecases/transaction_usecases.dart';
-import '../../routes/app_routes.dart';
+import '../routes/app_routes.dart';
 import '../../presentation/providers/drawer_provider.dart';
 
 class HomeAccountsWidget extends StatelessWidget {

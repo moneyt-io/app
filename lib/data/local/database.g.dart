@@ -1066,20 +1066,19 @@ class $ChartAccountTable extends ChartAccount
   $ChartAccountTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
       'id', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 1),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true);
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _parentIdMeta =
       const VerificationMeta('parentId');
   @override
-  late final GeneratedColumn<String> parentId = GeneratedColumn<String>(
+  late final GeneratedColumn<int> parentId = GeneratedColumn<int>(
       'parent_id', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 1),
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES chart_account (id)'));
@@ -1169,8 +1168,6 @@ class $ChartAccountTable extends ChartAccount
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
     }
     if (data.containsKey('parent_id')) {
       context.handle(_parentIdMeta,
@@ -1222,15 +1219,15 @@ class $ChartAccountTable extends ChartAccount
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => const {};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   ChartAccounts map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ChartAccounts(
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       parentId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}parent_id']),
+          .read(DriftSqlType.int, data['${effectivePrefix}parent_id']),
       accountingTypeId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}accounting_type_id'])!,
       code: attachedDatabase.typeMapping
@@ -1257,8 +1254,8 @@ class $ChartAccountTable extends ChartAccount
 }
 
 class ChartAccounts extends DataClass implements Insertable<ChartAccounts> {
-  final String id;
-  final String? parentId;
+  final int id;
+  final int? parentId;
   final String accountingTypeId;
   final String code;
   final int level;
@@ -1281,9 +1278,9 @@ class ChartAccounts extends DataClass implements Insertable<ChartAccounts> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
+    map['id'] = Variable<int>(id);
     if (!nullToAbsent || parentId != null) {
-      map['parent_id'] = Variable<String>(parentId);
+      map['parent_id'] = Variable<int>(parentId);
     }
     map['accounting_type_id'] = Variable<String>(accountingTypeId);
     map['code'] = Variable<String>(code);
@@ -1325,8 +1322,8 @@ class ChartAccounts extends DataClass implements Insertable<ChartAccounts> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ChartAccounts(
-      id: serializer.fromJson<String>(json['id']),
-      parentId: serializer.fromJson<String?>(json['parentId']),
+      id: serializer.fromJson<int>(json['id']),
+      parentId: serializer.fromJson<int?>(json['parentId']),
       accountingTypeId: serializer.fromJson<String>(json['accountingTypeId']),
       code: serializer.fromJson<String>(json['code']),
       level: serializer.fromJson<int>(json['level']),
@@ -1341,8 +1338,8 @@ class ChartAccounts extends DataClass implements Insertable<ChartAccounts> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'parentId': serializer.toJson<String?>(parentId),
+      'id': serializer.toJson<int>(id),
+      'parentId': serializer.toJson<int?>(parentId),
       'accountingTypeId': serializer.toJson<String>(accountingTypeId),
       'code': serializer.toJson<String>(code),
       'level': serializer.toJson<int>(level),
@@ -1355,8 +1352,8 @@ class ChartAccounts extends DataClass implements Insertable<ChartAccounts> {
   }
 
   ChartAccounts copyWith(
-          {String? id,
-          Value<String?> parentId = const Value.absent(),
+          {int? id,
+          Value<int?> parentId = const Value.absent(),
           String? accountingTypeId,
           String? code,
           int? level,
@@ -1431,8 +1428,8 @@ class ChartAccounts extends DataClass implements Insertable<ChartAccounts> {
 }
 
 class ChartAccountsCompanion extends UpdateCompanion<ChartAccounts> {
-  final Value<String> id;
-  final Value<String?> parentId;
+  final Value<int> id;
+  final Value<int?> parentId;
   final Value<String> accountingTypeId;
   final Value<String> code;
   final Value<int> level;
@@ -1441,7 +1438,6 @@ class ChartAccountsCompanion extends UpdateCompanion<ChartAccounts> {
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
   final Value<DateTime?> deletedAt;
-  final Value<int> rowid;
   const ChartAccountsCompanion({
     this.id = const Value.absent(),
     this.parentId = const Value.absent(),
@@ -1453,10 +1449,9 @@ class ChartAccountsCompanion extends UpdateCompanion<ChartAccounts> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
   });
   ChartAccountsCompanion.insert({
-    required String id,
+    this.id = const Value.absent(),
     this.parentId = const Value.absent(),
     required String accountingTypeId,
     required String code,
@@ -1466,15 +1461,13 @@ class ChartAccountsCompanion extends UpdateCompanion<ChartAccounts> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        accountingTypeId = Value(accountingTypeId),
+  })  : accountingTypeId = Value(accountingTypeId),
         code = Value(code),
         level = Value(level),
         name = Value(name);
   static Insertable<ChartAccounts> custom({
-    Expression<String>? id,
-    Expression<String>? parentId,
+    Expression<int>? id,
+    Expression<int>? parentId,
     Expression<String>? accountingTypeId,
     Expression<String>? code,
     Expression<int>? level,
@@ -1483,7 +1476,6 @@ class ChartAccountsCompanion extends UpdateCompanion<ChartAccounts> {
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
-    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1496,13 +1488,12 @@ class ChartAccountsCompanion extends UpdateCompanion<ChartAccounts> {
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
-      if (rowid != null) 'rowid': rowid,
     });
   }
 
   ChartAccountsCompanion copyWith(
-      {Value<String>? id,
-      Value<String?>? parentId,
+      {Value<int>? id,
+      Value<int?>? parentId,
       Value<String>? accountingTypeId,
       Value<String>? code,
       Value<int>? level,
@@ -1510,8 +1501,7 @@ class ChartAccountsCompanion extends UpdateCompanion<ChartAccounts> {
       Value<bool>? active,
       Value<DateTime>? createdAt,
       Value<DateTime?>? updatedAt,
-      Value<DateTime?>? deletedAt,
-      Value<int>? rowid}) {
+      Value<DateTime?>? deletedAt}) {
     return ChartAccountsCompanion(
       id: id ?? this.id,
       parentId: parentId ?? this.parentId,
@@ -1523,7 +1513,6 @@ class ChartAccountsCompanion extends UpdateCompanion<ChartAccounts> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
-      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -1531,10 +1520,10 @@ class ChartAccountsCompanion extends UpdateCompanion<ChartAccounts> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (id.present) {
-      map['id'] = Variable<String>(id.value);
+      map['id'] = Variable<int>(id.value);
     }
     if (parentId.present) {
-      map['parent_id'] = Variable<String>(parentId.value);
+      map['parent_id'] = Variable<int>(parentId.value);
     }
     if (accountingTypeId.present) {
       map['accounting_type_id'] = Variable<String>(accountingTypeId.value);
@@ -1560,9 +1549,6 @@ class ChartAccountsCompanion extends UpdateCompanion<ChartAccounts> {
     if (deletedAt.present) {
       map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
     return map;
   }
 
@@ -1578,8 +1564,7 @@ class ChartAccountsCompanion extends UpdateCompanion<ChartAccounts> {
           ..write('active: $active, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('rowid: $rowid')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
@@ -1623,11 +1608,9 @@ class $CategoryTable extends Category
   static const VerificationMeta _chartAccountIdMeta =
       const VerificationMeta('chartAccountId');
   @override
-  late final GeneratedColumn<String> chartAccountId = GeneratedColumn<String>(
+  late final GeneratedColumn<int> chartAccountId = GeneratedColumn<int>(
       'chart_account_id', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 1),
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: true,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES chart_account (id)'));
@@ -1635,6 +1618,14 @@ class $CategoryTable extends Category
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 50),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _iconMeta = const VerificationMeta('icon');
+  @override
+  late final GeneratedColumn<String> icon = GeneratedColumn<String>(
+      'icon', aliasedName, false,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 50),
       type: DriftSqlType.string,
@@ -1675,6 +1666,7 @@ class $CategoryTable extends Category
         documentTypeId,
         chartAccountId,
         name,
+        icon,
         active,
         createdAt,
         updatedAt,
@@ -1719,6 +1711,12 @@ class $CategoryTable extends Category
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
+    if (data.containsKey('icon')) {
+      context.handle(
+          _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
+    } else if (isInserting) {
+      context.missing(_iconMeta);
+    }
     if (data.containsKey('active')) {
       context.handle(_activeMeta,
           active.isAcceptableOrUnknown(data['active']!, _activeMeta));
@@ -1750,10 +1748,12 @@ class $CategoryTable extends Category
           .read(DriftSqlType.int, data['${effectivePrefix}parent_id']),
       documentTypeId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}document_type_id'])!,
-      chartAccountId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}chart_account_id'])!,
+      chartAccountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}chart_account_id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      icon: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}icon'])!,
       active: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}active'])!,
       createdAt: attachedDatabase.typeMapping
@@ -1775,8 +1775,9 @@ class Categories extends DataClass implements Insertable<Categories> {
   final int id;
   final int? parentId;
   final String documentTypeId;
-  final String chartAccountId;
+  final int chartAccountId;
   final String name;
+  final String icon;
   final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -1787,6 +1788,7 @@ class Categories extends DataClass implements Insertable<Categories> {
       required this.documentTypeId,
       required this.chartAccountId,
       required this.name,
+      required this.icon,
       required this.active,
       required this.createdAt,
       this.updatedAt,
@@ -1799,8 +1801,9 @@ class Categories extends DataClass implements Insertable<Categories> {
       map['parent_id'] = Variable<int>(parentId);
     }
     map['document_type_id'] = Variable<String>(documentTypeId);
-    map['chart_account_id'] = Variable<String>(chartAccountId);
+    map['chart_account_id'] = Variable<int>(chartAccountId);
     map['name'] = Variable<String>(name);
+    map['icon'] = Variable<String>(icon);
     map['active'] = Variable<bool>(active);
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || updatedAt != null) {
@@ -1821,6 +1824,7 @@ class Categories extends DataClass implements Insertable<Categories> {
       documentTypeId: Value(documentTypeId),
       chartAccountId: Value(chartAccountId),
       name: Value(name),
+      icon: Value(icon),
       active: Value(active),
       createdAt: Value(createdAt),
       updatedAt: updatedAt == null && nullToAbsent
@@ -1839,8 +1843,9 @@ class Categories extends DataClass implements Insertable<Categories> {
       id: serializer.fromJson<int>(json['id']),
       parentId: serializer.fromJson<int?>(json['parentId']),
       documentTypeId: serializer.fromJson<String>(json['documentTypeId']),
-      chartAccountId: serializer.fromJson<String>(json['chartAccountId']),
+      chartAccountId: serializer.fromJson<int>(json['chartAccountId']),
       name: serializer.fromJson<String>(json['name']),
+      icon: serializer.fromJson<String>(json['icon']),
       active: serializer.fromJson<bool>(json['active']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
@@ -1854,8 +1859,9 @@ class Categories extends DataClass implements Insertable<Categories> {
       'id': serializer.toJson<int>(id),
       'parentId': serializer.toJson<int?>(parentId),
       'documentTypeId': serializer.toJson<String>(documentTypeId),
-      'chartAccountId': serializer.toJson<String>(chartAccountId),
+      'chartAccountId': serializer.toJson<int>(chartAccountId),
       'name': serializer.toJson<String>(name),
+      'icon': serializer.toJson<String>(icon),
       'active': serializer.toJson<bool>(active),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
@@ -1867,8 +1873,9 @@ class Categories extends DataClass implements Insertable<Categories> {
           {int? id,
           Value<int?> parentId = const Value.absent(),
           String? documentTypeId,
-          String? chartAccountId,
+          int? chartAccountId,
           String? name,
+          String? icon,
           bool? active,
           DateTime? createdAt,
           Value<DateTime?> updatedAt = const Value.absent(),
@@ -1879,6 +1886,7 @@ class Categories extends DataClass implements Insertable<Categories> {
         documentTypeId: documentTypeId ?? this.documentTypeId,
         chartAccountId: chartAccountId ?? this.chartAccountId,
         name: name ?? this.name,
+        icon: icon ?? this.icon,
         active: active ?? this.active,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
@@ -1895,6 +1903,7 @@ class Categories extends DataClass implements Insertable<Categories> {
           ? data.chartAccountId.value
           : this.chartAccountId,
       name: data.name.present ? data.name.value : this.name,
+      icon: data.icon.present ? data.icon.value : this.icon,
       active: data.active.present ? data.active.value : this.active,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -1910,6 +1919,7 @@ class Categories extends DataClass implements Insertable<Categories> {
           ..write('documentTypeId: $documentTypeId, ')
           ..write('chartAccountId: $chartAccountId, ')
           ..write('name: $name, ')
+          ..write('icon: $icon, ')
           ..write('active: $active, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -1920,7 +1930,7 @@ class Categories extends DataClass implements Insertable<Categories> {
 
   @override
   int get hashCode => Object.hash(id, parentId, documentTypeId, chartAccountId,
-      name, active, createdAt, updatedAt, deletedAt);
+      name, icon, active, createdAt, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1930,6 +1940,7 @@ class Categories extends DataClass implements Insertable<Categories> {
           other.documentTypeId == this.documentTypeId &&
           other.chartAccountId == this.chartAccountId &&
           other.name == this.name &&
+          other.icon == this.icon &&
           other.active == this.active &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
@@ -1940,8 +1951,9 @@ class CategoriesCompanion extends UpdateCompanion<Categories> {
   final Value<int> id;
   final Value<int?> parentId;
   final Value<String> documentTypeId;
-  final Value<String> chartAccountId;
+  final Value<int> chartAccountId;
   final Value<String> name;
+  final Value<String> icon;
   final Value<bool> active;
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
@@ -1952,6 +1964,7 @@ class CategoriesCompanion extends UpdateCompanion<Categories> {
     this.documentTypeId = const Value.absent(),
     this.chartAccountId = const Value.absent(),
     this.name = const Value.absent(),
+    this.icon = const Value.absent(),
     this.active = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -1961,21 +1974,24 @@ class CategoriesCompanion extends UpdateCompanion<Categories> {
     this.id = const Value.absent(),
     this.parentId = const Value.absent(),
     required String documentTypeId,
-    required String chartAccountId,
+    required int chartAccountId,
     required String name,
+    required String icon,
     this.active = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
   })  : documentTypeId = Value(documentTypeId),
         chartAccountId = Value(chartAccountId),
-        name = Value(name);
+        name = Value(name),
+        icon = Value(icon);
   static Insertable<Categories> custom({
     Expression<int>? id,
     Expression<int>? parentId,
     Expression<String>? documentTypeId,
-    Expression<String>? chartAccountId,
+    Expression<int>? chartAccountId,
     Expression<String>? name,
+    Expression<String>? icon,
     Expression<bool>? active,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -1987,6 +2003,7 @@ class CategoriesCompanion extends UpdateCompanion<Categories> {
       if (documentTypeId != null) 'document_type_id': documentTypeId,
       if (chartAccountId != null) 'chart_account_id': chartAccountId,
       if (name != null) 'name': name,
+      if (icon != null) 'icon': icon,
       if (active != null) 'active': active,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -1998,8 +2015,9 @@ class CategoriesCompanion extends UpdateCompanion<Categories> {
       {Value<int>? id,
       Value<int?>? parentId,
       Value<String>? documentTypeId,
-      Value<String>? chartAccountId,
+      Value<int>? chartAccountId,
       Value<String>? name,
+      Value<String>? icon,
       Value<bool>? active,
       Value<DateTime>? createdAt,
       Value<DateTime?>? updatedAt,
@@ -2010,6 +2028,7 @@ class CategoriesCompanion extends UpdateCompanion<Categories> {
       documentTypeId: documentTypeId ?? this.documentTypeId,
       chartAccountId: chartAccountId ?? this.chartAccountId,
       name: name ?? this.name,
+      icon: icon ?? this.icon,
       active: active ?? this.active,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -2030,10 +2049,13 @@ class CategoriesCompanion extends UpdateCompanion<Categories> {
       map['document_type_id'] = Variable<String>(documentTypeId.value);
     }
     if (chartAccountId.present) {
-      map['chart_account_id'] = Variable<String>(chartAccountId.value);
+      map['chart_account_id'] = Variable<int>(chartAccountId.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (icon.present) {
+      map['icon'] = Variable<String>(icon.value);
     }
     if (active.present) {
       map['active'] = Variable<bool>(active.value);
@@ -2058,6 +2080,7 @@ class CategoriesCompanion extends UpdateCompanion<Categories> {
           ..write('documentTypeId: $documentTypeId, ')
           ..write('chartAccountId: $chartAccountId, ')
           ..write('name: $name, ')
+          ..write('icon: $icon, ')
           ..write('active: $active, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -2541,11 +2564,9 @@ class $WalletTable extends Wallet with TableInfo<$WalletTable, Wallets> {
   static const VerificationMeta _chartAccountIdMeta =
       const VerificationMeta('chartAccountId');
   @override
-  late final GeneratedColumn<String> chartAccountId = GeneratedColumn<String>(
+  late final GeneratedColumn<int> chartAccountId = GeneratedColumn<int>(
       'chart_account_id', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 1),
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: true,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES chart_account (id)'));
@@ -2674,8 +2695,8 @@ class $WalletTable extends Wallet with TableInfo<$WalletTable, Wallets> {
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       currencyId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}currency_id'])!,
-      chartAccountId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}chart_account_id'])!,
+      chartAccountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}chart_account_id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       description: attachedDatabase.typeMapping
@@ -2700,7 +2721,7 @@ class $WalletTable extends Wallet with TableInfo<$WalletTable, Wallets> {
 class Wallets extends DataClass implements Insertable<Wallets> {
   final int id;
   final String currencyId;
-  final String chartAccountId;
+  final int chartAccountId;
   final String name;
   final String? description;
   final bool active;
@@ -2722,7 +2743,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['currency_id'] = Variable<String>(currencyId);
-    map['chart_account_id'] = Variable<String>(chartAccountId);
+    map['chart_account_id'] = Variable<int>(chartAccountId);
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
@@ -2764,7 +2785,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
     return Wallets(
       id: serializer.fromJson<int>(json['id']),
       currencyId: serializer.fromJson<String>(json['currencyId']),
-      chartAccountId: serializer.fromJson<String>(json['chartAccountId']),
+      chartAccountId: serializer.fromJson<int>(json['chartAccountId']),
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String?>(json['description']),
       active: serializer.fromJson<bool>(json['active']),
@@ -2779,7 +2800,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'currencyId': serializer.toJson<String>(currencyId),
-      'chartAccountId': serializer.toJson<String>(chartAccountId),
+      'chartAccountId': serializer.toJson<int>(chartAccountId),
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String?>(description),
       'active': serializer.toJson<bool>(active),
@@ -2792,7 +2813,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
   Wallets copyWith(
           {int? id,
           String? currencyId,
-          String? chartAccountId,
+          int? chartAccountId,
           String? name,
           Value<String?> description = const Value.absent(),
           bool? active,
@@ -2865,7 +2886,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
 class WalletsCompanion extends UpdateCompanion<Wallets> {
   final Value<int> id;
   final Value<String> currencyId;
-  final Value<String> chartAccountId;
+  final Value<int> chartAccountId;
   final Value<String> name;
   final Value<String?> description;
   final Value<bool> active;
@@ -2886,7 +2907,7 @@ class WalletsCompanion extends UpdateCompanion<Wallets> {
   WalletsCompanion.insert({
     this.id = const Value.absent(),
     required String currencyId,
-    required String chartAccountId,
+    required int chartAccountId,
     required String name,
     this.description = const Value.absent(),
     this.active = const Value.absent(),
@@ -2899,7 +2920,7 @@ class WalletsCompanion extends UpdateCompanion<Wallets> {
   static Insertable<Wallets> custom({
     Expression<int>? id,
     Expression<String>? currencyId,
-    Expression<String>? chartAccountId,
+    Expression<int>? chartAccountId,
     Expression<String>? name,
     Expression<String>? description,
     Expression<bool>? active,
@@ -2923,7 +2944,7 @@ class WalletsCompanion extends UpdateCompanion<Wallets> {
   WalletsCompanion copyWith(
       {Value<int>? id,
       Value<String>? currencyId,
-      Value<String>? chartAccountId,
+      Value<int>? chartAccountId,
       Value<String>? name,
       Value<String?>? description,
       Value<bool>? active,
@@ -2953,7 +2974,7 @@ class WalletsCompanion extends UpdateCompanion<Wallets> {
       map['currency_id'] = Variable<String>(currencyId.value);
     }
     if (chartAccountId.present) {
-      map['chart_account_id'] = Variable<String>(chartAccountId.value);
+      map['chart_account_id'] = Variable<int>(chartAccountId.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -3022,11 +3043,9 @@ class $CreditCardTable extends CreditCard
   static const VerificationMeta _chartAccountIdMeta =
       const VerificationMeta('chartAccountId');
   @override
-  late final GeneratedColumn<String> chartAccountId = GeneratedColumn<String>(
+  late final GeneratedColumn<int> chartAccountId = GeneratedColumn<int>(
       'chart_account_id', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 1),
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: true,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES chart_account (id)'));
@@ -3182,8 +3201,8 @@ class $CreditCardTable extends CreditCard
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       currencyId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}currency_id'])!,
-      chartAccountId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}chart_account_id'])!,
+      chartAccountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}chart_account_id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       description: attachedDatabase.typeMapping
@@ -3212,7 +3231,7 @@ class $CreditCardTable extends CreditCard
 class CreditCards extends DataClass implements Insertable<CreditCards> {
   final int id;
   final String currencyId;
-  final String chartAccountId;
+  final int chartAccountId;
   final String name;
   final String? description;
   final double quota;
@@ -3238,7 +3257,7 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['currency_id'] = Variable<String>(currencyId);
-    map['chart_account_id'] = Variable<String>(chartAccountId);
+    map['chart_account_id'] = Variable<int>(chartAccountId);
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
@@ -3284,7 +3303,7 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
     return CreditCards(
       id: serializer.fromJson<int>(json['id']),
       currencyId: serializer.fromJson<String>(json['currencyId']),
-      chartAccountId: serializer.fromJson<String>(json['chartAccountId']),
+      chartAccountId: serializer.fromJson<int>(json['chartAccountId']),
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String?>(json['description']),
       quota: serializer.fromJson<double>(json['quota']),
@@ -3301,7 +3320,7 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'currencyId': serializer.toJson<String>(currencyId),
-      'chartAccountId': serializer.toJson<String>(chartAccountId),
+      'chartAccountId': serializer.toJson<int>(chartAccountId),
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String?>(description),
       'quota': serializer.toJson<double>(quota),
@@ -3316,7 +3335,7 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
   CreditCards copyWith(
           {int? id,
           String? currencyId,
-          String? chartAccountId,
+          int? chartAccountId,
           String? name,
           Value<String?> description = const Value.absent(),
           double? quota,
@@ -3400,7 +3419,7 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
 class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
   final Value<int> id;
   final Value<String> currencyId;
-  final Value<String> chartAccountId;
+  final Value<int> chartAccountId;
   final Value<String> name;
   final Value<String?> description;
   final Value<double> quota;
@@ -3425,7 +3444,7 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
   CreditCardsCompanion.insert({
     this.id = const Value.absent(),
     required String currencyId,
-    required String chartAccountId,
+    required int chartAccountId,
     required String name,
     this.description = const Value.absent(),
     required double quota,
@@ -3442,7 +3461,7 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
   static Insertable<CreditCards> custom({
     Expression<int>? id,
     Expression<String>? currencyId,
-    Expression<String>? chartAccountId,
+    Expression<int>? chartAccountId,
     Expression<String>? name,
     Expression<String>? description,
     Expression<double>? quota,
@@ -3470,7 +3489,7 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
   CreditCardsCompanion copyWith(
       {Value<int>? id,
       Value<String>? currencyId,
-      Value<String>? chartAccountId,
+      Value<int>? chartAccountId,
       Value<String>? name,
       Value<String?>? description,
       Value<double>? quota,
@@ -3504,7 +3523,7 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
       map['currency_id'] = Variable<String>(currencyId.value);
     }
     if (chartAccountId.present) {
-      map['chart_account_id'] = Variable<String>(chartAccountId.value);
+      map['chart_account_id'] = Variable<int>(chartAccountId.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -4063,11 +4082,9 @@ class $JournalDetailTable extends JournalDetail
   static const VerificationMeta _chartAccountIdMeta =
       const VerificationMeta('chartAccountId');
   @override
-  late final GeneratedColumn<String> chartAccountId = GeneratedColumn<String>(
+  late final GeneratedColumn<int> chartAccountId = GeneratedColumn<int>(
       'chart_account_id', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 1),
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: true,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES chart_account (id)'));
@@ -4160,8 +4177,8 @@ class $JournalDetailTable extends JournalDetail
           .read(DriftSqlType.int, data['${effectivePrefix}journal_id'])!,
       currencyId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}currency_id'])!,
-      chartAccountId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}chart_account_id'])!,
+      chartAccountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}chart_account_id'])!,
       credit: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}credit'])!,
       debit: attachedDatabase.typeMapping
@@ -4181,7 +4198,7 @@ class JournalDetails extends DataClass implements Insertable<JournalDetails> {
   final int id;
   final int journalId;
   final String currencyId;
-  final String chartAccountId;
+  final int chartAccountId;
   final double credit;
   final double debit;
   final double rateExchange;
@@ -4199,7 +4216,7 @@ class JournalDetails extends DataClass implements Insertable<JournalDetails> {
     map['id'] = Variable<int>(id);
     map['journal_id'] = Variable<int>(journalId);
     map['currency_id'] = Variable<String>(currencyId);
-    map['chart_account_id'] = Variable<String>(chartAccountId);
+    map['chart_account_id'] = Variable<int>(chartAccountId);
     map['credit'] = Variable<double>(credit);
     map['debit'] = Variable<double>(debit);
     map['rate_exchange'] = Variable<double>(rateExchange);
@@ -4225,7 +4242,7 @@ class JournalDetails extends DataClass implements Insertable<JournalDetails> {
       id: serializer.fromJson<int>(json['id']),
       journalId: serializer.fromJson<int>(json['journalId']),
       currencyId: serializer.fromJson<String>(json['currencyId']),
-      chartAccountId: serializer.fromJson<String>(json['chartAccountId']),
+      chartAccountId: serializer.fromJson<int>(json['chartAccountId']),
       credit: serializer.fromJson<double>(json['credit']),
       debit: serializer.fromJson<double>(json['debit']),
       rateExchange: serializer.fromJson<double>(json['rateExchange']),
@@ -4238,7 +4255,7 @@ class JournalDetails extends DataClass implements Insertable<JournalDetails> {
       'id': serializer.toJson<int>(id),
       'journalId': serializer.toJson<int>(journalId),
       'currencyId': serializer.toJson<String>(currencyId),
-      'chartAccountId': serializer.toJson<String>(chartAccountId),
+      'chartAccountId': serializer.toJson<int>(chartAccountId),
       'credit': serializer.toJson<double>(credit),
       'debit': serializer.toJson<double>(debit),
       'rateExchange': serializer.toJson<double>(rateExchange),
@@ -4249,7 +4266,7 @@ class JournalDetails extends DataClass implements Insertable<JournalDetails> {
           {int? id,
           int? journalId,
           String? currencyId,
-          String? chartAccountId,
+          int? chartAccountId,
           double? credit,
           double? debit,
           double? rateExchange}) =>
@@ -4313,7 +4330,7 @@ class JournalDetailsCompanion extends UpdateCompanion<JournalDetails> {
   final Value<int> id;
   final Value<int> journalId;
   final Value<String> currencyId;
-  final Value<String> chartAccountId;
+  final Value<int> chartAccountId;
   final Value<double> credit;
   final Value<double> debit;
   final Value<double> rateExchange;
@@ -4330,7 +4347,7 @@ class JournalDetailsCompanion extends UpdateCompanion<JournalDetails> {
     this.id = const Value.absent(),
     required int journalId,
     required String currencyId,
-    required String chartAccountId,
+    required int chartAccountId,
     required double credit,
     required double debit,
     required double rateExchange,
@@ -4344,7 +4361,7 @@ class JournalDetailsCompanion extends UpdateCompanion<JournalDetails> {
     Expression<int>? id,
     Expression<int>? journalId,
     Expression<String>? currencyId,
-    Expression<String>? chartAccountId,
+    Expression<int>? chartAccountId,
     Expression<double>? credit,
     Expression<double>? debit,
     Expression<double>? rateExchange,
@@ -4364,7 +4381,7 @@ class JournalDetailsCompanion extends UpdateCompanion<JournalDetails> {
       {Value<int>? id,
       Value<int>? journalId,
       Value<String>? currencyId,
-      Value<String>? chartAccountId,
+      Value<int>? chartAccountId,
       Value<double>? credit,
       Value<double>? debit,
       Value<double>? rateExchange}) {
@@ -4392,7 +4409,7 @@ class JournalDetailsCompanion extends UpdateCompanion<JournalDetails> {
       map['currency_id'] = Variable<String>(currencyId.value);
     }
     if (chartAccountId.present) {
-      map['chart_account_id'] = Variable<String>(chartAccountId.value);
+      map['chart_account_id'] = Variable<int>(chartAccountId.value);
     }
     if (credit.present) {
       map['credit'] = Variable<double>(credit.value);
@@ -10285,8 +10302,8 @@ typedef $$CurrencyTableProcessedTableManager = ProcessedTableManager<
         bool sharedExpenseDetailRefs})>;
 typedef $$ChartAccountTableCreateCompanionBuilder = ChartAccountsCompanion
     Function({
-  required String id,
-  Value<String?> parentId,
+  Value<int> id,
+  Value<int?> parentId,
   required String accountingTypeId,
   required String code,
   required int level,
@@ -10295,12 +10312,11 @@ typedef $$ChartAccountTableCreateCompanionBuilder = ChartAccountsCompanion
   Value<DateTime> createdAt,
   Value<DateTime?> updatedAt,
   Value<DateTime?> deletedAt,
-  Value<int> rowid,
 });
 typedef $$ChartAccountTableUpdateCompanionBuilder = ChartAccountsCompanion
     Function({
-  Value<String> id,
-  Value<String?> parentId,
+  Value<int> id,
+  Value<int?> parentId,
   Value<String> accountingTypeId,
   Value<String> code,
   Value<int> level,
@@ -10309,7 +10325,6 @@ typedef $$ChartAccountTableUpdateCompanionBuilder = ChartAccountsCompanion
   Value<DateTime> createdAt,
   Value<DateTime?> updatedAt,
   Value<DateTime?> deletedAt,
-  Value<int> rowid,
 });
 
 final class $$ChartAccountTableReferences
@@ -10413,7 +10428,7 @@ class $$ChartAccountTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get id => $composableBuilder(
+  ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get code => $composableBuilder(
@@ -10571,7 +10586,7 @@ class $$ChartAccountTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get id => $composableBuilder(
+  ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get code => $composableBuilder(
@@ -10645,7 +10660,7 @@ class $$ChartAccountTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get id =>
+  GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<String> get code =>
@@ -10823,8 +10838,8 @@ class $$ChartAccountTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$ChartAccountTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<String> id = const Value.absent(),
-            Value<String?> parentId = const Value.absent(),
+            Value<int> id = const Value.absent(),
+            Value<int?> parentId = const Value.absent(),
             Value<String> accountingTypeId = const Value.absent(),
             Value<String> code = const Value.absent(),
             Value<int> level = const Value.absent(),
@@ -10833,7 +10848,6 @@ class $$ChartAccountTableTableManager extends RootTableManager<
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime?> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
           }) =>
               ChartAccountsCompanion(
             id: id,
@@ -10846,11 +10860,10 @@ class $$ChartAccountTableTableManager extends RootTableManager<
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
-            rowid: rowid,
           ),
           createCompanionCallback: ({
-            required String id,
-            Value<String?> parentId = const Value.absent(),
+            Value<int> id = const Value.absent(),
+            Value<int?> parentId = const Value.absent(),
             required String accountingTypeId,
             required String code,
             required int level,
@@ -10859,7 +10872,6 @@ class $$ChartAccountTableTableManager extends RootTableManager<
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime?> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
           }) =>
               ChartAccountsCompanion.insert(
             id: id,
@@ -10872,7 +10884,6 @@ class $$ChartAccountTableTableManager extends RootTableManager<
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
-            rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
@@ -11011,8 +11022,9 @@ typedef $$CategoryTableCreateCompanionBuilder = CategoriesCompanion Function({
   Value<int> id,
   Value<int?> parentId,
   required String documentTypeId,
-  required String chartAccountId,
+  required int chartAccountId,
   required String name,
+  required String icon,
   Value<bool> active,
   Value<DateTime> createdAt,
   Value<DateTime?> updatedAt,
@@ -11022,8 +11034,9 @@ typedef $$CategoryTableUpdateCompanionBuilder = CategoriesCompanion Function({
   Value<int> id,
   Value<int?> parentId,
   Value<String> documentTypeId,
-  Value<String> chartAccountId,
+  Value<int> chartAccountId,
   Value<String> name,
+  Value<String> icon,
   Value<bool> active,
   Value<DateTime> createdAt,
   Value<DateTime?> updatedAt,
@@ -11105,6 +11118,9 @@ class $$CategoryTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get icon => $composableBuilder(
+      column: $table.icon, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get active => $composableBuilder(
       column: $table.active, builder: (column) => ColumnFilters(column));
@@ -11215,6 +11231,9 @@ class $$CategoryTableOrderingComposer
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get icon => $composableBuilder(
+      column: $table.icon, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get active => $composableBuilder(
       column: $table.active, builder: (column) => ColumnOrderings(column));
 
@@ -11302,6 +11321,9 @@ class $$CategoryTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get icon =>
+      $composableBuilder(column: $table.icon, builder: (column) => column);
 
   GeneratedColumn<bool> get active =>
       $composableBuilder(column: $table.active, builder: (column) => column);
@@ -11428,8 +11450,9 @@ class $$CategoryTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<int?> parentId = const Value.absent(),
             Value<String> documentTypeId = const Value.absent(),
-            Value<String> chartAccountId = const Value.absent(),
+            Value<int> chartAccountId = const Value.absent(),
             Value<String> name = const Value.absent(),
+            Value<String> icon = const Value.absent(),
             Value<bool> active = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime?> updatedAt = const Value.absent(),
@@ -11441,6 +11464,7 @@ class $$CategoryTableTableManager extends RootTableManager<
             documentTypeId: documentTypeId,
             chartAccountId: chartAccountId,
             name: name,
+            icon: icon,
             active: active,
             createdAt: createdAt,
             updatedAt: updatedAt,
@@ -11450,8 +11474,9 @@ class $$CategoryTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<int?> parentId = const Value.absent(),
             required String documentTypeId,
-            required String chartAccountId,
+            required int chartAccountId,
             required String name,
+            required String icon,
             Value<bool> active = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime?> updatedAt = const Value.absent(),
@@ -11463,6 +11488,7 @@ class $$CategoryTableTableManager extends RootTableManager<
             documentTypeId: documentTypeId,
             chartAccountId: chartAccountId,
             name: name,
+            icon: icon,
             active: active,
             createdAt: createdAt,
             updatedAt: updatedAt,
@@ -11947,7 +11973,7 @@ typedef $$ContactTableProcessedTableManager = ProcessedTableManager<
 typedef $$WalletTableCreateCompanionBuilder = WalletsCompanion Function({
   Value<int> id,
   required String currencyId,
-  required String chartAccountId,
+  required int chartAccountId,
   required String name,
   Value<String?> description,
   Value<bool> active,
@@ -11958,7 +11984,7 @@ typedef $$WalletTableCreateCompanionBuilder = WalletsCompanion Function({
 typedef $$WalletTableUpdateCompanionBuilder = WalletsCompanion Function({
   Value<int> id,
   Value<String> currencyId,
-  Value<String> chartAccountId,
+  Value<int> chartAccountId,
   Value<String> name,
   Value<String?> description,
   Value<bool> active,
@@ -12235,7 +12261,7 @@ class $$WalletTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<String> currencyId = const Value.absent(),
-            Value<String> chartAccountId = const Value.absent(),
+            Value<int> chartAccountId = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String?> description = const Value.absent(),
             Value<bool> active = const Value.absent(),
@@ -12257,7 +12283,7 @@ class $$WalletTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required String currencyId,
-            required String chartAccountId,
+            required int chartAccountId,
             required String name,
             Value<String?> description = const Value.absent(),
             Value<bool> active = const Value.absent(),
@@ -12345,7 +12371,7 @@ typedef $$CreditCardTableCreateCompanionBuilder = CreditCardsCompanion
     Function({
   Value<int> id,
   required String currencyId,
-  required String chartAccountId,
+  required int chartAccountId,
   required String name,
   Value<String?> description,
   required double quota,
@@ -12359,7 +12385,7 @@ typedef $$CreditCardTableUpdateCompanionBuilder = CreditCardsCompanion
     Function({
   Value<int> id,
   Value<String> currencyId,
-  Value<String> chartAccountId,
+  Value<int> chartAccountId,
   Value<String> name,
   Value<String?> description,
   Value<double> quota,
@@ -12657,7 +12683,7 @@ class $$CreditCardTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<String> currencyId = const Value.absent(),
-            Value<String> chartAccountId = const Value.absent(),
+            Value<int> chartAccountId = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String?> description = const Value.absent(),
             Value<double> quota = const Value.absent(),
@@ -12683,7 +12709,7 @@ class $$CreditCardTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required String currencyId,
-            required String chartAccountId,
+            required int chartAccountId,
             required String name,
             Value<String?> description = const Value.absent(),
             required double quota,
@@ -13332,7 +13358,7 @@ typedef $$JournalDetailTableCreateCompanionBuilder = JournalDetailsCompanion
   Value<int> id,
   required int journalId,
   required String currencyId,
-  required String chartAccountId,
+  required int chartAccountId,
   required double credit,
   required double debit,
   required double rateExchange,
@@ -13342,7 +13368,7 @@ typedef $$JournalDetailTableUpdateCompanionBuilder = JournalDetailsCompanion
   Value<int> id,
   Value<int> journalId,
   Value<String> currencyId,
-  Value<String> chartAccountId,
+  Value<int> chartAccountId,
   Value<double> credit,
   Value<double> debit,
   Value<double> rateExchange,
@@ -13667,7 +13693,7 @@ class $$JournalDetailTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<int> journalId = const Value.absent(),
             Value<String> currencyId = const Value.absent(),
-            Value<String> chartAccountId = const Value.absent(),
+            Value<int> chartAccountId = const Value.absent(),
             Value<double> credit = const Value.absent(),
             Value<double> debit = const Value.absent(),
             Value<double> rateExchange = const Value.absent(),
@@ -13685,7 +13711,7 @@ class $$JournalDetailTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             required int journalId,
             required String currencyId,
-            required String chartAccountId,
+            required int chartAccountId,
             required double credit,
             required double debit,
             required double rateExchange,

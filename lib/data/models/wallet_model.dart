@@ -1,40 +1,36 @@
-// lib/data/models/category_model.dart
 import 'package:drift/drift.dart';
-import '../../domain/entities/category.dart' as entity;
+import '../../domain/entities/wallet.dart';
 import '../local/database.dart';
 
-class CategoryModel {
+class WalletModel {
   final int id;
-  final int? parentId;
-  final String documentTypeId;
+  final String currencyId;
   final int chartAccountId;
   final String name;
-  final String icon;
+  final String? description;
   final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
 
-  CategoryModel({
+  WalletModel({
     required this.id,
-    this.parentId,
-    required this.documentTypeId,
+    required this.currencyId,
     required this.chartAccountId,
     required this.name,
-    required this.icon,
+    this.description,
     required this.active,
     required this.createdAt,
     this.updatedAt,
     this.deletedAt,
   });
 
-  // Constructor para nuevas categorías
-  CategoryModel.create({
-    this.parentId,
-    required this.documentTypeId,
+  // Constructor para nuevas wallets
+  WalletModel.create({
+    required this.currencyId,
     required this.chartAccountId,
     required this.name,
-    required this.icon,
+    this.description,
     bool? active,
   })  : id = 0,
         active = active ?? true,
@@ -43,13 +39,12 @@ class CategoryModel {
         deletedAt = null;
 
   // Convertir a Companion para Drift
-  CategoriesCompanion toCompanion() => CategoriesCompanion(
+  WalletsCompanion toCompanion() => WalletsCompanion(
     id: id == 0 ? const Value.absent() : Value(id),
-    parentId: Value(parentId),
-    documentTypeId: Value(documentTypeId),
+    currencyId: Value(currencyId),
     chartAccountId: Value(chartAccountId),
     name: Value(name),
-    icon: Value(icon),
+    description: Value(description),
     active: Value(active),
     createdAt: Value(createdAt),
     updatedAt: Value(updatedAt),
@@ -57,26 +52,24 @@ class CategoryModel {
   );
 
   // Conversión desde/hacia Domain Entity
-  entity.Category toEntity() => entity.Category(
+  Wallet toEntity() => Wallet(
     id: id,
-    parentId: parentId,
-    documentTypeId: documentTypeId,
+    currencyId: currencyId,
     chartAccountId: chartAccountId,
     name: name,
-    icon: icon,
+    description: description,
     active: active,
     createdAt: createdAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,
   );
 
-  factory CategoryModel.fromEntity(entity.Category entity) => CategoryModel(
+  factory WalletModel.fromEntity(Wallet entity) => WalletModel(
     id: entity.id,
-    parentId: entity.parentId,
-    documentTypeId: entity.documentTypeId,
+    currencyId: entity.currencyId,
     chartAccountId: entity.chartAccountId,
     name: entity.name,
-    icon: entity.icon,
+    description: entity.description,
     active: entity.active,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,

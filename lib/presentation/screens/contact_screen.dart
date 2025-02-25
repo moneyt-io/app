@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import '../../domain/entities/contact.dart' as domain;
 import '../../domain/usecases/contact_usecases.dart';
-import '../../routes/app_routes.dart';
+import '../routes/app_routes.dart';
 import '../../core/l10n/language_manager.dart';
 import './contact_form.dart';
 

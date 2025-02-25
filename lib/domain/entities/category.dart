@@ -1,38 +1,74 @@
-// lib/domain/entities/category.dart
+import 'package:equatable/equatable.dart';
 
-import 'package:moneyt_pfm/presentation/interfaces/list_item_interface.dart';
-
-class CategoryEntity implements ListItemInterface {
-  @override
+class Category extends Equatable {
   final int id;
   final int? parentId;
-  @override
+  final String documentTypeId;
+  final int chartAccountId;
   final String name;
-  final String type;
+  final String icon;
+  final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DateTime? deletedAt;
 
-  CategoryEntity({
+  const Category({
     required this.id,
     this.parentId,
+    required this.documentTypeId,
+    required this.chartAccountId,
     required this.name,
-    required this.type,
+    required this.icon,
+    required this.active,
     required this.createdAt,
     this.updatedAt,
+    this.deletedAt,
   });
 
+  // Helper para identificar categorías principales
   bool get isMainCategory => parentId == null;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CategoryEntity &&
-          runtimeType == other.runtimeType &&
-          id == other.id;
+  List<Object?> get props => [
+    id,
+    parentId,
+    documentTypeId,
+    chartAccountId,
+    name,
+    icon,
+    active,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
 
   @override
-  int get hashCode => id.hashCode;
+  String toString() => 'Category(id: $id, name: $name, documentTypeId: $documentTypeId)';
 
-  @override
-  String toString() => 'CategoryEntity(id: $id, name: $name, type: $type, updatedAt: $updatedAt)';
+  // Helper para copiar la entidad con cambios
+  Category copyWith({
+    int? id,
+    int? parentId,
+    String? documentTypeId,
+    int? chartAccountId,
+    String? name,
+    String? icon,
+    bool? active,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return Category(
+      id: id ?? this.id,
+      parentId: parentId ?? this.parentId,
+      documentTypeId: documentTypeId ?? this.documentTypeId,
+      chartAccountId: chartAccountId ?? this.chartAccountId,
+      name: name ?? this.name,
+      icon: icon ?? this.icon,
+      active: active ?? this.active,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
 }

@@ -1,47 +1,66 @@
-// lib/data/repositories/category_repository_impl.dart
+import 'package:injectable/injectable.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/repositories/category_repository.dart';
-import '../local/daos/category_dao.dart';
+import '../local/daos/categories_dao.dart';
 import '../models/category_model.dart';
 
+@Injectable(as: CategoryRepository)
 class CategoryRepositoryImpl implements CategoryRepository {
-  final CategoryDao _categoryDao;
+  final CategoriesDao _dao;
 
-  CategoryRepositoryImpl(this._categoryDao);
+  CategoryRepositoryImpl(this._dao);
 
   @override
-  Stream<List<CategoryEntity>> watchCategories() {
-    return _categoryDao.watchAllCategories().map((driftCategories) {
-      return driftCategories
-          .map((driftCategory) => CategoryModel.fromDriftCategory(driftCategory))
-          .toList();
-    });
+  Stream<List<Category>> watchCategories() {
+    return _dao.watchAllCategories().map(
+      (categories) => categories.map((category) => CategoryModel(
+        id: category.id,
+        parentId: category.parentId,
+        documentTypeId: category.documentTypeId,
+        chartAccountId: category.chartAccountId,
+        name: category.name,
+        icon: category.icon,
+        active: category.active,
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt,
+        deletedAt: category.deletedAt,
+      ).toEntity()).toList()
+    );
   }
 
   @override
-  Future<List<CategoryEntity>> getCategories() async {
-    final driftCategories = await _categoryDao.getAllCategories();
-    return driftCategories
-        .map((driftCategory) => CategoryModel.fromDriftCategory(driftCategory))
-        .toList();
+  Future<List<Category>> getCategories() async {
+    final categories = await _dao.getAllCategories();
+    return categories.map((category) => CategoryModel(
+      id: category.id,
+      parentId: category.parentId,
+      documentTypeId: category.documentTypeId,
+      chartAccountId: category.chartAccountId,
+      name: category.name,
+      icon: category.icon,
+      active: category.active,
+      createdAt: category.createdAt,
+      updatedAt: category.updatedAt,
+      deletedAt: category.deletedAt,
+    ).toEntity()).toList();
   }
 
   @override
-  Future<void> createCategory(CategoryEntity category) async {
-    if (category is CategoryModel) {
-      await _categoryDao.insertCategory(category.toCompanion());
+    Future<void> createCategory(Category category) async {
+    final model = CategoryModel.fromEntity(category);
+    final id = await _dao.insertCategory(model.toCompanion());
+    final createdCategory = await _dao.getCategoryById(id);
+    if (createdCategory == null) {
+      throw Exception('Failed to create category');
     }
   }
 
   @override
-  Future<void> updateCategory(CategoryEntity category) async {
-    if (category is CategoryModel) {
-      await _categoryDao.updateCategory(category.toCompanionWithId());
-    }
+  Future<void> updateCategory(Category category) async {
+    final model = CategoryModel.fromEntity(category);
+    await _dao.updateCategory(model.toCompanion());
   }
 
   @override
-  Future<void> deleteCategory(int id) async {
-    await _categoryDao.deleteCategory(id);
-  }
+  Future<void> deleteCategory(int id) => _dao.deleteCategory(id);
 }

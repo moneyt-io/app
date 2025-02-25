@@ -7,7 +7,7 @@ import '../widgets/transactions_list_widget.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/transaction_filters_widget.dart';
 import '../widgets/expandable_fab_widget.dart';
-import '../../routes/app_routes.dart';
+import '../routes/app_routes.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../core/navigation/navigation_service.dart';
 import '../../core/utils/date_utils.dart' as date_utils;
