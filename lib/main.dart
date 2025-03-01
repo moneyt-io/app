@@ -1,6 +1,6 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:moneyt_pfm/data/local/database.dart';
+import 'package:moneyt_pfm/data/datasources/local/database.dart';
 import 'package:moneyt_pfm/domain/repositories/backup_repository.dart';
 import 'package:moneyt_pfm/presentation/providers/sync_provider.dart';
 import 'package:provider/provider.dart';

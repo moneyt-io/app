@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:moneyt_pfm/data/local/database.dart';
+import 'package:moneyt_pfm/data/datasources/local/database.dart';
 import '../../domain/entities/credit_card.dart';
 
 class CreditCardModel {

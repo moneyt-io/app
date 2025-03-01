@@ -1,40 +1,36 @@
-// lib/data/models/category_model.dart
 import 'package:drift/drift.dart';
-import '../../domain/entities/category.dart' as entity;
+import '../../domain/entities/journal_entry.dart';
 import '../datasources/local/database.dart';
+import 'journal_detail_model.dart';
 
-class CategoryModel {
+class JournalEntryModel {
   final int id;
-  final int? parentId;
   final String documentTypeId;
-  final int chartAccountId;
-  final String name;
-  final String icon;
+  final int secuencial;
+  final DateTime date;
+  final String? description;
   final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
 
-  CategoryModel({
+  JournalEntryModel({
     required this.id,
-    this.parentId,
     required this.documentTypeId,
-    required this.chartAccountId,
-    required this.name,
-    required this.icon,
+    required this.secuencial,
+    required this.date,
+    this.description,
     required this.active,
     required this.createdAt,
     this.updatedAt,
     this.deletedAt,
   });
 
-  // Constructor para nuevas categorías
-  CategoryModel.create({
-    this.parentId,
+  JournalEntryModel.create({
     required this.documentTypeId,
-    required this.chartAccountId,
-    required this.name,
-    required this.icon,
+    required this.secuencial,
+    required this.date,
+    this.description,
     bool? active,
   })  : id = 0,
         active = active ?? true,
@@ -42,41 +38,37 @@ class CategoryModel {
         updatedAt = null,
         deletedAt = null;
 
-  // Convertir a Companion para Drift
-  CategoriesCompanion toCompanion() => CategoriesCompanion(
+  JournalEntriesCompanion toCompanion() => JournalEntriesCompanion(
     id: id == 0 ? const Value.absent() : Value(id),
-    parentId: Value(parentId),
     documentTypeId: Value(documentTypeId),
-    chartAccountId: Value(chartAccountId),
-    name: Value(name),
-    icon: Value(icon),
+    secuencial: Value(secuencial),
+    date: Value(date),
+    description: Value(description),
     active: Value(active),
     createdAt: Value(createdAt),
     updatedAt: Value(updatedAt),
     deletedAt: Value(deletedAt),
   );
 
-  // Conversión desde/hacia Domain Entity
-  entity.Category toEntity() => entity.Category(
+  JournalEntry toEntity({List<JournalDetailModel> details = const []}) => JournalEntry(
     id: id,
-    parentId: parentId,
     documentTypeId: documentTypeId,
-    chartAccountId: chartAccountId,
-    name: name,
-    icon: icon,
+    secuencial: secuencial,
+    date: date,
+    description: description,
     active: active,
     createdAt: createdAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,
+    details: details.map((detail) => detail.toEntity()).toList(),
   );
 
-  factory CategoryModel.fromEntity(entity.Category entity) => CategoryModel(
+  factory JournalEntryModel.fromEntity(JournalEntry entity) => JournalEntryModel(
     id: entity.id,
-    parentId: entity.parentId,
     documentTypeId: entity.documentTypeId,
-    chartAccountId: entity.chartAccountId,
-    name: entity.name,
-    icon: entity.icon,
+    secuencial: entity.secuencial,
+    date: entity.date,
+    description: entity.description,
     active: entity.active,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,

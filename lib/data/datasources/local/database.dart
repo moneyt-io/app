@@ -1,10 +1,10 @@
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:moneyt_pfm/data/local/tables/loan_details_table.dart';
-import 'package:moneyt_pfm/data/local/tables/loan_entries_table.dart';
-import 'package:moneyt_pfm/data/local/tables/shared_expense_details_table.dart';
-import 'package:moneyt_pfm/data/local/tables/shared_expense_entries_table.dart';
-import 'package:moneyt_pfm/data/local/tables/wallets_table.dart';
+import 'package:moneyt_pfm/data/datasources/local/tables/loan_details_table.dart';
+import 'package:moneyt_pfm/data/datasources/local/tables/loan_entries_table.dart';
+import 'package:moneyt_pfm/data/datasources/local/tables/shared_expense_details_table.dart';
+import 'package:moneyt_pfm/data/datasources/local/tables/shared_expense_entries_table.dart';
+import 'package:moneyt_pfm/data/datasources/local/tables/wallets_table.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';

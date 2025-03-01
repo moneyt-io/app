@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 import '../../domain/entities/credit_card.dart';
 import '../../domain/repositories/credit_card_repository.dart';
-import '../local/daos/credit_card_dao.dart';
+import '../datasources/local/daos/credit_card_dao.dart';
 import '../models/credit_card_model.dart';
 
 @Injectable(as: CreditCardRepository)

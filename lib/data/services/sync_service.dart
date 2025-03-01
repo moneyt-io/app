@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:drift/drift.dart';
-import '../local/database.dart';
+import '../datasources/local/database.dart';
 
 class SyncService {
   final FirebaseAuth auth;

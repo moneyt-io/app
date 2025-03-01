@@ -6,7 +6,7 @@ import '../providers/auth_provider.dart';
 import '../../core/l10n/language_manager.dart';
 import '../../core/l10n/models/language.dart';
 import '../routes/app_routes.dart';
-import '../../data/local/database.dart';
+import '../../data/datasources/local/database.dart';
 import '../../core/di/injection_container.dart';
 import '../../data/services/initialization_service.dart';
 import '../../domain/usecases/transaction_usecases.dart';

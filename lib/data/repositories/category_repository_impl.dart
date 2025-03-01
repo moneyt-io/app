@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/repositories/category_repository.dart';
-import '../local/daos/categories_dao.dart';
+import '../datasources/local/daos/categories_dao.dart';
 import '../models/category_model.dart';
 
 @Injectable(as: CategoryRepository)

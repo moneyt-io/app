@@ -1,4 +1,4 @@
-import 'package:moneyt_pfm/data/local/database.dart';
+import 'package:moneyt_pfm/data/datasources/local/database.dart';
 
 abstract class BaseDefaultData {
   String get languageCode;

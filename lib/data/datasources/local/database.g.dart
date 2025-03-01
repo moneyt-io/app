@@ -7610,35 +7610,6 @@ class $SharedExpenseDetailTable extends SharedExpenseDetail
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 1),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
-  static const VerificationMeta _activeMeta = const VerificationMeta('active');
-  @override
-  late final GeneratedColumn<bool> active = GeneratedColumn<bool>(
-      'active', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("active" IN (0, 1))'),
-      defaultValue: const Constant(true));
-  static const VerificationMeta _createdAtMeta =
-      const VerificationMeta('createdAt');
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-      'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _deletedAtMeta =
-      const VerificationMeta('deletedAt');
-  @override
-  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
-      'deleted_at', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -7649,11 +7620,7 @@ class $SharedExpenseDetailTable extends SharedExpenseDetail
         percentage,
         amount,
         rateExchange,
-        status,
-        active,
-        createdAt,
-        updatedAt,
-        deletedAt
+        status
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -7727,22 +7694,6 @@ class $SharedExpenseDetailTable extends SharedExpenseDetail
     } else if (isInserting) {
       context.missing(_statusMeta);
     }
-    if (data.containsKey('active')) {
-      context.handle(_activeMeta,
-          active.isAcceptableOrUnknown(data['active']!, _activeMeta));
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta,
-          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    }
-    if (data.containsKey('deleted_at')) {
-      context.handle(_deletedAtMeta,
-          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
-    }
     return context;
   }
 
@@ -7770,14 +7721,6 @@ class $SharedExpenseDetailTable extends SharedExpenseDetail
           .read(DriftSqlType.double, data['${effectivePrefix}rate_exchange'])!,
       status: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
-      active: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}active'])!,
-      createdAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
-      deletedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
     );
   }
 
@@ -7798,10 +7741,6 @@ class SharedExpenseDetails extends DataClass
   final double amount;
   final double rateExchange;
   final String status;
-  final bool active;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-  final DateTime? deletedAt;
   const SharedExpenseDetails(
       {required this.id,
       required this.sharedExpenseId,
@@ -7811,11 +7750,7 @@ class SharedExpenseDetails extends DataClass
       required this.percentage,
       required this.amount,
       required this.rateExchange,
-      required this.status,
-      required this.active,
-      required this.createdAt,
-      this.updatedAt,
-      this.deletedAt});
+      required this.status});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -7828,14 +7763,6 @@ class SharedExpenseDetails extends DataClass
     map['amount'] = Variable<double>(amount);
     map['rate_exchange'] = Variable<double>(rateExchange);
     map['status'] = Variable<String>(status);
-    map['active'] = Variable<bool>(active);
-    map['created_at'] = Variable<DateTime>(createdAt);
-    if (!nullToAbsent || updatedAt != null) {
-      map['updated_at'] = Variable<DateTime>(updatedAt);
-    }
-    if (!nullToAbsent || deletedAt != null) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt);
-    }
     return map;
   }
 
@@ -7850,14 +7777,6 @@ class SharedExpenseDetails extends DataClass
       amount: Value(amount),
       rateExchange: Value(rateExchange),
       status: Value(status),
-      active: Value(active),
-      createdAt: Value(createdAt),
-      updatedAt: updatedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(updatedAt),
-      deletedAt: deletedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(deletedAt),
     );
   }
 
@@ -7874,10 +7793,6 @@ class SharedExpenseDetails extends DataClass
       amount: serializer.fromJson<double>(json['amount']),
       rateExchange: serializer.fromJson<double>(json['rateExchange']),
       status: serializer.fromJson<String>(json['status']),
-      active: serializer.fromJson<bool>(json['active']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
-      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
   }
   @override
@@ -7893,10 +7808,6 @@ class SharedExpenseDetails extends DataClass
       'amount': serializer.toJson<double>(amount),
       'rateExchange': serializer.toJson<double>(rateExchange),
       'status': serializer.toJson<String>(status),
-      'active': serializer.toJson<bool>(active),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
-      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
   }
 
@@ -7909,11 +7820,7 @@ class SharedExpenseDetails extends DataClass
           double? percentage,
           double? amount,
           double? rateExchange,
-          String? status,
-          bool? active,
-          DateTime? createdAt,
-          Value<DateTime?> updatedAt = const Value.absent(),
-          Value<DateTime?> deletedAt = const Value.absent()}) =>
+          String? status}) =>
       SharedExpenseDetails(
         id: id ?? this.id,
         sharedExpenseId: sharedExpenseId ?? this.sharedExpenseId,
@@ -7924,10 +7831,6 @@ class SharedExpenseDetails extends DataClass
         amount: amount ?? this.amount,
         rateExchange: rateExchange ?? this.rateExchange,
         status: status ?? this.status,
-        active: active ?? this.active,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
-        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
       );
   SharedExpenseDetails copyWithCompanion(SharedExpenseDetailsCompanion data) {
     return SharedExpenseDetails(
@@ -7948,10 +7851,6 @@ class SharedExpenseDetails extends DataClass
           ? data.rateExchange.value
           : this.rateExchange,
       status: data.status.present ? data.status.value : this.status,
-      active: data.active.present ? data.active.value : this.active,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
   }
 
@@ -7966,30 +7865,14 @@ class SharedExpenseDetails extends DataClass
           ..write('percentage: $percentage, ')
           ..write('amount: $amount, ')
           ..write('rateExchange: $rateExchange, ')
-          ..write('status: $status, ')
-          ..write('active: $active, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      sharedExpenseId,
-      currencyId,
-      loanId,
-      transactionId,
-      percentage,
-      amount,
-      rateExchange,
-      status,
-      active,
-      createdAt,
-      updatedAt,
-      deletedAt);
+  int get hashCode => Object.hash(id, sharedExpenseId, currencyId, loanId,
+      transactionId, percentage, amount, rateExchange, status);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8002,11 +7885,7 @@ class SharedExpenseDetails extends DataClass
           other.percentage == this.percentage &&
           other.amount == this.amount &&
           other.rateExchange == this.rateExchange &&
-          other.status == this.status &&
-          other.active == this.active &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt);
+          other.status == this.status);
 }
 
 class SharedExpenseDetailsCompanion
@@ -8020,10 +7899,6 @@ class SharedExpenseDetailsCompanion
   final Value<double> amount;
   final Value<double> rateExchange;
   final Value<String> status;
-  final Value<bool> active;
-  final Value<DateTime> createdAt;
-  final Value<DateTime?> updatedAt;
-  final Value<DateTime?> deletedAt;
   const SharedExpenseDetailsCompanion({
     this.id = const Value.absent(),
     this.sharedExpenseId = const Value.absent(),
@@ -8034,10 +7909,6 @@ class SharedExpenseDetailsCompanion
     this.amount = const Value.absent(),
     this.rateExchange = const Value.absent(),
     this.status = const Value.absent(),
-    this.active = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
   });
   SharedExpenseDetailsCompanion.insert({
     this.id = const Value.absent(),
@@ -8049,10 +7920,6 @@ class SharedExpenseDetailsCompanion
     required double amount,
     required double rateExchange,
     required String status,
-    this.active = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
   })  : sharedExpenseId = Value(sharedExpenseId),
         currencyId = Value(currencyId),
         loanId = Value(loanId),
@@ -8071,10 +7938,6 @@ class SharedExpenseDetailsCompanion
     Expression<double>? amount,
     Expression<double>? rateExchange,
     Expression<String>? status,
-    Expression<bool>? active,
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-    Expression<DateTime>? deletedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -8086,10 +7949,6 @@ class SharedExpenseDetailsCompanion
       if (amount != null) 'amount': amount,
       if (rateExchange != null) 'rate_exchange': rateExchange,
       if (status != null) 'status': status,
-      if (active != null) 'active': active,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (deletedAt != null) 'deleted_at': deletedAt,
     });
   }
 
@@ -8102,11 +7961,7 @@ class SharedExpenseDetailsCompanion
       Value<double>? percentage,
       Value<double>? amount,
       Value<double>? rateExchange,
-      Value<String>? status,
-      Value<bool>? active,
-      Value<DateTime>? createdAt,
-      Value<DateTime?>? updatedAt,
-      Value<DateTime?>? deletedAt}) {
+      Value<String>? status}) {
     return SharedExpenseDetailsCompanion(
       id: id ?? this.id,
       sharedExpenseId: sharedExpenseId ?? this.sharedExpenseId,
@@ -8117,10 +7972,6 @@ class SharedExpenseDetailsCompanion
       amount: amount ?? this.amount,
       rateExchange: rateExchange ?? this.rateExchange,
       status: status ?? this.status,
-      active: active ?? this.active,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
@@ -8154,18 +8005,6 @@ class SharedExpenseDetailsCompanion
     if (status.present) {
       map['status'] = Variable<String>(status.value);
     }
-    if (active.present) {
-      map['active'] = Variable<bool>(active.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (deletedAt.present) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
-    }
     return map;
   }
 
@@ -8180,11 +8019,7 @@ class SharedExpenseDetailsCompanion
           ..write('percentage: $percentage, ')
           ..write('amount: $amount, ')
           ..write('rateExchange: $rateExchange, ')
-          ..write('status: $status, ')
-          ..write('active: $active, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
@@ -17263,10 +17098,6 @@ typedef $$SharedExpenseDetailTableCreateCompanionBuilder
   required double amount,
   required double rateExchange,
   required String status,
-  Value<bool> active,
-  Value<DateTime> createdAt,
-  Value<DateTime?> updatedAt,
-  Value<DateTime?> deletedAt,
 });
 typedef $$SharedExpenseDetailTableUpdateCompanionBuilder
     = SharedExpenseDetailsCompanion Function({
@@ -17279,10 +17110,6 @@ typedef $$SharedExpenseDetailTableUpdateCompanionBuilder
   Value<double> amount,
   Value<double> rateExchange,
   Value<String> status,
-  Value<bool> active,
-  Value<DateTime> createdAt,
-  Value<DateTime?> updatedAt,
-  Value<DateTime?> deletedAt,
 });
 
 final class $$SharedExpenseDetailTableReferences extends BaseReferences<
@@ -17368,18 +17195,6 @@ class $$SharedExpenseDetailTableFilterComposer
 
   ColumnFilters<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get active => $composableBuilder(
-      column: $table.active, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
-      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
 
   $$SharedExpenseEntryTableFilterComposer get sharedExpenseId {
     final $$SharedExpenseEntryTableFilterComposer composer = $composerBuilder(
@@ -17487,18 +17302,6 @@ class $$SharedExpenseDetailTableOrderingComposer
   ColumnOrderings<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<bool> get active => $composableBuilder(
-      column: $table.active, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
-      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
-
   $$SharedExpenseEntryTableOrderingComposer get sharedExpenseId {
     final $$SharedExpenseEntryTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -17603,18 +17406,6 @@ class $$SharedExpenseDetailTableAnnotationComposer
 
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
-
-  GeneratedColumn<bool> get active =>
-      $composableBuilder(column: $table.active, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get deletedAt =>
-      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   $$SharedExpenseEntryTableAnnotationComposer get sharedExpenseId {
     final $$SharedExpenseEntryTableAnnotationComposer composer =
@@ -17737,10 +17528,6 @@ class $$SharedExpenseDetailTableTableManager extends RootTableManager<
             Value<double> amount = const Value.absent(),
             Value<double> rateExchange = const Value.absent(),
             Value<String> status = const Value.absent(),
-            Value<bool> active = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-            Value<DateTime?> updatedAt = const Value.absent(),
-            Value<DateTime?> deletedAt = const Value.absent(),
           }) =>
               SharedExpenseDetailsCompanion(
             id: id,
@@ -17752,10 +17539,6 @@ class $$SharedExpenseDetailTableTableManager extends RootTableManager<
             amount: amount,
             rateExchange: rateExchange,
             status: status,
-            active: active,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            deletedAt: deletedAt,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -17767,10 +17550,6 @@ class $$SharedExpenseDetailTableTableManager extends RootTableManager<
             required double amount,
             required double rateExchange,
             required String status,
-            Value<bool> active = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-            Value<DateTime?> updatedAt = const Value.absent(),
-            Value<DateTime?> deletedAt = const Value.absent(),
           }) =>
               SharedExpenseDetailsCompanion.insert(
             id: id,
@@ -17782,10 +17561,6 @@ class $$SharedExpenseDetailTableTableManager extends RootTableManager<
             amount: amount,
             rateExchange: rateExchange,
             status: status,
-            active: active,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            deletedAt: deletedAt,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (

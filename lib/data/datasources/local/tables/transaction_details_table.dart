@@ -15,7 +15,7 @@ class TransactionDetail extends Table {
   TextColumn get paymentTypeId => text().withLength(min: 1, max: 1).references(PaymentType, #id)();
   IntColumn get paymentId => integer()();
   IntColumn get categoryId => integer().references(Category, #id)();
-  
+
   // Main data fields
   RealColumn get amount => real()();
   RealColumn get rateExchange => real()();

@@ -1,5 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import '../local/database.dart';
+import '../datasources/local/database.dart';
 import '../../core/l10n/language_manager.dart';
 
 class InitializationService {

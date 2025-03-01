@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import '../../domain/entities/contact.dart';
-import '../local/database.dart';
+import '../datasources/local/database.dart';
 
 class ContactModel {
   final int id;

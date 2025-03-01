@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import '../../domain/entities/wallet.dart';
-import '../local/database.dart';
+import '../datasources/local/database.dart';
 
 class WalletModel {
   final int id;

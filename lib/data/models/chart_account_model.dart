@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import '../../domain/entities/chart_account.dart';
-import '../local/database.dart';
+import '../datasources/local/database.dart';
 
 class ChartAccountModel {
   final int id;

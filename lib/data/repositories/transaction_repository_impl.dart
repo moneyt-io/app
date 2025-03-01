@@ -1,153 +1,169 @@
-// lib/data/repositories/transaction_repository_impl.dart
-import 'package:drift/drift.dart';
-import '../../domain/entities/transaction.dart';
+import 'package:injectable/injectable.dart';
+import '../../domain/entities/transaction_entry.dart';
+import '../../domain/entities/transaction_detail.dart';
 import '../../domain/repositories/transaction_repository.dart';
-import '../local/daos/transaction_dao.dart';
-import '../local/database.dart';
+import '../datasources/local/daos/transaction_dao.dart';
+import '../models/transaction_entry_model.dart';
+import '../models/transaction_detail_model.dart';
 
+@Injectable(as: TransactionRepository)
 class TransactionRepositoryImpl implements TransactionRepository {
-  final TransactionDao _transactionDao;
+  final TransactionDao _dao;
 
-  TransactionRepositoryImpl(this._transactionDao);
+  TransactionRepositoryImpl(this._dao);
 
-  // Convertir Transaction (Drift) a TransactionEntity
-  TransactionEntity _mapToEntity(Transaction transaction) {
-    return TransactionEntity(
-      id: transaction.id,
-      type: transaction.type,
-      flow: transaction.flow,
-      amount: transaction.amount,
-      accountId: transaction.accountId,
-      categoryId: transaction.categoryId,
-      reference: transaction.reference,
-      contactId: transaction.contactId,
-      description: transaction.description,
-      transactionDate: transaction.transactionDate,
-      createdAt: transaction.createdAt,
-      updatedAt: transaction.updatedAt,
+  @override
+  Future<List<TransactionEntry>> getAllTransactions() async {
+    final entries = await _dao.getAllTransactions();
+    return Future.wait(entries.map((entry) async {
+      final details = await _dao.getTransactionDetailsForEntry(entry.id);
+      return TransactionEntryModel(
+        id: entry.id,
+        documentTypeId: entry.documentTypeId,
+        currencyId: entry.currencyId,
+        journalId: entry.journalId,
+        contactId: entry.contactId,
+        secuencial: entry.secuencial,
+        date: entry.date,
+        amount: entry.amount,
+        rateExchange: entry.rateExchange,
+        description: entry.description,
+        active: entry.active,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt,
+        deletedAt: entry.deletedAt,
+      ).toEntity(
+        details: details.map((detail) => TransactionDetailModel(
+          id: detail.id,
+          transactionId: detail.transactionId,
+          currencyId: detail.currencyId,
+          flowId: detail.flowId,
+          paymentTypeId: detail.paymentTypeId,
+          paymentId: detail.paymentId,
+          categoryId: detail.categoryId,
+          amount: detail.amount,
+          rateExchange: detail.rateExchange,
+        ).toEntity()).toList(),
+      );
+    }));
+  }
+
+  @override
+  Stream<List<TransactionEntry>> watchAllTransactions() {
+    return _dao.watchAllTransactions().asyncMap((entries) async {
+      return Future.wait(entries.map((entry) async {
+        final details = await _dao.getTransactionDetailsForEntry(entry.id);
+        return TransactionEntryModel(
+          id: entry.id,
+          documentTypeId: entry.documentTypeId,
+          currencyId: entry.currencyId,
+          journalId: entry.journalId,
+          contactId: entry.contactId,
+          secuencial: entry.secuencial,
+          date: entry.date,
+          amount: entry.amount,
+          rateExchange: entry.rateExchange,
+          description: entry.description,
+          active: entry.active,
+          createdAt: entry.createdAt,
+          updatedAt: entry.updatedAt,
+          deletedAt: entry.deletedAt,
+        ).toEntity(
+          details: details.map((detail) => TransactionDetailModel(
+            id: detail.id,
+            transactionId: detail.transactionId,
+            currencyId: detail.currencyId,
+            flowId: detail.flowId,
+            paymentTypeId: detail.paymentTypeId,
+            paymentId: detail.paymentId,
+            categoryId: detail.categoryId,
+            amount: detail.amount,
+            rateExchange: detail.rateExchange,
+          ).toEntity()).toList(),
+        );
+      }));
+    });
+  }
+
+  @override
+  Future<TransactionEntry?> getTransactionById(int id) async {
+    final entry = await _dao.getTransactionById(id);
+    if (entry == null) return null;
+
+    final details = await _dao.getTransactionDetailsForEntry(entry.id);
+    return TransactionEntryModel(
+      id: entry.id,
+      documentTypeId: entry.documentTypeId,
+      currencyId: entry.currencyId,
+      journalId: entry.journalId,
+      contactId: entry.contactId,
+      secuencial: entry.secuencial,
+      date: entry.date,
+      amount: entry.amount,
+      rateExchange: entry.rateExchange,
+      description: entry.description,
+      active: entry.active,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
+      deletedAt: entry.deletedAt,
+    ).toEntity(
+      details: details.map((detail) => TransactionDetailModel(
+        id: detail.id,
+        transactionId: detail.transactionId,
+        currencyId: detail.currencyId,
+        flowId: detail.flowId,
+        paymentTypeId: detail.paymentTypeId,
+        paymentId: detail.paymentId,
+        categoryId: detail.categoryId,
+        amount: detail.amount,
+        rateExchange: detail.rateExchange
+      ).toEntity()).toList(),
     );
   }
 
-  // Convertir TransactionEntity a TransactionsCompanion
-  TransactionsCompanion _mapToCompanion(TransactionEntity transaction) {
-    return TransactionsCompanion(
-      id: transaction.id == null 
-          ? const Value.absent() 
-          : Value(transaction.id!),
-      type: Value(transaction.type),
-      flow: Value(transaction.flow),
-      amount: Value(transaction.amount),
-      accountId: Value(transaction.accountId),
-      categoryId: transaction.categoryId == null 
-          ? const Value.absent() 
-          : Value(transaction.categoryId!),
-      reference: transaction.reference == null 
-          ? const Value.absent() 
-          : Value(transaction.reference!),
-      contactId: transaction.contactId == null 
-          ? const Value.absent() 
-          : Value(transaction.contactId!),
-      description: transaction.description == null 
-          ? const Value.absent() 
-          : Value(transaction.description!),
-      transactionDate: Value(transaction.transactionDate),
-      createdAt: transaction.createdAt == null 
-          ? Value(DateTime.now()) 
-          : Value(transaction.createdAt!),
-      updatedAt: Value(DateTime.now()),
-    );
-  }
-
   @override
-  Stream<List<TransactionEntity>> watchAllTransactions() {
-    return _transactionDao.watchAllTransactions()
-        .map((list) => list.map(_mapToEntity).toList());
-  }
+  Future<TransactionEntry> createTransaction(
+    TransactionEntry entry,
+    List<TransactionDetail> details
+  ) async {
+    final model = TransactionEntryModel.fromEntity(entry);
+    final id = await _dao.insertTransaction(model.toCompanion());
 
-  @override
-  Stream<List<TransactionEntity>> watchTransactionsByType(String type) {
-    return _transactionDao.watchTransactionsByType(type)
-        .map((list) => list.map(_mapToEntity).toList());
-  }
-
-  @override
-  Stream<List<TransactionEntity>> watchTransactionsByFlow(String flow) {
-    return _transactionDao.watchTransactionsByFlow(flow)
-        .map((list) => list.map(_mapToEntity).toList());
-  }
-
-  @override
-  Stream<List<TransactionEntity>> watchTransactionsByAccount(int accountId) {
-    return _transactionDao.watchTransactionsByAccount(accountId)
-        .map((list) => list.map(_mapToEntity).toList());
-  }
-
-  @override
-  Stream<List<TransactionEntity>> watchTransactionsByCategory(int categoryId) {
-    return _transactionDao.watchTransactionsByCategory(categoryId)
-        .map((list) => list.map(_mapToEntity).toList());
-  }
-
-  @override
-  Stream<List<TransactionEntity>> watchTransactionsByContact(int contactId) {
-    return _transactionDao.watchTransactionsByContact(contactId)
-        .map((list) => list.map(_mapToEntity).toList());
-  }
-
-  @override
-  Stream<List<TransactionEntity>> watchTransactionsByDateRange(
-    DateTime startDate,
-    DateTime endDate,
-  ) {
-    return _transactionDao.watchTransactionsByDateRange(startDate, endDate)
-        .map((list) => list.map(_mapToEntity).toList());
-  }
-
-  @override
-  Future<TransactionEntity?> getTransactionById(int id) async {
-    try {
-      final transaction = await _transactionDao.getTransactionById(id);
-      return _mapToEntity(transaction);
-    } catch (e) {
-      return null;
+    // Insertar detalles
+    for (var detail in details) {
+      final detailModel = TransactionDetailModel.create(
+        transactionId: id,
+        currencyId: detail.currencyId,
+        flowId: detail.flowId,
+        paymentTypeId: detail.paymentTypeId,
+        paymentId: detail.paymentId,
+        categoryId: detail.categoryId,
+        amount: detail.amount,
+        rateExchange: detail.rateExchange,
+      );
+      await _dao.insertTransactionDetail(detailModel.toCompanion());
     }
+
+    final createdTransaction = await getTransactionById(id);
+    if (createdTransaction == null) {
+      throw Exception('Failed to create transaction');
+    }
+    return createdTransaction;
   }
 
   @override
-  Future<int> insertTransaction(TransactionEntity transaction) async {
-    return await _transactionDao.insertTransaction(_mapToCompanion(transaction));
+  Future<void> updateTransaction(TransactionEntry transaction) async {
+    final model = TransactionEntryModel.fromEntity(transaction);
+    await _dao.updateTransaction(model.toCompanion());
+    // Note: Details update should be handled separately if needed
   }
 
   @override
-  Future<bool> updateTransaction(TransactionEntity transaction) async {
-    return await _transactionDao.updateTransaction(_mapToCompanion(transaction));
-  }
-
-  @override
-  Future<bool> deleteTransaction(int id) async {
-    final result = await _transactionDao.deleteTransaction(id);
-    return result > 0;
-  }
-
-  @override
-  Future<double> getAccountBalance(int accountId) async {
-    return await _transactionDao.getAccountBalance(accountId);
-  }
-
-  @override
-  Stream<Map<int, double>> watchAllAccountBalances() {
-    return _transactionDao.watchAllAccountBalances();
-  }
-
-  @override
-  Stream<double> watchAccountBalance(int accountId) {
-    return _transactionDao.watchAccountBalance(accountId);
-  }
-
-  @override
-  Stream<List<TransactionEntity>> watchTransactionsByTypeAndFlow(String type, String flow) {
-    return _transactionDao.watchTransactionsByTypeAndFlow(type, flow)
-        .map((transactions) => transactions.map(_mapToEntity).toList());
+  Future<void> deleteTransaction(int id) async {
+    // Primero eliminamos los detalles usando el método correcto
+    await _dao.deleteTransactionDetails(id);
+    // Luego eliminamos la entrada principal
+    await _dao.deleteTransaction(id);
   }
 
   @override
@@ -157,17 +173,45 @@ class TransactionRepositoryImpl implements TransactionRepository {
     required double amount,
     required DateTime date,
     String? description,
-    String? reference,
     int? contactId,
   }) async {
-    await _transactionDao.createTransfer(
-      fromAccountId: fromAccountId,
-      toAccountId: toAccountId,
-      amount: amount,
-      date: date,
-      description: description,
-      reference: reference,
-      contactId: contactId,
-    );
+    // TODO: Implementar lógica de transferencia
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<TransactionEntry>> getTransactionsByType(String documentTypeId) async {
+    final entries = await _dao.getTransactionsByType(documentTypeId);
+    return Future.wait(entries.map((entry) async {
+      final details = await _dao.getTransactionDetailsForEntry(entry.id);
+      return TransactionEntryModel(
+        id: entry.id,
+        documentTypeId: entry.documentTypeId,
+        currencyId: entry.currencyId,
+        journalId: entry.journalId,
+        contactId: entry.contactId,
+        secuencial: entry.secuencial,
+        date: entry.date,
+        amount: entry.amount,
+        rateExchange: entry.rateExchange,
+        description: entry.description,
+        active: entry.active,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt,
+        deletedAt: entry.deletedAt,
+      ).toEntity(
+        details: details.map((detail) => TransactionDetailModel(
+          id: detail.id,
+          transactionId: detail.transactionId,
+          currencyId: detail.currencyId,
+          flowId: detail.flowId,
+          paymentTypeId: detail.paymentTypeId,
+          paymentId: detail.paymentId,
+          categoryId: detail.categoryId,
+          amount: detail.amount,
+          rateExchange: detail.rateExchange,
+        ).toEntity()).toList(),
+      );
+    }));
   }
 }

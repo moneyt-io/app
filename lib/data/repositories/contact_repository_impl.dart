@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/repositories/contact_repository.dart';
-import '../local/daos/contact_dao.dart';
+import '../datasources/local/daos/contact_dao.dart';
 import '../models/contact_model.dart';
 
 @Injectable(as: ContactRepository)

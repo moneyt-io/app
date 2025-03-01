@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 import '../../domain/entities/chart_account.dart';
 import '../../domain/repositories/chart_account_repository.dart';
-import '../local/daos/chart_accounts_dao.dart';
+import '../datasources/local/daos/chart_accounts_dao.dart';
 import '../models/chart_account_model.dart';
 
 @Injectable(as: ChartAccountRepository)

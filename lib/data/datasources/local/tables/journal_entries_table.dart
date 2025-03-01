@@ -1,24 +1,15 @@
-// lib/data/local/tables/transaction_table.dart
 import 'package:drift/drift.dart';
-import 'package:moneyt_pfm/data/local/tables/document_types_table.dart';
-import 'contacts_table.dart';
-import 'journal_entries_table.dart';
-import 'currencies_table.dart';
+import 'package:moneyt_pfm/data/datasources/local/tables/document_types_table.dart';
 
-@DataClassName('TransactionEntries')
-class TransactionEntry extends Table {
+@DataClassName('JournalEntries')
+class JournalEntry extends Table {
   // Relational fields
   IntColumn get id => integer().autoIncrement()();
   TextColumn get documentTypeId => text().withLength(min: 1, max: 1).references(DocumentType, #id)();
-  TextColumn get currencyId => text().withLength(min: 3, max: 3).references(Currency, #id)();
-  IntColumn get journalId => integer().references(JournalEntry, #id)();
-  IntColumn get contactId => integer().nullable().references(Contact, #id)();
   
   // Main data fields
   IntColumn get secuencial => integer()();
   DateTimeColumn get date => dateTime()();
-  RealColumn get amount => real()();
-  RealColumn get rateExchange => real()();
   TextColumn get description => text().nullable()();
 
   // Audit fields

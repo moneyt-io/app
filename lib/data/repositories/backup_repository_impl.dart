@@ -5,7 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import '../local/database.dart';
+import '../datasources/local/database.dart';
 import '../../domain/repositories/backup_repository.dart';
 
 class BackupRepositoryImpl implements BackupRepository {

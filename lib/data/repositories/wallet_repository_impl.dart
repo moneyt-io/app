@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 import '../../domain/entities/wallet.dart';
 import '../../domain/repositories/wallet_repository.dart';
-import '../local/daos/wallet_dao.dart';
+import '../datasources/local/daos/wallet_dao.dart';
 import '../models/wallet_model.dart';
 
 @Injectable(as: WalletRepository)

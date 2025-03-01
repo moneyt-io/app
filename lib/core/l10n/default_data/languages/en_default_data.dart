@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:moneyt_pfm/data/local/database.dart';
+import 'package:moneyt_pfm/data/datasources/local/database.dart';
 import '../base_default_data.dart';
 
 class EnglishDefaultData extends BaseDefaultData {
