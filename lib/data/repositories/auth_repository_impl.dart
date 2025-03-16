@@ -3,19 +3,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/entities/user_entity.dart';
-import '../services/sync_service.dart';
+import '../../core/services/sync_service.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
   final GoogleSignIn googleSignIn;
-  final SyncService syncService;
+//final SyncService syncService;
 
   AuthRepositoryImpl({
     required this.auth,
     required this.firestore,
     required this.googleSignIn,
-    required this.syncService,
+    //required this.syncService,
   });
 
   UserEntity _mapUserToEntity(User user) {
@@ -161,8 +161,8 @@ class AuthRepositoryImpl implements AuthRepository {
       'syncEnabled': true,
     });
 
-    await syncService.syncData();
-    syncService.setupRemoteChangeListeners();
+    //await syncService.syncData();
+    //syncService.setupRemoteChangeListeners();
   }
 
   Future<void> disableSync() async {
@@ -173,7 +173,7 @@ class AuthRepositoryImpl implements AuthRepository {
       'syncEnabled': false,
     });
 
-    syncService.removeRemoteChangeListeners();
+    //syncService.removeRemoteChangeListeners();
   }
 
   Future<bool> isSyncEnabled() async {
