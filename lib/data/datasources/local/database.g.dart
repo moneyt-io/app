@@ -1088,7 +1088,7 @@ class $ChartAccountTable extends ChartAccount
   late final GeneratedColumn<String> accountingTypeId = GeneratedColumn<String>(
       'accounting_type_id', aliasedName, false,
       additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 1),
+          GeneratedColumn.checkTextLength(minTextLength: 2, maxTextLength: 2),
       type: DriftSqlType.string,
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(

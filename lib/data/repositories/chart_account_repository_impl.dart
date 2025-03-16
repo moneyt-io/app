@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import '../../domain/entities/chart_account.dart';
+import '../../domain/entities/accounting_type.dart';
 import '../../domain/repositories/chart_account_repository.dart';
 import '../datasources/local/daos/chart_accounts_dao.dart';
 import '../models/chart_account_model.dart';
@@ -116,5 +117,63 @@ class ChartAccountRepositoryImpl implements ChartAccountRepository {
       updatedAt: account.updatedAt,
       deletedAt: account.deletedAt,
     ).toEntity()).toList();
+  }
+
+  @override
+  Future<ChartAccount> generateAccountForCategory(String name, String accountingTypeId, {int? parentId}) async {
+    // 1. Determinar el nivel y código basado en el padre (si existe)
+    int level = 1;
+    String codePrefix = '';
+    
+    if (parentId != null) {
+      final parentAccount = await getChartAccountById(parentId);
+      if (parentAccount != null) {
+        level = parentAccount.level + 1;
+        codePrefix = '${parentAccount.code}.';
+      }
+    }
+    
+    // 2. Obtener el próximo número disponible para este tipo de cuenta
+    final accountsOfType = await getChartAccountsByType(accountingTypeId);
+    final sameLevelAccounts = accountsOfType.where((a) => a.level == level).toList();
+    final nextNumber = sameLevelAccounts.length + 1;
+    
+    // 3. Generar el código completo
+    final code = parentId == null 
+        ? '$accountingTypeId$nextNumber' 
+        : '$codePrefix$nextNumber';
+    
+    // 4. Crear la nueva cuenta
+    final newAccount = ChartAccount(
+      id: 0, // Se generará automáticamente
+      parentId: parentId,
+      accountingTypeId: accountingTypeId,
+      code: code,
+      level: level,
+      name: name,
+      active: true,
+      createdAt: DateTime.now(),
+    );
+    
+    // 5. Guardar y devolver la cuenta creada
+    return createChartAccount(newAccount);
+  }
+
+  @override
+  Future<ChartAccount> generateAccountForWallet(String name) async {
+    // Las cuentas de wallet son activos (Assets)
+    return generateAccountForCategory(
+      'Cuenta: $name', 
+      AccountingType.assets.id,
+    );
+  }
+
+  @override
+  Future<ChartAccount> generateAccountForCreditCard(String name) async {
+    // Las tarjetas de crédito son pasivos (Liabilities)
+    return generateAccountForCategory(
+      'Tarjeta: $name',
+      AccountingType.liabilities.id,
+    );
   }
 }

@@ -48,6 +48,13 @@ class AppDrawer extends StatelessWidget {
         label: 'Categorías',
         route: AppRoutes.categories,
       ),
+      // Nuevo ítem para Plan de Cuentas
+      DrawerItemData(
+        icon: Icons.account_tree_outlined,
+        selectedIcon: Icons.account_tree,
+        label: 'Plan de Cuentas',
+        route: AppRoutes.chartAccounts,
+      ),
     ];
     
     final preferenceItems = [

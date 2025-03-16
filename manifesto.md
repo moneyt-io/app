@@ -1,5 +1,5 @@
 ========================================================================
-                        MoneyT - Contexto Unificado V.0.3.0
+                        MoneyT - Contexto Unificado V.0.4.0
 ========================================================================
 
 1. DESCRIPCIÓN GENERAL
@@ -19,66 +19,49 @@ b) Integración de principios contables avanzados:
 ------------------------------------------------------------------------
 2. ESTRUCTURA DEL PROYECTO
 ---------------------------
-La aplicación sigue una arquitectura organizada en capas:
-
-• lib/
-  ├── core/
-  │     ├── l10n/          -> Gestión de localización e idiomas.
-  │     └── events/        -> Eventos de sincronización y otros eventos centrales.
-  │
-  ├── data/
-  │     ├── datasources/   -> Fuentes de datos (local y remoto)
-  │     │   ├── local/     -> Acceso a la base de datos local (usando Drift para SQLite)
-  │     │   └── remote/    -> Servicios remotos (APIs, Firebase, etc.)
-  │     ├── models/        -> Modelos de datos y mappers
-  │     └── repositories/  -> Implementaciones de repositorios
-  │
-  ├── domain/
-  │     ├── entities/      -> Definición de entidades (transacciones, cuentas, etc.).
-  │     ├── repositories/  -> Interfaces para la gestión de datos.
-  │     └── usecases/      -> Lógica de negocio y casos de uso.
-  │
-  ├── presentation/
-  │     ├── atoms/         -> Componentes básicos (botones, inputs)
-  │     ├── molecules/     -> Componentes compuestos (cards, listas simples)
-  │     ├── organisms/     -> Componentes complejos (formularios, modales)
-  │     ├── templates/     -> Layouts de pantallas
-  │     └── screens/       -> Pantallas completas
-  │
-  ├── routes/             -> Definición de rutas de navegación.
-  └── main.dart           -> Punto de entrada; inicializa Firebase, dependencias y verifica el estado del onboarding.
-
-
-Estrucutra que quiero Implementar
+La aplicación sigue una arquitectura organizada en capas con un enfoque modular:
 
 lib/
-│── core/
-│   ├── config/                 # Configuración general (temas, estilos, constantes)
-│   ├── localization/           # Configuración de idiomas
-│   ├── navigation/             # Configuración de Navigator 2.0
-│   ├── utils/                  # Funciones y clases de utilidad
-│   ├── di/                     # Inyección de dependencias
-│── data/                       # Capa de datos
-│   ├── datasources/            # Fuentes de datos (API, BD local)
-│   │   ├── local/              # Implementaciones locales (Drift)
+├── core/                        # Núcleo de la aplicación
+│   ├── config/                  # Configuración general (temas, estilos, constantes)
+│   ├── di/                      # Inyección de dependencias
+│   │   ├── app_di_module.dart   # Registro de servicios de aplicación
+│   │   ├── data_di_module.dart  # Registro de datasources y repos
+│   │   ├── domain_di_module.dart# Registro de casos de uso
+│   │   └── injection_container.dart # Configuración general de DI
+│   ├── localization/            # Sistema de traducciones (pendiente)
+│   ├── utils/                   # Utilidades generales
+│   └── services/                # Servicios transversales
+│
+├── data/                       # Capa de datos
+│   ├── datasources/            # Fuentes de datos (local y remoto)
+│   │   ├── local/              # Acceso a la base de datos local (usando Drift para SQLite)
 │   │   │   ├── tables/         # Definición de tablas
-│   │   │   ├── daos/           # Objetos de acceso a datos
+│   │   │   ├── daos/           # Data Access Objects
 │   │   │   └── database.dart   # Configuración de la BD
-│   │   └── remote/             # Implementaciones remotas (HTTP, GraphQL)
-│   ├── models/                 # Modelos de datos (DTOs, entidades de Drift)
-│   ├── repositories/           # Implementaciones de repositorios
-│── domain/                     # Capa de dominio
-│   ├── entities/               # Entidades de dominio
-│   ├── repositories/           # Definición de repositorios
-│   ├── usecases/               # Casos de uso
-│── presentation/               # Capa de presentación (Atomic Design)
-│   ├── atoms/                  # Componentes más pequeños (botones, inputs)
-│   ├── molecules/              # Combinación de átomos (cards, listas)
-│   ├── organisms/              # Componentes grandes (formularios, modales)
-│   ├── templates/              # Layouts de pantallas
-│   ├── pages/                # Pantallas completas
-│── main.dart                   # Punto de entrada de la aplicación
-│── app.dart                    # Inicialización de dependencias y configuración
+│   │   └── remote/             # Servicios remotos (APIs, Firebase, etc.)
+│   ├── models/                 # Modelos de datos y mappers
+│   └── repositories/           # Implementaciones de repositorios
+│
+├── domain/                     # Capa de dominio
+│   ├── entities/               # Definición de entidades (transacciones, cuentas, etc.)
+│   ├── repositories/           # Interfaces para la gestión de datos
+│   └── usecases/               # Lógica de negocio y casos de uso
+│
+├── presentation/              # Capa de presentación (Atomic Design)
+│   ├── atoms/                 # Componentes básicos (botones, inputs)
+│   ├── molecules/             # Componentes compuestos (cards, listas simples)
+│   ├── organisms/             # Componentes complejos (formularios, modales)
+│   ├── pages/                 # Pantallas completas
+│   ├── providers/             # Proveedores de estado
+│   └── routes/                # Configuración de rutas
+│       ├── app_routes.dart    # Constantes de rutas 
+│       ├── route_generator.dart # Generador de rutas
+│       └── navigation_service.dart # Servicio de navegación
+│
+├── firebase_options.dart      # Configuración de Firebase
+├── app.dart                   # Widget principal de la aplicación
+└── main.dart                  # Punto de entrada; inicializa dependencias
 
 ------------------------------------------------------------------------
 3. FUNCIONALIDADES PRINCIPALES
@@ -112,36 +95,41 @@ lib/
       - Al registrar un gasto compartido, se genera la transacción del gasto personal y se crean automáticamente préstamos a contactos involucrados, con sus respectivos diarios contables.
 
 ------------------------------------------------------------------------
-4. CONFIGURACIÓN DE FIREBASE Y DEPENDENCIAS CLAVE
+4. SISTEMA DE INYECCIÓN DE DEPENDENCIAS
 ----------------------------------------------------
-- La aplicación se conecta a Firebase para la autenticación y sincronización de datos.
-- Dependencias importantes:
-    • flutter_svg         -> Manejo de imágenes SVG.
-    • drift               -> Gestión de la base de datos SQLite.
-    • provider            -> Gestión del estado.
-    • google_sign_in      -> Autenticación con Google.
-    • shared_preferences  -> Almacenamiento local (por ejemplo, para verificar el onboarding).
+La aplicación utiliza GetIt como contenedor de inyección de dependencias para gestionar la creación y el ciclo de vida de los objetos. La estructura modular facilita la registración y acceso a las dependencias por capa:
 
-Ejemplo de inicialización en main.dart:
---------------------------------------------------
+1. Inicialización principal (`injection_container.dart`):
+   - Punto de entrada para registrar todas las dependencias de la aplicación
+   - Coordina la inicialización de las diferentes capas (datos, dominio, aplicación)
+
+2. Módulo de datos (`data_di_module.dart`):
+   - Registra la instancia de la base de datos
+   - Registra los DAOs (Data Access Objects)
+   - Registra las implementaciones de los repositorios
+
+3. Módulo de dominio (`domain_di_module.dart`):
+   - Registra casos de uso que dependen de los repositorios
+
+4. Módulo de aplicación (`app_di_module.dart`):
+   - Registra servicios a nivel de aplicación (por ejemplo, servicios de localización, temas, etc.)
+
+Ejemplo de uso en la inicialización:
+```dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Inicializar Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  // Inicializar dependencias (por ejemplo, con GetIt)
+  // Inicializar dependencias
   await initializeDependencies();
-
-  // Verificar si es la primera vez que se abre la app
-  final prefs = await SharedPreferences.getInstance();
-  final bool hasCompletedOnboarding = prefs.getBool('has_completed_onboarding') ?? false;
-
-  runApp(MyApp(skipWelcome: hasCompletedOnboarding));
+  
+  // Resto del código...
 }
---------------------------------------------------
+```
+
+Ejemplo de uso en componentes:
+```dart
+final chartAccountUseCases = GetIt.instance<ChartAccountUseCases>();
+```
 
 ------------------------------------------------------------------------
 5. ESTRUCTURA DE LA BASE DE DATOS

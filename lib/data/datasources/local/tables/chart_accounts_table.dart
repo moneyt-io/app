@@ -6,7 +6,7 @@ class ChartAccount extends Table {
   // Relational fields
   IntColumn get id => integer().autoIncrement()();
   IntColumn get parentId => integer().nullable().references(ChartAccount, #id)();
-  TextColumn get accountingTypeId => text().withLength(min: 1, max: 1).references(AccountingType, #id)();
+  TextColumn get accountingTypeId => text().withLength(min: 2, max: 2).references(AccountingType, #id)();
   
   // Main data fields
   TextColumn get code => text().withLength(min: 1, max: 50)();

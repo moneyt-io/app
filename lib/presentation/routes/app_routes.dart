@@ -27,4 +27,8 @@ class AppRoutes {
   // Rutas de configuración
   static const String settings = '/settings';
   static const String backup = '/backup';
+
+  // Rutas de plan de cuentas
+  static const String chartAccounts = '/chart-accounts';
+  static const String chartAccountForm = '/chart-account-form';
 }

@@ -7,9 +7,15 @@ import '../pages/contacts_screen.dart';
 import '../pages/contact_form_screen.dart';
 import '../pages/categories_screen.dart';
 import '../pages/category_form_screen.dart';
+import '../pages/transactions_screen.dart';
+import '../pages/transaction_form_screen.dart';
+import '../pages/chart_accounts_screen.dart';
+import '../pages/chart_account_form_screen.dart';
 import './app_routes.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/entities/category.dart';
+import '../../domain/entities/transaction.dart';
+import '../../domain/entities/chart_account.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as device_contacts;
 
 /// Genera las rutas para el sistema de navegación de la app.
@@ -78,6 +84,47 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => CategoryFormScreen(
             category: category,
+          ),
+        );
+      
+      // NUEVAS RUTAS AÑADIDAS PARA TRANSACCIONES
+      case AppRoutes.transactions:
+        return MaterialPageRoute(
+          builder: (_) => const TransactionsScreen(),
+        );
+        
+      case AppRoutes.transactionForm:
+        TransactionEntity? transaction;
+        String initialType = 'all';
+        
+        if (args != null && args is Map<String, dynamic>) {
+          transaction = args['transaction'] as TransactionEntity?;
+          initialType = args['type'] as String? ?? 'all';
+        }
+        
+        return MaterialPageRoute(
+          builder: (_) => TransactionFormScreen(
+            transaction: transaction,
+            initialType: initialType,
+          ),
+        );
+      
+      // NUEVAS RUTAS PARA EL PLAN DE CUENTAS
+      case AppRoutes.chartAccounts:
+        return MaterialPageRoute(
+          builder: (_) => const ChartAccountsScreen(),
+        );
+        
+      case AppRoutes.chartAccountForm:
+        ChartAccount? account;
+        
+        if (args != null && args is ChartAccount) {
+          account = args;
+        }
+        
+        return MaterialPageRoute(
+          builder: (_) => ChartAccountFormScreen(
+            account: account,
           ),
         );
       

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'app.dart';
+import 'core/di/injection_container.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,8 +16,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // // Inicializar dependencias
-  // await initializeDependencies();
+  // Inicializar dependencias
+  await initializeDependencies();
 
   // Obtener preferencias
   final prefs = await SharedPreferences.getInstance();

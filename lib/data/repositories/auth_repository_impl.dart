@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/entities/user_entity.dart';
-import '../../core/services/sync_service.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuth auth;
