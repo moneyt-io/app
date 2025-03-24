@@ -11,6 +11,15 @@ class ChartAccountRepositoryImpl implements ChartAccountRepository {
 
   ChartAccountRepositoryImpl(this._dao);
 
+  // Mapa de conversión de códigos de tipo de cuenta a valores numéricos
+  final Map<String, String> _accountingTypeNumberMap = {
+    'As': '1', // Assets
+    'Li': '2', // Liabilities
+    'Eq': '3', // Equity
+    'In': '4', // Income
+    'Ex': '5', // Expenses
+  };
+
   @override
   Future<List<ChartAccount>> getAllChartAccounts() async {
     final accounts = await _dao.getAllChartAccounts();
@@ -125,6 +134,9 @@ class ChartAccountRepositoryImpl implements ChartAccountRepository {
     int level = 1;
     String codePrefix = '';
     
+    // Convertir el ID de tipo de cuenta a formato numérico
+    final numericTypeId = _accountingTypeNumberMap[accountingTypeId] ?? accountingTypeId;
+    
     if (parentId != null) {
       final parentAccount = await getChartAccountById(parentId);
       if (parentAccount != null) {
@@ -135,15 +147,18 @@ class ChartAccountRepositoryImpl implements ChartAccountRepository {
     
     // 2. Obtener el próximo número disponible para este tipo de cuenta
     final accountsOfType = await getChartAccountsByType(accountingTypeId);
-    final sameLevelAccounts = accountsOfType.where((a) => a.level == level).toList();
+    final sameLevelAccounts = accountsOfType
+        .where((a) => a.level == level && (parentId == null ? a.parentId == null : a.parentId == parentId))
+        .toList();
     final nextNumber = sameLevelAccounts.length + 1;
     
-    // 3. Generar el código completo
+    // 3. Generar el código completo - Ahora usando el ID numérico
     final code = parentId == null 
-        ? '$accountingTypeId$nextNumber' 
+        ? '$numericTypeId$nextNumber' 
         : '$codePrefix$nextNumber';
     
-    // 4. Crear la nueva cuenta
+    // 4. Crear la nueva cuenta contable
+    final now = DateTime.now();
     final newAccount = ChartAccount(
       id: 0, // Se generará automáticamente
       parentId: parentId,
@@ -152,10 +167,12 @@ class ChartAccountRepositoryImpl implements ChartAccountRepository {
       level: level,
       name: name,
       active: true,
-      createdAt: DateTime.now(),
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null,
     );
     
-    // 5. Guardar y devolver la cuenta creada
+    // 5. Insertar y devolver la cuenta creada
     return createChartAccount(newAccount);
   }
 

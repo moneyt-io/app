@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../domain/entities/transaction.dart';
 import '../atoms/app_button.dart';
 import '../molecules/form_field_container.dart';
-import '../routes/navigation_service.dart';
 
 // Datos simulados para los selectores
 final mockAccounts = [

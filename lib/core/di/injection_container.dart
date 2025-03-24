@@ -1,4 +1,3 @@
-import 'package:get_it/get_it.dart';
 import 'data_di_module.dart';
 import 'domain_di_module.dart';
 import 'app_di_module.dart';

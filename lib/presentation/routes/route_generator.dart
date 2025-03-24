@@ -11,6 +11,8 @@ import '../pages/transactions_screen.dart';
 import '../pages/transaction_form_screen.dart';
 import '../pages/chart_accounts_screen.dart';
 import '../pages/chart_account_form_screen.dart';
+import '../pages/wallets_screen.dart';
+import '../pages/wallet_form_screen.dart';
 import './app_routes.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/entities/category.dart';
@@ -126,6 +128,16 @@ class RouteGenerator {
           builder: (_) => ChartAccountFormScreen(
             account: account,
           ),
+        );
+      
+      case AppRoutes.wallets:
+        return MaterialPageRoute(
+          builder: (_) => const WalletsScreen(),
+        );
+        
+      case AppRoutes.walletForm:
+        return MaterialPageRoute(
+          builder: (_) => WalletFormScreen(wallet: args as dynamic),
         );
       
       // En el futuro, agregar las demás rutas aquí

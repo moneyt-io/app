@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as device_contacts;
+import 'package:get_it/get_it.dart';
 import '../../domain/entities/contact.dart';
+import '../../domain/usecases/contact_usecases.dart';
 import '../atoms/app_button.dart';
 import '../molecules/form_field_container.dart';
 import '../routes/navigation_service.dart';
@@ -25,8 +27,12 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _noteController = TextEditingController();
+  
+  bool _isLoading = false;
+  String? _error;
 
   bool get isEditing => widget.contact != null;
+  late final ContactUseCases _contactUseCases;
 
   // Expresión regular para validar emails
   final _emailRegex = RegExp(
@@ -37,6 +43,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
   @override
   void initState() {
     super.initState();
+    _contactUseCases = GetIt.instance<ContactUseCases>();
     
     if (isEditing) {
       // Modo de edición: prellenar con datos del contacto existente
@@ -58,6 +65,44 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
             ? deviceContact.phones.first.normalizedNumber 
             : deviceContact.phones.first.number;
       }
+      
+      // Validar si el contacto ya existe
+      _checkExistingContact();
+    }
+  }
+  
+  Future<void> _checkExistingContact() async {
+    try {
+      final email = _emailController.text.trim().isEmpty ? null : _emailController.text.trim();
+      final phone = _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim();
+      
+      final existingContact = await _contactUseCases.findExistingContact(email, phone);
+      
+      if (existingContact != null && mounted) {
+        setState(() {
+          _error = 'Este contacto ya existe en tu lista de contactos';
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Contacto ya existente: ${existingContact.name}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            action: SnackBarAction(
+              label: 'Editar',
+              textColor: Colors.white,
+              onPressed: () {
+                NavigationService.goBack(); // Cerrar este formulario
+                NavigationService.navigateTo(
+                  'contactForm',
+                  arguments: {'contact': existingContact}
+                );
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      // Ignorar errores en esta validación
     }
   }
 
@@ -70,39 +115,66 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
     super.dispose();
   }
 
-  void _saveContact() {
+  Future<void> _saveContact() async {
     if (!_formKey.currentState!.validate()) return;
+    
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
     try {
-      // Crear o actualizar el contacto (simulado)
+      final now = DateTime.now();
+      
       final contact = Contact(
-        id: isEditing ? widget.contact!.id : DateTime.now().millisecondsSinceEpoch,
+        id: isEditing ? widget.contact!.id : 0, // 0 para nuevas entidades
         name: _nameController.text.trim(),
         email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
         phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
         note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
         active: true,
-        createdAt: isEditing ? widget.contact!.createdAt : DateTime.now(),
-        updatedAt: DateTime.now(),
+        createdAt: isEditing ? widget.contact!.createdAt : now,
+        updatedAt: now,
         deletedAt: null,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isEditing ? 'Contacto actualizado con éxito' : 'Contacto creado con éxito'),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-        ),
-      );
+      Contact savedContact;
+      if (isEditing) {
+        await _contactUseCases.updateContact(contact);
+        savedContact = contact;
+      } else {
+        savedContact = await _contactUseCases.createContact(contact);
+      }
       
-      // Devolver el contacto creado/actualizado a la pantalla anterior
-      //NavigationService.goBack(result: contact);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isEditing ? 'Contacto actualizado con éxito' : 'Contacto creado con éxito'),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+        );
+        
+        // Devolver el contacto a la pantalla anterior
+        NavigationService.goBack(savedContact);
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -122,6 +194,42 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // Error (si existe)
+            if (_error != null) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      color: colorScheme.error,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _error!,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onErrorContainer,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.close,
+                        color: colorScheme.onErrorContainer,
+                      ),
+                      onPressed: () => setState(() => _error = null),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+            
             // Tarjeta de información del contacto
             Card(
               elevation: 0,
@@ -219,18 +327,13 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                         controller: _noteController,
                         decoration: InputDecoration(
                           labelText: 'Notas',
-                          alignLabelWithHint: true,
-                          prefixIcon: Padding(
-                            padding: const EdgeInsets.only(bottom: 64),
-                            child: Icon(
-                              Icons.note_outlined,
-                              color: colorScheme.onSurfaceVariant,
-                            ),
+                          prefixIcon: Icon(
+                            Icons.note_outlined,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                           border: InputBorder.none,
                         ),
-                        maxLines: 4,
-                        textInputAction: TextInputAction.done,
+                        maxLines: 3,
                       ),
                     ),
                   ],
@@ -242,13 +345,25 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
       ),
       bottomNavigationBar: Container(
         padding: EdgeInsets.only(
-          left: 16, 
+          left: 16,
           right: 16,
-          bottom: 16 + MediaQuery.of(context).padding.bottom,
+          bottom: MediaQuery.of(context).padding.bottom + 16,
+          top: 16,
+        ),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withOpacity(0.1),
+              blurRadius: 4,
+              offset: const Offset(0, -1),
+            ),
+          ],
         ),
         child: AppButton(
           text: 'Guardar',
-          onPressed: _saveContact,
+          onPressed: _isLoading ? null : _saveContact,
+          isLoading: _isLoading,
           type: AppButtonType.primary,
           isFullWidth: true,
         ),

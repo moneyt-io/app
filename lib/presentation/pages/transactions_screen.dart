@@ -4,7 +4,6 @@ import '../../domain/entities/transaction.dart';
 import '../atoms/app_button.dart';
 import '../molecules/empty_state.dart';
 import '../molecules/search_field.dart';
-import '../molecules/transaction_list_item.dart';
 import '../molecules/date_filter_selector.dart';
 import '../organisms/app_drawer.dart';
 import '../organisms/transaction_list_section.dart';

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../atoms/app_button.dart';
 import '../molecules/language_selector.dart';
 import '../molecules/terms_checkbox.dart';

@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../atoms/app_button.dart';
-import '../molecules/section_title.dart';
 import '../molecules/settings_list_item.dart';
 import '../molecules/language_selector.dart';
 import '../molecules/theme_switcher.dart';
 import '../organisms/settings_section.dart';
 import '../organisms/account_section.dart';
 import '../organisms/app_drawer.dart';
-import '../providers/theme_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);

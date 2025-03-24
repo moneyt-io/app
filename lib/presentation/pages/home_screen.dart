@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../atoms/app_button.dart';
 import '../molecules/account_balance_card.dart';
 import '../molecules/stats_card.dart';
 import '../molecules/transaction_list_item.dart';
@@ -99,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: 'Balance Total',
                 balance: _mockTotalBalance,
                 currencySymbol: '\$',
-                onTap: () => NavigationService.navigateTo(AppRoutes.accounts),
+                onTap: () => NavigationService.navigateTo(AppRoutes.wallets),
               ),
               
               const SizedBox(height: 20),
@@ -147,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Mis cuentas
               _buildSection(
                 title: 'Mis Cuentas', 
-                onViewAll: () => NavigationService.navigateTo(AppRoutes.accounts)
+                onViewAll: () => NavigationService.navigateTo(AppRoutes.wallets)
               ),
               
               _buildAccountsList(),

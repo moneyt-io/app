@@ -37,10 +37,10 @@ class AppDrawer extends StatelessWidget {
         route: AppRoutes.contacts,
       ),
       DrawerItemData(
-        icon: Icons.account_balance_outlined,
-        selectedIcon: Icons.account_balance,
-        label: 'Cuentas',
-        route: AppRoutes.accounts,
+        icon: Icons.account_balance_wallet_outlined,
+        selectedIcon: Icons.account_balance_wallet,
+        label: 'Billeteras',
+        route: AppRoutes.wallets,
       ),
       DrawerItemData(
         icon: Icons.category_outlined,

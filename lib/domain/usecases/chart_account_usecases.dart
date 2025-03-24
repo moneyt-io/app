@@ -1,7 +1,6 @@
 import 'package:injectable/injectable.dart';
 import '../entities/chart_account.dart';
 import '../repositories/chart_account_repository.dart';
-import '../entities/accounting_type.dart';
 
 @injectable
 class ChartAccountUseCases {
@@ -37,8 +36,8 @@ class ChartAccountUseCases {
       _repository.deleteChartAccount(id);
   
   // Métodos de utilidad para el plan de cuentas
-  Future<ChartAccount> generateAccountForCategory(String name, String accountingTypeId) => 
-      _repository.generateAccountForCategory(name, accountingTypeId);
+  Future<ChartAccount> generateAccountForCategory(String name, String accountingTypeId, {int? parentId}) => 
+      _repository.generateAccountForCategory(name, accountingTypeId, parentId: parentId);
   
   Future<ChartAccount> generateAccountForWallet(String name) => 
       _repository.generateAccountForWallet(name);

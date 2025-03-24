@@ -174,12 +174,7 @@ class _ChartAccountsScreenState extends State<ChartAccountsScreen> {
             },
             tooltip: _showTreeView ? 'Ver como lista' : 'Ver como árbol',
           ),
-          // Botón para refrescar
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadAccounts,
-            tooltip: 'Actualizar',
-          ),
+          // Eliminamos el botón de refrescar que estaba aquí
         ],
       ),
       drawer: const AppDrawer(),
@@ -211,7 +206,16 @@ class _ChartAccountsScreenState extends State<ChartAccountsScreen> {
           
           // Lista de cuentas
           Expanded(
-            child: _buildContent(filteredAccounts),
+            child: RefreshIndicator(
+              onRefresh: _loadAccounts,
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? _buildErrorState()
+                      : _showTreeView
+                          ? _buildChartAccountTreeView(filteredAccounts)
+                          : _buildChartAccountListView(filteredAccounts),
+            ),
           ),
         ],
       ),
@@ -224,81 +228,85 @@ class _ChartAccountsScreenState extends State<ChartAccountsScreen> {
     );
   }
 
-  Widget _buildContent(List<ChartAccount> accounts) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 48,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Error al cargar las cuentas',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(_error!),
-            const SizedBox(height: 16),
-            AppButton(
-              text: 'Reintentar',
-              onPressed: _loadAccounts,
-              type: AppButtonType.primary,
-            ),
-          ],
-        ),
-      );
-    }
+  // Añadir el método que falta para mostrar el estado de error
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 48,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          const SizedBox(height: 16),
+          const Text('Error al cargar las cuentas'),
+          const SizedBox(height: 8),
+          Text(_error ?? 'Error desconocido'),
+          const SizedBox(height: 16),
+          AppButton(
+            text: 'Reintentar',
+            onPressed: _loadAccounts,
+            type: AppButtonType.primary,
+          ),
+        ],
+      ),
+    );
+  }
 
+  // Añadir método para construir la vista de árbol
+  Widget _buildChartAccountTreeView(List<ChartAccount> accounts) {
     if (accounts.isEmpty) {
-      return EmptyState(
-        icon: Icons.account_balance_outlined,
-        title: 'No hay cuentas',
-        message: _searchQuery.isEmpty && _selectedType == null
-          ? 'Crea una nueva cuenta utilizando el botón "+"'
-          : 'No se encontraron cuentas con los filtros aplicados',
-        action: (_searchQuery.isNotEmpty || _selectedType != null) ? AppButton(
-          text: 'Limpiar filtros',
-          onPressed: () {
-            _searchController.clear();
-            setState(() {
-              _searchQuery = '';
-              _selectedType = null;
-            });
-          },
-          type: AppButtonType.text,
-        ) : null,
-      );
+      return _buildEmptyState();
     }
 
-    if (_showTreeView) {
-      return ChartAccountTreeView(
-        accounts: accounts,
-        onAccountTap: (account) => _navigateToChartAccountForm(account: account),
-        onAccountDelete: _deleteChartAccount,
-      );
-    } else {
-      // Vista de lista plana
-      return ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: accounts.length,
-        itemBuilder: (context, index) {
-          final account = accounts[index];
-          return ChartAccountListItem(
-            account: account,
-            indentation: 0, // Sin indentación en vista de lista
-            onTap: () => _navigateToChartAccountForm(account: account),
-            onDelete: () => _deleteChartAccount(account),
-          );
-        },
-      );
+    return ChartAccountTreeView(
+      accounts: accounts,
+      onAccountTap: (account) => _navigateToChartAccountForm(account: account),
+      onAccountDelete: _deleteChartAccount,
+    );
+  }
+
+  // Añadir método para construir la vista de lista
+  Widget _buildChartAccountListView(List<ChartAccount> accounts) {
+    if (accounts.isEmpty) {
+      return _buildEmptyState();
     }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: accounts.length,
+      itemBuilder: (context, index) {
+        final account = accounts[index];
+        return ChartAccountListItem(
+          account: account,
+          indentation: 0, // Sin indentación en vista de lista
+          onTap: () => _navigateToChartAccountForm(account: account),
+          onDelete: () => _deleteChartAccount(account),
+        );
+      },
+    );
+  }
+
+  // Método auxiliar para estado vacío
+  Widget _buildEmptyState() {
+    return EmptyState(
+      icon: Icons.account_balance_outlined,
+      title: 'No hay cuentas',
+      message: _searchQuery.isEmpty && _selectedType == null
+        ? 'Crea una nueva cuenta utilizando el botón "+"'
+        : 'No se encontraron cuentas con los filtros aplicados',
+      action: (_searchQuery.isNotEmpty || _selectedType != null) ? AppButton(
+        text: 'Limpiar filtros',
+        onPressed: () {
+          _searchController.clear();
+          setState(() {
+            _searchQuery = '';
+            _selectedType = null;
+          });
+        },
+        type: AppButtonType.text,
+      ) : null,
+    );
   }
 }
