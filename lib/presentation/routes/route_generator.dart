@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../domain/entities/journal_entry.dart';
+import '../pages/journal_detail_screen.dart';
+import '../pages/journals_screen.dart';
 import '../pages/welcome_screen.dart';
 import '../pages/login_screen.dart';
 import '../pages/home_screen.dart';
@@ -140,6 +143,20 @@ class RouteGenerator {
           builder: (_) => WalletFormScreen(wallet: args as dynamic),
         );
       
+      // Nuevas rutas para diarios contables
+      case AppRoutes.journals:
+        return MaterialPageRoute(
+          builder: (_) => const JournalsScreen(),
+        );
+        
+      case AppRoutes.journalDetail:
+        if (args is JournalEntry) {
+          return MaterialPageRoute(
+            builder: (_) => JournalDetailScreen(journal: args),
+          );
+        }
+        return _errorRoute('Se requiere un JournalEntry como argumento');
+      
       // En el futuro, agregar las demás rutas aquí
       
       default:
@@ -152,5 +169,57 @@ class RouteGenerator {
           ),
         );
     }
+  }
+
+  // Añadir este método para manejar rutas con error
+  static Route<dynamic> _errorRoute(String message) {
+    return MaterialPageRoute(
+      builder: (_) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Error'),
+            centerTitle: true,
+          ),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.red,
+                    size: 64,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Error de Navegación',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(_).pushNamedAndRemoveUntil(
+                        AppRoutes.home,
+                        (route) => false,
+                      );
+                    },
+                    child: const Text('Ir al Inicio'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

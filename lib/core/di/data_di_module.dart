@@ -9,9 +9,12 @@ import '../../data/datasources/local/daos/contact_dao.dart';
 import '../../data/repositories/category_repository_impl.dart';
 import '../../domain/repositories/category_repository.dart';
 import '../../data/datasources/local/daos/categories_dao.dart';
-import '../../data/datasources/local/daos/wallet_dao.dart'; // Añadir importación
-import '../../data/repositories/wallet_repository_impl.dart'; // Añadir importación
-import '../../domain/repositories/wallet_repository.dart'; // Añadir importación
+import '../../data/datasources/local/daos/wallet_dao.dart';
+import '../../data/repositories/wallet_repository_impl.dart';
+import '../../domain/repositories/wallet_repository.dart';
+import '../../domain/repositories/journal_repository.dart';
+import '../../data/repositories/journal_repository_impl.dart';
+import '../../data/datasources/local/daos/journal_dao.dart';
 
 final getIt = GetIt.instance;
 
@@ -24,7 +27,8 @@ Future<void> initializeDataDependencies() async {
   getIt.registerSingleton<ChartAccountsDao>(ChartAccountsDao(database));
   getIt.registerLazySingleton<ContactDao>(() => ContactDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<CategoriesDao>(() => CategoriesDao(getIt<AppDatabase>()));
-  getIt.registerLazySingleton<WalletDao>(() => WalletDao(getIt<AppDatabase>())); // Añadir DAO de Wallet
+  getIt.registerLazySingleton<WalletDao>(() => WalletDao(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<JournalDao>(() => JournalDao(getIt<AppDatabase>()));
   
   // Repositorios
   getIt.registerSingleton<ChartAccountRepository>(
@@ -36,7 +40,10 @@ Future<void> initializeDataDependencies() async {
   getIt.registerSingleton<CategoryRepository>(
     CategoryRepositoryImpl(getIt<CategoriesDao>())
   );
-  getIt.registerSingleton<WalletRepository>( // Añadir Repositorio de Wallet
+  getIt.registerSingleton<WalletRepository>(
     WalletRepositoryImpl(getIt<WalletDao>())
+  );
+  getIt.registerLazySingleton<JournalRepository>(
+    () => JournalRepositoryImpl(getIt<JournalDao>())
   );
 }

@@ -3,7 +3,7 @@ import 'journal_detail.dart';
 
 class JournalEntry extends Equatable {
   final int id;
-  final String documentTypeId;
+  final String documentTypeId;  // Referencia a document_types (I,E,T,L,B)
   final int secuencial;
   final DateTime date;
   final String? description;
@@ -23,20 +23,34 @@ class JournalEntry extends Equatable {
     required this.createdAt,
     this.updatedAt,
     this.deletedAt,
-    this.details = const [],
+    required this.details,
   });
+
+  // Helper para determinar el tipo de documento
+  bool get isIncome => documentTypeId == 'I';
+  bool get isExpense => documentTypeId == 'E';
+  bool get isTransfer => documentTypeId == 'T';
+  bool get isLend => documentTypeId == 'L';
+  bool get isBorrow => documentTypeId == 'B';
+
+  // Helper para verificar el balance del asiento contable
+  bool get isBalanced {
+    double totalDebit = 0.0;
+    double totalCredit = 0.0;
+    
+    for (final detail in details) {
+      totalDebit += detail.debit;
+      totalCredit += detail.credit;
+    }
+    
+    // Usamos una pequeña tolerancia para evitar problemas de precisión
+    const epsilon = 0.001;
+    return (totalDebit - totalCredit).abs() < epsilon;
+  }
 
   @override
   List<Object?> get props => [
-    id,
-    documentTypeId,
-    secuencial,
-    date,
-    description,
-    active,
-    createdAt,
-    updatedAt,
-    deletedAt,
-    details,
+    id, documentTypeId, secuencial, date, description,
+    active, createdAt, updatedAt, deletedAt
   ];
 }

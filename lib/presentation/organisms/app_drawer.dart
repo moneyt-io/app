@@ -55,6 +55,13 @@ class AppDrawer extends StatelessWidget {
         label: 'Plan de Cuentas',
         route: AppRoutes.chartAccounts,
       ),
+      // Nuevo ítem para Diarios Contables
+      DrawerItemData(
+        icon: Icons.book_outlined,
+        selectedIcon: Icons.book,
+        label: 'Diarios Contables',
+        route: AppRoutes.journals,
+      ),
     ];
     
     final preferenceItems = [

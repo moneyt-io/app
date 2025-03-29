@@ -1,4 +1,3 @@
-
 /// Clase que define todas las rutas disponibles en la aplicación.
 /// 
 /// Esta clase contiene únicamente constantes que identifican las rutas,
@@ -26,4 +25,8 @@ class AppRoutes {
   static const String login = '/login';
   static const String backup = '/backup';
   static const String transactionDetails = '/transaction-details';
+  
+  // Rutas para diarios contables
+  static const String journals = '/journals';
+  static const String journalDetail = '/journal-detail';
 }

@@ -5,8 +5,10 @@ import '../../domain/repositories/contact_repository.dart';
 import '../../domain/usecases/contact_usecases.dart';
 import '../../domain/repositories/category_repository.dart';
 import '../../domain/usecases/category_usecases.dart';
-import '../../domain/repositories/wallet_repository.dart'; // Añadir importación
-import '../../domain/usecases/wallet_usecases.dart'; // Añadir importación
+import '../../domain/repositories/wallet_repository.dart';
+import '../../domain/usecases/wallet_usecases.dart';
+import '../../domain/repositories/journal_repository.dart'; // Añadir importación
+import '../../domain/usecases/journal_usecases.dart'; // Añadir importación
 
 final getIt = GetIt.instance;
 
@@ -27,8 +29,12 @@ Future<void> initializeDomainDependencies() async {
     )
   );
   
-  // Registro del caso de uso de Wallet
   getIt.registerSingleton<WalletUseCases>(
     WalletUseCases(getIt<WalletRepository>())
+  );
+  
+  // Registro del caso de uso de Journal
+  getIt.registerSingleton<JournalUseCases>(
+    JournalUseCases(getIt<JournalRepository>())
   );
 }
