@@ -36,6 +36,32 @@ class TransactionEntry extends Equatable {
     this.details = const [],
   });
 
+  // Métodos de utilidad
+  bool get isIncome => documentTypeId == 'I';
+  bool get isExpense => documentTypeId == 'E';
+  bool get isTransfer => documentTypeId == 'T';
+  
+  // Para obtener el detalle principal (primero en la lista)
+  TransactionDetail? get mainDetail => details.isNotEmpty ? details.first : null;
+  
+  // Wallet ID que representa la cuenta principal de la transacción
+  int? get mainWalletId => mainDetail?.paymentId;
+  
+  // Categoría principal de la transacción
+  int? get mainCategoryId => mainDetail?.categoryId;
+  
+  // Detalle origen en transferencias
+  TransactionDetail? get sourceDetail => 
+      isTransfer && details.isNotEmpty ? 
+      details.firstWhere((d) => d.flowId == 'F', orElse: () => details.first) : 
+      null;
+  
+  // Detalle destino en transferencias
+  TransactionDetail? get targetDetail => 
+      isTransfer && details.length > 1 ? 
+      details.firstWhere((d) => d.flowId == 'T', orElse: () => details.last) : 
+      null;
+  
   @override
   List<Object?> get props => [
     id,

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart'; // Añadir esta importación
 import '../molecules/account_balance_card.dart';
 import '../molecules/stats_card.dart';
 import '../molecules/transaction_list_item.dart';
 import '../organisms/app_drawer.dart';
 import '../routes/navigation_service.dart';
 import '../routes/app_routes.dart';
-import '../../domain/entities/transaction.dart';
+import '../../domain/entities/transaction_entry.dart';
+import '../../domain/usecases/transaction_usecases.dart'; // Añadir esta importación
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -15,6 +17,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // Añadir esta propiedad para acceder a transactionUseCases
+  final _transactionUseCases = GetIt.instance<TransactionUseCases>();
+  
   // Datos de ejemplo para la pantalla principal
   final _mockTotalBalance = 2500.0;
   final _mockIncomeMonth = 1500.0;
@@ -22,41 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _mockSavingsMonth = 650.0;
   
   // Lista de transacciones recientes para mostrar
-  final _recentTransactions = [
-    TransactionEntity(
-      id: 1,
-      type: 'E',
-      flow: 'O',
-      amount: 45.50,
-      accountId: 1,
-      categoryId: 1,
-      description: 'Compra supermercado',
-      transactionDate: DateTime.now().subtract(const Duration(days: 1)),
-      createdAt: DateTime.now(),
-    ),
-    TransactionEntity(
-      id: 2,
-      type: 'I',
-      flow: 'I',
-      amount: 1200.00,
-      accountId: 1,
-      categoryId: 5,
-      description: 'Salario',
-      transactionDate: DateTime.now().subtract(const Duration(days: 2)),
-      createdAt: DateTime.now(),
-    ),
-    TransactionEntity(
-      id: 4,
-      type: 'T',
-      flow: 'T',
-      amount: 200.00,
-      accountId: 1,
-      reference: 'Cuenta 2',
-      description: 'Transferencia entre cuentas',
-      transactionDate: DateTime.now().subtract(const Duration(days: 4)),
-      createdAt: DateTime.now(),
-    ),
-  ];
+  List<TransactionEntry> _recentTransactions = [];
   
   // Simulación de cuentas
   final _mockAccounts = [
@@ -65,10 +36,44 @@ class _HomeScreenState extends State<HomeScreen> {
     {'name': 'Efectivo', 'balance': 200.0},
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadRecentTransactions(); // Cargar transacciones al iniciar
+  }
+
   void _navigateToTransactionForm({String type = 'all'}) {
     NavigationService.navigateTo(AppRoutes.transactionForm, arguments: {
       'type': type,
     });
+  }
+
+  Future<void> _loadRecentTransactions() async {
+    try {
+      final transactions = await _transactionUseCases.getAllTransactions();
+      setState(() {
+        _recentTransactions = transactions.take(5).toList();
+      });
+    } catch (e) {
+      // Manejo de errores
+    }
+  }
+
+  // Método para recargar todos los datos del dashboard
+  Future<void> _loadDashboardData() async {
+    await _loadRecentTransactions();
+    // Agregar aquí otras cargas de datos cuando se implementen
+  }
+
+  void _navigateToTransactionDetail(TransactionEntry transaction) async {
+    final result = await NavigationService.navigateTo(
+      AppRoutes.transactionDetail,
+      arguments: transaction,
+    );
+
+    if (result != null) {
+      _loadDashboardData();
+    }
   }
 
   @override
@@ -219,6 +224,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
   
   Widget _buildRecentTransactions() {
+    if (_recentTransactions.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Center(
+          child: Text('No hay transacciones recientes'),
+        ),
+      );
+    }
+
     // Simulación de categorías para mostrar
     final mockCategories = {1: 'Alimentación', 2: 'Transporte', 5: 'Salario'};
     
@@ -226,11 +240,9 @@ class _HomeScreenState extends State<HomeScreen> {
       children: _recentTransactions.map((transaction) {
         return TransactionListItem(
           transaction: transaction,
-          categoryName: transaction.categoryId != null ? 
-            mockCategories[transaction.categoryId] : null,
-          onTap: () => _navigateToTransactionForm(
-            type: transaction.type,
-          ),
+          categoryName: transaction.mainCategoryId != null ? 
+            mockCategories[transaction.mainCategoryId] : null,
+          onTap: () => _navigateToTransactionDetail(transaction),
           onDelete: () {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Función de eliminar aún no implementada')),

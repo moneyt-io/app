@@ -23,6 +23,18 @@ class TransactionDetail extends Equatable {
     required this.rateExchange,
   });
 
+  // Métodos de utilidad
+  bool get isInflow => flowId == 'I';
+  bool get isOutflow => flowId == 'O';
+  bool get isFrom => flowId == 'F';
+  bool get isTo => flowId == 'T';
+  
+  bool get isWalletPayment => paymentTypeId == 'W';
+  bool get isCreditCardPayment => paymentTypeId == 'C';
+  
+  // Retornar el signo según el flujo (positivo para ingresos, negativo para egresos)
+  double get signedAmount => isOutflow || isFrom ? -amount : amount;
+
   @override
   List<Object?> get props => [
     id, transactionId, currencyId, flowId,

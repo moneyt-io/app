@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/entities/transaction.dart';
+import '../../domain/entities/transaction_entry.dart';
 import '../molecules/transaction_list_item.dart';
 
 /// Componente que muestra una sección de transacciones agrupadas
@@ -9,7 +9,7 @@ class TransactionListSection extends StatelessWidget {
   final String title;
   
   /// Lista de transacciones para esta sección
-  final List<TransactionEntity> transactions;
+  final List<TransactionEntry> transactions;
   
   /// Mapa opcional de nombres de categorías
   final Map<int, String>? categoriesMap;
@@ -18,10 +18,10 @@ class TransactionListSection extends StatelessWidget {
   final Map<int, String>? contactsMap;
   
   /// Función a ejecutar al tocar una transacción
-  final Function(TransactionEntity) onTransactionTap;
+  final Function(TransactionEntry) onTransactionTap;
   
   /// Función a ejecutar al eliminar una transacción
-  final Function(TransactionEntity) onTransactionDelete;
+  final Function(TransactionEntry) onTransactionDelete;
 
   const TransactionListSection({
     Key? key,
@@ -55,8 +55,8 @@ class TransactionListSection extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 8.0),
           child: TransactionListItem(
             transaction: transaction,
-            categoryName: transaction.categoryId != null && categoriesMap != null
-                ? categoriesMap![transaction.categoryId]
+            categoryName: transaction.mainCategoryId != null && categoriesMap != null
+                ? categoriesMap![transaction.mainCategoryId]
                 : null,
             contactName: transaction.contactId != null && contactsMap != null
                 ? contactsMap![transaction.contactId]

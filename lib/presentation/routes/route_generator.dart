@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/journal_entry.dart';
+import '../../domain/entities/transaction_entry.dart';
 import '../pages/journal_detail_screen.dart';
 import '../pages/journals_screen.dart';
 import '../pages/welcome_screen.dart';
@@ -12,6 +13,7 @@ import '../pages/categories_screen.dart';
 import '../pages/category_form_screen.dart';
 import '../pages/transactions_screen.dart';
 import '../pages/transaction_form_screen.dart';
+import '../pages/transaction_detail_screen.dart';
 import '../pages/chart_accounts_screen.dart';
 import '../pages/chart_account_form_screen.dart';
 import '../pages/wallets_screen.dart';
@@ -99,11 +101,11 @@ class RouteGenerator {
         );
         
       case AppRoutes.transactionForm:
-        TransactionEntity? transaction;
+        TransactionEntry? transaction;
         String initialType = 'all';
         
         if (args != null && args is Map<String, dynamic>) {
-          transaction = args['transaction'] as TransactionEntity?;
+          transaction = args['transaction'] as TransactionEntry?;
           initialType = args['type'] as String? ?? 'all';
         }
         
@@ -113,6 +115,14 @@ class RouteGenerator {
             initialType: initialType,
           ),
         );
+        
+      case AppRoutes.transactionDetail:
+        if (args is TransactionEntry) {
+          return MaterialPageRoute(
+            builder: (_) => TransactionDetailScreen(transaction: args),
+          );
+        }
+        return _errorRoute('Se requiere un TransactionEntry como argumento');
       
       // NUEVAS RUTAS PARA EL PLAN DE CUENTAS
       case AppRoutes.chartAccounts:

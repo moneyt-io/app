@@ -143,4 +143,175 @@ class JournalRepositoryImpl implements JournalRepository {
       'balance': balance,
     };
   }
+
+  @override
+  Future<JournalEntry> createIncomeJournal({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int walletChartAccountId,
+    required int categoryChartAccountId,
+    double rateExchange = 1.0,
+  }) async {
+    final secuencial = await getNextSecuencial('I');
+    final journalModel = JournalEntryModel.create(
+      documentTypeId: 'I',
+      secuencial: secuencial,
+      date: date,
+      description: description,
+      active: true,
+    );
+    final journalId = await _dao.insertJournalEntry(journalModel.toCompanion());
+    final details = [
+      JournalDetailModel(
+        id: 0,
+        journalId: journalId,
+        currencyId: currencyId,
+        chartAccountId: walletChartAccountId,
+        debit: amount,
+        credit: 0,
+        rateExchange: rateExchange,
+      ),
+      JournalDetailModel(
+        id: 0,
+        journalId: journalId,
+        currencyId: currencyId,
+        chartAccountId: categoryChartAccountId,
+        debit: 0,
+        credit: amount,
+        rateExchange: rateExchange,
+      ),
+    ];
+    await _dao.insertJournalDetails(details.map((d) => d.toCompanion()).toList());
+    final journalEntry = await getJournalEntryById(journalId);
+    if (journalEntry == null) {
+      throw Exception('No se pudo crear el diario de ingreso');
+    }
+    return journalEntry;
+  }
+
+  @override
+  Future<JournalEntry> createExpenseJournal({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int walletChartAccountId,
+    required int categoryChartAccountId,
+    double rateExchange = 1.0,
+  }) async {
+    final secuencial = await getNextSecuencial('E');
+    final journalModel = JournalEntryModel.create(
+      documentTypeId: 'E',
+      secuencial: secuencial,
+      date: date,
+      description: description,
+      active: true,
+    );
+    final journalId = await _dao.insertJournalEntry(journalModel.toCompanion());
+    final details = [
+      JournalDetailModel(
+        id: 0,
+        journalId: journalId,
+        currencyId: currencyId,
+        chartAccountId: categoryChartAccountId,
+        debit: amount,
+        credit: 0,
+        rateExchange: rateExchange,
+      ),
+      JournalDetailModel(
+        id: 0,
+        journalId: journalId,
+        currencyId: currencyId,
+        chartAccountId: walletChartAccountId,
+        debit: 0,
+        credit: amount,
+        rateExchange: rateExchange,
+      ),
+    ];
+    await _dao.insertJournalDetails(details.map((d) => d.toCompanion()).toList());
+    final journalEntry = await getJournalEntryById(journalId);
+    if (journalEntry == null) {
+      throw Exception('No se pudo crear el diario de gasto');
+    }
+    return journalEntry;
+  }
+
+  @override
+  Future<JournalEntry> createTransferJournal({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int sourceChartAccountId,
+    required int targetChartAccountId,
+    required String targetCurrencyId,
+    required double targetAmount,
+    required double rateExchange,
+  }) async {
+    final secuencial = await getNextSecuencial('T');
+    final journalModel = JournalEntryModel.create(
+      documentTypeId: 'T',
+      secuencial: secuencial,
+      date: date,
+      description: description,
+      active: true,
+    );
+    final journalId = await _dao.insertJournalEntry(journalModel.toCompanion());
+    final details = [
+      JournalDetailModel(
+        id: 0,
+        journalId: journalId,
+        currencyId: targetCurrencyId,
+        chartAccountId: targetChartAccountId,
+        debit: targetAmount,
+        credit: 0,
+        rateExchange: rateExchange,
+      ),
+      JournalDetailModel(
+        id: 0,
+        journalId: journalId,
+        currencyId: currencyId,
+        chartAccountId: sourceChartAccountId,
+        debit: 0,
+        credit: amount,
+        rateExchange: 1.0,
+      ),
+    ];
+    if (currencyId != targetCurrencyId && (amount * rateExchange) != targetAmount) {
+      final difference = targetAmount - (amount * rateExchange);
+      if (difference > 0) {
+        details.add(
+          JournalDetailModel(
+            id: 0,
+            journalId: journalId,
+            currencyId: targetCurrencyId,
+            chartAccountId: targetChartAccountId,
+            debit: 0,
+            credit: difference.abs(),
+            rateExchange: rateExchange,
+          ),
+        );
+      } else if (difference < 0) {
+        details.add(
+          JournalDetailModel(
+            id: 0,
+            journalId: journalId,
+            currencyId: targetCurrencyId,
+            chartAccountId: targetChartAccountId,
+            debit: difference.abs(),
+            credit: 0,
+            rateExchange: rateExchange,
+          ),
+        );
+      }
+    }
+    await _dao.insertJournalDetails(details.map((d) => d.toCompanion()).toList());
+    final journalEntry = await getJournalEntryById(journalId);
+    if (journalEntry == null) {
+      throw Exception('No se pudo crear el diario de transferencia');
+    }
+    return journalEntry;
+  }
 }

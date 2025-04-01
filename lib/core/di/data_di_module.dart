@@ -15,6 +15,9 @@ import '../../domain/repositories/wallet_repository.dart';
 import '../../domain/repositories/journal_repository.dart';
 import '../../data/repositories/journal_repository_impl.dart';
 import '../../data/datasources/local/daos/journal_dao.dart';
+import '../../data/datasources/local/daos/transaction_dao.dart';
+import '../../data/repositories/transaction_repository_impl.dart';
+import '../../domain/repositories/transaction_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -29,6 +32,11 @@ Future<void> initializeDataDependencies() async {
   getIt.registerLazySingleton<CategoriesDao>(() => CategoriesDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<WalletDao>(() => WalletDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<JournalDao>(() => JournalDao(getIt<AppDatabase>()));
+  
+  // Registro de DAOs para Transacciones
+  getIt.registerLazySingleton<TransactionDao>(
+    () => TransactionDao(getIt<AppDatabase>())
+  );
   
   // Repositorios
   getIt.registerSingleton<ChartAccountRepository>(
@@ -45,5 +53,13 @@ Future<void> initializeDataDependencies() async {
   );
   getIt.registerLazySingleton<JournalRepository>(
     () => JournalRepositoryImpl(getIt<JournalDao>())
+  );
+  
+  // Registro de Repositorios para Transacciones
+  getIt.registerLazySingleton<TransactionRepository>(
+    () => TransactionRepositoryImpl(
+      getIt<TransactionDao>(),
+      getIt<JournalRepository>()
+    )
   );
 }

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-import '../../domain/entities/transaction.dart';
+import '../../domain/entities/transaction_entry.dart';
+import '../../domain/usecases/transaction_usecases.dart';
+import '../../domain/usecases/category_usecases.dart';
+import '../../domain/usecases/contact_usecases.dart';
 import '../atoms/app_button.dart';
 import '../molecules/empty_state.dart';
 import '../molecules/search_field.dart';
@@ -9,58 +13,6 @@ import '../organisms/app_drawer.dart';
 import '../organisms/transaction_list_section.dart';
 import '../routes/navigation_service.dart';
 import '../routes/app_routes.dart';
-
-// Datos de ejemplo para transacciones
-final mockTransactions = [
-  TransactionEntity(
-    id: 1,
-    type: 'E',
-    flow: 'O',
-    amount: 45.50,
-    accountId: 1,
-    categoryId: 1,
-    description: 'Compra supermercado',
-    transactionDate: DateTime.now().subtract(const Duration(days: 1)),
-    createdAt: DateTime.now(),
-  ),
-  TransactionEntity(
-    id: 2,
-    type: 'I',
-    flow: 'I',
-    amount: 1200.00,
-    accountId: 1,
-    categoryId: 5,
-    description: 'Salario',
-    transactionDate: DateTime.now().subtract(const Duration(days: 2)),
-    createdAt: DateTime.now(),
-  ),
-  TransactionEntity(
-    id: 3,
-    type: 'E',
-    flow: 'O',
-    amount: 35.75,
-    accountId: 2,
-    categoryId: 2,
-    description: 'Gasolina',
-    transactionDate: DateTime.now().subtract(const Duration(days: 3)),
-    createdAt: DateTime.now(),
-  ),
-  TransactionEntity(
-    id: 4,
-    type: 'T',
-    flow: 'T',
-    amount: 200.00,
-    accountId: 1,
-    reference: 'Cuenta 2',
-    description: 'Transferencia entre cuentas',
-    transactionDate: DateTime.now().subtract(const Duration(days: 4)),
-    createdAt: DateTime.now(),
-  ),
-];
-
-// Mapas simulados de categorías y contactos para visualización
-final mockCategories = {1: 'Alimentación', 2: 'Transporte', 3: 'Entretenimiento', 5: 'Salario'};
-final mockContacts = {1: 'Ana García', 2: 'Juan Pérez'};
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({Key? key}) : super(key: key);
@@ -71,18 +23,34 @@ class TransactionsScreen extends StatefulWidget {
 
 class _TransactionsScreenState extends State<TransactionsScreen> with SingleTickerProviderStateMixin {
   final _searchController = TextEditingController();
+  final _transactionUseCases = GetIt.instance<TransactionUseCases>();
+  final _categoryUseCases = GetIt.instance<CategoryUseCases>();
+  final _contactUseCases = GetIt.instance<ContactUseCases>();
+  
   late TabController _tabController;
   String _searchQuery = '';
-  List<TransactionEntity> _transactions = [...mockTransactions];
+  List<TransactionEntry> _transactions = [];
+  Map<int, String> _categoriesMap = {};
+  Map<int, String> _contactsMap = {};
+  
   DateTime? _startDate;
   DateTime? _endDate;
   String _selectedFilter = 'all'; // all, month, week, custom
+  
+  bool _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    _tabController.addListener(() => setState(() {}));
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        _loadTransactions();
+      }
+    });
+    _loadCategoriesAndContacts();
+    _loadTransactions();
   }
 
   @override
@@ -90,6 +58,61 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
     _searchController.dispose();
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadCategoriesAndContacts() async {
+    try {
+      // Cargar categorías
+      final categories = await _categoryUseCases.getAllCategories();
+      final categoriesMap = {for (var c in categories) c.id: c.name};
+      
+      // Cargar contactos
+      final contacts = await _contactUseCases.getAllContacts();
+      final contactsMap = {for (var c in contacts) c.id: c.name};
+      
+      setState(() {
+        _categoriesMap = categoriesMap;
+        _contactsMap = contactsMap;
+      });
+    } catch (e) {
+      // Mostrar error si es necesario
+    }
+  }
+
+  Future<void> _loadTransactions() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+      
+      List<TransactionEntry> transactions;
+      
+      // Filtrar por tipo según la pestaña
+      switch (_tabController.index) {
+        case 1: // Gastos
+          transactions = await _transactionUseCases.getTransactionsByType('E');
+          break;
+        case 2: // Ingresos
+          transactions = await _transactionUseCases.getTransactionsByType('I');
+          break;
+        case 3: // Transferencias
+          transactions = await _transactionUseCases.getTransactionsByType('T');
+          break;
+        default: // Todas
+          transactions = await _transactionUseCases.getAllTransactions();
+      }
+      
+      setState(() {
+        _transactions = transactions;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
   }
 
   void _applyDateFilter(String filter) {
@@ -116,6 +139,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
           // No hacer nada, el calendario se mostrará para selección personalizada
           break;
       }
+      
+      _loadTransactions();
     });
   }
 
@@ -135,18 +160,22 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
         _startDate = picked.start;
         _endDate = picked.end;
         _selectedFilter = 'custom';
+        _loadTransactions();
       });
     }
   }
 
-  void _navigateToTransactionForm({TransactionEntity? transaction}) async {
-    final type = transaction?.type ?? (_tabController.index == 0 
-        ? 'all' 
-        : _tabController.index == 1 
-            ? 'E' 
-            : _tabController.index == 2 
-                ? 'I' 
-                : 'T');
+  void _navigateToTransactionForm({TransactionEntry? transaction}) async {
+    String type = 'all';
+    if (transaction != null) {
+      type = transaction.documentTypeId;
+    } else if (_tabController.index > 0) {
+      switch (_tabController.index) {
+        case 1: type = 'E'; break;
+        case 2: type = 'I'; break;
+        case 3: type = 'T'; break;
+      }
+    }
     
     final result = await NavigationService.navigateTo(
       AppRoutes.transactionForm,
@@ -156,23 +185,23 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
       }
     );
 
-    if (result != null && result is TransactionEntity) {
-      setState(() {
-        if (transaction != null) {
-          // Actualizar transacción existente
-          final index = _transactions.indexWhere((t) => t.id == transaction.id);
-          if (index >= 0) {
-            _transactions[index] = result;
-          }
-        } else {
-          // Añadir nueva transacción
-          _transactions.add(result);
-        }
-      });
+    if (result != null) {
+      _loadTransactions();
     }
   }
 
-  Future<void> _deleteTransaction(TransactionEntity transaction) async {
+  void _navigateToTransactionDetail(TransactionEntry transaction) async {
+    final result = await NavigationService.navigateTo(
+      AppRoutes.transactionDetail,
+      arguments: transaction
+    );
+
+    if (result != null) {
+      _loadTransactions();
+    }
+  }
+
+  Future<void> _deleteTransaction(TransactionEntry transaction) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -195,39 +224,39 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
     );
 
     if (confirmed == true) {
-      setState(() {
-        _transactions.removeWhere((t) => t.id == transaction.id);
-      });
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Transacción eliminada con éxito')),
-      );
+      try {
+        await _transactionUseCases.deleteTransaction(transaction.id);
+        _loadTransactions();
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Transacción eliminada con éxito')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error al eliminar: ${e.toString()}')),
+          );
+        }
+      }
     }
   }
 
-  List<TransactionEntity> _getFilteredTransactions() {
-    final currentTabIndex = _tabController.index;
-    
+  List<TransactionEntry> _getFilteredTransactions() {
     return _transactions.where((transaction) {
-      // Filtrar por tipo según la pestaña seleccionada
-      final matchesType = currentTabIndex == 0 || 
-                        (currentTabIndex == 1 && transaction.type == 'E') || 
-                        (currentTabIndex == 2 && transaction.type == 'I') || 
-                        (currentTabIndex == 3 && transaction.type == 'T');
-      
       // Filtrar por búsqueda de texto
       final matchesSearch = _searchQuery.isEmpty || 
                           transaction.description?.toLowerCase().contains(_searchQuery.toLowerCase()) == true ||
-                          (transaction.categoryId != null && 
-                            mockCategories[transaction.categoryId]?.toLowerCase().contains(_searchQuery.toLowerCase()) == true);
+                          (_categoriesMap[transaction.mainCategoryId]?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
       
       // Filtrar por fecha
-      final matchesDate = (_startDate == null || transaction.transactionDate.isAfter(_startDate!)) && 
-                        (_endDate == null || transaction.transactionDate.isBefore(_endDate!.add(const Duration(days: 1))));
+      final matchesDate = (_startDate == null || transaction.date.isAfter(_startDate!) || transaction.date.isAtSameMomentAs(_startDate!)) && 
+                         (_endDate == null || transaction.date.isBefore(_endDate!.add(const Duration(days: 1))));
       
-      return matchesType && matchesSearch && matchesDate;
+      return matchesSearch && matchesDate;
     }).toList()
-      ..sort((a, b) => b.transactionDate.compareTo(a.transactionDate)); // Ordenar por fecha descendente
+      ..sort((a, b) => b.date.compareTo(a.date)); // Ordenar por fecha descendente
   }
 
   @override
@@ -255,41 +284,47 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
         ),
       ),
       drawer: const AppDrawer(),
-      body: Column(
-        children: [
-          // Barra de búsqueda
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SearchField(
-              controller: _searchController,
-              hintText: 'Buscar transacciones',
-              onChanged: (value) => setState(() => _searchQuery = value),
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator())
+        : _error != null
+          ? _buildErrorState()
+          : Column(
+              children: [
+                // Barra de búsqueda
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SearchField(
+                    controller: _searchController,
+                    hintText: 'Buscar transacciones',
+                    onChanged: (value) => setState(() => _searchQuery = value),
+                  ),
+                ),
+                
+                // Selector de filtro por fecha
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: DateFilterSelector(
+                    selectedFilter: _selectedFilter,
+                    startDate: _startDate,
+                    endDate: _endDate,
+                    onFilterChanged: _applyDateFilter,
+                    onCustomDateSelected: _selectCustomDateRange,
+                  ),
+                ),
+                
+                const SizedBox(height: 8),
+                
+                // Lista de transacciones
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: List.generate(4, (index) => 
+                      _buildTransactionsList(filteredTransactions)
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          
-          // Selector de filtro por fecha
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: DateFilterSelector(
-              selectedFilter: _selectedFilter,
-              startDate: _startDate,
-              endDate: _endDate,
-              onFilterChanged: _applyDateFilter,
-              onCustomDateSelected: _selectCustomDateRange,
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // Lista de transacciones
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: List.generate(4, (index) => _buildTransactionsList(filteredTransactions)),
-            ),
-          ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToTransactionForm(),
         backgroundColor: colorScheme.primary,
@@ -299,7 +334,40 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
     );
   }
 
-  Widget _buildTransactionsList(List<TransactionEntity> transactions) {
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Error al cargar las transacciones',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(_error ?? 'Error desconocido'),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _loadTransactions,
+              child: const Text('Reintentar'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTransactionsList(List<TransactionEntry> transactions) {
     if (transactions.isEmpty) {
       return EmptyState(
         icon: Icons.receipt_long_outlined,
@@ -322,9 +390,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
     }
 
     // Agrupar transacciones por fecha
-    final groupedTransactions = <String, List<TransactionEntity>>{};
+    final groupedTransactions = <String, List<TransactionEntry>>{};
     for (final transaction in transactions) {
-      final dateString = DateFormat('yyyy-MM-dd').format(transaction.transactionDate);
+      final dateString = DateFormat('yyyy-MM-dd').format(transaction.date);
       if (!groupedTransactions.containsKey(dateString)) {
         groupedTransactions[dateString] = [];
       }
@@ -344,9 +412,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
         return TransactionListSection(
           title: DateFormat.yMMMMEEEEd('es').format(date),
           transactions: transactionsForDate,
-          categoriesMap: mockCategories,
-          contactsMap: mockContacts,
-          onTransactionTap: (transaction) => _navigateToTransactionForm(transaction: transaction),
+          categoriesMap: _categoriesMap,
+          contactsMap: _contactsMap,
+          onTransactionTap: _navigateToTransactionDetail,
           onTransactionDelete: _deleteTransaction,
         );
       },

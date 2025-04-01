@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../domain/entities/transaction.dart';
+import '../../domain/entities/transaction_entry.dart';
+import '../../domain/entities/transaction_detail.dart';
 
 class TransactionListItem extends StatelessWidget {
-  final TransactionEntity transaction;
+  final TransactionEntry transaction;
   final String? categoryName;
   final String? contactName;
   final VoidCallback onTap;
@@ -28,7 +29,7 @@ class TransactionListItem extends StatelessWidget {
     Color backgroundColor;
     Color textColor;
 
-    switch (transaction.type) {
+    switch (transaction.documentTypeId) {
       case 'I': // Ingreso
         icon = Icons.arrow_upward;
         backgroundColor = colorScheme.primaryContainer;
@@ -74,9 +75,9 @@ class TransactionListItem extends StatelessWidget {
                 ),
                 child: Icon(
                   icon,
-                  color: transaction.type == 'E' 
+                  color: transaction.documentTypeId == 'E' 
                     ? colorScheme.onErrorContainer 
-                    : (transaction.type == 'I' 
+                    : (transaction.documentTypeId == 'I' 
                       ? colorScheme.onPrimaryContainer 
                       : colorScheme.onTertiaryContainer),
                 ),
@@ -89,7 +90,7 @@ class TransactionListItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      categoryName ?? transaction.description ?? 'Sin categoría',
+                      categoryName ?? transaction.description ?? 'Sin descripción',
                       style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
@@ -106,7 +107,7 @@ class TransactionListItem extends StatelessWidget {
                       const SizedBox(height: 2),
                     ],
                     Text(
-                      DateFormat('dd/MM/yyyy').format(transaction.transactionDate),
+                      DateFormat('dd/MM/yyyy').format(transaction.date),
                       style: textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),

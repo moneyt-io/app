@@ -3,7 +3,7 @@ import '../entities/transaction_entry.dart';
 import '../entities/transaction_detail.dart';
 
 abstract class TransactionRepository {
-  // Queries básicas
+  // Consultas básicas
   Future<List<TransactionEntry>> getAllTransactions();
   Future<TransactionEntry?> getTransactionById(int id);
   Future<List<TransactionEntry>> getTransactionsByType(String documentTypeId);
@@ -14,13 +14,40 @@ abstract class TransactionRepository {
   Future<void> updateTransaction(TransactionEntry transaction);
   Future<void> deleteTransaction(int id);
 
-  // Operaciones específicas
-  Future<void> createTransfer({
-    required int fromAccountId,
-    required int toAccountId,
-    required double amount,
+  // Métodos específicos por tipo
+  Future<TransactionEntry> createIncomeTransaction({
     required DateTime date,
-    String? description,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int walletId,
+    required int categoryId,
+    int? contactId,
+    double rateExchange = 1.0,
+  });
+  
+  Future<TransactionEntry> createExpenseTransaction({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int walletId,
+    required int categoryId,
+    int? contactId,
+    double rateExchange = 1.0,
+  });
+  
+  Future<TransactionEntry> createTransferTransaction({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required int sourceWalletId,
+    required int targetWalletId,
+    required double targetAmount,
+    required double rateExchange,
     int? contactId,
   });
+  
+  // Utilitarios
+  Future<int> getNextSecuencial(String documentTypeId);
 }

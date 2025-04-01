@@ -21,4 +21,37 @@ abstract class JournalRepository {
   Future<int> getNextSecuencial(String documentTypeId);
   Future<List<JournalEntry>> getJournalEntriesByAccount(int chartAccountId);
   Future<Map<String, double>> getAccountBalance(int chartAccountId, {DateTime? fromDate, DateTime? toDate});
+  
+  // Métodos específicos para la generación de asientos contables
+  Future<JournalEntry> createIncomeJournal({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int walletChartAccountId,
+    required int categoryChartAccountId,
+    double rateExchange,
+  });
+  
+  Future<JournalEntry> createExpenseJournal({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int walletChartAccountId,
+    required int categoryChartAccountId,
+    double rateExchange,
+  });
+  
+  Future<JournalEntry> createTransferJournal({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int sourceChartAccountId,
+    required int targetChartAccountId,
+    required String targetCurrencyId,
+    required double targetAmount,
+    required double rateExchange,
+  });
 }

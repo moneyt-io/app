@@ -9,8 +9,12 @@ class AppRoutes {
   static const String wallets = '/wallets';
   static const String walletForm = '/wallets/form';
   static const String creditCards = '/credit-cards';
+  
+  // Rutas para transacciones
   static const String transactions = '/transactions';
   static const String transactionForm = '/transactions/form';
+  static const String transactionDetail = '/transactions/detail';
+  
   static const String categories = '/categories';
   static const String categoryForm = '/categories/form';
   static const String contacts = '/contacts';

@@ -80,4 +80,15 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
         (sum, detail) => sum + detail.amount
       ));
   }
+
+  // Obtener siguiente secuencial para un tipo de documento
+  Future<int> getNextSecuencial(String documentTypeId) async {
+    final query = select(transactionEntry)
+      ..where((t) => t.documentTypeId.equals(documentTypeId))
+      ..orderBy([(t) => OrderingTerm.desc(t.secuencial)])
+      ..limit(1);
+    
+    final result = await query.getSingleOrNull();
+    return (result?.secuencial ?? 0) + 1;
+  }
 }
