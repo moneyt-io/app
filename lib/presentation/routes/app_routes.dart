@@ -9,12 +9,9 @@ class AppRoutes {
   static const String wallets = '/wallets';
   static const String walletForm = '/wallets/form';
   static const String creditCards = '/credit-cards';
-  
-  // Rutas para transacciones
   static const String transactions = '/transactions';
   static const String transactionForm = '/transactions/form';
-  static const String transactionDetail = '/transactions/detail';
-  
+  static const String transactionDetail = '/transactions/detail'; // Nueva ruta añadida
   static const String categories = '/categories';
   static const String categoryForm = '/categories/form';
   static const String contacts = '/contacts';
@@ -23,14 +20,12 @@ class AppRoutes {
   static const String chartAccountForm = '/chart-accounts/form';
   static const String settings = '/settings';
   static const String profile = '/profile';
+  static const String journals = '/journals'; // Nueva ruta para diarios
+  static const String journalDetail = '/journals/detail'; // Nueva ruta para detalle de diario
   
   // Auth routes
   static const String welcome = '/welcome';
   static const String login = '/login';
   static const String backup = '/backup';
   static const String transactionDetails = '/transaction-details';
-  
-  // Rutas para diarios contables
-  static const String journals = '/journals';
-  static const String journalDetail = '/journal-detail';
 }

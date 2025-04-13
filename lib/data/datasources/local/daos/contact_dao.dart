@@ -26,4 +26,13 @@ class ContactDao extends DatabaseAccessor<AppDatabase> with _$ContactDaoMixin {
 
   Future<int> deleteContact(int id) =>
       (delete(contact)..where((t) => t.id.equals(id))).go();
+
+  // Añadir este método para buscar contactos por nombre
+  Future<Contacts?> findContactByName(String name) async {
+    final query = select(contact)
+      ..where((c) => c.name.equals(name))
+      ..limit(1);
+      
+    return query.getSingleOrNull();
+  }
 }

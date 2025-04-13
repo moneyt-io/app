@@ -193,4 +193,55 @@ class ChartAccountRepositoryImpl implements ChartAccountRepository {
       AccountingType.liabilities.id,
     );
   }
+
+  @override
+  Future<List<ChartAccount>> getChartAccountsByCode(String code) async {
+    final accounts = await _dao.getChartAccountsByCode(code);
+    return accounts.map((account) => ChartAccountModel(
+      id: account.id,
+      parentId: account.parentId,
+      accountingTypeId: account.accountingTypeId,
+      code: account.code,
+      level: account.level,
+      name: account.name,
+      active: account.active,
+      createdAt: account.createdAt,
+      updatedAt: account.updatedAt,
+      deletedAt: account.deletedAt,
+    ).toEntity()).toList();
+  }
+
+  @override
+  Future<String> generateNextChildCode(int parentId) async {
+    final parent = await _dao.getChartAccountById(parentId);
+    if (parent == null) {
+      throw Exception('Cuenta padre no encontrada');
+    }
+    
+    final parentCode = parent.code;
+    
+    // Obtener todas las cuentas hijas de este padre
+    final childAccounts = await _dao.getChildAccounts(parentId);
+    
+    if (childAccounts.isEmpty) {
+      // Si no hay hijos, crear el primer código hijo (parent.code + ".01")
+      return '$parentCode.01';
+    } else {
+      // Obtener los códigos y buscar el último
+      List<String> childCodes = childAccounts.map((a) => a.code).toList();
+      
+      // Ordenar los códigos para encontrar el último
+      childCodes.sort();
+      String lastCode = childCodes.last;
+      
+      // Extraer el número secuencial de la última parte del código
+      String lastCodeSuffix = lastCode.substring(lastCode.lastIndexOf('.') + 1);
+      
+      // Convertir a entero, incrementar y formatear
+      int nextNumber = int.parse(lastCodeSuffix) + 1;
+      String formattedNumber = nextNumber.toString().padLeft(2, '0');
+      
+      return '$parentCode.$formattedNumber';
+    }
+  }
 }

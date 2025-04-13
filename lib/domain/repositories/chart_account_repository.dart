@@ -6,6 +6,7 @@ abstract class ChartAccountRepository {
   Future<ChartAccount?> getChartAccountById(int id);
   Future<List<ChartAccount>> getChartAccountsByType(String accountingTypeId);
   Future<List<ChartAccount>> getChildAccounts(int parentId);
+  Future<List<ChartAccount>> getChartAccountsByCode(String code);
   
   // Observación en tiempo real
   Stream<List<ChartAccount>> watchAllChartAccounts();
@@ -19,4 +20,5 @@ abstract class ChartAccountRepository {
   Future<ChartAccount> generateAccountForCategory(String name, String accountingTypeId, {int? parentId});
   Future<ChartAccount> generateAccountForWallet(String name);
   Future<ChartAccount> generateAccountForCreditCard(String name);
+  Future<String> generateNextChildCode(int parentId);
 }

@@ -158,42 +158,76 @@ class _ChartAccountFormScreenState extends State<ChartAccountFormScreen> {
   Future<void> _saveAccount() async {
     if (!_formKey.currentState!.validate()) return;
     
-    final now = DateTime.now();
-    setState(() => _isLoading = true);
+    if (_selectedParentId == null && _level > 1) {
+      setState(() {
+        _error = 'Debe seleccionar una cuenta padre para este nivel';
+      });
+      return;
+    }
     
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
     try {
-      // Crear o actualizar la cuenta
-      final account = ChartAccount(
-        id: isEditing ? widget.account!.id : 0, // 0 para nuevas cuentas
-        parentId: _selectedParentId,
-        accountingTypeId: _selectedAccountingType,
-        code: _codeController.text.trim(),
-        level: _level,
-        name: _nameController.text.trim(),
-        active: true,
-        createdAt: isEditing ? widget.account!.createdAt : now,
-        updatedAt: now,
-      );
+      final now = DateTime.now();
       
       ChartAccount savedAccount;
-      
       if (isEditing) {
+        // Actualizar cuenta existente
+        final account = ChartAccount(
+          id: widget.account!.id,
+          parentId: _selectedParentId,
+          accountingTypeId: _selectedAccountingType,
+          code: _codeController.text.trim(),
+          level: _level,
+          name: _nameController.text.trim(),
+          active: true,
+          createdAt: widget.account!.createdAt,
+          updatedAt: now,
+          deletedAt: null,
+        );
+        
         await _chartAccountUseCases.updateChartAccount(account);
         savedAccount = account;
       } else {
-        savedAccount = await _chartAccountUseCases.createChartAccount(account);
+        // Crear nueva cuenta
+        if (_level == 1) {
+          // Cuenta de primer nivel
+          savedAccount = await _chartAccountUseCases.generateAccountForCategory(
+            _nameController.text.trim(),
+            _selectedAccountingType,
+          );
+        } else {
+          // Cuenta de nivel inferior, necesita un padre
+          if (_selectedParentId == null) {
+            throw Exception('Se requiere una cuenta padre');
+          }
+          
+          // Obtener el código del padre primero
+          final parent = await _chartAccountUseCases.getChartAccountById(_selectedParentId!);
+          if (parent == null) {
+            throw Exception('No se encontró la cuenta padre');
+          }
+          
+          savedAccount = await _chartAccountUseCases.createChartAccount(
+            parentCode: parent.code, // Añadido el parámetro faltante
+            name: _nameController.text.trim(),
+            accountingTypeId: _selectedAccountingType,
+          );
+        }
       }
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isEditing ? 'Cuenta actualizada' : 'Cuenta creada'),
+            content: Text(isEditing ? 'Cuenta actualizada con éxito' : 'Cuenta creada con éxito'),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
         
-        // Devolver la cuenta creada/actualizada
-        NavigationService.goBack(savedAccount);  // Corregido: era NavigationService.goBack(result: savedAccount)
+        NavigationService.goBack(savedAccount);
       }
     } catch (e) {
       if (mounted) {

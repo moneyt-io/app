@@ -39,4 +39,17 @@ class ChartAccountsDao extends DatabaseAccessor<AppDatabase> with _$ChartAccount
 
   Future<int> deleteChartAccount(int id) =>
       (delete(chartAccount)..where((t) => t.id.equals(id))).go();
+
+  // Obtener cuentas por código
+  Future<List<ChartAccounts>> getChartAccountsByCode(String code) {
+    return (select(chartAccount)..where((t) => t.code.equals(code))).get();
+  }
+
+  // Obtener hijos directos de una cuenta
+  Future<List<ChartAccounts>> getChildAccounts(int parentId) {
+    return (select(chartAccount)
+      ..where((t) => t.parentId.equals(parentId))
+      ..orderBy([(t) => OrderingTerm.asc(t.code)])
+    ).get();
+  }
 }

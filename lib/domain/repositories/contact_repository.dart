@@ -9,4 +9,7 @@ abstract class ContactRepository {
   Stream<List<Contact>> watchAllContacts();
   Stream<Contact> watchContactById(int id);
   Future<Contact?> findExistingContact(String? email, String? phone);
+  
+  // Nuevo método para buscar contactos por nombre
+  Future<Contact?> findContactByName(String name);
 }

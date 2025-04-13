@@ -1,52 +1,50 @@
 import 'package:flutter/material.dart';
+import '../core/design/app_dimensions.dart';
 
+/// Átomo que representa el icono de una categoría.
+///
+/// Este componente muestra un icono dentro de un contenedor circular
+/// con colores personalizables.
 class CategoryIcon extends StatelessWidget {
   final String icon;
   final Color bgColor;
   final Color iconColor;
   final double size;
-
+  
   const CategoryIcon({
     Key? key,
     required this.icon,
     required this.bgColor,
     required this.iconColor,
-    this.size = 40,
+    this.size = AppDimensions.iconSizeMedium,
   }) : super(key: key);
-
-  IconData _getIconData() {
-    // Mapa de nombres de iconos a datos de iconos reales
-    final iconMap = {
-      'food': Icons.restaurant,
-      'transport': Icons.directions_car,
-      'entertainment': Icons.movie,
-      'health': Icons.medical_services,
-      'salary': Icons.payments,
-      'investment': Icons.trending_up,
-      'shopping': Icons.shopping_bag,
-      'home': Icons.home,
-      'utilities': Icons.lightbulb,
-      'education': Icons.school,
-      'gift': Icons.card_giftcard,
-      'travel': Icons.flight,
-    };
-
-    return iconMap[icon] ?? Icons.category;
-  }
 
   @override
   Widget build(BuildContext context) {
+    // Convertir el string del icono a IconData
+    IconData iconData;
+    try {
+      // Intentar parsear el string como un código de icono
+      iconData = IconData(
+        int.parse(icon, radix: 16),
+        fontFamily: 'MaterialIcons',
+      );
+    } catch (e) {
+      // Si falla, usar un icono predeterminado
+      iconData = Icons.category;
+    }
+    
     return Container(
-      width: size,
-      height: size,
+      width: AppDimensions.avatarSize,
+      height: AppDimensions.avatarSize,
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(size / 4),
+        shape: BoxShape.circle,
       ),
       child: Icon(
-        _getIconData(),
+        iconData,
         color: iconColor,
-        size: size / 2,
+        size: size,
       ),
     );
   }

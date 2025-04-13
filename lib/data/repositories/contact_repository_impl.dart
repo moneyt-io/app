@@ -137,4 +137,22 @@ class ContactRepositoryImpl implements ContactRepository {
       return null;
     }
   }
+
+  @override
+  Future<Contact?> findContactByName(String name) async {
+    final contact = await _dao.findContactByName(name);
+    if (contact == null) return null;
+    
+    return ContactModel(
+      id: contact.id,
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+      note: contact.note,
+      active: contact.active,
+      createdAt: contact.createdAt,
+      updatedAt: contact.updatedAt,
+      deletedAt: contact.deletedAt,
+    ).toEntity();
+  }
 }

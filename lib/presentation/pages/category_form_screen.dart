@@ -5,7 +5,9 @@ import '../../domain/entities/chart_account.dart';
 import '../../domain/usecases/category_usecases.dart';
 import '../atoms/app_button.dart';
 import '../molecules/form_field_container.dart';
+import '../molecules/icon_selector.dart';
 import '../routes/navigation_service.dart';
+import '../core/design/app_dimensions.dart';
 
 class CategoryFormScreen extends StatefulWidget {
   final Category? category;
@@ -23,8 +25,8 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   
-  String _selectedIcon = 'category';
-  String _selectedType = 'E'; // E = Gastos (por defecto), I = Ingresos
+  String _selectedIcon = 'e88a'; // Código para Icons.home (por defecto)
+  String _selectedType = 'I'; // I = Ingresos (por defecto), E = Gastos
   int? _selectedParentId;
   bool _isLoading = false;
   bool _isLoadingData = true;
@@ -36,6 +38,12 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
   late final CategoryUseCases _categoryUseCases;
   
   bool get isEditing => widget.category != null;
+
+  // El orden ya está correcto (primero Ingresos, luego Gastos)
+  final List<Map<String, dynamic>> _documentTypes = [
+    {'id': 'I', 'name': 'Ingreso', 'icon': Icons.arrow_upward},
+    {'id': 'E', 'name': 'Gasto', 'icon': Icons.arrow_downward},
+  ];
 
   @override
   void initState() {
@@ -79,10 +87,13 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
       
       if (mounted) {
         setState(() {
-          // Filtrar la categoría actual si estamos editando
+          // Filtrar la categoría actual si estamos editando y también solo mostrar categorías principales
           _parentCategories = isEditing
-              ? categories.where((cat) => cat.id != widget.category!.id).toList()
-              : categories;
+              ? categories
+                  .where((cat) => cat.id != widget.category!.id)
+                  .where((cat) => cat.parentId == null) // Solo categorías principales
+                  .toList()
+              : categories.where((cat) => cat.parentId == null).toList(); // Solo categorías principales
           _isLoadingData = false;
         });
       }
@@ -246,10 +257,10 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                           FormFieldContainer(
                             child: TextFormField(
                               controller: _nameController,
-                              decoration: const InputDecoration(
+                              decoration: FormFieldContainer.getOutlinedDecoration(
+                                context,
                                 labelText: 'Nombre de categoría',
                                 prefixIcon: Icon(Icons.label_outline),
-                                border: InputBorder.none,
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
@@ -266,21 +277,27 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                           FormFieldContainer(
                             child: DropdownButtonFormField<String>(
                               value: _selectedType,
-                              decoration: const InputDecoration(
+                              decoration: FormFieldContainer.getOutlinedDecoration(
+                                context,
                                 labelText: 'Tipo',
                                 prefixIcon: Icon(Icons.category_outlined),
-                                border: InputBorder.none,
                               ),
-                              items: const [
-                                DropdownMenuItem(
-                                  value: 'E',
-                                  child: Text('Gasto'),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'I',
-                                  child: Text('Ingreso'),
-                                ),
-                              ],
+                              items: _documentTypes.map((type) {
+                                return DropdownMenuItem<String>(
+                                  value: type['id'],
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        type['icon'],
+                                        color: type['id'] == 'E' ? Colors.red : Colors.green,
+                                        size: 24,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(type['name']),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
                               onChanged: isEditing ? null : (value) {
                                 if (value != null) {
                                   setState(() {
@@ -295,34 +312,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                           const SizedBox(height: 16),
                           
                           // Selector de categoría padre
-                          FormFieldContainer(
-                            child: DropdownButtonFormField<int?>(
-                              value: _selectedParentId,
-                              decoration: InputDecoration(
-                                labelText: 'Categoría Padre',
-                                prefixIcon: Icon(
-                                  Icons.account_tree_outlined, 
-                                  color: colorScheme.primary
-                                ),
-                                border: InputBorder.none,
-                              ),
-                              items: [
-                                const DropdownMenuItem(
-                                  value: null,
-                                  child: Text('Ninguna (Categoría Principal)'),
-                                ),
-                                ..._parentCategories.map((category) => DropdownMenuItem(
-                                  value: category.id,
-                                  child: Text(category.name),
-                                )),
-                              ],
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedParentId = value;
-                                });
-                              },
-                            ),
-                          ),
+                          _buildParentCategorySelector(),
                           const SizedBox(height: 16),
                           
                           // Mostrar cuenta contable vinculada (si existe)
@@ -330,10 +320,10 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                             FormFieldContainer(
                               child: TextFormField(
                                 initialValue: '${_linkedChartAccount!.code} - ${_linkedChartAccount!.name}',
-                                decoration: const InputDecoration(
+                                decoration: FormFieldContainer.getOutlinedDecoration(
+                                  context,
                                   labelText: 'Cuenta Contable Vinculada',
                                   prefixIcon: Icon(Icons.account_balance),
-                                  border: InputBorder.none,
                                 ),
                                 enabled: false, // Campo de solo lectura
                               ),
@@ -341,7 +331,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                             const SizedBox(height: 16),
                           ],
                           
-                          // Selector de icono
+                          // Selector de iconos (ahora usando el nuevo componente)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -352,23 +342,16 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              Wrap(
-                                spacing: 12,
-                                runSpacing: 12,
-                                children: [
-                                  _buildIconOption('food', Icons.restaurant, colorScheme),
-                                  _buildIconOption('transport', Icons.directions_car, colorScheme),
-                                  _buildIconOption('entertainment', Icons.movie, colorScheme),
-                                  _buildIconOption('health', Icons.medical_services, colorScheme),
-                                  _buildIconOption('salary', Icons.payments, colorScheme),
-                                  _buildIconOption('investment', Icons.trending_up, colorScheme),
-                                  _buildIconOption('shopping', Icons.shopping_bag, colorScheme),
-                                  _buildIconOption('home', Icons.home, colorScheme),
-                                  _buildIconOption('utilities', Icons.lightbulb, colorScheme),
-                                  _buildIconOption('education', Icons.school, colorScheme),
-                                  _buildIconOption('gift', Icons.card_giftcard, colorScheme),
-                                  _buildIconOption('travel', Icons.flight, colorScheme),
-                                ],
+                              
+                              // Eliminamos cualquier contenedor adicional que pueda agregar padding
+                              IconSelector(
+                                selectedIconCode: _selectedIcon,
+                                categoryType: _selectedType,
+                                onIconSelected: (iconCode) {
+                                  setState(() {
+                                    _selectedIcon = iconCode;
+                                  });
+                                },
                               ),
                             ],
                           ),
@@ -407,42 +390,56 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
     );
   }
 
-  Widget _buildIconOption(String iconName, IconData iconData, ColorScheme colorScheme) {
-    final isSelected = _selectedIcon == iconName;
-    final bgColor = isSelected
-        ? (_selectedType == 'E' ? colorScheme.errorContainer : colorScheme.primaryContainer)
-        : colorScheme.surfaceVariant;
-    final iconColor = isSelected
-        ? (_selectedType == 'E' ? colorScheme.onErrorContainer : colorScheme.onPrimaryContainer)
-        : colorScheme.onSurfaceVariant;
-
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        onTap: () {
-          setState(() {
-            _selectedIcon = iconName;
-          });
-        },
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isSelected ? iconColor.withOpacity(0.5) : Colors.transparent,
-              width: 2,
-            ),
-          ),
-          child: Icon(
-            iconData,
-            color: iconColor,
-            size: 24,
+  Widget _buildParentCategorySelector() {
+    return FormFieldContainer(
+      child: DropdownButtonFormField<int?>(
+        value: _selectedParentId,
+        decoration: FormFieldContainer.getOutlinedDecoration(
+          context,
+          labelText: 'Categoría Padre (Opcional)',
+          prefixIcon: Icon(
+            Icons.account_tree_outlined,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
+        items: [
+          const DropdownMenuItem<int?>(
+            value: null,
+            child: Text('Ninguna (Categoría Principal)'),
+          ),
+          ..._parentCategories.map((category) {
+            // Buscar el icono para esta categoría
+            IconData iconData;
+            try {
+              iconData = IconData(
+                int.parse(category.icon, radix: 16),
+                fontFamily: 'MaterialIcons',
+              );
+            } catch (e) {
+              iconData = Icons.category;
+            }
+            
+            return DropdownMenuItem<int?>(
+              value: category.id,
+              child: Row(
+                children: [
+                  Icon(
+                    iconData,
+                    size: AppDimensions.iconSizeSmall,
+                    color: category.documentTypeId == 'E' ? Colors.red : Colors.green,
+                  ),
+                  SizedBox(width: AppDimensions.spacing8),
+                  Text(category.name),
+                ],
+              ),
+            );
+          }).toList(),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _selectedParentId = value;
+          });
+        },
       ),
     );
   }

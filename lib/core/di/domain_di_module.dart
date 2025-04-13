@@ -32,7 +32,10 @@ Future<void> initializeDomainDependencies() async {
   );
   
   getIt.registerSingleton<WalletUseCases>(
-    WalletUseCases(getIt<WalletRepository>())
+    WalletUseCases(
+      getIt<WalletRepository>(),
+      getIt<ChartAccountUseCases>() // Añadimos la dependencia
+    )
   );
   
   // Registro del caso de uso de Journal

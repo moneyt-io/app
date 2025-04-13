@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/category.dart';
 import '../atoms/category_icon.dart';
+import '../core/design/app_dimensions.dart';
 
+/// Molécula que representa un ítem de categoría en una lista.
+/// 
+/// Este componente muestra la información básica de una categoría y
+/// proporciona acciones como eliminar o editar.
 class CategoryListItem extends StatelessWidget {
   final Category category;
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final Widget? trailing;
-
+  
   const CategoryListItem({
     Key? key,
     required this.category,
@@ -19,22 +24,23 @@ class CategoryListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
       elevation: 0,
+      margin: const EdgeInsets.only(bottom: AppDimensions.spacing8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
         side: BorderSide(
           color: colorScheme.outline.withOpacity(0.2),
-          width: 1,
+          width: AppDimensions.cardBorderWidth,
         ),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.all(AppDimensions.spacing12),
           child: Row(
             children: [
               CategoryIcon(
@@ -45,22 +51,23 @@ class CategoryListItem extends StatelessWidget {
                 iconColor: category.documentTypeId == 'E'
                     ? colorScheme.onErrorContainer
                     : colorScheme.onPrimaryContainer,
+                size: AppDimensions.iconSizeMedium,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: AppDimensions.spacing12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       category.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     if (category.parentId != null)
                       Text(
                         'Subcategoría',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        style: textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -72,10 +79,10 @@ class CategoryListItem extends StatelessWidget {
                 icon: Icon(
                   Icons.delete_outline,
                   color: colorScheme.error,
+                  size: AppDimensions.iconSizeMedium,
                 ),
                 onPressed: onDelete,
-                iconSize: 20,
-                visualDensity: VisualDensity.compact,
+                tooltip: 'Eliminar categoría',
               ),
             ],
           ),

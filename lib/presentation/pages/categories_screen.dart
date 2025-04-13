@@ -5,10 +5,13 @@ import '../../domain/usecases/category_usecases.dart';
 import '../atoms/app_button.dart';
 import '../molecules/empty_state.dart';
 import '../molecules/search_field.dart';
+import '../molecules/category_filter_chip.dart';
 import '../organisms/app_drawer.dart';
-import '../organisms/category_tree_view.dart'; // Nueva importación
+import '../organisms/category_list_view.dart';
 import '../routes/navigation_service.dart';
 import '../routes/app_routes.dart';
+import '../core/design/app_dimensions.dart';
+import '../molecules/confirm_delete_dialog.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({Key? key}) : super(key: key);
@@ -31,24 +34,22 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
   @override
   void initState() {
     super.initState();
+    // Creamos el TabController con 2 pestañas
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       setState(() {});
     });
     
     _categoryUseCases = GetIt.instance<CategoryUseCases>();
-    // En lugar de llamar a _loadCategories, vamos a suscribirnos al stream
     _setupCategoriesStream();
   }
   
   void _setupCategoriesStream() {
-    // Primero marcamos como cargando
     setState(() {
       _isLoading = true;
       _error = null;
     });
     
-    // Este es un método temporal para cargar los datos iniciales y luego configurar el stream
     _categoryUseCases.getAllCategories().then((categories) {
       if (mounted) {
         setState(() {
@@ -66,7 +67,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
     });
   }
 
-  // Este método ahora solo se usa para refrescar manualmente (pull-to-refresh)
   Future<void> _refreshCategories() async {
     try {
       final categories = await _categoryUseCases.getAllCategories();
@@ -102,49 +102,38 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
     );
     
     if (result != null && result is Category) {
-      _refreshCategories(); // Recargar categorías después de crear/editar
+      _refreshCategories();
     }
   }
 
-  void _deleteCategory(Category category) async {
+  Future<void> _deleteCategory(Category category) async {
     // Verificar si tiene subcategorías antes de eliminar
     final hasSubcategories = _categories.any((c) => c.parentId == category.id);
     
     if (hasSubcategories) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('No se puede eliminar. La categoría tiene subcategorías.'),
-            backgroundColor: Theme.of(context).colorScheme.error,
+          const SnackBar(
+            content: Text('No se puede eliminar una categoría con subcategorías'),
+            backgroundColor: Colors.red,
           ),
         );
       }
       return;
     }
     
-    // Mostrar diálogo de confirmación
-    final confirmed = await showDialog<bool>(
+    // Confirmación para eliminar usando el nuevo diálogo reutilizable
+    final confirmed = await ConfirmDeleteDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar categoría'),
-        content: Text('¿Estás seguro de eliminar la categoría ${category.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
+      title: 'Eliminar categoría',
+      message: '¿Estás seguro de eliminar',
+      itemName: category.name,
+      // Opciones personalizadas opcionales
+      icon: Icons.category_outlined,
+      confirmText: 'Confirmar eliminación',
     );
-
-    if (confirmed == true && mounted) {
+    
+    if (confirmed == true) {
       try {
         await _categoryUseCases.deleteCategory(category.id);
         
@@ -156,7 +145,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
             ),
           );
           
-          _refreshCategories(); // Recargar categorías después de eliminar
+          _refreshCategories();
         }
       } catch (e) {
         if (mounted) {
@@ -189,7 +178,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
   }
 
   List<Category> _getFilteredCategories() {
-    final currentType = _tabController.index == 0 ? 'E' : 'I'; // E = Gastos, I = Ingresos
+    // Invertimos la lógica: index 0 es Ingresos (I), index 1 es Gastos (E)
+    final currentType = _tabController.index == 0 ? 'I' : 'E';
     
     return _categories.where((category) {
       final matchesType = category.documentTypeId == currentType;
@@ -203,19 +193,23 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final filteredCategories = _getFilteredCategories();
+    final categoryTree = _buildCategoryTree(filteredCategories);
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Categorías'),
+        title: Text(
+          'Categorías',
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
         centerTitle: true,
         elevation: 0,
-        // Eliminamos el botón de actualizar
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(text: 'Gastos'),
             Tab(text: 'Ingresos'),
+            Tab(text: 'Gastos'),
           ],
           labelColor: colorScheme.primary,
           indicatorColor: colorScheme.primary,
@@ -225,8 +219,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
       drawer: const AppDrawer(),
       body: Column(
         children: [
+          // Barra de búsqueda con diseño MD3
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: AppDimensions.spacing16,
+              vertical: AppDimensions.spacing12,
+            ),
             child: SearchField(
               controller: _searchController,
               hintText: 'Buscar categorías',
@@ -237,21 +235,26 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
               },
             ),
           ),
+          
+          // Contenido principal
           Expanded(
-            // Corregimos el RefreshIndicator
             child: RefreshIndicator(
               onRefresh: _refreshCategories,
+              color: colorScheme.primary,
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? Center(child: CircularProgressIndicator(
+                      color: colorScheme.primary,
+                    ))
                   : _error != null
                       ? _buildErrorState()
                       : TabBarView(
                           controller: _tabController,
                           children: [
-                            // Tab de gastos - Ahora con vista de árbol
-                            _buildCategoriesTree(filteredCategories),
-                            // Tab de ingresos - Ahora con vista de árbol
-                            _buildCategoriesTree(filteredCategories),
+                            // Tab de ingresos
+                            _buildCategoriesTab(categoryTree),
+                            
+                            // Tab de gastos
+                            _buildCategoriesTab(categoryTree),
                           ],
                         ),
             ),
@@ -260,48 +263,49 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToCategoryForm(),
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-        elevation: 2,
+        backgroundColor: colorScheme.primaryContainer,
+        foregroundColor: colorScheme.onPrimaryContainer,
+        elevation: 3,
         child: const Icon(Icons.add),
       ),
     );
   }
-  
+
   Widget _buildErrorState() {
     return Center(
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.error_outline,
-            size: 48,
+            size: AppDimensions.iconSizeXLarge,
             color: Theme.of(context).colorScheme.error,
           ),
-          const SizedBox(height: 16),
-          const Text('Error al cargar las categorías'),
-          const SizedBox(height: 8),
+          SizedBox(height: AppDimensions.spacing16),
+          Text(
+            'Error al cargar categorías',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          SizedBox(height: AppDimensions.spacing8),
           Text(_error ?? 'Error desconocido'),
-          const SizedBox(height: 16),
-          AppButton(
-            text: 'Reintentar',
+          SizedBox(height: AppDimensions.spacing24),
+          ElevatedButton(
             onPressed: _refreshCategories,
-            type: AppButtonType.primary,
+            child: const Text('Reintentar'),
           ),
         ],
       ),
     );
   }
 
-  // Nuevo método para construir la vista de árbol de categorías
-  Widget _buildCategoriesTree(List<Category> categories) {
-    if (categories.isEmpty) {
+  Widget _buildCategoriesTab(Map<Category, List<Category>> categoryTree) {
+    if (categoryTree.isEmpty) {
       return EmptyState(
         icon: Icons.category_outlined,
         title: 'No hay categorías',
-        message: _searchQuery.isEmpty 
-          ? 'Crea una nueva categoría utilizando el botón "+"'
-          : 'No se encontraron categorías con tu búsqueda',
+        message: _searchQuery.isNotEmpty 
+            ? 'No se encontraron categorías que coincidan con la búsqueda'
+            : 'Crea tu primera categoría con el botón "+"',
         action: _searchQuery.isNotEmpty ? AppButton(
           text: 'Limpiar búsqueda',
           onPressed: () {
@@ -315,13 +319,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
       );
     }
 
-    // Construimos el árbol de categorías
-    final categoryTree = _buildCategoryTree(categories);
-    
-    // Usamos el nuevo widget para visualizar el árbol
-    return CategoryTreeView(
+    return CategoryListView(
       categoryTree: categoryTree,
-      // Corregir el error usando una función anónima de adaptación:
       onCategoryTap: (category) => _navigateToCategoryForm(category: category),
       onCategoryDelete: _deleteCategory,
     );

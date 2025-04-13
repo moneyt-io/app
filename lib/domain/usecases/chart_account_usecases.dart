@@ -26,8 +26,39 @@ class ChartAccountUseCases {
       _repository.watchAllChartAccounts();
   
   // Operaciones CRUD
-  Future<ChartAccount> createChartAccount(ChartAccount account) => 
-      _repository.createChartAccount(account);
+  Future<ChartAccount> createChartAccount({
+    required String parentCode,
+    required String name,
+    required String accountingTypeId,
+  }) async {
+    // 1. Buscar la cuenta padre por su código
+    final parentAccounts = await _repository.getChartAccountsByCode(parentCode);
+    if (parentAccounts.isEmpty) {
+      throw Exception('No se encontró la cuenta padre con código $parentCode');
+    }
+    
+    final parentAccount = parentAccounts.first;
+    
+    // 2. Generar el siguiente código hijo disponible
+    final childCode = await _repository.generateNextChildCode(parentAccount.id);
+    
+    // 3. Crear la nueva cuenta con el código generado
+    final newAccount = ChartAccount(
+      id: 0, // Se asignará automáticamente
+      parentId: parentAccount.id,
+      accountingTypeId: accountingTypeId,
+      code: childCode,
+      level: parentAccount.level + 1,
+      name: name,
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      deletedAt: null,
+    );
+    
+    // 4. Guardar y devolver la cuenta creada
+    return _repository.createChartAccount(newAccount);
+  }
   
   Future<void> updateChartAccount(ChartAccount account) => 
       _repository.updateChartAccount(account);

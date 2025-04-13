@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import '../core/design/app_dimensions.dart';
 
+/// Molécula que muestra un estado vacío o mensajes de "no hay datos".
+///
+/// Este componente proporciona un mensaje visuales consistente para
+/// las situaciones en las que no hay datos para mostrar.
 class EmptyState extends StatelessWidget {
   final IconData icon;
   final String title;
   final String message;
   final Widget? action;
-
+  
   const EmptyState({
     Key? key,
     required this.icon,
@@ -18,19 +23,19 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-
+    
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
+        padding: const EdgeInsets.all(AppDimensions.spacing24),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              size: 64,
-              color: colorScheme.primary.withOpacity(0.5),
+              size: AppDimensions.iconSizeXLarge,
+              color: colorScheme.primary.withOpacity(0.6),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppDimensions.spacing16),
             Text(
               title,
               style: textTheme.titleLarge?.copyWith(
@@ -39,7 +44,7 @@ class EmptyState extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppDimensions.spacing8),
             Text(
               message,
               style: textTheme.bodyMedium?.copyWith(
@@ -48,9 +53,9 @@ class EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             if (action != null) ...[
-              const SizedBox(height: 24),
+              SizedBox(height: AppDimensions.spacing24),
               action!,
-            ]
+            ],
           ],
         ),
       ),
