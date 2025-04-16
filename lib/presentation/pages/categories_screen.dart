@@ -10,7 +10,7 @@ import '../organisms/app_drawer.dart';
 import '../organisms/category_list_view.dart';
 import '../routes/navigation_service.dart';
 import '../routes/app_routes.dart';
-import '../core/design/app_dimensions.dart';
+import '../../core/presentation/app_dimensions.dart';
 import '../molecules/confirm_delete_dialog.dart';
 
 class CategoriesScreen extends StatefulWidget {

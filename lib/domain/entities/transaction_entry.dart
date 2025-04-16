@@ -1,4 +1,7 @@
 import 'package:equatable/equatable.dart';
+import '../../domain/entities/contact.dart';
+import '../../domain/entities/wallet.dart';
+import '../../domain/entities/category.dart';
 import 'transaction_detail.dart';
 
 class TransactionEntry extends Equatable {
@@ -17,6 +20,9 @@ class TransactionEntry extends Equatable {
   final DateTime? updatedAt;
   final DateTime? deletedAt;
   final List<TransactionDetail> details;
+  final Contact? contact;
+  final Wallet? wallet;
+  final Category? category;
 
   const TransactionEntry({
     required this.id,
@@ -34,6 +40,9 @@ class TransactionEntry extends Equatable {
     this.updatedAt,
     this.deletedAt,
     this.details = const [],
+    this.contact,
+    this.wallet,
+    this.category,
   });
 
   // Métodos de utilidad

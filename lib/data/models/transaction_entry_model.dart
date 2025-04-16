@@ -1,6 +1,9 @@
 import 'package:drift/drift.dart';
 import 'package:moneyt_pfm/domain/entities/transaction_detail.dart';
 import '../../domain/entities/transaction_entry.dart';
+import '../../domain/entities/contact.dart';
+import '../../domain/entities/wallet.dart';
+import '../../domain/entities/category.dart';
 import '../datasources/local/database.dart';
 
 class TransactionEntryModel {
@@ -72,7 +75,12 @@ class TransactionEntryModel {
     deletedAt: Value(deletedAt),
   );
 
-  TransactionEntry toEntity({List<TransactionDetail> details = const []}) => TransactionEntry(
+  TransactionEntry toEntity({
+    List<TransactionDetail> details = const [],
+    Contact? contact,
+    Wallet? wallet,
+    Category? category,
+  }) => TransactionEntry(
     id: id,
     documentTypeId: documentTypeId,
     currencyId: currencyId,
@@ -88,6 +96,9 @@ class TransactionEntryModel {
     updatedAt: updatedAt,
     deletedAt: deletedAt,
     details: details,
+    contact: contact,
+    wallet: wallet,
+    category: category,
   );
 
   factory TransactionEntryModel.fromEntity(TransactionEntry entity) => TransactionEntryModel(

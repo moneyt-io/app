@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../core/design/app_dimensions.dart';
+import '../../core/presentation/app_dimensions.dart';
 
 /// Molécula que muestra un diálogo de confirmación para eliminar elementos.
 /// 

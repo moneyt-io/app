@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../domain/entities/journal_entry.dart';
+import '../pages/journal_detail_screen.dart';
+import '../pages/journals_screen.dart';
 import '../pages/welcome_screen.dart';
 import '../pages/login_screen.dart';
 import '../pages/home_screen.dart';
@@ -139,6 +142,31 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => WalletFormScreen(wallet: args as dynamic),
         );
+      
+      // Implementar caso para la ruta de journals
+      case AppRoutes.journals:
+        return MaterialPageRoute(
+          builder: (_) => const JournalsScreen(),
+        );
+
+      case AppRoutes.journalDetail:
+        JournalEntry? journal;
+        
+        if (args != null && args is JournalEntry) {
+          journal = args;
+          
+          // Solo navegar a la pantalla si journal no es nulo
+          return MaterialPageRoute(
+            builder: (_) => JournalDetailScreen(
+              journal: journal,
+            ),
+          );
+        } else {
+          // Si journal es nulo, redirigir a la lista de journals
+          return MaterialPageRoute(
+            builder: (_) => const JournalsScreen(),
+          );
+        }
       
       // En el futuro, agregar las demás rutas aquí
       

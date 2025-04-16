@@ -5,7 +5,7 @@ import '../../domain/entities/chart_account.dart';
 import '../../domain/usecases/wallet_usecases.dart';
 import '../../domain/usecases/chart_account_usecases.dart';
 import '../atoms/app_button.dart';
-import '../core/design/app_dimensions.dart';
+import '../../core/presentation/app_dimensions.dart';
 import '../molecules/error_message_card.dart';
 import '../molecules/form_field_container.dart';
 import '../molecules/form_submit_button.dart';

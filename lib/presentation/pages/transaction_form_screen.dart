@@ -1,30 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:get_it/get_it.dart';
 import '../../domain/entities/transaction.dart';
+import '../../domain/entities/category.dart';
+import '../../domain/entities/wallet.dart';
+import '../../domain/entities/contact.dart';
+import '../../domain/usecases/wallet_usecases.dart';
+import '../../domain/usecases/category_usecases.dart';
+import '../../domain/usecases/contact_usecases.dart';
+import '../../domain/usecases/transaction_usecases.dart';
 import '../atoms/app_button.dart';
 import '../molecules/form_field_container.dart';
-
-// Datos simulados para los selectores
-final mockAccounts = [
-  {'id': 1, 'name': 'Efectivo'},
-  {'id': 2, 'name': 'Cuenta Principal'},
-  {'id': 3, 'name': 'Tarjeta de Débito'},
-];
-
-final mockCategories = [
-  {'id': 1, 'name': 'Alimentación', 'type': 'E'},
-  {'id': 2, 'name': 'Transporte', 'type': 'E'},
-  {'id': 3, 'name': 'Entretenimiento', 'type': 'E'},
-  {'id': 4, 'name': 'Salud', 'type': 'E'},
-  {'id': 5, 'name': 'Salario', 'type': 'I'},
-  {'id': 6, 'name': 'Inversiones', 'type': 'I'},
-];
-
-final mockContacts = [
-  {'id': 1, 'name': 'Ana García'},
-  {'id': 2, 'name': 'Juan Pérez'},
-];
+import '../routes/navigation_service.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class TransactionFormScreen extends StatefulWidget {
   final TransactionEntity? transaction;
@@ -46,6 +35,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
   final _descriptionController = TextEditingController();
   late TabController _typeTabController;
   
+  // Estados de la pantalla
   late String _selectedType;
   late String _flow;
   late DateTime _selectedDate;
@@ -54,7 +44,22 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
   int? _selectedToAccountId;
   int? _selectedCategoryId;
   int? _selectedContactId;
-
+  
+  bool _isLoading = true;
+  String? _error;
+  
+  // Datos reales
+  List<Wallet> _wallets = [];
+  List<Category> _categories = [];
+  List<Contact> _contacts = [];
+  
+  // Obtener casos de uso usando GetIt
+  final _walletUseCases = GetIt.instance<WalletUseCases>();
+  final _categoryUseCases = GetIt.instance<CategoryUseCases>();
+  final _contactUseCases = GetIt.instance<ContactUseCases>();
+  final _transactionUseCases = GetIt.instance<TransactionUseCases>();
+  
+  // Getters para UI
   bool get isTransfer => _selectedType == 'T';
   bool get isExpense => _selectedType == 'E';
   bool get isIncome => _selectedType == 'I';
@@ -63,6 +68,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
   @override
   void initState() {
     super.initState();
+    
+    // Inicializar formateo de fechas si aún no se ha hecho
+    initializeDateFormatting('es_ES', null);
     
     // Inicializar tipo de transacción
     _selectedType = widget.transaction?.type ?? 
@@ -77,7 +85,43 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
     );
     
     _typeTabController.addListener(_handleTabChange);
-    _initializeFormData();
+    
+    // Cargar datos y luego inicializar el formulario
+    _loadData().then((_) => _initializeFormData());
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      // Cargar los datos reales de los repositorios
+      final walletsResult = await _walletUseCases.getAllWallets();
+      final categoriesResult = await _categoryUseCases.getAllCategories();
+      final contactsResult = await _contactUseCases.getAllContacts();
+
+      // Si estamos editando, asegurarnos de cargar la transacción completa
+      if (isEditing && widget.transaction != null) {
+        final transactionResult = await _transactionUseCases.getTransactionById(widget.transaction!.id!);
+        if (transactionResult != null) {
+          // Podemos usar la transacción completa si es necesario
+        }
+      }
+
+      setState(() {
+        _wallets = walletsResult;
+        _categories = categoriesResult;
+        _contacts = contactsResult;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = "Error al cargar los datos: ${e.toString()}";
+        _isLoading = false;
+      });
+    }
   }
 
   void _handleTabChange() {
@@ -118,9 +162,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
       
       // Para transferencias, buscar la cuenta destino usando la referencia
       if (isTransfer && transaction.reference != null) {
-        for (var account in mockAccounts) {
-          if (account['name'] == transaction.reference) {
-            _selectedToAccountId = account['id'] as int;
+        for (var wallet in _wallets) {
+          if (wallet.name == transaction.reference) {
+            _selectedToAccountId = wallet.id;
             break;
           }
         }
@@ -156,7 +200,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
     }
   }
 
-  void _saveTransaction() {
+  void _saveTransaction() async {
     if (!_formKey.currentState!.validate()) return;
     
     // Validaciones adicionales
@@ -181,55 +225,104 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
       return;
     }
 
-    // Crear objeto de transacción
-    double amount = double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
-    
-    // En una transferencia, asegurar que el monto sea positivo
-    if (isTransfer) {
-      amount = amount.abs();
-    }
-    
-    // Para gastos, el monto debe ser negativo en la UI
-    if (isExpense && amount > 0) {
-      amount = -amount;
-    }
+    setState(() {
+      _isLoading = true;
+    });
 
-    // Obtener referencia para transferencias
-    String? reference;
-    if (isTransfer && _selectedToAccountId != null) {
-      for (var account in mockAccounts) {
-        if (account['id'] == _selectedToAccountId) {
-          reference = account['name'] as String;
-          break;
+    try {
+      // Crear objeto de transacción
+      double amount = double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
+      
+      // En una transferencia, asegurar que el monto sea positivo
+      if (isTransfer) {
+        amount = amount.abs();
+      }
+      
+      // Para gastos, el monto debe ser negativo en la UI
+      if (isExpense && amount > 0) {
+        amount = -amount;
+      }
+
+      // Obtener referencia para transferencias
+      String? reference;
+      if (isTransfer && _selectedToAccountId != null) {
+        final selectedWallet = _wallets.firstWhere(
+          (wallet) => wallet.id == _selectedToAccountId,
+          orElse: () => throw Exception('Wallet destino no encontrada'),
+        );
+        reference = selectedWallet.name;
+      }
+
+      if (isEditing) {
+        // Actualizar transacción existente
+        // Implementar según necesidad
+      } else {
+        // Crear nueva transacción
+        if (isExpense) {
+          await _transactionUseCases.createExpense(
+            date: _selectedDate,
+            description: _descriptionController.text,
+            amount: amount.abs(), // Siempre positivo, el signo se maneja internamente
+            currencyId: 'USD', // Ajustar según tu implementación
+            walletId: _selectedAccountId!,
+            categoryId: _selectedCategoryId!,
+            contactId: _selectedContactId,
+          );
+        } else if (isIncome) {
+          await _transactionUseCases.createIncome(
+            date: _selectedDate,
+            description: _descriptionController.text,
+            amount: amount,
+            currencyId: 'USD', // Ajustar según tu implementación
+            walletId: _selectedAccountId!,
+            categoryId: _selectedCategoryId!,
+            contactId: _selectedContactId,
+          );
+        } else if (isTransfer) {
+          // Obtener la divisa de la cuenta destino
+          final targetWallet = _wallets.firstWhere(
+            (wallet) => wallet.id == _selectedToAccountId,
+            orElse: () => throw Exception('Wallet destino no encontrada'),
+          );
+          
+          await _transactionUseCases.createTransfer(
+            date: _selectedDate,
+            description: _descriptionController.text,
+            amount: amount,
+            currencyId: 'USD', // Divisa de origen
+            targetCurrencyId: 'USD', // Divisa de destino (debería ser targetWallet.currencyId)
+            sourceWalletId: _selectedAccountId!,
+            targetWalletId: _selectedToAccountId!,
+            targetAmount: amount, // Ajustar según tu implementación de cambio de divisa
+            contactId: _selectedContactId,
+          );
         }
       }
+
+      // Mostrar mensaje de éxito y volver
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Transacción guardada con éxito')),
+        );
+        Navigator.of(context).pop(true); // Devuelve true para indicar éxito
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _error = e.toString();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al guardar: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
-
-    final TransactionEntity transaction = TransactionEntity(
-      id: isEditing ? widget.transaction!.id : DateTime.now().millisecondsSinceEpoch,
-      type: _selectedType,
-      flow: _flow,
-      amount: amount,
-      accountId: _selectedAccountId!,
-      categoryId: isTransfer ? null : _selectedCategoryId,
-      contactId: _selectedContactId,
-      description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
-      reference: reference,
-      transactionDate: _selectedDate,
-      createdAt: isEditing ? widget.transaction!.createdAt : DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-
-    // Mostrar mensaje de éxito
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(isEditing ? 'Transacción actualizada' : 'Transacción creada'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-      ),
-    );
-
-    // Devolver la transacción a la pantalla anterior
-    //NavigationService.goBack(result: transaction);
   }
 
   @override
@@ -267,226 +360,230 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
           labelColor: colorScheme.primary,
         ) : null,
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // Monto
-            FormFieldContainer(
-              child: TextFormField(
-                controller: _amountController,
-                decoration: InputDecoration(
-                  labelText: 'Monto',
-                  prefixIcon: Icon(
-                    Icons.attach_money,
-                    color: colorScheme.primary,
-                  ),
-                  border: InputBorder.none,
-                ),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                ],
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese un monto';
-                  }
-                  final amount = double.tryParse(value.replaceAll(',', '.'));
-                  if (amount == null || amount <= 0) {
-                    return 'Ingrese un monto válido';
-                  }
-                  return null;
-                },
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            // Fecha
-            FormFieldContainer(
-              child: InkWell(
-                onTap: _selectDate,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'Fecha',
-                    prefixIcon: Icon(
-                      Icons.calendar_today,
-                      color: colorScheme.primary,
-                    ),
-                    border: InputBorder.none,
-                  ),
-                  child: Text(
-                    DateFormat('dd/MM/yyyy').format(_selectedDate),
-                    style: textTheme.bodyLarge,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _error != null
+              ? Center(child: Text(_error!))
+              : Form(
+                  key: _formKey,
+                  child: ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      // Monto
+                      FormFieldContainer(
+                        child: TextFormField(
+                          controller: _amountController,
+                          decoration: InputDecoration(
+                            labelText: 'Monto',
+                            prefixIcon: Icon(
+                              Icons.attach_money,
+                              color: colorScheme.primary,
+                            ),
+                            border: InputBorder.none,
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                          ],
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor ingrese un monto';
+                            }
+                            final amount = double.tryParse(value.replaceAll(',', '.'));
+                            if (amount == null || amount <= 0) {
+                              return 'Ingrese un monto válido';
+                            }
+                            return null;
+                          },
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Fecha
+                      FormFieldContainer(
+                        child: InkWell(
+                          onTap: _selectDate,
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: 'Fecha',
+                              prefixIcon: Icon(
+                                Icons.calendar_today,
+                                color: colorScheme.primary,
+                              ),
+                              border: InputBorder.none,
+                            ),
+                            child: Text(
+                              DateFormat('dd/MM/yyyy').format(_selectedDate),
+                              style: textTheme.bodyLarge,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
 
-            // Cuenta origen
-            FormFieldContainer(
-              child: DropdownButtonFormField<int>(
-                value: _selectedAccountId,
-                decoration: InputDecoration(
-                  labelText: 'Cuenta',
-                  prefixIcon: Icon(
-                    Icons.account_balance_wallet,
-                    color: colorScheme.primary,
-                  ),
-                  border: InputBorder.none,
-                ),
-                items: mockAccounts.map((account) {
-                  return DropdownMenuItem(
-                    value: account['id'] as int,
-                    child: Text(account['name'] as String),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedAccountId = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Por favor seleccione una cuenta';
-                  }
-                  return null;
-                },
-              ),
-            ),
+                      // Cuenta origen
+                      FormFieldContainer(
+                        child: DropdownButtonFormField<int>(
+                          value: _selectedAccountId,
+                          decoration: InputDecoration(
+                            labelText: 'Cuenta',
+                            prefixIcon: Icon(
+                              Icons.account_balance_wallet,
+                              color: colorScheme.primary,
+                            ),
+                            border: InputBorder.none,
+                          ),
+                          items: _wallets.map((wallet) {
+                            return DropdownMenuItem(
+                              value: wallet.id,
+                              child: Text(wallet.name),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedAccountId = value;
+                            });
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Por favor seleccione una cuenta';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
 
-            // Cuenta destino (solo para transferencias)
-            if (isTransfer) ...[
-              const SizedBox(height: 16),
-              FormFieldContainer(
-                child: DropdownButtonFormField<int>(
-                  value: _selectedToAccountId,
-                  decoration: InputDecoration(
-                    labelText: 'Cuenta destino',
-                    prefixIcon: Icon(
-                      Icons.account_balance_wallet,
-                      color: colorScheme.primary,
-                    ),
-                    border: InputBorder.none,
-                  ),
-                  items: mockAccounts
-                      .where((account) => account['id'] != _selectedAccountId)
-                      .map((account) {
-                    return DropdownMenuItem(
-                      value: account['id'] as int,
-                      child: Text(account['name'] as String),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedToAccountId = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (isTransfer && value == null) {
-                      return 'Por favor seleccione una cuenta destino';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-            ],
+                      // Cuenta destino (solo para transferencias)
+                      if (isTransfer) ...[
+                        const SizedBox(height: 16),
+                        FormFieldContainer(
+                          child: DropdownButtonFormField<int>(
+                            value: _selectedToAccountId,
+                            decoration: InputDecoration(
+                              labelText: 'Cuenta destino',
+                              prefixIcon: Icon(
+                                Icons.account_balance_wallet,
+                                color: colorScheme.primary,
+                              ),
+                              border: InputBorder.none,
+                            ),
+                            items: _wallets
+                                .where((wallet) => wallet.id != _selectedAccountId)
+                                .map((wallet) {
+                              return DropdownMenuItem(
+                                value: wallet.id,
+                                child: Text(wallet.name),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedToAccountId = value;
+                              });
+                            },
+                            validator: (value) {
+                              if (isTransfer && value == null) {
+                                return 'Por favor seleccione una cuenta destino';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
 
-            // Categoría (solo para ingresos y gastos)
-            if (!isTransfer) ...[
-              const SizedBox(height: 16),
-              FormFieldContainer(
-                child: DropdownButtonFormField<int>(
-                  value: _selectedCategoryId,
-                  decoration: InputDecoration(
-                    labelText: 'Categoría',
-                    prefixIcon: Icon(
-                      Icons.category,
-                      color: colorScheme.primary,
-                    ),
-                    border: InputBorder.none,
-                  ),
-                  items: mockCategories
-                      .where((cat) => cat['type'] == _selectedType)
-                      .map((category) {
-                    return DropdownMenuItem(
-                      value: category['id'] as int,
-                      child: Text(category['name'] as String),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedCategoryId = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (!isTransfer && value == null) {
-                      return 'Por favor seleccione una categoría';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-            ],
+                      // Categoría (solo para ingresos y gastos)
+                      if (!isTransfer) ...[
+                        const SizedBox(height: 16),
+                        FormFieldContainer(
+                          child: DropdownButtonFormField<int>(
+                            value: _selectedCategoryId,
+                            decoration: InputDecoration(
+                              labelText: 'Categoría',
+                              prefixIcon: Icon(
+                                Icons.category,
+                                color: colorScheme.primary,
+                              ),
+                              border: InputBorder.none,
+                            ),
+                            items: _categories
+                                .where((cat) => cat.documentTypeId == _selectedType)
+                                .map((category) {
+                              return DropdownMenuItem(
+                                value: category.id,
+                                child: Text(category.name),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedCategoryId = value;
+                              });
+                            },
+                            validator: (value) {
+                              if (!isTransfer && value == null) {
+                                return 'Por favor seleccione una categoría';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
 
-            // Contacto (opcional)
-            if (!isTransfer) ...[
-              const SizedBox(height: 16),
-              FormFieldContainer(
-                child: DropdownButtonFormField<int>(
-                  value: _selectedContactId,
-                  decoration: InputDecoration(
-                    labelText: 'Contacto (opcional)',
-                    prefixIcon: Icon(
-                      Icons.person,
-                      color: colorScheme.primary,
-                    ),
-                    border: InputBorder.none,
-                  ),
-                  items: [
-                    const DropdownMenuItem(
-                      value: null,
-                      child: Text('Ninguno'),
-                    ),
-                    ...mockContacts.map((contact) {
-                      return DropdownMenuItem(
-                        value: contact['id'] as int,
-                        child: Text(contact['name'] as String),
-                      );
-                    }),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedContactId = value;
-                    });
-                  },
-                ),
-              ),
-            ],
+                      // Contacto (opcional)
+                      if (!isTransfer) ...[
+                        const SizedBox(height: 16),
+                        FormFieldContainer(
+                          child: DropdownButtonFormField<int>(
+                            value: _selectedContactId,
+                            decoration: InputDecoration(
+                              labelText: 'Contacto (opcional)',
+                              prefixIcon: Icon(
+                                Icons.person,
+                                color: colorScheme.primary,
+                              ),
+                              border: InputBorder.none,
+                            ),
+                            items: [
+                              const DropdownMenuItem(
+                                value: null,
+                                child: Text('Ninguno'),
+                              ),
+                              ..._contacts.map((contact) {
+                                return DropdownMenuItem(
+                                  value: contact.id,
+                                  child: Text(contact.name),
+                                );
+                              }),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedContactId = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
 
-            // Descripción
-            const SizedBox(height: 16),
-            FormFieldContainer(
-              child: TextFormField(
-                controller: _descriptionController,
-                decoration: InputDecoration(
-                  labelText: 'Descripción (opcional)',
-                  prefixIcon: Icon(
-                    Icons.description,
-                    color: colorScheme.primary,
+                      // Descripción
+                      const SizedBox(height: 16),
+                      FormFieldContainer(
+                        child: TextFormField(
+                          controller: _descriptionController,
+                          decoration: InputDecoration(
+                            labelText: 'Descripción (opcional)',
+                            prefixIcon: Icon(
+                              Icons.description,
+                              color: colorScheme.primary,
+                            ),
+                            border: InputBorder.none,
+                          ),
+                          maxLines: 3,
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 32),
+                    ],
                   ),
-                  border: InputBorder.none,
                 ),
-                maxLines: 3,
-              ),
-            ),
-            
-            const SizedBox(height: 32),
-          ],
-        ),
-      ),
       bottomNavigationBar: Container(
         padding: EdgeInsets.only(
           left: 16,

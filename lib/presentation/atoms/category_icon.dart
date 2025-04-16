@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../core/design/app_dimensions.dart';
+import '../../core/presentation/app_dimensions.dart';
 
 /// Átomo que representa el icono de una categoría.
 ///

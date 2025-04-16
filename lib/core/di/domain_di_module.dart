@@ -38,9 +38,9 @@ Future<void> initializeDomainDependencies() async {
     )
   );
   
-  // Registro del caso de uso de Journal
-  getIt.registerSingleton<JournalUseCases>(
-    JournalUseCases(getIt<JournalRepository>())
+  // Registrar JournalUseCases
+  getIt.registerLazySingleton<JournalUseCases>(
+    () => JournalUseCases(getIt<JournalRepository>()),
   );
   
   // Registro del caso de uso de Transacciones (actualizado)

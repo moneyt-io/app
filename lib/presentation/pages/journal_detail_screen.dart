@@ -8,11 +8,12 @@ import '../../domain/usecases/chart_account_usecases.dart';
 import '../molecules/journal_detail_list_item.dart';
 
 class JournalDetailScreen extends StatefulWidget {
-  final JournalEntry journal;
-  
+  // Modificar para aceptar null
+  final JournalEntry? journal;
+
   const JournalDetailScreen({
-    Key? key, 
-    required this.journal,
+    Key? key,
+    this.journal,
   }) : super(key: key);
 
   @override
@@ -63,7 +64,7 @@ class _JournalDetailScreenState extends State<JournalDetailScreen> {
   }
 
   String _getDocumentTypeLabel() {
-    switch (widget.journal.documentTypeId) {
+    switch (widget.journal!.documentTypeId) {
       case 'I': return 'Ingreso';
       case 'E': return 'Gasto';
       case 'T': return 'Transferencia';
@@ -78,7 +79,7 @@ class _JournalDetailScreenState extends State<JournalDetailScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     
-    final journal = widget.journal;
+    final journal = widget.journal!;
     
     // Calcular totales
     double totalDebit = 0;

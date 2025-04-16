@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/category.dart';
 import '../atoms/category_icon.dart';
-import '../core/design/app_dimensions.dart';
+import '../../core/presentation/app_dimensions.dart';
 
 /// Molécula que representa un ítem de categoría en una lista.
 /// 

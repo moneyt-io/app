@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/category.dart';
 import '../molecules/category_list_item.dart';
-import '../core/design/app_dimensions.dart';
+import '../../core/presentation/app_dimensions.dart';
 
 /// Organismo que muestra una vista jerárquica de categorías.
 ///

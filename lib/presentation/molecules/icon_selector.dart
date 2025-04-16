@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../core/design/app_dimensions.dart';
+import '../../core/presentation/app_dimensions.dart';
 
 /// Componente para seleccionar un icono de una lista predefinida.
 ///

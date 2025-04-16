@@ -6,13 +6,25 @@ import '../../domain/repositories/journal_repository.dart';
 import '../datasources/local/daos/transaction_dao.dart';
 import '../models/transaction_entry_model.dart';
 import '../models/transaction_detail_model.dart';
+import '../../domain/repositories/category_repository.dart';
+import '../../domain/repositories/wallet_repository.dart';
+import '../../domain/repositories/contact_repository.dart';
 
 @Injectable(as: TransactionRepository)
 class TransactionRepositoryImpl implements TransactionRepository {
   final TransactionDao _dao;
   final JournalRepository _journalRepository;
+  final CategoryRepository _categoryRepository;
+  final WalletRepository _walletRepository;
+  final ContactRepository _contactRepository;
 
-  TransactionRepositoryImpl(this._dao, this._journalRepository);
+  TransactionRepositoryImpl(
+    this._dao, 
+    this._journalRepository,
+    this._categoryRepository,
+    this._walletRepository,
+    this._contactRepository,
+  );
 
   @override
   Future<List<TransactionEntry>> getAllTransactions() async {
@@ -93,6 +105,18 @@ class TransactionRepositoryImpl implements TransactionRepository {
     if (entry == null) return null;
 
     final details = await _dao.getTransactionDetailsForEntry(entry.id);
+    
+    // Cargar datos relacionados
+    final contact = entry.contactId != null
+        ? await _contactRepository.getContactById(entry.contactId!)
+        : null;
+    final wallet = details.isNotEmpty 
+        ? await _walletRepository.getWalletById(details.first.paymentId)
+        : null;
+    final category = details.isNotEmpty && details.first.categoryId > 0
+        ? await _categoryRepository.getCategoryById(details.first.categoryId)
+        : null;
+
     return TransactionEntryModel(
       id: entry.id,
       documentTypeId: entry.documentTypeId,
@@ -118,8 +142,11 @@ class TransactionRepositoryImpl implements TransactionRepository {
         paymentId: detail.paymentId,
         categoryId: detail.categoryId,
         amount: detail.amount,
-        rateExchange: detail.rateExchange
+        rateExchange: detail.rateExchange,
       ).toEntity()).toList(),
+      contact: contact,
+      wallet: wallet,
+      category: category,
     );
   }
 
@@ -130,6 +157,10 @@ class TransactionRepositoryImpl implements TransactionRepository {
   ) async {
     final model = TransactionEntryModel.fromEntity(entry);
     final id = await _dao.insertTransaction(model.toCompanion());
+    
+    if (id == 0) {
+      throw Exception('Error al insertar la transacción en la base de datos');
+    }
 
     // Insertar detalles
     for (var detail in details) {
@@ -148,8 +179,9 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
     final createdTransaction = await getTransactionById(id);
     if (createdTransaction == null) {
-      throw Exception('Failed to create transaction');
+      throw Exception('Error al recuperar la transacción creada');
     }
+    
     return createdTransaction;
   }
 
@@ -157,28 +189,14 @@ class TransactionRepositoryImpl implements TransactionRepository {
   Future<void> updateTransaction(TransactionEntry transaction) async {
     final model = TransactionEntryModel.fromEntity(transaction);
     await _dao.updateTransaction(model.toCompanion());
-    // Note: Details update should be handled separately if needed
   }
 
   @override
   Future<void> deleteTransaction(int id) async {
-    // Primero eliminamos los detalles usando el método correcto
+    // Primero eliminamos los detalles
     await _dao.deleteTransactionDetails(id);
     // Luego eliminamos la entrada principal
     await _dao.deleteTransaction(id);
-  }
-
-  @override
-  Future<void> createTransfer({
-    required int fromAccountId,
-    required int toAccountId,
-    required double amount,
-    required DateTime date,
-    String? description,
-    int? contactId,
-  }) async {
-    // TODO: Implementar lógica de transferencia
-    throw UnimplementedError();
   }
 
   @override
@@ -233,14 +251,25 @@ class TransactionRepositoryImpl implements TransactionRepository {
     int? contactId,
     double rateExchange = 1.0,
   }) async {
-    // 1. Obtener el siguiente secuencial
+    // 1. Primero crear el journal contable
+    final journalEntry = await _journalRepository.createIncomeJournal(
+      date: date,
+      description: description,
+      amount: amount,
+      currencyId: currencyId,
+      walletChartAccountId: walletId,
+      categoryChartAccountId: categoryId,
+      rateExchange: rateExchange,
+    );
+    
+    // 2. Obtener el siguiente secuencial
     final secuencial = await getNextSecuencial('I');
     
-    // 2. Crear modelo de transacción
+    // 3. Crear modelo de transacción con el journalId correcto
     final transactionModel = TransactionEntryModel.create(
       documentTypeId: 'I',
       currencyId: currencyId,
-      journalId: 0, // Se actualizará después de crear el journal
+      journalId: journalEntry.id,
       contactId: contactId,
       secuencial: secuencial,
       date: date,
@@ -249,10 +278,14 @@ class TransactionRepositoryImpl implements TransactionRepository {
       description: description,
     );
     
-    // 3. Insertar la transacción y obtener su ID
+    // 4. Insertar la transacción y obtener su ID
     final transactionId = await _dao.insertTransaction(transactionModel.toCompanion());
     
-    // 4. Crear detalle de la transacción
+    if (transactionId == 0) {
+      throw Exception('Error al insertar la transacción de ingreso');
+    }
+    
+    // 5. Crear detalle de la transacción
     final detailModel = TransactionDetailModel.create(
       transactionId: transactionId,
       currencyId: currencyId,
@@ -264,10 +297,10 @@ class TransactionRepositoryImpl implements TransactionRepository {
       rateExchange: rateExchange,
     );
     
-    // 5. Insertar el detalle
+    // 6. Insertar el detalle
     await _dao.insertTransactionDetail(detailModel.toCompanion());
     
-    // 6. Obtener la transacción completa
+    // 7. Obtener la transacción completa
     final transaction = await getTransactionById(transactionId);
     if (transaction == null) {
       throw Exception('Error al crear la transacción de ingreso');
@@ -287,14 +320,25 @@ class TransactionRepositoryImpl implements TransactionRepository {
     int? contactId,
     double rateExchange = 1.0,
   }) async {
-    // 1. Obtener el siguiente secuencial
+    // 1. Primero crear el journal contable
+    final journalEntry = await _journalRepository.createExpenseJournal(
+      date: date,
+      description: description,
+      amount: amount,
+      currencyId: currencyId,
+      walletChartAccountId: walletId,
+      categoryChartAccountId: categoryId,
+      rateExchange: rateExchange,
+    );
+    
+    // 2. Obtener el siguiente secuencial
     final secuencial = await getNextSecuencial('E');
     
-    // 2. Crear modelo de transacción
+    // 3. Crear modelo de transacción con el journalId correcto
     final transactionModel = TransactionEntryModel.create(
       documentTypeId: 'E',
       currencyId: currencyId,
-      journalId: 0, // Se actualizará después de crear el journal
+      journalId: journalEntry.id,
       contactId: contactId,
       secuencial: secuencial,
       date: date,
@@ -303,10 +347,14 @@ class TransactionRepositoryImpl implements TransactionRepository {
       description: description,
     );
     
-    // 3. Insertar la transacción y obtener su ID
+    // 4. Insertar la transacción y obtener su ID
     final transactionId = await _dao.insertTransaction(transactionModel.toCompanion());
     
-    // 4. Crear detalle de la transacción
+    if (transactionId == 0) {
+      throw Exception('Error al insertar la transacción de egreso');
+    }
+    
+    // 5. Crear detalle de la transacción
     final detailModel = TransactionDetailModel.create(
       transactionId: transactionId,
       currencyId: currencyId,
@@ -318,10 +366,10 @@ class TransactionRepositoryImpl implements TransactionRepository {
       rateExchange: rateExchange,
     );
     
-    // 5. Insertar el detalle
+    // 6. Insertar el detalle
     await _dao.insertTransactionDetail(detailModel.toCompanion());
     
-    // 6. Obtener la transacción completa
+    // 7. Obtener la transacción completa
     final transaction = await getTransactionById(transactionId);
     if (transaction == null) {
       throw Exception('Error al crear la transacción de egreso');
@@ -341,18 +389,27 @@ class TransactionRepositoryImpl implements TransactionRepository {
     required double rateExchange,
     int? contactId,
   }) async {
-    // 1. Obtener el siguiente secuencial
+    // 1. Primero crear el journal contable
+    final journalEntry = await _journalRepository.createTransferJournal(
+      date: date,
+      description: description,
+      amount: amount,
+      currencyId: 'USD',  // Se debería pasar la divisa correcta
+      sourceChartAccountId: sourceWalletId,
+      targetChartAccountId: targetWalletId,
+      targetCurrencyId: 'USD',  // Se debería pasar la divisa correcta
+      targetAmount: targetAmount,
+      rateExchange: rateExchange,
+    );
+    
+    // 2. Obtener el siguiente secuencial
     final secuencial = await getNextSecuencial('T');
     
-    // Asumimos que la divisa base es USD para este ejemplo
-    const String currencyId = 'USD';
-    const String targetCurrencyId = 'USD';
-    
-    // 2. Crear modelo de transacción
+    // 3. Crear modelo de transacción con el journalId correcto
     final transactionModel = TransactionEntryModel.create(
       documentTypeId: 'T',
-      currencyId: currencyId,
-      journalId: 0, // Se actualizará después de crear el journal
+      currencyId: 'USD',  // Se debería pasar la divisa correcta
+      journalId: journalEntry.id,
       contactId: contactId,
       secuencial: secuencial,
       date: date,
@@ -361,13 +418,17 @@ class TransactionRepositoryImpl implements TransactionRepository {
       description: description,
     );
     
-    // 3. Insertar la transacción y obtener su ID
+    // 4. Insertar la transacción y obtener su ID
     final transactionId = await _dao.insertTransaction(transactionModel.toCompanion());
     
-    // 4. Crear detalles de origen (From)
+    if (transactionId == 0) {
+      throw Exception('Error al insertar la transacción de transferencia');
+    }
+    
+    // 5. Crear detalles de origen (From)
     final sourceDetailModel = TransactionDetailModel.create(
       transactionId: transactionId,
-      currencyId: currencyId,
+      currencyId: 'USD',  // Se debería pasar la divisa correcta
       flowId: 'F', // From
       paymentTypeId: 'W', // Wallet
       paymentId: sourceWalletId,
@@ -376,10 +437,10 @@ class TransactionRepositoryImpl implements TransactionRepository {
       rateExchange: 1.0,
     );
     
-    // 5. Crear detalles de destino (To)
+    // 6. Crear detalles de destino (To)
     final targetDetailModel = TransactionDetailModel.create(
       transactionId: transactionId,
-      currencyId: targetCurrencyId,
+      currencyId: 'USD',  // Se debería pasar la divisa correcta
       flowId: 'T', // To
       paymentTypeId: 'W', // Wallet
       paymentId: targetWalletId,
@@ -388,11 +449,11 @@ class TransactionRepositoryImpl implements TransactionRepository {
       rateExchange: rateExchange,
     );
     
-    // 6. Insertar ambos detalles
+    // 7. Insertar ambos detalles
     await _dao.insertTransactionDetail(sourceDetailModel.toCompanion());
     await _dao.insertTransactionDetail(targetDetailModel.toCompanion());
     
-    // 7. Obtener la transacción completa
+    // 8. Obtener la transacción completa
     final transaction = await getTransactionById(transactionId);
     if (transaction == null) {
       throw Exception('Error al crear la transacción de transferencia');

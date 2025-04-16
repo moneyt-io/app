@@ -9,9 +9,16 @@ import '../../data/datasources/local/daos/contact_dao.dart';
 import '../../data/repositories/category_repository_impl.dart';
 import '../../domain/repositories/category_repository.dart';
 import '../../data/datasources/local/daos/categories_dao.dart';
-import '../../data/datasources/local/daos/wallet_dao.dart'; // Añadir importación
-import '../../data/repositories/wallet_repository_impl.dart'; // Añadir importación
-import '../../domain/repositories/wallet_repository.dart'; // Añadir importación
+import '../../data/datasources/local/daos/wallet_dao.dart';
+import '../../data/repositories/wallet_repository_impl.dart';
+import '../../domain/repositories/wallet_repository.dart';
+import '../../data/datasources/local/daos/journal_dao.dart';
+import '../../domain/repositories/journal_repository.dart';
+import '../../data/repositories/journal_repository_impl.dart';
+// Agregar nuevas importaciones para Transaction
+import '../../data/datasources/local/daos/transaction_dao.dart';
+import '../../domain/repositories/transaction_repository.dart';
+import '../../data/repositories/transaction_repository_impl.dart';
 
 final getIt = GetIt.instance;
 
@@ -25,6 +32,8 @@ Future<void> initializeDataDependencies() async {
   getIt.registerLazySingleton<ContactDao>(() => ContactDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<CategoriesDao>(() => CategoriesDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<WalletDao>(() => WalletDao(getIt<AppDatabase>())); // Añadir DAO de Wallet
+  getIt.registerLazySingleton<JournalDao>(() => JournalDao(getIt<AppDatabase>())); // Registrar el JournalDao
+  getIt.registerLazySingleton<TransactionDao>(() => TransactionDao(getIt<AppDatabase>()));
   
   // Repositorios
   getIt.registerSingleton<ChartAccountRepository>(
@@ -38,5 +47,18 @@ Future<void> initializeDataDependencies() async {
   );
   getIt.registerSingleton<WalletRepository>( // Añadir Repositorio de Wallet
     WalletRepositoryImpl(getIt<WalletDao>())
+  );
+  getIt.registerLazySingleton<JournalRepository>( // Registrar el JournalRepository
+    () => JournalRepositoryImpl(getIt<JournalDao>()),
+  );
+  // Registrar TransactionRepository con todas sus dependencias
+  getIt.registerLazySingleton<TransactionRepository>(
+    () => TransactionRepositoryImpl(
+      getIt<TransactionDao>(),
+      getIt<JournalRepository>(),
+      getIt<CategoryRepository>(), 
+      getIt<WalletRepository>(),
+      getIt<ContactRepository>(),
+    ),
   );
 }
