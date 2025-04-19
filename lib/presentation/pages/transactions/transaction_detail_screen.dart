@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-import '../../domain/entities/transaction_entry.dart';
-import '../../domain/entities/transaction_detail.dart';
-import '../../domain/entities/category.dart';
-import '../../domain/entities/contact.dart';
-import '../../domain/entities/wallet.dart';
-import '../../domain/usecases/category_usecases.dart';
-import '../../domain/usecases/wallet_usecases.dart';
-import '../../domain/usecases/contact_usecases.dart';
-import '../routes/navigation_service.dart';
-import '../routes/app_routes.dart';
+import '../../../domain/entities/transaction_entry.dart';
+import '../../../domain/entities/transaction_detail.dart';
+import '../../../domain/entities/category.dart';
+import '../../../domain/entities/contact.dart';
+import '../../../domain/entities/wallet.dart';
+import '../../../domain/usecases/category_usecases.dart';
+import '../../../domain/usecases/wallet_usecases.dart';
+import '../../../domain/usecases/contact_usecases.dart';
+import '../../routes/navigation_service.dart';
+import '../../routes/app_routes.dart';
 
 class TransactionDetailScreen extends StatefulWidget {
   final TransactionEntry transaction;

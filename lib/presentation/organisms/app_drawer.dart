@@ -48,14 +48,16 @@ class AppDrawer extends StatelessWidget {
         label: 'Categorías',
         route: AppRoutes.categories,
       ),
-      // Nuevo ítem para Plan de Cuentas
+    ];
+    
+    // Nueva sección para opciones de contabilidad
+    final accountingItems = [
       DrawerItemData(
         icon: Icons.account_tree_outlined,
         selectedIcon: Icons.account_tree,
         label: 'Plan de Cuentas',
         route: AppRoutes.chartAccounts,
       ),
-      // Nuevo ítem para Diarios Contables
       DrawerItemData(
         icon: Icons.book_outlined,
         selectedIcon: Icons.book,
@@ -114,6 +116,14 @@ class AppDrawer extends StatelessWidget {
                 DrawerSection(
                   title: 'Gestión',
                   items: managementItems,
+                  currentRoute: currentRoute,
+                  onNavigate: _navigateTo,
+                ),
+                const SizedBox(height: 16),
+                // Nueva sección de contabilidad
+                DrawerSection(
+                  title: 'Contabilidad',
+                  items: accountingItems,
                   currentRoute: currentRoute,
                   onNavigate: _navigateTo,
                 ),

@@ -1,27 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../domain/entities/wallet.dart';
+import '../../domain/entities/chart_account.dart';
+import '../../core/presentation/app_dimensions.dart';
+import '../atoms/action_menu_button.dart';
 
 class WalletListItem extends StatelessWidget {
   final Wallet wallet;
+  final ChartAccount? chartAccount;
   final VoidCallback onTap;
-  final VoidCallback? onDelete;
-  
+  final VoidCallback onDelete;
+  final VoidCallback? onEdit;
+  final double? balance;
+
   const WalletListItem({
     Key? key,
     required this.wallet,
+    this.chartAccount,
     required this.onTap,
-    this.onDelete,
+    required this.onDelete,
+    this.onEdit,
+    this.balance,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+    final textTheme = Theme.of(context).textTheme;
+
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      clipBehavior: Clip.antiAlias,
+      elevation: 0, // Sin elevación para seguir Material Design 3
+      margin: const EdgeInsets.only(bottom: AppDimensions.spacing8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
         side: BorderSide(
           color: colorScheme.outline.withOpacity(0.2),
           width: 1,
@@ -29,86 +40,129 @@ class WalletListItem extends StatelessWidget {
       ),
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppDimensions.spacing16),
           child: Row(
             children: [
+              // Icono con fondo circular
               Container(
-                width: 50,
-                height: 50,
+                width: AppDimensions.spacing40,
+                height: AppDimensions.spacing40,
                 decoration: BoxDecoration(
                   color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.circle,
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.account_balance_wallet,
-                    color: colorScheme.onPrimaryContainer,
-                    size: 28,
-                  ),
+                child: Icon(
+                  Icons.account_balance_wallet,
+                  color: colorScheme.onPrimaryContainer,
+                  size: AppDimensions.iconSizeSmall,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppDimensions.spacing16),
+              
+              // Información principal
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       wallet.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    if (wallet.description != null) ...[
-                      const SizedBox(height: 4),
+                    if (wallet.description != null && wallet.description!.isNotEmpty) ...[
                       Text(
                         wallet.description!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        style: textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    // Información de la cuenta contable
+                    if (chartAccount != null) ...[
+                      const SizedBox(height: AppDimensions.spacing4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.account_tree_outlined,
+                            size: AppDimensions.iconSizeSmall,
+                            color: colorScheme.primary,
+                          ),
+                          const SizedBox(width: AppDimensions.spacing4),
+                          Text(
+                            '${chartAccount!.code}',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ],
                 ),
               ),
+              
+              // Monto y divisa
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        wallet.currencyId,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.currency_exchange,
-                        size: 14,
-                        color: colorScheme.primary,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  if (onDelete != null)
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete_outline,
-                        color: colorScheme.error,
-                      ),
-                      onPressed: onDelete,
-                      constraints: const BoxConstraints(
-                        minWidth: 36,
-                        minHeight: 36,
-                      ),
-                      padding: EdgeInsets.zero,
-                      iconSize: 20,
+                  // Monto
+                  Text(
+                    NumberFormat.currency(symbol: wallet.currencyId, decimalDigits: 2)
+                      .format(balance ?? 0),
+                    style: textTheme.titleMedium?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.bold,
                     ),
+                  ),
+                  // Divisa
+                  Container(
+                    margin: const EdgeInsets.only(top: AppDimensions.spacing4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimensions.spacing8,
+                      vertical: AppDimensions.spacing2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+                    ),
+                    child: Text(
+                      wallet.currencyId,
+                      style: textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onSecondaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ],
+              ),
+              
+              // Menú de acciones usando el átomo
+              ActionMenuButton(
+                options: [
+                  ActionMenuOption.edit,
+                  ActionMenuOption.view,
+                  ActionMenuOption.delete,
+                ],
+                onOptionSelected: (option) {
+                  switch (option) {
+                    case ActionMenuOption.edit:
+                      if (onEdit != null) onEdit!();
+                      break;
+                    case ActionMenuOption.view:
+                      onTap();
+                      break;
+                    case ActionMenuOption.delete:
+                      onDelete();
+                      break;
+                  }
+                },
               ),
             ],
           ),

@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/journal_entry.dart';
-import '../pages/journal_detail_screen.dart';
-import '../pages/journals_screen.dart';
+import '../../domain/entities/transaction_entry.dart';
+import '../pages/journals/journal_detail_screen.dart';
+import '../pages/journals/journals_screen.dart';
 import '../pages/welcome_screen.dart';
 import '../pages/login_screen.dart';
 import '../pages/home_screen.dart';
 import '../pages/settings_screen.dart';
-import '../pages/contacts_screen.dart';
-import '../pages/contact_form_screen.dart';
-import '../pages/categories_screen.dart';
-import '../pages/category_form_screen.dart';
-import '../pages/transactions_screen.dart';
-import '../pages/transaction_form_screen.dart';
-import '../pages/chart_accounts_screen.dart';
-import '../pages/chart_account_form_screen.dart';
-import '../pages/wallets_screen.dart';
-import '../pages/wallet_form_screen.dart';
+import '../pages/contacts/contacts_screen.dart';
+import '../pages/contacts/contact_form_screen.dart';
+import '../pages/categories/categories_screen.dart';
+import '../pages/categories/category_form_screen.dart';
+import '../pages/transactions/transactions_screen.dart';
+import '../pages/transactions/transaction_form_screen.dart';
+import '../pages/chart_accounts/chart_accounts_screen.dart';
+import '../pages/chart_accounts/chart_account_form_screen.dart';
+import '../pages/wallets/wallets_screen.dart';
+import '../pages/wallets/wallet_form_screen.dart';
+import '../pages/transactions/transaction_detail_screen.dart'; // Importar la pantalla de detalles
 import './app_routes.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/entities/category.dart';
@@ -99,20 +101,25 @@ class RouteGenerator {
         );
         
       case AppRoutes.transactionForm:
-        TransactionEntity? transaction;
-        String initialType = 'all';
-        
-        if (args != null && args is Map<String, dynamic>) {
-          transaction = args['transaction'] as TransactionEntity?;
-          initialType = args['type'] as String? ?? 'all';
+        if (args is Map<String, dynamic>) {
+          return MaterialPageRoute(
+            builder: (_) => TransactionFormScreen(
+              transaction: args['transaction'],
+              initialType: args['type'] ?? 'all',
+            ),
+          );
         }
+        return _errorRoute();
         
-        return MaterialPageRoute(
-          builder: (_) => TransactionFormScreen(
-            transaction: transaction,
-            initialType: initialType,
-          ),
-        );
+      case AppRoutes.transactionDetail:
+        if (args != null && args is TransactionEntry) {  // Añadir verificación explícita del tipo
+          return MaterialPageRoute(
+            builder: (_) => TransactionDetailScreen(
+              transaction: args,
+            ),
+          );
+        }
+        return _errorRoute();
       
       // NUEVAS RUTAS PARA EL PLAN DE CUENTAS
       case AppRoutes.chartAccounts:
@@ -172,13 +179,20 @@ class RouteGenerator {
       
       default:
         // Ruta no encontrada
-        return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            body: Center(
-              child: Text('No se encontró la ruta: ${settings.name}'),
-            ),
-          ),
-        );
+        return _errorRoute();
     }
+  }
+  
+  static Route<dynamic> _errorRoute() {
+    return MaterialPageRoute(builder: (_) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Error'),
+        ),
+        body: const Center(
+          child: Text('Ruta no encontrada'),
+        ),
+      );
+    });
   }
 }

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import '../../domain/entities/category.dart';
-import '../../domain/usecases/category_usecases.dart';
-import '../atoms/app_button.dart';
-import '../molecules/empty_state.dart';
-import '../molecules/search_field.dart';
-import '../molecules/category_filter_chip.dart';
-import '../organisms/app_drawer.dart';
-import '../organisms/category_list_view.dart';
-import '../routes/navigation_service.dart';
-import '../routes/app_routes.dart';
-import '../../core/presentation/app_dimensions.dart';
-import '../molecules/confirm_delete_dialog.dart';
+import '../../../domain/entities/category.dart';
+import '../../../domain/usecases/category_usecases.dart';
+import '../../atoms/app_button.dart';
+import '../../molecules/empty_state.dart';
+import '../../molecules/search_field.dart';
+import '../../molecules/category_filter_chip.dart';
+import '../../organisms/app_drawer.dart';
+import '../../organisms/category_list_view.dart';
+import '../../routes/navigation_service.dart';
+import '../../routes/app_routes.dart';
+import '../../../core/presentation/app_dimensions.dart';
+import '../../molecules/confirm_delete_dialog.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({Key? key}) : super(key: key);

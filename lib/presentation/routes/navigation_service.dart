@@ -7,9 +7,9 @@ class NavigationService {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   
   /// Navega a una ruta específica
-  static Future<T?> navigateTo<T>(
+  static Future<dynamic> navigateTo(
     String routeName, {
-    Object? arguments,
+    dynamic arguments,
   }) {
     return navigatorKey.currentState!.pushNamed(
       routeName,
@@ -37,7 +37,7 @@ class NavigationService {
   }
   
   /// Vuelve a la pantalla anterior
-  static void goBack<T>([T? result]) {
+  static void goBack([dynamic result]) {
     return navigatorKey.currentState!.pop(result);
   }
   

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/transaction_entry.dart';
 import '../../domain/entities/transaction_detail.dart';
+import '../../core/presentation/app_dimensions.dart';
+import '../atoms/action_menu_button.dart'; // Añadir esta importación
 
 class TransactionListItem extends StatelessWidget {
   final TransactionEntry transaction;
@@ -9,6 +11,7 @@ class TransactionListItem extends StatelessWidget {
   final String? contactName;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final VoidCallback? onEdit;
 
   const TransactionListItem({
     Key? key,
@@ -17,6 +20,7 @@ class TransactionListItem extends StatelessWidget {
     this.contactName,
     required this.onTap,
     required this.onDelete,
+    this.onEdit,
   }) : super(key: key);
 
   @override
@@ -35,7 +39,7 @@ class TransactionListItem extends StatelessWidget {
         backgroundColor = colorScheme.primaryContainer;
         textColor = colorScheme.primary;
         break;
-      case 'E': // Egreso/Gasto
+      case 'E': // Gasto
         icon = Icons.arrow_downward;
         backgroundColor = colorScheme.errorContainer;
         textColor = colorScheme.error;
@@ -46,29 +50,32 @@ class TransactionListItem extends StatelessWidget {
         textColor = colorScheme.tertiary;
         break;
       default:
-        icon = Icons.attach_money;
+        icon = Icons.receipt;
         backgroundColor = colorScheme.surfaceVariant;
         textColor = colorScheme.onSurfaceVariant;
     }
 
     return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 8),
+      elevation: 0, // Sin elevación para seguir Material Design 3
+      margin: const EdgeInsets.only(bottom: AppDimensions.spacing8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+        side: BorderSide(
+          color: colorScheme.outline.withOpacity(0.2),
+          width: 1,
+        ),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(AppDimensions.spacing16),
           child: Row(
             children: [
-              // Icono circular
+              // Icono de transacción
               Container(
-                width: 40,
-                height: 40,
+                width: AppDimensions.spacing40,
+                height: AppDimensions.spacing40,
                 decoration: BoxDecoration(
                   color: backgroundColor,
                   shape: BoxShape.circle,
@@ -80,9 +87,10 @@ class TransactionListItem extends StatelessWidget {
                     : (transaction.documentTypeId == 'I' 
                       ? colorScheme.onPrimaryContainer 
                       : colorScheme.onTertiaryContainer),
+                  size: AppDimensions.iconSizeSmall,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: AppDimensions.spacing16),
               
               // Información principal
               Expanded(
@@ -104,7 +112,7 @@ class TransactionListItem extends StatelessWidget {
                           color: colorScheme.primary,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: AppDimensions.spacing2),
                     ],
                     Text(
                       DateFormat('dd/MM/yyyy').format(transaction.date),
@@ -130,13 +138,26 @@ class TransactionListItem extends StatelessWidget {
                 ],
               ),
               
-              // Botón eliminar
-              IconButton(
-                onPressed: onDelete,
-                icon: Icon(
-                  Icons.delete_outline,
-                  color: colorScheme.error,
-                ),
+              // Reemplazar cualquier botón directo por ActionMenuButton
+              ActionMenuButton(
+                options: [
+                  ActionMenuOption.edit,
+                  ActionMenuOption.view,
+                  ActionMenuOption.delete,
+                ],
+                onOptionSelected: (option) {
+                  switch (option) {
+                    case ActionMenuOption.edit:
+                      if (onEdit != null) onEdit!();
+                      break;
+                    case ActionMenuOption.view:
+                      onTap();
+                      break;
+                    case ActionMenuOption.delete:
+                      onDelete();
+                      break;
+                  }
+                },
               ),
             ],
           ),

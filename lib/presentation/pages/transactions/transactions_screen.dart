@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-import '../../domain/entities/transaction_entry.dart';
-import '../../domain/usecases/transaction_usecases.dart';
-import '../../domain/usecases/category_usecases.dart';
-import '../../domain/usecases/contact_usecases.dart';
-import '../atoms/app_button.dart';
-import '../molecules/empty_state.dart';
-import '../molecules/search_field.dart';
-import '../molecules/date_filter_selector.dart';
-import '../organisms/app_drawer.dart';
-import '../organisms/transaction_list_section.dart';
-import '../routes/navigation_service.dart';
-import '../routes/app_routes.dart';
+import '../../../domain/entities/transaction_entry.dart';
+import '../../../domain/usecases/transaction_usecases.dart';
+import '../../../domain/usecases/category_usecases.dart';
+import '../../../domain/usecases/contact_usecases.dart';
+import '../../atoms/app_button.dart';
+import '../../molecules/empty_state.dart';
+import '../../molecules/search_field.dart';
+import '../../molecules/date_filter_selector.dart';
+import '../../molecules/confirm_delete_dialog.dart';
+import '../../organisms/app_drawer.dart';
+import '../../organisms/transaction_list_section.dart';
+import '../../organisms/transaction_list_view.dart';
+import '../../routes/navigation_service.dart';
+import '../../routes/app_routes.dart';
+import '../../../core/presentation/app_dimensions.dart';
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({Key? key}) : super(key: key);
@@ -191,8 +194,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
   }
 
   void _navigateToTransactionDetail(TransactionEntry transaction) async {
+    // Corregir la navegación asegurándose de usar la constante correcta de la ruta
     final result = await NavigationService.navigateTo(
-      AppRoutes.transactionDetail,
+      AppRoutes.transactionDetail, // Usar la constante de ruta correcta
       arguments: transaction
     );
 
@@ -202,25 +206,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
   }
 
   Future<void> _deleteTransaction(TransactionEntry transaction) async {
-    final confirmed = await showDialog<bool>(
+    // Reemplazar el AlertDialog directo con ConfirmDeleteDialog
+    final confirmed = await ConfirmDeleteDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar transacción'),
-        content: const Text('¿Estás seguro de eliminar esta transacción?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
+      title: 'Eliminar transacción',
+      message: '¿Estás seguro de eliminar',
+      itemName: transaction.description ?? 'esta transacción',
+      icon: Icons.receipt_long_outlined,
+      isDestructive: true,
     );
 
     if (confirmed == true) {
@@ -236,7 +229,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al eliminar: ${e.toString()}')),
+            SnackBar(
+              content: Text('Error al eliminar: ${e.toString()}'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
           );
         }
       }
@@ -269,6 +265,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
         title: const Text('Transacciones'),
         centerTitle: true,
         elevation: 0,
+        actions: [
+          // Agregamos un IconButton para el filtro de fechas que abrirá un diálogo
+          IconButton(
+            icon: Icon(
+              Icons.filter_list,
+              color: colorScheme.primary,
+            ),
+            onPressed: () => _showFilterDialog(context),
+            tooltip: 'Filtrar por fecha',
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -284,52 +291,114 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
         ),
       ),
       drawer: const AppDrawer(),
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator())
-        : _error != null
-          ? _buildErrorState()
-          : Column(
-              children: [
-                // Barra de búsqueda
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SearchField(
-                    controller: _searchController,
-                    hintText: 'Buscar transacciones',
-                    onChanged: (value) => setState(() => _searchQuery = value),
-                  ),
-                ),
-                
-                // Selector de filtro por fecha
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: DateFilterSelector(
-                    selectedFilter: _selectedFilter,
-                    startDate: _startDate,
-                    endDate: _endDate,
-                    onFilterChanged: _applyDateFilter,
-                    onCustomDateSelected: _selectCustomDateRange,
-                  ),
-                ),
-                
-                const SizedBox(height: 8),
-                
-                // Lista de transacciones
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: List.generate(4, (index) => 
-                      _buildTransactionsList(filteredTransactions)
-                    ),
-                  ),
-                ),
-              ],
+      body: Column(
+        children: [
+          // Barra de búsqueda
+          Padding(
+            padding: EdgeInsets.all(AppDimensions.spacing16),
+            child: SearchField(
+              controller: _searchController,
+              hintText: 'Buscar transacciones',
+              onChanged: (value) => setState(() => _searchQuery = value),
             ),
+          ),
+          
+          // Contenido principal
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                    ? _buildErrorState()
+                    : RefreshIndicator(
+                        onRefresh: _loadTransactions,
+                        child: filteredTransactions.isEmpty
+                            ? _buildEmptyState()
+                            : TransactionListView(
+                                transactions: filteredTransactions,
+                                categoriesMap: _categoriesMap,
+                                contactsMap: _contactsMap,
+                                onTransactionTap: _navigateToTransactionDetail,
+                                onTransactionDelete: _deleteTransaction,
+                                onTransactionEdit: (transaction) => 
+                                  _navigateToTransactionForm(transaction: transaction),
+                              ),
+                      ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToTransactionForm(),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
-        child: const Icon(Icons.add),
+        elevation: 2,
+        child: Icon(Icons.add, size: AppDimensions.iconSizeMedium),
+      ),
+    );
+  }
+  
+  // Método para mostrar diálogo de filtro
+  Future<void> _showFilterDialog(BuildContext context) async {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Filtrar por fecha'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text('Todas'),
+              leading: Radio<String>(
+                value: 'all',
+                groupValue: _selectedFilter,
+                onChanged: (value) {
+                  Navigator.pop(context);
+                  _applyDateFilter(value!);
+                },
+              ),
+            ),
+            ListTile(
+              title: Text('Este mes'),
+              leading: Radio<String>(
+                value: 'month',
+                groupValue: _selectedFilter,
+                onChanged: (value) {
+                  Navigator.pop(context);
+                  _applyDateFilter(value!);
+                },
+              ),
+            ),
+            ListTile(
+              title: Text('Esta semana'),
+              leading: Radio<String>(
+                value: 'week',
+                groupValue: _selectedFilter,
+                onChanged: (value) {
+                  Navigator.pop(context);
+                  _applyDateFilter(value!);
+                },
+              ),
+            ),
+            ListTile(
+              title: Text('Rango personalizado'),
+              leading: Radio<String>(
+                value: 'custom',
+                groupValue: _selectedFilter,
+                onChanged: (value) {
+                  Navigator.pop(context);
+                  _selectCustomDateRange();
+                },
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancelar'),
+          ),
+        ],
       ),
     );
   }
@@ -337,26 +406,26 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
   Widget _buildErrorState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(AppDimensions.spacing16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.error_outline,
-              size: 48,
+              size: AppDimensions.spacing48,
               color: Theme.of(context).colorScheme.error,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: AppDimensions.spacing16),
+            Text(
               'Error al cargar las transacciones',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppDimensions.spacing8),
             Text(_error ?? 'Error desconocido'),
-            const SizedBox(height: 24),
+            SizedBox(height: AppDimensions.spacing24),
             ElevatedButton(
               onPressed: _loadTransactions,
               child: const Text('Reintentar'),
@@ -367,57 +436,24 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
     );
   }
 
-  Widget _buildTransactionsList(List<TransactionEntry> transactions) {
-    if (transactions.isEmpty) {
-      return EmptyState(
-        icon: Icons.receipt_long_outlined,
-        title: 'No hay transacciones',
-        message: _searchQuery.isEmpty && _selectedFilter == 'all'
-          ? 'Crea una nueva transacción utilizando el botón "+"'
-          : 'No se encontraron transacciones con los filtros aplicados',
-        action: _searchQuery.isNotEmpty || _selectedFilter != 'all' ? AppButton(
-          text: 'Limpiar filtros',
-          onPressed: () {
-            _searchController.clear();
-            setState(() {
-              _searchQuery = '';
-              _applyDateFilter('all');
-            });
-          },
-          type: AppButtonType.text,
-        ) : null,
-      );
-    }
-
-    // Agrupar transacciones por fecha
-    final groupedTransactions = <String, List<TransactionEntry>>{};
-    for (final transaction in transactions) {
-      final dateString = DateFormat('yyyy-MM-dd').format(transaction.date);
-      if (!groupedTransactions.containsKey(dateString)) {
-        groupedTransactions[dateString] = [];
-      }
-      groupedTransactions[dateString]!.add(transaction);
-    }
-
-    final sortedDates = groupedTransactions.keys.toList()..sort((a, b) => b.compareTo(a));
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: sortedDates.length,
-      itemBuilder: (context, index) {
-        final dateString = sortedDates[index];
-        final date = DateTime.parse(dateString);
-        final transactionsForDate = groupedTransactions[dateString]!;
-        
-        return TransactionListSection(
-          title: DateFormat.yMMMMEEEEd('es').format(date),
-          transactions: transactionsForDate,
-          categoriesMap: _categoriesMap,
-          contactsMap: _contactsMap,
-          onTransactionTap: _navigateToTransactionDetail,
-          onTransactionDelete: _deleteTransaction,
-        );
-      },
+  Widget _buildEmptyState() {
+    return EmptyState(
+      icon: Icons.receipt_long_outlined,
+      title: 'No hay transacciones',
+      message: _searchQuery.isEmpty && _selectedFilter == 'all'
+        ? 'Crea una nueva transacción utilizando el botón "+"'
+        : 'No se encontraron transacciones con los filtros aplicados',
+      action: _searchQuery.isNotEmpty || _selectedFilter != 'all' ? AppButton(
+        text: 'Limpiar filtros',
+        onPressed: () {
+          _searchController.clear();
+          setState(() {
+            _searchQuery = '';
+            _applyDateFilter('all');
+          });
+        },
+        type: AppButtonType.text,
+      ) : null,
     );
   }
 }

@@ -174,10 +174,10 @@ class FormFieldContainer extends StatelessWidget {
       // Estilos adicionales para Material Design 3
       floatingLabelBehavior: FloatingLabelBehavior.auto,
       alignLabelWithHint: true,
-      isDense: true,
+      isDense: false,  // Cambiado a false para dar más espacio
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,
-        vertical: 16,
+        vertical: 20,  // Aumentado a 20 para más altura
       ),
       
       // Colores para los diferentes estados

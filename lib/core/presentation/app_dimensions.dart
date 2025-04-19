@@ -13,6 +13,7 @@ class AppDimensions {
   static const double spacing16 = 16.0;
   static const double spacing24 = 24.0;
   static const double spacing32 = 32.0;
+  static const double spacing40 = 40.0; // Añadir esta constante
   static const double spacing48 = 48.0;
   
   // Radios de bordes

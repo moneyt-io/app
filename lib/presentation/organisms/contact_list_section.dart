@@ -7,6 +7,8 @@ class ContactListSection extends StatelessWidget {
   final List<Contact> contacts;
   final Function(Contact) onContactTap;
   final Function(Contact) onContactDelete;
+  final Function(Contact)? onContactCall;
+  final Function(Contact)? onContactEmail;
 
   const ContactListSection({
     Key? key,
@@ -14,6 +16,8 @@ class ContactListSection extends StatelessWidget {
     required this.contacts,
     required this.onContactTap,
     required this.onContactDelete,
+    this.onContactCall,
+    this.onContactEmail,
   }) : super(key: key);
 
   @override
@@ -43,7 +47,7 @@ class ContactListSection extends StatelessWidget {
             return ContactListItem(
               contact: contact,
               onTap: () => onContactTap(contact),
-              onDelete: onContactDelete,
+              onDelete: () => onContactDelete(contact),
             );
           },
         ),

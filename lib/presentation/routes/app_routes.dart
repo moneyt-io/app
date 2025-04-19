@@ -3,15 +3,20 @@
 /// Esta clase contiene únicamente constantes que identifican las rutas,
 /// sin lógica de navegación.
 class AppRoutes {
-  // Screen routes
+  // Rutas principales
   static const String home = '/';
-  // Cambiamos la ruta de 'accounts' a 'wallets'
+  static const String login = '/login';
+  static const String register = '/register';
+  
+  // Transacciones
+  static const String transactions = '/transactions';
+  static const String transactionForm = '/transaction-form';
+  static const String transactionDetail = '/transaction-detail'; // Asegúrate de que esta ruta exista
+
+  // Screen routes
   static const String wallets = '/wallets';
   static const String walletForm = '/wallets/form';
   static const String creditCards = '/credit-cards';
-  static const String transactions = '/transactions';
-  static const String transactionForm = '/transactions/form';
-  static const String transactionDetail = '/transactions/detail'; // Nueva ruta añadida
   static const String categories = '/categories';
   static const String categoryForm = '/categories/form';
   static const String contacts = '/contacts';
@@ -25,7 +30,6 @@ class AppRoutes {
   
   // Auth routes
   static const String welcome = '/welcome';
-  static const String login = '/login';
   static const String backup = '/backup';
   static const String transactionDetails = '/transaction-details';
 }

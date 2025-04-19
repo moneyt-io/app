@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as device_contacts;
 import 'package:get_it/get_it.dart';
-import '../../domain/entities/contact.dart';
-import '../../domain/usecases/contact_usecases.dart';
-import '../atoms/app_button.dart';
-import '../molecules/empty_state.dart';
-import '../molecules/search_field.dart';
-import '../organisms/app_drawer.dart';
-import '../organisms/contact_list_section.dart';
-import '../routes/navigation_service.dart';
-import '../routes/app_routes.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../core/presentation/app_dimensions.dart';
+import '../../../domain/entities/contact.dart';
+import '../../../domain/usecases/contact_usecases.dart';
+import '../../atoms/app_button.dart';
+import '../../molecules/empty_state.dart';
+import '../../molecules/search_field.dart';
+import '../../organisms/app_drawer.dart';
+import '../../organisms/contact_list_section.dart';
+import '../../routes/navigation_service.dart';
+import '../../routes/app_routes.dart';
+import '../../molecules/confirm_delete_dialog.dart'; // Añadir esta importación
+import '../../organisms/contact_list_view.dart';
 
 // Eliminamos la lista de datos mock ya que usaremos datos reales
 
@@ -107,27 +111,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   Future<void> _deleteContact(Contact contact) async {
-    final confirmed = await showDialog<bool>(
+    // Reemplazar el AlertDialog directo con ConfirmDeleteDialog
+    final confirmed = await ConfirmDeleteDialog.show(
       context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Eliminar contacto'),
-          content: const Text('¿Estás seguro de que deseas eliminar este contacto?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
-              ),
-              child: const Text('Eliminar'),
-            ),
-          ],
-        );
-      },
+      title: 'Eliminar contacto',
+      message: '¿Estás seguro de que deseas eliminar',
+      itemName: contact.name,
+      icon: Icons.person_outline,
+      isDestructive: true,
     );
 
     if (confirmed == true && mounted) {
@@ -136,11 +127,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Contacto eliminado con éxito'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+            const SnackBar(
+              content: Text('Contacto eliminado con éxito'),
+              backgroundColor: Colors.green,
             ),
           );
+          
           _loadContacts(); // Recargar contactos después de eliminar
         }
       } catch (e) {
@@ -179,19 +171,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
         title: const Text('Contactos'),
         centerTitle: true,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadContacts,
-            tooltip: 'Actualizar',
-          ),
-        ],
+        // Eliminamos el botón de recargar
       ),
       drawer: const AppDrawer(),
       body: Column(
         children: [
+          // Barra de búsqueda
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: const EdgeInsets.all(AppDimensions.spacing16),
             child: SearchField(
               controller: _searchController,
               hintText: 'Buscar contactos',
@@ -202,9 +189,23 @@ class _ContactsScreenState extends State<ContactsScreen> {
               },
             ),
           ),
-          const SizedBox(height: 8),
+          
+          // Cuerpo principal
           Expanded(
-            child: _buildContent(filteredContacts),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                    ? _buildErrorState()
+                    : RefreshIndicator(
+                        onRefresh: _refreshContacts,
+                        child: filteredContacts.isEmpty
+                            ? _buildEmptyState()
+                            : ContactListView(
+                                contacts: filteredContacts,
+                                onContactTap: _navigateToContactForm,
+                                onContactDelete: _deleteContact,
+                              ),
+                      ),
           ),
         ],
       ),
@@ -303,8 +304,113 @@ class _ContactsScreenState extends State<ContactsScreen> {
           contacts: contactsInGroup,
           onContactTap: (contact) => _navigateToForm(contact: contact),
           onContactDelete: _deleteContact,
+          onContactCall: _handleCallContact,
+          onContactEmail: _handleEmailContact,
         );
       },
+    );
+  }
+
+  // Agregamos métodos para manejar las acciones de contactos
+  Future<void> _handleCallContact(Contact contact) async {
+    if (contact.phone == null || contact.phone!.isEmpty) return;
+    
+    final phoneUri = Uri.parse('tel:${contact.phone}');
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No se puede iniciar la llamada: ${contact.phone}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+  
+  Future<void> _handleEmailContact(Contact contact) async {
+    if (contact.email == null || contact.email!.isEmpty) return;
+    
+    final emailUri = Uri.parse('mailto:${contact.email}');
+    if (await canLaunchUrl(emailUri)) {
+      await launchUrl(emailUri);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No se puede abrir el correo: ${contact.email}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  // Añadir esta función que falta para mostrar el estado de error
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: AppDimensions.iconSizeXLarge,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          const SizedBox(height: AppDimensions.spacing16),
+          Text(
+            'Error al cargar contactos',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: AppDimensions.spacing8),
+          Text(_error ?? 'Error desconocido'),
+          const SizedBox(height: AppDimensions.spacing24),
+          AppButton(
+            text: 'Reintentar',
+            onPressed: _loadContacts,
+            type: AppButtonType.primary,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Añadir este método para el refresh (es un alias de _loadContacts)
+  Future<void> _refreshContacts() async {
+    return _loadContacts();
+  }
+
+  // Añadir este método para navegar al formulario de contacto (alias para _navigateToForm)
+  void _navigateToContactForm(Contact contact) {
+    _navigateToForm(contact: contact);
+  }
+
+  // Añadir este método para mostrar el estado vacío
+  Widget _buildEmptyState() {
+    return ListView(
+      children: [
+        EmptyState(
+          icon: Icons.people_outline,
+          title: _searchQuery.isEmpty 
+              ? 'No hay contactos' 
+              : 'No hay resultados',
+          message: _searchQuery.isEmpty 
+              ? 'Añade tu primer contacto para comenzar' 
+              : 'No se encontraron contactos que coincidan con "$_searchQuery"',
+          action: _searchQuery.isNotEmpty ? AppButton(
+            text: 'Limpiar búsqueda',
+            onPressed: () {
+              _searchController.clear();
+              setState(() {
+                _searchQuery = '';
+              });
+            },
+            type: AppButtonType.text,
+          ) : null,
+        ),
+      ],
     );
   }
 }

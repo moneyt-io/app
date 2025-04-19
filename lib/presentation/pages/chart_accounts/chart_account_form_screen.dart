@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import '../../domain/entities/accounting_type.dart';
-import '../../domain/entities/chart_account.dart';
-import '../../domain/usecases/chart_account_usecases.dart';
-import '../atoms/app_button.dart';
-import '../molecules/form_field_container.dart';
-import '../routes/navigation_service.dart';
+import '../../../domain/entities/accounting_type.dart';
+import '../../../domain/entities/chart_account.dart';
+import '../../../domain/usecases/chart_account_usecases.dart';
+import '../../atoms/app_button.dart';
+import '../../molecules/form_field_container.dart';
+import '../../routes/navigation_service.dart';
 
 class ChartAccountFormScreen extends StatefulWidget {
   final ChartAccount? account;

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as device_contacts;
 import 'package:get_it/get_it.dart';
-import '../../domain/entities/contact.dart';
-import '../../domain/usecases/contact_usecases.dart';
-import '../atoms/app_button.dart';
-import '../molecules/form_field_container.dart';
-import '../routes/navigation_service.dart';
+import '../../../domain/entities/contact.dart';
+import '../../../domain/usecases/contact_usecases.dart';
+import '../../atoms/app_button.dart';
+import '../../molecules/form_field_container.dart';
+import '../../routes/navigation_service.dart';
 
 class ContactFormScreen extends StatefulWidget {
   final Contact? contact;
@@ -258,13 +258,13 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                     FormFieldContainer(
                       child: TextFormField(
                         controller: _nameController,
-                        decoration: InputDecoration(
+                        decoration: FormFieldContainer.getOutlinedDecoration(
+                          context,
                           labelText: 'Nombre',
                           prefixIcon: Icon(
                             Icons.person_outline_rounded,
-                            color: colorScheme.onSurfaceVariant,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                          border: InputBorder.none,
                         ),
                         textInputAction: TextInputAction.next,
                         validator: (value) {
@@ -281,13 +281,13 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                     FormFieldContainer(
                       child: TextFormField(
                         controller: _emailController,
-                        decoration: InputDecoration(
+                        decoration: FormFieldContainer.getOutlinedDecoration(
+                          context,
                           labelText: 'Email',
                           prefixIcon: Icon(
                             Icons.email_outlined,
-                            color: colorScheme.onSurfaceVariant,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                          border: InputBorder.none,
                         ),
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
@@ -307,13 +307,13 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                     FormFieldContainer(
                       child: TextFormField(
                         controller: _phoneController,
-                        decoration: InputDecoration(
+                        decoration: FormFieldContainer.getOutlinedDecoration(
+                          context,
                           labelText: 'Teléfono',
                           prefixIcon: Icon(
                             Icons.phone_outlined,
-                            color: colorScheme.onSurfaceVariant,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                          border: InputBorder.none,
                         ),
                         keyboardType: TextInputType.phone,
                         textInputAction: TextInputAction.next,
@@ -325,13 +325,13 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                     FormFieldContainer(
                       child: TextFormField(
                         controller: _noteController,
-                        decoration: InputDecoration(
+                        decoration: FormFieldContainer.getOutlinedDecoration(
+                          context,
                           labelText: 'Notas',
                           prefixIcon: Icon(
                             Icons.note_outlined,
-                            color: colorScheme.onSurfaceVariant,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                          border: InputBorder.none,
                         ),
                         maxLines: 3,
                       ),

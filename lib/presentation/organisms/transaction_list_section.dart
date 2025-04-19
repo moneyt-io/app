@@ -23,6 +23,9 @@ class TransactionListSection extends StatelessWidget {
   /// Función a ejecutar al eliminar una transacción
   final Function(TransactionEntry) onTransactionDelete;
 
+  /// Función a ejecutar al editar una transacción
+  final Function(TransactionEntry)? onTransactionEdit;
+
   const TransactionListSection({
     Key? key,
     required this.title,
@@ -31,6 +34,7 @@ class TransactionListSection extends StatelessWidget {
     this.contactsMap,
     required this.onTransactionTap,
     required this.onTransactionDelete,
+    this.onTransactionEdit,
   }) : super(key: key);
 
   @override
@@ -63,6 +67,9 @@ class TransactionListSection extends StatelessWidget {
                 : null,
             onTap: () => onTransactionTap(transaction),
             onDelete: () => onTransactionDelete(transaction),
+            onEdit: onTransactionEdit != null 
+                ? () => onTransactionEdit!(transaction)
+                : null,
           ),
         )),
       ],

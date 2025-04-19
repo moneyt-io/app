@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/contact.dart';
+import '../../core/presentation/app_dimensions.dart';
+import '../atoms/action_menu_button.dart';
 
 class ContactListItem extends StatelessWidget {
   final Contact contact;
   final VoidCallback onTap;
-  final Function(Contact) onDelete;
+  final VoidCallback onDelete;
+  final VoidCallback? onEdit;
+  // Añadir estos parámetros si son necesarios:
+  final VoidCallback? onCall;
+  final VoidCallback? onEmail;
 
   const ContactListItem({
     Key? key,
     required this.contact,
     required this.onTap,
     required this.onDelete,
+    this.onEdit,
+    this.onCall,
+    this.onEmail,
   }) : super(key: key);
 
   @override
@@ -20,9 +29,9 @@ class ContactListItem extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: AppDimensions.spacing8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
         side: BorderSide(
           color: colorScheme.outline.withOpacity(0.2),
           width: 1,
@@ -30,31 +39,28 @@ class ContactListItem extends StatelessWidget {
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppDimensions.spacing16),
           child: Row(
             children: [
+              // Icono con fondo circular
               Container(
-                width: 48,
-                height: 48,
+                width: AppDimensions.spacing40,
+                height: AppDimensions.spacing40,
                 decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
+                  color: colorScheme.primaryContainer,
                   shape: BoxShape.circle,
                 ),
-                child: Center(
-                  child: Text(
-                    contact.name.isNotEmpty 
-                        ? contact.name[0].toUpperCase() 
-                        : '?',
-                    style: textTheme.titleLarge?.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                child: Icon(
+                  Icons.person,
+                  color: colorScheme.onPrimaryContainer,
+                  size: AppDimensions.iconSizeMedium,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppDimensions.spacing16),
+              
+              // Información principal
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,25 +70,71 @@ class ContactListItem extends StatelessWidget {
                       style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    if (contact.email != null || contact.phone != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        contact.email ?? contact.phone ?? '',
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                    if (contact.email != null && contact.email!.isNotEmpty) ...[
+                      const SizedBox(height: AppDimensions.spacing4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.email_outlined,
+                            size: AppDimensions.iconSizeSmall,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: AppDimensions.spacing4),
+                          Text(
+                            contact.email!,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (contact.phone != null && contact.phone!.isNotEmpty) ...[
+                      const SizedBox(height: AppDimensions.spacing4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.phone_outlined,
+                            size: AppDimensions.iconSizeSmall,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: AppDimensions.spacing4),
+                          Text(
+                            contact.phone!,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ],
                 ),
               ),
-              IconButton(
-                onPressed: () => onDelete(contact),
-                icon: Icon(
-                  Icons.delete_outline_rounded,
-                  color: colorScheme.error,
-                ),
+              
+              // Menú de acciones usando el átomo
+              ActionMenuButton(
+                options: [
+                  ActionMenuOption.edit,
+                  ActionMenuOption.view,
+                  ActionMenuOption.delete,
+                ],
+                onOptionSelected: (option) {
+                  switch (option) {
+                    case ActionMenuOption.edit:
+                      if (onEdit != null) onEdit!();
+                      break;
+                    case ActionMenuOption.view:
+                      onTap();
+                      break;
+                    case ActionMenuOption.delete:
+                      onDelete();
+                      break;
+                  }
+                },
               ),
             ],
           ),
