@@ -1,77 +1,110 @@
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:injectable/injectable.dart';
+import 'package:flutter/material.dart'; // Necesario para TimeOfDay
+import 'package:injectable/injectable.dart'; // Asumiendo que usas injectable
 import '../../domain/repositories/backup_repository.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-@lazySingleton
+/// Servicio para orquestar las operaciones de copia de seguridad.
+///
+/// Actúa como una fachada sobre [BackupRepository], simplificando la
+/// interacción desde la capa de presentación (Providers).
+@lazySingleton // Registrar como Singleton si usas injectable
 class BackupService {
   final BackupRepository _repository;
-  final SharedPreferences _prefs;
-  static const String _backupPathKey = 'backup_path';
-  static const int maxBackups = 5;
 
-  BackupService(this._repository, this._prefs);
+  BackupService(this._repository);
 
-  Future<String> get currentBackupPath async {
-    final appDir = await getApplicationDocumentsDirectory();
-    return _prefs.getString(_backupPathKey) ?? '${appDir.path}/backups';
-  }
-
-  Future<void> setBackupPath(String path) async {
-    await _prefs.setString(_backupPathKey, path);
-  }
-
-  Future<void> resetBackupPath() async {
-    await _prefs.remove(_backupPathKey);
-  }
-
-  Future<void> createAndShareBackup() async {
-    final backup = await _repository.createBackup();
-    await _repository.shareBackup(backup);
-    await _cleanOldBackups();
-  }
-
-  Future<void> _cleanOldBackups() async {
-    final backups = await _repository.listBackups();
-    if (backups.length > maxBackups) {
-      final toDelete = backups.sublist(maxBackups);
-      for (var file in toDelete) {
-        await _repository.deleteBackup(file);
-      }
+  /// Crea una nueva copia de seguridad.
+  Future<File> createBackup() async {
+    try {
+      return await _repository.createBackup();
+    } catch (e) {
+      // Podrías añadir logging aquí
+      rethrow; // Relanzar la excepción para que el Provider la maneje
     }
   }
 
-  Future<void> importBackup({
-    required Uint8List bytes, 
-    required String fileName,
+  /// Restaura la base de datos desde un archivo de backup.
+  /// **Importante:** La UI debe manejar la necesidad de reiniciar/recargar datos.
+  Future<void> restoreBackup(File backupFile) async {
+    try {
+      await _repository.restoreBackup(backupFile);
+      // Considerar añadir un evento/callback para indicar que la restauración terminó
+      // y que la base de datos necesita ser reinicializada.
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Obtiene la lista de archivos de backup disponibles.
+  Future<List<File>> listBackups() async {
+    try {
+      return await _repository.listBackups();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Elimina un archivo de backup específico.
+  Future<void> deleteBackup(File backupFile) async {
+    try {
+      await _repository.deleteBackup(backupFile);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Comparte un archivo de backup.
+  Future<void> shareBackup(File backupFile) async {
+    try {
+      await _repository.shareBackup(backupFile);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Importa un archivo de backup seleccionado por el usuario.
+  Future<File?> importBackupFromFile() async {
+    try {
+      return await _repository.importBackup();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Configura los ajustes para las copias de seguridad automáticas.
+  Future<void> configureAutomaticBackup({
+    required bool enabled,
+    required Duration frequency,
+    TimeOfDay? scheduledTime,
+    int? retentionDays,
   }) async {
     try {
-      // Crear un archivo temporal con el nombre original
-      final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/$fileName');
-      
-      // Escribir los bytes al archivo temporal
-      await tempFile.writeAsBytes(bytes);
-      
-      // Realizar la restauración usando el archivo temporal
-      await _repository.restoreBackup(tempFile);
-      
-      // Limpiar el archivo temporal
-      if (await tempFile.exists()) {
-        await tempFile.delete();
-      }
+      await _repository.configureAutomaticBackup(
+        enabled: enabled,
+        frequency: frequency,
+        scheduledTime: scheduledTime,
+        retentionDays: retentionDays,
+      );
     } catch (e) {
-      throw Exception('Error al importar el respaldo: $e');
+      rethrow;
     }
   }
 
-  Future<List<File>> listBackups() => _repository.listBackups();
-  
-  Future<void> restoreBackup(File backup) => _repository.restoreBackup(backup);
-  
-  Future<void> deleteBackup(File backup) => _repository.deleteBackup(backup);
-  
-  Future<void> shareBackup(File backupFile) => _repository.shareBackup(backupFile);
+  /// Obtiene la configuración actual de las copias de seguridad.
+  Future<BackupSettings> getBackupSettings() async {
+    try {
+      return await _repository.getBackupSettings();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Obtiene los metadatos de un archivo de backup específico.
+  Future<BackupMetadata> getBackupMetadata(File backupFile) async {
+    try {
+      return await _repository.getBackupMetadata(backupFile);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

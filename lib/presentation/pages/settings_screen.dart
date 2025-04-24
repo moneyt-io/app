@@ -6,6 +6,7 @@ import '../molecules/theme_switcher.dart';
 import '../organisms/settings_section.dart';
 import '../organisms/account_section.dart';
 import '../organisms/app_drawer.dart';
+import '../routes/app_routes.dart'; // Importar las rutas
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -83,6 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   // Navegación a la pantalla de respaldos
+                  Navigator.pushNamed(context, AppRoutes.backups);
                 },
               ),
             ],

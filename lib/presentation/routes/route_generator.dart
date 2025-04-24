@@ -18,6 +18,7 @@ import '../pages/chart_accounts/chart_account_form_screen.dart';
 import '../pages/wallets/wallets_screen.dart';
 import '../pages/wallets/wallet_form_screen.dart';
 import '../pages/transactions/transaction_detail_screen.dart'; // Importar la pantalla de detalles
+import '../pages/backup_screen.dart'; // Importar la pantalla de respaldos
 import './app_routes.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/entities/category.dart';
@@ -174,6 +175,12 @@ class RouteGenerator {
             builder: (_) => const JournalsScreen(),
           );
         }
+
+      // Añadir caso para la ruta de respaldos
+      case AppRoutes.backups:
+        return MaterialPageRoute(
+          builder: (_) => const BackupScreen(),
+        );
       
       // En el futuro, agregar las demás rutas aquí
       
