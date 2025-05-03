@@ -15,6 +15,7 @@ class WalletRepositoryImpl implements WalletRepository {
     final wallets = await _dao.getAllWallets();
     return wallets.map((wallet) => WalletModel(
       id: wallet.id,
+      parentId: wallet.parentId,
       currencyId: wallet.currencyId,
       chartAccountId: wallet.chartAccountId,
       name: wallet.name,
@@ -31,6 +32,7 @@ class WalletRepositoryImpl implements WalletRepository {
     return _dao.watchAllWallets().map(
       (wallets) => wallets.map((wallet) => WalletModel(
         id: wallet.id,
+        parentId: wallet.parentId,
         currencyId: wallet.currencyId,
         chartAccountId: wallet.chartAccountId,
         name: wallet.name,
@@ -53,6 +55,7 @@ class WalletRepositoryImpl implements WalletRepository {
     }
     return WalletModel(
       id: createdWallet.id,
+      parentId: createdWallet.parentId,
       currencyId: createdWallet.currencyId,
       chartAccountId: createdWallet.chartAccountId,
       name: createdWallet.name,
@@ -80,6 +83,7 @@ class WalletRepositoryImpl implements WalletRepository {
     
     return WalletModel(
       id: wallet.id,
+      parentId: wallet.parentId,
       currencyId: wallet.currencyId,
       chartAccountId: wallet.chartAccountId,
       name: wallet.name,
@@ -89,5 +93,22 @@ class WalletRepositoryImpl implements WalletRepository {
       updatedAt: wallet.updatedAt,
       deletedAt: wallet.deletedAt,
     ).toEntity();
+  }
+
+  @override
+  Future<List<Wallet>> getWalletsByParent(int parentId) async {
+    final wallets = await _dao.getWalletsByParent(parentId);
+    return wallets.map((wallet) => WalletModel(
+      id: wallet.id,
+      parentId: wallet.parentId,
+      currencyId: wallet.currencyId,
+      chartAccountId: wallet.chartAccountId,
+      name: wallet.name,
+      description: wallet.description,
+      active: wallet.active,
+      createdAt: wallet.createdAt,
+      updatedAt: wallet.updatedAt,
+      deletedAt: wallet.deletedAt,
+    ).toEntity()).toList();
   }
 }

@@ -5,7 +5,6 @@ import '../../../domain/usecases/category_usecases.dart';
 import '../../atoms/app_button.dart';
 import '../../molecules/empty_state.dart';
 import '../../molecules/search_field.dart';
-import '../../molecules/category_filter_chip.dart';
 import '../../organisms/app_drawer.dart';
 import '../../organisms/category_list_view.dart';
 import '../../routes/navigation_service.dart';

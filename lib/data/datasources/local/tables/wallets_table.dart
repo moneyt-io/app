@@ -6,6 +6,7 @@ import 'chart_accounts_table.dart';
 class Wallet extends Table {
   // Relational fields
   IntColumn get id => integer().autoIncrement()();
+  IntColumn get parentId => integer().nullable().references(Wallet, #id)(); // Added parentId
   TextColumn get currencyId => text().withLength(min: 3, max: 3).references(Currency, #id)();
   IntColumn get chartAccountId => integer().references(ChartAccount, #id)();
   

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import '../../../domain/entities/journal_entry.dart';
 import '../../../domain/usecases/journal_usecases.dart';
 import '../../atoms/app_button.dart';

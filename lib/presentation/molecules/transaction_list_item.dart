@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/transaction_entry.dart';
-import '../../domain/entities/transaction_detail.dart';
 import '../../core/presentation/app_dimensions.dart';
 import '../atoms/action_menu_button.dart'; // Añadir esta importación
 

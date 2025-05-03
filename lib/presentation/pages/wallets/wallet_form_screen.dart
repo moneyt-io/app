@@ -8,7 +8,6 @@ import '../../atoms/app_button.dart';
 import '../../../core/presentation/app_dimensions.dart';
 import '../../molecules/error_message_card.dart';
 import '../../molecules/form_field_container.dart';
-import '../../molecules/form_submit_button.dart';
 import '../../routes/navigation_service.dart';
 
 class WalletFormScreen extends StatefulWidget {
@@ -25,11 +24,14 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   String _selectedCurrency = 'USD';
-  
+  int? _selectedParentId;
+  List<Wallet> _parentWallets = [];
+
   bool _isLoading = false;
   bool _isChartAccountsLoading = true;
+  bool _isParentWalletsLoading = true;
   String? _error;
-  
+
   ChartAccount? _associatedChartAccount;
 
   bool get isEditing => widget.wallet != null;
@@ -50,7 +52,8 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
     _walletUseCases = GetIt.instance<WalletUseCases>();
     _chartAccountUseCases = GetIt.instance<ChartAccountUseCases>();
     _initializeFormData();
-    
+    _loadParentWallets();
+
     if (isEditing) {
       _loadAssociatedChartAccount();
     } else {
@@ -92,6 +95,33 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
       _nameController.text = wallet.name;
       _descriptionController.text = wallet.description ?? '';
       _selectedCurrency = wallet.currencyId;
+      _selectedParentId = wallet.parentId;
+    }
+  }
+
+  Future<void> _loadParentWallets() async {
+    try {
+      setState(() {
+        _isParentWalletsLoading = true;
+      });
+      final allWallets = await _walletUseCases.getAllWallets();
+      final potentialParents = allWallets
+          .where((w) => !isEditing || w.id != widget.wallet!.id)
+          .toList();
+
+      if (mounted) {
+        setState(() {
+          _parentWallets = potentialParents;
+          _isParentWalletsLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Error al cargar billeteras padre: $e';
+          _isParentWalletsLoading = false;
+        });
+      }
     }
   }
 
@@ -117,6 +147,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
         // Actualización de wallet existente
         final wallet = Wallet(
           id: widget.wallet!.id,
+          parentId: _selectedParentId,
           currencyId: _selectedCurrency,
           chartAccountId: widget.wallet!.chartAccountId, // Mantener la cuenta existente
           name: _nameController.text.trim(),
@@ -143,6 +174,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
       } else {
         // Creación de nueva wallet con generación automática de cuenta contable
         final wallet = await _walletUseCases.createWalletWithAccount(
+          parentId: _selectedParentId,
           name: _nameController.text.trim(),
           description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
           currencyId: _selectedCurrency,
@@ -185,7 +217,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
         centerTitle: true,
         elevation: 0,
       ),
-      body: _isChartAccountsLoading
+      body: _isChartAccountsLoading || _isParentWalletsLoading
           ? const Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
@@ -270,6 +302,43 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
                             _selectedCurrency = value;
                           });
                         }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: AppDimensions.spacing16),
+
+                  // Billetera Padre (opcional)
+                  FormFieldContainer(
+                    isOptional: true,
+                    child: DropdownButtonFormField<int?>(
+                      value: _selectedParentId,
+                      isExpanded: true,
+                      alignment: AlignmentDirectional.centerStart,
+                      itemHeight: 60,
+                      decoration: FormFieldContainer.getOutlinedDecoration(
+                        context,
+                        labelText: 'Billetera Padre',
+                        prefixIcon: Icon(
+                          Icons.account_tree_outlined,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      items: [
+                        const DropdownMenuItem<int?>(
+                          value: null,
+                          child: Text('Ninguna (Billetera Raíz)'),
+                        ),
+                        ..._parentWallets.map((wallet) {
+                          return DropdownMenuItem<int?>(
+                            value: wallet.id,
+                            child: Text(wallet.name),
+                          );
+                        }).toList(),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedParentId = value;
+                        });
                       },
                     ),
                   ),

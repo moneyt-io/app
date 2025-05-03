@@ -4,6 +4,7 @@ import '../datasources/local/database.dart';
 
 class WalletModel {
   final int id;
+  final int? parentId; // Added parentId
   final String currencyId;
   final int chartAccountId;
   final String name;
@@ -15,6 +16,7 @@ class WalletModel {
 
   WalletModel({
     required this.id,
+    this.parentId, // Added parentId
     required this.currencyId,
     required this.chartAccountId,
     required this.name,
@@ -27,6 +29,7 @@ class WalletModel {
 
   // Constructor para nuevas wallets
   WalletModel.create({
+    this.parentId, // Added parentId
     required this.currencyId,
     required this.chartAccountId,
     required this.name,
@@ -41,6 +44,7 @@ class WalletModel {
   // Convertir a Companion para Drift
   WalletsCompanion toCompanion() => WalletsCompanion(
     id: id == 0 ? const Value.absent() : Value(id),
+    parentId: Value(parentId), // Added parentId
     currencyId: Value(currencyId),
     chartAccountId: Value(chartAccountId),
     name: Value(name),
@@ -54,6 +58,7 @@ class WalletModel {
   // Conversión desde/hacia Domain Entity
   Wallet toEntity() => Wallet(
     id: id,
+    parentId: parentId, // Added parentId
     currencyId: currencyId,
     chartAccountId: chartAccountId,
     name: name,
@@ -66,6 +71,7 @@ class WalletModel {
 
   factory WalletModel.fromEntity(Wallet entity) => WalletModel(
     id: entity.id,
+    parentId: entity.parentId, // Added parentId
     currencyId: entity.currencyId,
     chartAccountId: entity.chartAccountId,
     name: entity.name,

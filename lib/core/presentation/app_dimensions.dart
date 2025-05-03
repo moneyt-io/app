@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 
 /// Clase que define dimensiones estandarizadas para toda la aplicación.
 /// 

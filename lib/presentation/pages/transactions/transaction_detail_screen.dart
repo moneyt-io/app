@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import '../../../domain/entities/transaction_entry.dart';
-import '../../../domain/entities/transaction_detail.dart';
 import '../../../domain/entities/category.dart';
 import '../../../domain/entities/contact.dart';
 import '../../../domain/entities/wallet.dart';

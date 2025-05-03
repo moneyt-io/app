@@ -148,7 +148,7 @@ b) Categorías:
 
 c) Cuentas Bancarias y Efectvo:
    - Tabla wallets:
-     SELECT id, currency_id, chart_account_id, name, description, active, created_at, updated_at, deleted_at
+     SELECT id, parent_id, currency_id, chart_account_id, name, description, active, created_at, updated_at, deleted_at
      FROM wallets;
 
 d) Tarjetas de Crédito:

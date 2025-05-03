@@ -130,38 +130,57 @@ class ChartAccountRepositoryImpl implements ChartAccountRepository {
 
   @override
   Future<ChartAccount> generateAccountForCategory(String name, String accountingTypeId, {int? parentId}) async {
-    // 1. Determinar el nivel y código basado en el padre (si existe)
-    int level = 1;
-    String codePrefix = '';
-    
-    // Convertir el ID de tipo de cuenta a formato numérico
-    final numericTypeId = _accountingTypeNumberMap[accountingTypeId] ?? accountingTypeId;
-    
-    if (parentId != null) {
-      final parentAccount = await getChartAccountById(parentId);
-      if (parentAccount != null) {
-        level = parentAccount.level + 1;
-        codePrefix = '${parentAccount.code}.';
-      }
+    int? parentChartAccountId = parentId; // Renombrar para claridad interna
+    int level;
+    String codePrefix;
+    String numericTypeId; // Necesario para el código raíz
+
+    // Determinar el tipo numérico y la cuenta base si no hay padre
+    // *** CORRECCIÓN: Usar los valores string literales en los case ***
+    switch (accountingTypeId) {
+      case 'As': numericTypeId = '1'; break; // Assets
+      case 'Li': numericTypeId = '2'; break; // Liabilities
+      case 'Eq': numericTypeId = '3'; break; // Equity
+      case 'In': numericTypeId = '4'; break; // Income
+      case 'Ex': numericTypeId = '5'; break; // Expenses
+      default: throw Exception('Tipo de cuenta desconocido: $accountingTypeId');
     }
-    
-    // 2. Obtener el próximo número disponible para este tipo de cuenta
-    final accountsOfType = await getChartAccountsByType(accountingTypeId);
-    final sameLevelAccounts = accountsOfType
-        .where((a) => a.level == level && (parentId == null ? a.parentId == null : a.parentId == parentId))
-        .toList();
-    final nextNumber = sameLevelAccounts.length + 1;
-    
-    // 3. Generar el código completo - Ahora usando el ID numérico
-    final code = parentId == null 
-        ? '$numericTypeId$nextNumber' 
-        : '$codePrefix$nextNumber';
-    
-    // 4. Crear la nueva cuenta contable
+
+    if (parentChartAccountId == null) {
+      // Buscar cuenta raíz del tipo correspondiente (ej. '1' para Activos)
+      // *** CORRECCIÓN: Usar getChartAccountsByCode y manejar la lista ***
+      final baseAccounts = await _dao.getChartAccountsByCode(numericTypeId);
+      if (baseAccounts.isEmpty) { // Verificar si la lista está vacía
+        throw Exception('Cuenta base $numericTypeId no encontrada.');
+      }
+      final baseAccount = baseAccounts.first; // Tomar el primer (y único esperado) elemento
+
+      parentChartAccountId = baseAccount.id;
+      level = baseAccount.level + 1; // Nivel justo debajo de la raíz del tipo
+      codePrefix = '$numericTypeId.'; // Prefijo para cuentas raíz de este tipo
+    } else {
+      // Obtener cuenta padre para determinar nivel y prefijo
+      final parentAccount = await _dao.getChartAccountById(parentChartAccountId);
+      if (parentAccount == null) {
+        throw Exception('Cuenta padre contable con ID $parentChartAccountId no encontrada.');
+      }
+      level = parentAccount.level + 1;
+      codePrefix = '${parentAccount.code}.';
+    }
+
+    // Obtener el próximo número disponible bajo el padre contable determinado
+    final siblings = await _dao.getChildAccounts(parentChartAccountId);
+    final nextNumber = siblings.length + 1;
+
+    // Generar el código completo
+    // Usar codePrefix que ya incluye el punto si es necesario
+    final code = '$codePrefix$nextNumber';
+
+    // Crear la nueva cuenta contable
     final now = DateTime.now();
-    final newAccount = ChartAccount(
-      id: 0, // Se generará automáticamente
-      parentId: parentId,
+    final newAccountEntity = ChartAccount(
+      id: 0,
+      parentId: parentChartAccountId, // Usar el ID del padre contable
       accountingTypeId: accountingTypeId,
       code: code,
       level: level,
@@ -171,23 +190,42 @@ class ChartAccountRepositoryImpl implements ChartAccountRepository {
       updatedAt: now,
       deletedAt: null,
     );
-    
-    // 5. Insertar y devolver la cuenta creada
-    return createChartAccount(newAccount);
+
+    // Guardar y devolver
+    final companion = ChartAccountModel.fromEntity(newAccountEntity).toCompanion();
+    final createdId = await _dao.insertChartAccount(companion);
+    final createdData = await _dao.getChartAccountById(createdId);
+     if (createdData == null) throw Exception('Failed to retrieve created chart account');
+    return ChartAccountModel(
+      id: createdData.id,
+      parentId: createdData.parentId,
+      accountingTypeId: createdData.accountingTypeId,
+      code: createdData.code,
+      level: createdData.level,
+      name: createdData.name,
+      active: createdData.active,
+      createdAt: createdData.createdAt,
+      updatedAt: createdData.updatedAt,
+      deletedAt: createdData.deletedAt,
+    ).toEntity();
   }
 
   @override
-  Future<ChartAccount> generateAccountForWallet(String name) async {
+  Future<ChartAccount> generateAccountForWallet(String name, {int? parentChartAccountId}) async {
     // Las cuentas de wallet son activos (Assets)
+    // Llamar a generateAccountForCategory pasando el parentChartAccountId (que puede ser null)
     return generateAccountForCategory(
-      'Cuenta: $name', 
+      'Cuenta: $name',
       AccountingType.assets.id,
+      parentId: parentChartAccountId, // Pasar el ID del padre contable (puede ser null)
     );
   }
 
   @override
   Future<ChartAccount> generateAccountForCreditCard(String name) async {
     // Las tarjetas de crédito son pasivos (Liabilities)
+    // Asumimos que las tarjetas de crédito no tienen jerarquía aquí,
+    // por lo que no pasamos parentId.
     return generateAccountForCategory(
       'Tarjeta: $name',
       AccountingType.liabilities.id,

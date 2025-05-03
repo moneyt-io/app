@@ -70,8 +70,8 @@ class ChartAccountUseCases {
   Future<ChartAccount> generateAccountForCategory(String name, String accountingTypeId, {int? parentId}) => 
       _repository.generateAccountForCategory(name, accountingTypeId, parentId: parentId);
   
-  Future<ChartAccount> generateAccountForWallet(String name) => 
-      _repository.generateAccountForWallet(name);
+  Future<ChartAccount> generateAccountForWallet(String name, {int? parentChartAccountId}) => 
+      _repository.generateAccountForWallet(name, parentChartAccountId: parentChartAccountId);
   
   Future<ChartAccount> generateAccountForCreditCard(String name) => 
       _repository.generateAccountForCreditCard(name);
@@ -93,5 +93,43 @@ class ChartAccountUseCases {
     }
     
     return accountTree;
+  }
+
+  Future<String> _generateNextCode(int parentAccountId) async {
+    final parentAccount = await getChartAccountById(parentAccountId);
+    // Obtener el código padre. Si es null o vacío, podría ser la raíz absoluta (manejar según lógica)
+    final parentCode = parentAccount?.code ?? '';
+
+    // *** CORRECCIÓN: Usar getChildAccounts en lugar de getChartAccountsByParent ***
+    final siblings = await _repository.getChildAccounts(parentAccountId);
+
+    int nextSequence = 1;
+    if (siblings.isNotEmpty) {
+      int maxSequence = 0;
+      for (final sibling in siblings) {
+        final parts = sibling.code.split('.');
+        if (parts.length > 1) {
+          final sequencePart = parts.last;
+          final currentSequence = int.tryParse(sequencePart) ?? 0;
+          if (currentSequence > maxSequence) {
+            maxSequence = currentSequence;
+          }
+        }
+        // Podría necesitar manejar casos donde el código no tiene '.' si hay inconsistencias
+      }
+      nextSequence = maxSequence + 1;
+    }
+
+    // Formatear la secuencia (ej. a dos dígitos con ceros: 1 -> "01", 10 -> "10")
+    // Ajustar el padLeft según el formato deseado (ej. 1 para "1", 2 para "01")
+    final formattedSequence = nextSequence.toString().padLeft(1, '0'); // Ajustar '1' si se necesitan más dígitos
+
+    // *** CORRECCIÓN: Añadir el punto separador ***
+    // Si parentCode está vacío (raíz absoluta), no añadir punto inicial.
+    if (parentCode.isEmpty) {
+       return formattedSequence;
+    } else {
+       return '$parentCode.$formattedSequence'; // Asegurar que el '.' esté presente
+    }
   }
 }

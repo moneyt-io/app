@@ -2550,6 +2550,15 @@ class $WalletTable extends Wallet with TableInfo<$WalletTable, Wallets> {
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _parentIdMeta =
+      const VerificationMeta('parentId');
+  @override
+  late final GeneratedColumn<int> parentId = GeneratedColumn<int>(
+      'parent_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES wallet (id)'));
   static const VerificationMeta _currencyIdMeta =
       const VerificationMeta('currencyId');
   @override
@@ -2616,6 +2625,7 @@ class $WalletTable extends Wallet with TableInfo<$WalletTable, Wallets> {
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        parentId,
         currencyId,
         chartAccountId,
         name,
@@ -2637,6 +2647,10 @@ class $WalletTable extends Wallet with TableInfo<$WalletTable, Wallets> {
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('parent_id')) {
+      context.handle(_parentIdMeta,
+          parentId.isAcceptableOrUnknown(data['parent_id']!, _parentIdMeta));
     }
     if (data.containsKey('currency_id')) {
       context.handle(
@@ -2693,6 +2707,8 @@ class $WalletTable extends Wallet with TableInfo<$WalletTable, Wallets> {
     return Wallets(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      parentId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}parent_id']),
       currencyId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}currency_id'])!,
       chartAccountId: attachedDatabase.typeMapping
@@ -2720,6 +2736,7 @@ class $WalletTable extends Wallet with TableInfo<$WalletTable, Wallets> {
 
 class Wallets extends DataClass implements Insertable<Wallets> {
   final int id;
+  final int? parentId;
   final String currencyId;
   final int chartAccountId;
   final String name;
@@ -2730,6 +2747,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
   final DateTime? deletedAt;
   const Wallets(
       {required this.id,
+      this.parentId,
       required this.currencyId,
       required this.chartAccountId,
       required this.name,
@@ -2742,6 +2760,9 @@ class Wallets extends DataClass implements Insertable<Wallets> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || parentId != null) {
+      map['parent_id'] = Variable<int>(parentId);
+    }
     map['currency_id'] = Variable<String>(currencyId);
     map['chart_account_id'] = Variable<int>(chartAccountId);
     map['name'] = Variable<String>(name);
@@ -2762,6 +2783,9 @@ class Wallets extends DataClass implements Insertable<Wallets> {
   WalletsCompanion toCompanion(bool nullToAbsent) {
     return WalletsCompanion(
       id: Value(id),
+      parentId: parentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentId),
       currencyId: Value(currencyId),
       chartAccountId: Value(chartAccountId),
       name: Value(name),
@@ -2784,6 +2808,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Wallets(
       id: serializer.fromJson<int>(json['id']),
+      parentId: serializer.fromJson<int?>(json['parentId']),
       currencyId: serializer.fromJson<String>(json['currencyId']),
       chartAccountId: serializer.fromJson<int>(json['chartAccountId']),
       name: serializer.fromJson<String>(json['name']),
@@ -2799,6 +2824,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'parentId': serializer.toJson<int?>(parentId),
       'currencyId': serializer.toJson<String>(currencyId),
       'chartAccountId': serializer.toJson<int>(chartAccountId),
       'name': serializer.toJson<String>(name),
@@ -2812,6 +2838,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
 
   Wallets copyWith(
           {int? id,
+          Value<int?> parentId = const Value.absent(),
           String? currencyId,
           int? chartAccountId,
           String? name,
@@ -2822,6 +2849,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       Wallets(
         id: id ?? this.id,
+        parentId: parentId.present ? parentId.value : this.parentId,
         currencyId: currencyId ?? this.currencyId,
         chartAccountId: chartAccountId ?? this.chartAccountId,
         name: name ?? this.name,
@@ -2834,6 +2862,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
   Wallets copyWithCompanion(WalletsCompanion data) {
     return Wallets(
       id: data.id.present ? data.id.value : this.id,
+      parentId: data.parentId.present ? data.parentId.value : this.parentId,
       currencyId:
           data.currencyId.present ? data.currencyId.value : this.currencyId,
       chartAccountId: data.chartAccountId.present
@@ -2853,6 +2882,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
   String toString() {
     return (StringBuffer('Wallets(')
           ..write('id: $id, ')
+          ..write('parentId: $parentId, ')
           ..write('currencyId: $currencyId, ')
           ..write('chartAccountId: $chartAccountId, ')
           ..write('name: $name, ')
@@ -2866,13 +2896,14 @@ class Wallets extends DataClass implements Insertable<Wallets> {
   }
 
   @override
-  int get hashCode => Object.hash(id, currencyId, chartAccountId, name,
-      description, active, createdAt, updatedAt, deletedAt);
+  int get hashCode => Object.hash(id, parentId, currencyId, chartAccountId,
+      name, description, active, createdAt, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Wallets &&
           other.id == this.id &&
+          other.parentId == this.parentId &&
           other.currencyId == this.currencyId &&
           other.chartAccountId == this.chartAccountId &&
           other.name == this.name &&
@@ -2885,6 +2916,7 @@ class Wallets extends DataClass implements Insertable<Wallets> {
 
 class WalletsCompanion extends UpdateCompanion<Wallets> {
   final Value<int> id;
+  final Value<int?> parentId;
   final Value<String> currencyId;
   final Value<int> chartAccountId;
   final Value<String> name;
@@ -2895,6 +2927,7 @@ class WalletsCompanion extends UpdateCompanion<Wallets> {
   final Value<DateTime?> deletedAt;
   const WalletsCompanion({
     this.id = const Value.absent(),
+    this.parentId = const Value.absent(),
     this.currencyId = const Value.absent(),
     this.chartAccountId = const Value.absent(),
     this.name = const Value.absent(),
@@ -2906,6 +2939,7 @@ class WalletsCompanion extends UpdateCompanion<Wallets> {
   });
   WalletsCompanion.insert({
     this.id = const Value.absent(),
+    this.parentId = const Value.absent(),
     required String currencyId,
     required int chartAccountId,
     required String name,
@@ -2919,6 +2953,7 @@ class WalletsCompanion extends UpdateCompanion<Wallets> {
         name = Value(name);
   static Insertable<Wallets> custom({
     Expression<int>? id,
+    Expression<int>? parentId,
     Expression<String>? currencyId,
     Expression<int>? chartAccountId,
     Expression<String>? name,
@@ -2930,6 +2965,7 @@ class WalletsCompanion extends UpdateCompanion<Wallets> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (parentId != null) 'parent_id': parentId,
       if (currencyId != null) 'currency_id': currencyId,
       if (chartAccountId != null) 'chart_account_id': chartAccountId,
       if (name != null) 'name': name,
@@ -2943,6 +2979,7 @@ class WalletsCompanion extends UpdateCompanion<Wallets> {
 
   WalletsCompanion copyWith(
       {Value<int>? id,
+      Value<int?>? parentId,
       Value<String>? currencyId,
       Value<int>? chartAccountId,
       Value<String>? name,
@@ -2953,6 +2990,7 @@ class WalletsCompanion extends UpdateCompanion<Wallets> {
       Value<DateTime?>? deletedAt}) {
     return WalletsCompanion(
       id: id ?? this.id,
+      parentId: parentId ?? this.parentId,
       currencyId: currencyId ?? this.currencyId,
       chartAccountId: chartAccountId ?? this.chartAccountId,
       name: name ?? this.name,
@@ -2969,6 +3007,9 @@ class WalletsCompanion extends UpdateCompanion<Wallets> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (parentId.present) {
+      map['parent_id'] = Variable<int>(parentId.value);
     }
     if (currencyId.present) {
       map['currency_id'] = Variable<String>(currencyId.value);
@@ -3001,6 +3042,7 @@ class WalletsCompanion extends UpdateCompanion<Wallets> {
   String toString() {
     return (StringBuffer('WalletsCompanion(')
           ..write('id: $id, ')
+          ..write('parentId: $parentId, ')
           ..write('currencyId: $currencyId, ')
           ..write('chartAccountId: $chartAccountId, ')
           ..write('name: $name, ')
@@ -11807,6 +11849,7 @@ typedef $$ContactTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool transactionEntryRefs, bool loanEntryRefs})>;
 typedef $$WalletTableCreateCompanionBuilder = WalletsCompanion Function({
   Value<int> id,
+  Value<int?> parentId,
   required String currencyId,
   required int chartAccountId,
   required String name,
@@ -11818,6 +11861,7 @@ typedef $$WalletTableCreateCompanionBuilder = WalletsCompanion Function({
 });
 typedef $$WalletTableUpdateCompanionBuilder = WalletsCompanion Function({
   Value<int> id,
+  Value<int?> parentId,
   Value<String> currencyId,
   Value<int> chartAccountId,
   Value<String> name,
@@ -11831,6 +11875,19 @@ typedef $$WalletTableUpdateCompanionBuilder = WalletsCompanion Function({
 final class $$WalletTableReferences
     extends BaseReferences<_$AppDatabase, $WalletTable, Wallets> {
   $$WalletTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $WalletTable _parentIdTable(_$AppDatabase db) => db.wallet
+      .createAlias($_aliasNameGenerator(db.wallet.parentId, db.wallet.id));
+
+  $$WalletTableProcessedTableManager? get parentId {
+    if ($_item.parentId == null) return null;
+    final manager = $$WalletTableTableManager($_db, $_db.wallet)
+        .filter((f) => f.id($_item.parentId!));
+    final item = $_typedResult.readTableOrNull(_parentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 
   static $CurrencyTable _currencyIdTable(_$AppDatabase db) => db.currency
       .createAlias($_aliasNameGenerator(db.wallet.currencyId, db.currency.id));
@@ -11887,6 +11944,26 @@ class $$WalletTableFilterComposer
 
   ColumnFilters<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  $$WalletTableFilterComposer get parentId {
+    final $$WalletTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.parentId,
+        referencedTable: $db.wallet,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$WalletTableFilterComposer(
+              $db: $db,
+              $table: $db.wallet,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   $$CurrencyTableFilterComposer get currencyId {
     final $$CurrencyTableFilterComposer composer = $composerBuilder(
@@ -11959,6 +12036,26 @@ class $$WalletTableOrderingComposer
   ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
 
+  $$WalletTableOrderingComposer get parentId {
+    final $$WalletTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.parentId,
+        referencedTable: $db.wallet,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$WalletTableOrderingComposer(
+              $db: $db,
+              $table: $db.wallet,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   $$CurrencyTableOrderingComposer get currencyId {
     final $$CurrencyTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -12030,6 +12127,26 @@ class $$WalletTableAnnotationComposer
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
+  $$WalletTableAnnotationComposer get parentId {
+    final $$WalletTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.parentId,
+        referencedTable: $db.wallet,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$WalletTableAnnotationComposer(
+              $db: $db,
+              $table: $db.wallet,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   $$CurrencyTableAnnotationComposer get currencyId {
     final $$CurrencyTableAnnotationComposer composer = $composerBuilder(
         composer: this,
@@ -12082,7 +12199,8 @@ class $$WalletTableTableManager extends RootTableManager<
     $$WalletTableUpdateCompanionBuilder,
     (Wallets, $$WalletTableReferences),
     Wallets,
-    PrefetchHooks Function({bool currencyId, bool chartAccountId})> {
+    PrefetchHooks Function(
+        {bool parentId, bool currencyId, bool chartAccountId})> {
   $$WalletTableTableManager(_$AppDatabase db, $WalletTable table)
       : super(TableManagerState(
           db: db,
@@ -12095,6 +12213,7 @@ class $$WalletTableTableManager extends RootTableManager<
               $$WalletTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
+            Value<int?> parentId = const Value.absent(),
             Value<String> currencyId = const Value.absent(),
             Value<int> chartAccountId = const Value.absent(),
             Value<String> name = const Value.absent(),
@@ -12106,6 +12225,7 @@ class $$WalletTableTableManager extends RootTableManager<
           }) =>
               WalletsCompanion(
             id: id,
+            parentId: parentId,
             currencyId: currencyId,
             chartAccountId: chartAccountId,
             name: name,
@@ -12117,6 +12237,7 @@ class $$WalletTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
+            Value<int?> parentId = const Value.absent(),
             required String currencyId,
             required int chartAccountId,
             required String name,
@@ -12128,6 +12249,7 @@ class $$WalletTableTableManager extends RootTableManager<
           }) =>
               WalletsCompanion.insert(
             id: id,
+            parentId: parentId,
             currencyId: currencyId,
             chartAccountId: chartAccountId,
             name: name,
@@ -12142,7 +12264,7 @@ class $$WalletTableTableManager extends RootTableManager<
                   (e.readTable(table), $$WalletTableReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: (
-              {currencyId = false, chartAccountId = false}) {
+              {parentId = false, currencyId = false, chartAccountId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -12159,6 +12281,15 @@ class $$WalletTableTableManager extends RootTableManager<
                       dynamic,
                       dynamic,
                       dynamic>>(state) {
+                if (parentId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.parentId,
+                    referencedTable: $$WalletTableReferences._parentIdTable(db),
+                    referencedColumn:
+                        $$WalletTableReferences._parentIdTable(db).id,
+                  ) as T;
+                }
                 if (currencyId) {
                   state = state.withJoin(
                     currentTable: table,
@@ -12201,7 +12332,8 @@ typedef $$WalletTableProcessedTableManager = ProcessedTableManager<
     $$WalletTableUpdateCompanionBuilder,
     (Wallets, $$WalletTableReferences),
     Wallets,
-    PrefetchHooks Function({bool currencyId, bool chartAccountId})>;
+    PrefetchHooks Function(
+        {bool parentId, bool currencyId, bool chartAccountId})>;
 typedef $$CreditCardTableCreateCompanionBuilder = CreditCardsCompanion
     Function({
   Value<int> id,

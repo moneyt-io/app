@@ -18,7 +18,7 @@ abstract class ChartAccountRepository {
   
   // Operaciones específicas para el plan de cuentas
   Future<ChartAccount> generateAccountForCategory(String name, String accountingTypeId, {int? parentId});
-  Future<ChartAccount> generateAccountForWallet(String name);
+  Future<ChartAccount> generateAccountForWallet(String name, {int? parentChartAccountId});
   Future<ChartAccount> generateAccountForCreditCard(String name);
   Future<String> generateNextChildCode(int parentId);
 }

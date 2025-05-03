@@ -3,7 +3,6 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import '../../../domain/entities/chart_account.dart';
 import '../../../domain/entities/journal_entry.dart';
-import '../../../domain/entities/journal_detail.dart';
 import '../../../domain/usecases/chart_account_usecases.dart';
 import '../../molecules/journal_detail_list_item.dart';
 import '../../../core/presentation/app_dimensions.dart';

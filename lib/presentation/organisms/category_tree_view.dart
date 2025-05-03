@@ -11,7 +11,7 @@ class CategoryTreeView extends StatefulWidget {
   final Map<Category, List<Category>> categoryTree;
   final Function(Category) onCategoryTap;
   final Function(Category) onCategoryDelete;
-  
+
   const CategoryTreeView({
     Key? key,
     required this.categoryTree,
@@ -52,31 +52,32 @@ class _CategoryTreeViewState extends State<CategoryTreeView> {
   @override
   Widget build(BuildContext context) {
     final rootCategories = widget.categoryTree.keys.toList();
-    
+
+    // Note: CategoryListView uses different padding than WalletTreeView
     return ListView.builder(
-      padding: const EdgeInsets.all(AppDimensions.spacing16),
+      padding: const EdgeInsets.all(AppDimensions.spacing16), // Compare with WalletTreeView padding
       itemCount: rootCategories.length,
       itemBuilder: (context, index) {
         final rootCategory = rootCategories[index];
         final children = widget.categoryTree[rootCategory] ?? [];
-        
+
         return _buildCategoryWithChildren(
-          context, 
-          rootCategory, 
+          context,
+          rootCategory,
           children,
         );
       },
     );
   }
-  
+
   Widget _buildCategoryWithChildren(
-    BuildContext context, 
-    Category category, 
+    BuildContext context,
+    Category category,
     List<Category> children,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
     final isExpanded = _expandedCategories.contains(category.id);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -85,7 +86,7 @@ class _CategoryTreeViewState extends State<CategoryTreeView> {
           category: category,
           onTap: () => widget.onCategoryTap(category),
           onDelete: () => widget.onCategoryDelete(category),
-          trailing: children.isNotEmpty 
+          trailing: children.isNotEmpty
               ? IconButton(
                   icon: Icon(
                     isExpanded ? Icons.expand_less : Icons.expand_more,
@@ -93,34 +94,39 @@ class _CategoryTreeViewState extends State<CategoryTreeView> {
                     size: AppDimensions.iconSizeMedium,
                   ),
                   onPressed: () => _toggleExpanded(category),
+                  // Consider adding padding/constraints like in WalletTreeView?
                 )
               : null,
         ),
-        
+
         // Subcategorías (con indentación) - solo mostrar si está expandida
         if (children.isNotEmpty && isExpanded)
           Padding(
             padding: const EdgeInsets.only(
-              left: AppDimensions.spacing32,
+              left: AppDimensions.spacing32, // Indentation amount
             ),
+            // This part differs significantly from WalletTreeView's recursive call
             child: Column(
               children: children.map((child) {
+                // CategoryTreeView doesn't seem to handle grandchildren display recursively here
+                // It just lists direct children using CategoryListItem again
                 return Padding(
                   padding: const EdgeInsets.only(
-                    top: AppDimensions.spacing8,
+                    top: AppDimensions.spacing8, // Adds vertical space between children
                   ),
-                  child: CategoryListItem(
+                  child: CategoryListItem( // Uses the main item again for children
                     category: child,
                     onTap: () => widget.onCategoryTap(child),
                     onDelete: () => widget.onCategoryDelete(child),
+                    // Children items don't have a trailing expand button here
                   ),
                 );
               }).toList(),
             ),
           ),
-          
-        // Espacio entre grupos de categorías
-        SizedBox(height: AppDimensions.spacing16),
+
+        // Espacio entre grupos de categorías (Only in CategoryTreeView?)
+        // SizedBox(height: AppDimensions.spacing16), // This adds space below each root item + its children
       ],
     );
   }

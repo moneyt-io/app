@@ -13,8 +13,7 @@ import '../../molecules/confirm_delete_dialog.dart';
 import '../../organisms/app_drawer.dart';
 import '../../routes/navigation_service.dart';
 import '../../routes/app_routes.dart';
-import '../../molecules/confirmation_dialog.dart';
-import '../../organisms/wallet_list_view.dart';  // Agregar esta importación
+import '../../organisms/wallet_tree_view.dart';
 
 class WalletsScreen extends StatefulWidget {
   const WalletsScreen({Key? key}) : super(key: key);
@@ -55,20 +54,17 @@ class _WalletsScreenState extends State<WalletsScreen> {
     }
 
     try {
-      // Cargar la lista de wallets
       final wallets = await _walletUseCases.getAllWallets();
-      
-      // Obtener cuentas contables para mostrar información adicional
       final chartAccountIds = wallets.map((w) => w.chartAccountId).toSet();
       final chartAccounts = await _chartAccountUseCases.getAllChartAccounts();
-      
+
       final chartAccountsMap = <int, ChartAccount>{};
       for (final account in chartAccounts) {
         if (chartAccountIds.contains(account.id)) {
           chartAccountsMap[account.id] = account;
         }
       }
-      
+
       if (mounted) {
         setState(() {
           _wallets = wallets;
@@ -98,13 +94,36 @@ class _WalletsScreenState extends State<WalletsScreen> {
   }
 
   Future<void> _deleteWallet(Wallet wallet) async {
-    // Usar ConfirmDeleteDialog exactamente como en CategoriesScreen
+    try {
+      final children = await _walletUseCases.getWalletsByParent(wallet.id);
+      if (children.isNotEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No se puede eliminar una billetera que tiene sub-billeteras.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al verificar sub-billeteras: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+      return;
+    }
+
     final confirmed = await ConfirmDeleteDialog.show(
       context: context,
       title: 'Eliminar billetera',
       message: '¿Estás seguro de eliminar',
       itemName: wallet.name,
-      // Opciones personalizadas
       icon: Icons.account_balance_wallet_outlined,
       confirmText: 'Confirmar eliminación',
     );
@@ -113,7 +132,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
       try {
         await _walletUseCases.deleteWallet(wallet.id);
         _loadWallets();
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -134,16 +153,44 @@ class _WalletsScreenState extends State<WalletsScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
-    // Filtrar wallets basado en el término de búsqueda
-    final filteredWallets = _wallets.where((wallet) => 
+  List<Wallet> _getFilteredWallets() {
+    if (_searchQuery.isEmpty) {
+      return _wallets;
+    }
+    return _wallets.where((wallet) =>
       wallet.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
       (wallet.description?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false)
     ).toList();
-    
+  }
+
+  Map<Wallet, List<Wallet>> _buildWalletTree(List<Wallet> filteredWallets) {
+    final Map<Wallet, List<Wallet>> walletTree = {};
+    final rootWallets = filteredWallets.where((w) => w.parentId == null).toList();
+
+    for (var rootWallet in rootWallets) {
+      final children = filteredWallets
+          .where((w) => w.parentId == rootWallet.id)
+          .toList();
+      children.sort((a, b) => a.name.compareTo(b.name));
+      walletTree[rootWallet] = children;
+    }
+
+    final sortedRootWallets = walletTree.keys.toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
+
+    final sortedWalletTree = {
+      for (var root in sortedRootWallets) root: walletTree[root]!
+    };
+
+    return sortedWalletTree;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final filteredWallets = _getFilteredWallets();
+    final walletTree = _buildWalletTree(filteredWallets);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Billeteras'),
@@ -153,7 +200,6 @@ class _WalletsScreenState extends State<WalletsScreen> {
       drawer: const AppDrawer(),
       body: Column(
         children: [
-          // Barra de búsqueda
           Padding(
             padding: const EdgeInsets.all(AppDimensions.spacing16),
             child: SearchField(
@@ -166,8 +212,6 @@ class _WalletsScreenState extends State<WalletsScreen> {
               },
             ),
           ),
-          
-          // Cuerpo principal
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -175,14 +219,14 @@ class _WalletsScreenState extends State<WalletsScreen> {
                     ? _buildErrorState()
                     : RefreshIndicator(
                         onRefresh: _loadWallets,
-                        child: filteredWallets.isEmpty
+                        child: _wallets.isEmpty || (_searchQuery.isNotEmpty && walletTree.isEmpty)
                             ? _buildEmptyState()
-                            : WalletListView(
-                                wallets: filteredWallets,
+                            : WalletTreeView(
+                                walletTree: walletTree,
                                 chartAccountsMap: _chartAccountsMap,
+                                balances: const {},
                                 onWalletTap: (wallet) => _navigateToWalletForm(wallet: wallet),
                                 onWalletDelete: _deleteWallet,
-                                // Aquí podrías pasar balances reales cuando se implementen
                               ),
                       ),
           ),
@@ -195,26 +239,6 @@ class _WalletsScreenState extends State<WalletsScreen> {
         tooltip: 'Crear billetera',
         child: const Icon(Icons.add),
       ),
-    );
-  }
-
-  Widget _buildWalletsList(List<Wallet> wallets) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(AppDimensions.spacing16),
-      itemCount: wallets.length,
-      itemBuilder: (context, index) {
-        final wallet = wallets[index];
-        final chartAccount = _chartAccountsMap[wallet.chartAccountId];
-        
-        return WalletListItem(
-          wallet: wallet,
-          chartAccount: chartAccount,
-          balance: 0.0, // Placeholder para el balance, se implementará después
-          onTap: () => _navigateToWalletForm(wallet: wallet),
-          onDelete: () => _deleteWallet(wallet),
-          onEdit: () => _navigateToWalletForm(wallet: wallet),
-        );
-      },
     );
   }
 

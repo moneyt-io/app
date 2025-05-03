@@ -22,7 +22,6 @@ import '../pages/backup_screen.dart'; // Importar la pantalla de respaldos
 import './app_routes.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/entities/category.dart';
-import '../../domain/entities/transaction.dart';
 import '../../domain/entities/chart_account.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as device_contacts;
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import '../../../domain/entities/transaction_entry.dart';
 import '../../../domain/usecases/transaction_usecases.dart';
 import '../../../domain/usecases/category_usecases.dart';
@@ -8,10 +7,8 @@ import '../../../domain/usecases/contact_usecases.dart';
 import '../../atoms/app_button.dart';
 import '../../molecules/empty_state.dart';
 import '../../molecules/search_field.dart';
-import '../../molecules/date_filter_selector.dart';
 import '../../molecules/confirm_delete_dialog.dart';
 import '../../organisms/app_drawer.dart';
-import '../../organisms/transaction_list_section.dart';
 import '../../organisms/transaction_list_view.dart';
 import '../../routes/navigation_service.dart';
 import '../../routes/app_routes.dart';

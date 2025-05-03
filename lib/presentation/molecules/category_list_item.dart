@@ -4,7 +4,7 @@ import '../atoms/category_icon.dart';
 import '../../core/presentation/app_dimensions.dart';
 
 /// Molécula que representa un ítem de categoría en una lista.
-/// 
+///
 /// Este componente muestra la información básica de una categoría y
 /// proporciona acciones como eliminar o editar.
 class CategoryListItem extends StatelessWidget {
@@ -12,7 +12,7 @@ class CategoryListItem extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final Widget? trailing;
-  
+
   const CategoryListItem({
     Key? key,
     required this.category,
@@ -25,7 +25,7 @@ class CategoryListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    
+
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: AppDimensions.spacing8),
@@ -45,8 +45,8 @@ class CategoryListItem extends StatelessWidget {
             children: [
               CategoryIcon(
                 icon: category.icon,
-                bgColor: category.documentTypeId == 'E' 
-                    ? colorScheme.errorContainer 
+                bgColor: category.documentTypeId == 'E'
+                    ? colorScheme.errorContainer
                     : colorScheme.primaryContainer,
                 iconColor: category.documentTypeId == 'E'
                     ? colorScheme.onErrorContainer
@@ -66,7 +66,7 @@ class CategoryListItem extends StatelessWidget {
                     ),
                     if (category.parentId != null)
                       Text(
-                        'Subcategoría',
+                        'Subcategoría', // Placeholder text, might need dynamic count
                         style: textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),

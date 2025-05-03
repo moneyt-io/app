@@ -15,6 +15,9 @@ class WalletUseCases {
   
   Future<Wallet?> getWalletById(int id) => _repository.getWalletById(id);
   
+  Future<List<Wallet>> getWalletsByParent(int parentId) =>
+      _repository.getWalletsByParent(parentId);
+
   // Observación en tiempo real
   Stream<List<Wallet>> watchWallets() => _repository.watchWallets();
 
@@ -27,20 +30,34 @@ class WalletUseCases {
 
   /// Crear una billetera con generación automática de cuenta contable
   Future<Wallet> createWalletWithAccount({
+    int? parentId, // Wallet parent ID
     required String name,
     required String currencyId,
     String? description,
   }) async {
-    // 1. Crear la cuenta contable en el plan de cuentas (en la sección Activos)
-    final chartAccount = await _chartAccountUseCases.createChartAccount(
-      parentCode: '11', // Asumiendo que 11 es el código para Activos Corrientes
-      name: 'Billetera: $name',
-      accountingTypeId: 'As', // Tipo Activo
+    int? parentChartAccountId; // ChartAccount parent ID
+
+    if (parentId != null) {
+      // Si es una sub-billetera, buscar la cuenta contable del padre
+      final parentWallet = await _repository.getWalletById(parentId);
+      if (parentWallet == null) {
+        throw Exception('Billetera padre no encontrada con ID $parentId');
+      }
+      parentChartAccountId = parentWallet.chartAccountId;
+    }
+    // Si parentId es null, parentChartAccountId permanecerá null,
+    // y la lógica en ChartAccountUseCases/Repository buscará la raíz de Activos.
+
+    // 1. Crear la cuenta contable, pasando el parentChartAccountId si existe
+    final chartAccount = await _chartAccountUseCases.generateAccountForWallet(
+      name,
+      parentChartAccountId: parentChartAccountId, // Pasar el ID del padre contable
     );
-    
+
     // 2. Crear la wallet asociándola a la cuenta contable
     final wallet = Wallet(
       id: 0, // Se asignará al crear
+      parentId: parentId, // Asignar el parentId de la wallet
       currencyId: currencyId,
       chartAccountId: chartAccount.id,
       name: name,
@@ -50,7 +67,7 @@ class WalletUseCases {
       updatedAt: DateTime.now(),
       deletedAt: null,
     );
-    
+
     return createWallet(wallet);
   }
 }
