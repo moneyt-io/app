@@ -328,14 +328,17 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
                           value: null,
                           child: Text('Ninguna (Billetera Raíz)'),
                         ),
-                        ..._parentWallets.map((wallet) {
+                        ..._parentWallets
+                            .where((wallet) => wallet.parentId == null) // Solo billeteras raíz
+                            .where((wallet) => !isEditing || wallet.id != widget.wallet!.id) // Excluir billetera actual si se edita
+                            .map((wallet) {
                           return DropdownMenuItem<int?>(
                             value: wallet.id,
                             child: Text(wallet.name),
                           );
                         }).toList(),
                       ],
-                      onChanged: (value) {
+                      onChanged: isEditing ? null : (value) {
                         setState(() {
                           _selectedParentId = value;
                         });

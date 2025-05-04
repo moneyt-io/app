@@ -242,6 +242,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   Future<TransactionEntry> createIncomeTransaction({
+    required int journalId,
     required DateTime date,
     required String description,
     required double amount,
@@ -251,25 +252,14 @@ class TransactionRepositoryImpl implements TransactionRepository {
     int? contactId,
     double rateExchange = 1.0,
   }) async {
-    // 1. Primero crear el journal contable
-    final journalEntry = await _journalRepository.createIncomeJournal(
-      date: date,
-      description: description,
-      amount: amount,
-      currencyId: currencyId,
-      walletChartAccountId: walletId,
-      categoryChartAccountId: categoryId,
-      rateExchange: rateExchange,
-    );
-    
     // 2. Obtener el siguiente secuencial
     final secuencial = await getNextSecuencial('I');
     
-    // 3. Crear modelo de transacción con el journalId correcto
+    // 3. Crear modelo de transacción con el journalId correcto (recibido)
     final transactionModel = TransactionEntryModel.create(
       documentTypeId: 'I',
       currencyId: currencyId,
-      journalId: journalEntry.id,
+      journalId: journalId,
       contactId: contactId,
       secuencial: secuencial,
       date: date,
@@ -311,6 +301,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   Future<TransactionEntry> createExpenseTransaction({
+    required int journalId,
     required DateTime date,
     required String description,
     required double amount,
@@ -320,25 +311,14 @@ class TransactionRepositoryImpl implements TransactionRepository {
     int? contactId,
     double rateExchange = 1.0,
   }) async {
-    // 1. Primero crear el journal contable
-    final journalEntry = await _journalRepository.createExpenseJournal(
-      date: date,
-      description: description,
-      amount: amount,
-      currencyId: currencyId,
-      walletChartAccountId: walletId,
-      categoryChartAccountId: categoryId,
-      rateExchange: rateExchange,
-    );
-    
     // 2. Obtener el siguiente secuencial
     final secuencial = await getNextSecuencial('E');
     
-    // 3. Crear modelo de transacción con el journalId correcto
+    // 3. Crear modelo de transacción con el journalId correcto (recibido)
     final transactionModel = TransactionEntryModel.create(
       documentTypeId: 'E',
       currencyId: currencyId,
-      journalId: journalEntry.id,
+      journalId: journalId,
       contactId: contactId,
       secuencial: secuencial,
       date: date,
@@ -380,6 +360,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   Future<TransactionEntry> createTransferTransaction({
+    required int journalId,
     required DateTime date,
     required String description,
     required double amount,
@@ -388,28 +369,17 @@ class TransactionRepositoryImpl implements TransactionRepository {
     required double targetAmount,
     required double rateExchange,
     int? contactId,
+    String currencyId = 'USD', 
+    String targetCurrencyId = 'USD',
   }) async {
-    // 1. Primero crear el journal contable
-    final journalEntry = await _journalRepository.createTransferJournal(
-      date: date,
-      description: description,
-      amount: amount,
-      currencyId: 'USD',  // Se debería pasar la divisa correcta
-      sourceChartAccountId: sourceWalletId,
-      targetChartAccountId: targetWalletId,
-      targetCurrencyId: 'USD',  // Se debería pasar la divisa correcta
-      targetAmount: targetAmount,
-      rateExchange: rateExchange,
-    );
-    
     // 2. Obtener el siguiente secuencial
     final secuencial = await getNextSecuencial('T');
     
-    // 3. Crear modelo de transacción con el journalId correcto
+    // 3. Crear modelo de transacción con el journalId correcto (recibido)
     final transactionModel = TransactionEntryModel.create(
       documentTypeId: 'T',
-      currencyId: 'USD',  // Se debería pasar la divisa correcta
-      journalId: journalEntry.id,
+      currencyId: currencyId,
+      journalId: journalId,
       contactId: contactId,
       secuencial: secuencial,
       date: date,
@@ -428,25 +398,25 @@ class TransactionRepositoryImpl implements TransactionRepository {
     // 5. Crear detalles de origen (From)
     final sourceDetailModel = TransactionDetailModel.create(
       transactionId: transactionId,
-      currencyId: 'USD',  // Se debería pasar la divisa correcta
+      currencyId: currencyId,
       flowId: 'F', // From
       paymentTypeId: 'W', // Wallet
       paymentId: sourceWalletId,
       categoryId: 0, // No aplica categoría en transferencias
-      amount: amount,
-      rateExchange: 1.0,
+      amount: -amount, // Sale de la cuenta origen (negativo)
+      rateExchange: 1.0, // Tasa base para el origen
     );
     
     // 6. Crear detalles de destino (To)
     final targetDetailModel = TransactionDetailModel.create(
       transactionId: transactionId,
-      currencyId: 'USD',  // Se debería pasar la divisa correcta
+      currencyId: targetCurrencyId,
       flowId: 'T', // To
       paymentTypeId: 'W', // Wallet
       paymentId: targetWalletId,
       categoryId: 0, // No aplica categoría en transferencias
-      amount: targetAmount,
-      rateExchange: rateExchange,
+      amount: targetAmount, // Entra a la cuenta destino (positivo)
+      rateExchange: rateExchange, // Tasa aplicada para la conversión
     );
     
     // 7. Insertar ambos detalles

@@ -16,6 +16,7 @@ abstract class TransactionRepository {
 
   // Métodos específicos por tipo
   Future<TransactionEntry> createIncomeTransaction({
+    required int journalId,
     required DateTime date,
     required String description,
     required double amount,
@@ -27,6 +28,7 @@ abstract class TransactionRepository {
   });
   
   Future<TransactionEntry> createExpenseTransaction({
+    required int journalId,
     required DateTime date,
     required String description,
     required double amount,
@@ -38,6 +40,7 @@ abstract class TransactionRepository {
   });
   
   Future<TransactionEntry> createTransferTransaction({
+    required int journalId,
     required DateTime date,
     required String description,
     required double amount,

@@ -8,6 +8,9 @@ import 'package:moneyt_pfm/data/datasources/local/tables/wallets_table.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+// *** Añadir importaciones faltantes ***
+import 'package:sqlite3/sqlite3.dart';
+import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 // Importar todas las tablas
 import 'tables/categories_table.dart';
@@ -29,10 +32,18 @@ import 'seeds/reference_seeds.dart';
 part 'database.g.dart';
 
 LazyDatabase _openConnection() {
-  return LazyDatabase(() async {
+  return LazyDatabase(()async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'app_database.sqlite'));
-    return NativeDatabase(file);
+
+    // Configurar SQLite nativo
+    if (Platform.isAndroid) {
+      await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
+    }
+    final cachebase = (await getTemporaryDirectory()).path;
+    sqlite3.tempDirectory = cachebase;
+
+    return NativeDatabase.createInBackground(file);
   });
 }
 
@@ -80,7 +91,9 @@ class AppDatabase extends _$AppDatabase {
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (Migrator m) async {
+      // 1. Crear todas las tablas
       await m.createAll();
+      // 2. Llamar al seeder centralizado
       await ReferenceSeeds.seedAll(this);
     },
   );

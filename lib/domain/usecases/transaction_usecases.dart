@@ -64,6 +64,7 @@ class TransactionUseCases {
     
     // 3. Crear la transacción vinculada al diario contable
     return _transactionRepository.createIncomeTransaction(
+      journalId: journalEntry.id, // <-- Pasar journalId
       date: date,
       description: description,
       amount: amount,
@@ -93,11 +94,11 @@ class TransactionUseCases {
       throw Exception('Wallet o categoría no encontrada');
     }
     
-    // 2. Crear diario contable
+    // 2. Crear diario contable (Asegurarse que esté descomentado y use el 'amount' real)
     final journalEntry = await _journalRepository.createExpenseJournal(
       date: date,
       description: description,
-      amount: amount,
+      amount: amount, // <-- Usar el amount real
       currencyId: currencyId,
       walletChartAccountId: wallet.chartAccountId,
       categoryChartAccountId: category.chartAccountId,
@@ -106,9 +107,10 @@ class TransactionUseCases {
     
     // 3. Crear transacción vinculada al diario
     return _transactionRepository.createExpenseTransaction(
+      journalId: journalEntry.id, // <-- Pasar journalId
       date: date,
       description: description,
-      amount: amount,
+      amount: amount, // <-- Usar el amount real
       currencyId: currencyId,
       walletId: walletId,
       categoryId: categoryId,
@@ -152,6 +154,7 @@ class TransactionUseCases {
     
     // 3. Crear transacción vinculada al diario
     return _transactionRepository.createTransferTransaction(
+      journalId: journalEntry.id, // <-- Pasar journalId
       date: date,
       description: description,
       amount: amount,

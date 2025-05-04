@@ -135,8 +135,7 @@ class ChartAccountRepositoryImpl implements ChartAccountRepository {
     String codePrefix;
     String numericTypeId; // Necesario para el código raíz
 
-    // Determinar el tipo numérico y la cuenta base si no hay padre
-    // *** CORRECCIÓN: Usar los valores string literales en los case ***
+    // Determinar el tipo numérico
     switch (accountingTypeId) {
       case 'As': numericTypeId = '1'; break; // Assets
       case 'Li': numericTypeId = '2'; break; // Liabilities
@@ -148,22 +147,41 @@ class ChartAccountRepositoryImpl implements ChartAccountRepository {
 
     if (parentChartAccountId == null) {
       // Buscar cuenta raíz del tipo correspondiente (ej. '1' para Activos)
-      // *** CORRECCIÓN: Usar getChartAccountsByCode y manejar la lista ***
       final baseAccounts = await _dao.getChartAccountsByCode(numericTypeId);
-      if (baseAccounts.isEmpty) { // Verificar si la lista está vacía
+      if (baseAccounts.isEmpty) {
         throw Exception('Cuenta base $numericTypeId no encontrada.');
       }
-      final baseAccount = baseAccounts.first; // Tomar el primer (y único esperado) elemento
+      final baseAccount = baseAccounts.first;
+
+      // Asegurarse que la cuenta base encontrada es realmente del tipo esperado (defensivo)
+      if (baseAccount.accountingTypeId != accountingTypeId) {
+         throw Exception('La cuenta base encontrada ($numericTypeId) no es del tipo esperado ($accountingTypeId).');
+      }
+      // Asegurarse que la cuenta base es de nivel 0 (defensivo)
+      if (baseAccount.level != 0) {
+         throw Exception('La cuenta base encontrada ($numericTypeId) no tiene nivel 0.');
+      }
+
 
       parentChartAccountId = baseAccount.id;
-      level = baseAccount.level + 1; // Nivel justo debajo de la raíz del tipo
-      codePrefix = '$numericTypeId.'; // Prefijo para cuentas raíz de este tipo
+      level = baseAccount.level + 1; // Nivel 1
+      codePrefix = '$numericTypeId.'; // Prefijo para cuentas bajo la raíz del tipo
     } else {
       // Obtener cuenta padre para determinar nivel y prefijo
       final parentAccount = await _dao.getChartAccountById(parentChartAccountId);
       if (parentAccount == null) {
         throw Exception('Cuenta padre contable con ID $parentChartAccountId no encontrada.');
       }
+
+      // *** Añadir Verificación Defensiva ***
+      // Asegurarse que la cuenta padre pertenece al mismo tipo principal (Assets, Liab, etc.)
+      // Esto previene crear, por ejemplo, un Activo bajo un Pasivo si se pasara un ID incorrecto.
+      final parentNumericTypeId = _accountingTypeNumberMap[parentAccount.accountingTypeId];
+      if (parentNumericTypeId != numericTypeId) {
+         throw Exception('La cuenta padre (${parentAccount.code}) pertenece a un tipo diferente (${parentAccount.accountingTypeId}) al esperado ($accountingTypeId).');
+      }
+      // *** Fin Verificación Defensiva ***
+
       level = parentAccount.level + 1;
       codePrefix = '${parentAccount.code}.';
     }
@@ -173,7 +191,6 @@ class ChartAccountRepositoryImpl implements ChartAccountRepository {
     final nextNumber = siblings.length + 1;
 
     // Generar el código completo
-    // Usar codePrefix que ya incluye el punto si es necesario
     final code = '$codePrefix$nextNumber';
 
     // Crear la nueva cuenta contable
