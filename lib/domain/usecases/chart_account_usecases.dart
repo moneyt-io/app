@@ -21,6 +21,12 @@ class ChartAccountUseCases {
   Future<List<ChartAccount>> getChildAccounts(int parentId) => 
       _repository.getChildAccounts(parentId);
   
+  // Agregar este nuevo método para buscar cuentas por código
+  Future<ChartAccount?> getChartAccountByCode(String code) async {
+    final accounts = await _repository.getChartAccountsByCode(code);
+    return accounts.isNotEmpty ? accounts.first : null;
+  }
+  
   // Observación en tiempo real
   Stream<List<ChartAccount>> watchAllChartAccounts() => 
       _repository.watchAllChartAccounts();
@@ -73,9 +79,69 @@ class ChartAccountUseCases {
   Future<ChartAccount> generateAccountForWallet(String name, {int? parentChartAccountId}) => 
       _repository.generateAccountForWallet(name, parentChartAccountId: parentChartAccountId);
   
-  Future<ChartAccount> generateAccountForCreditCard(String name) => 
-      _repository.generateAccountForCreditCard(name);
+  /// Genera una cuenta contable para una tarjeta de crédito
+  /// 
+  /// Crea la cuenta bajo la raíz de Pasivos > Tarjetas de Crédito
+  Future<ChartAccount> generateAccountForCreditCard(String creditCardName) async {
+    // Buscar la raíz de pasivos - Típicamente tiene código '2'
+    final liabilitiesRoot = await _getAccountingTypeRoot('Li'); // Liabilities (Pasivos)
+    
+    if (liabilitiesRoot == null) {
+      throw Exception('No se encontró la raíz de Pasivos en el plan contable');
+    }
+
+    // Buscar o crear el grupo para tarjetas de crédito
+    const creditCardGroupName = 'Tarjetas de Crédito';
+    final creditCardGroup = await _findOrCreateAccountGroup(
+      parentCode: liabilitiesRoot.code,
+      name: creditCardGroupName,
+      accountingTypeId: 'Li',
+    );
+    
+    // Crear la cuenta específica para esta tarjeta dentro del grupo
+    return createChartAccount(
+      parentCode: creditCardGroup.code,
+      name: creditCardName,
+      accountingTypeId: 'Li', // Liabilities (Pasivos)
+    );
+  }
   
+  /// Encuentra o crea un grupo de cuentas
+  /// 
+  /// Método de utilidad para encontrar o crear una cuenta de agrupación
+  Future<ChartAccount> _findOrCreateAccountGroup({
+    required String parentCode,
+    required String name,
+    required String accountingTypeId,
+  }) async {
+    // Intentar encontrar el grupo por nombre bajo el padre
+    final parentAccount = await getChartAccountByCode(parentCode);
+    if (parentAccount == null) {
+      throw Exception('Cuenta padre no encontrada: $parentCode');
+    }
+    
+    final children = await getChildAccounts(parentAccount.id);
+    final existingGroup = children.where((account) => account.name == name).firstOrNull;
+    
+    if (existingGroup != null) {
+      return existingGroup;
+    }
+    
+    // Si no existe, crear el grupo
+    return createChartAccount(
+      parentCode: parentCode,
+      name: name,
+      accountingTypeId: accountingTypeId,
+    );
+  }
+  
+  /// Obtiene la cuenta raíz para un tipo contable
+  Future<ChartAccount?> _getAccountingTypeRoot(String accountingTypeId) async {
+    final accounts = await getChartAccountsByType(accountingTypeId);
+    // Buscar la cuenta que no tiene padre (código corto, generalmente un dígito)
+    return accounts.where((a) => a.code.length == 1).firstOrNull;
+  }
+
   // Estructura de árbol de cuentas
   Future<Map<ChartAccount, List<ChartAccount>>> getAccountTree() async {
     final allAccounts = await getAllChartAccounts();

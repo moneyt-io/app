@@ -9,7 +9,9 @@ class CreditCardModel {
   final String name;
   final String? description;
   final double quota;
-  final int closingDate;
+  final int closingDay;
+  final int paymentDueDay;
+  final double interestRate;
   final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -22,26 +24,41 @@ class CreditCardModel {
     required this.name,
     this.description,
     required this.quota,
-    required this.closingDate,
-    required this.active,
+    required this.closingDay,
+    required this.paymentDueDay,
+    this.interestRate = 0.0,
+    this.active = true,
     required this.createdAt,
     this.updatedAt,
     this.deletedAt,
   });
 
-  CreditCardModel.create({
-    required this.currencyId,
-    required this.chartAccountId,
-    required this.name,
-    this.description,
-    required this.quota,
-    required this.closingDate,
-    bool? active,
-  })  : id = 0,
-        active = active ?? true,
-        createdAt = DateTime.now(),
-        updatedAt = null,
-        deletedAt = null;
+  // Constructor para crear una nueva tarjeta
+  factory CreditCardModel.create({
+    required String currencyId,
+    required int chartAccountId,
+    required String name,
+    String? description,
+    required double quota,
+    required int closingDay,
+    required int paymentDueDay,
+    double interestRate = 0.0,
+  }) =>
+      CreditCardModel(
+        id: 0,
+        currencyId: currencyId,
+        chartAccountId: chartAccountId,
+        name: name,
+        description: description,
+        quota: quota,
+        closingDay: closingDay,
+        paymentDueDay: paymentDueDay,
+        interestRate: interestRate,
+        active: true,
+        createdAt: DateTime.now(),
+        updatedAt: null,
+        deletedAt: null,
+      );
 
   CreditCardsCompanion toCompanion() => CreditCardsCompanion(
     id: id == 0 ? const Value.absent() : Value(id),
@@ -50,7 +67,9 @@ class CreditCardModel {
     name: Value(name),
     description: Value(description),
     quota: Value(quota),
-    closingDate: Value(closingDate),
+    closingDay: Value(closingDay),
+    paymentDueDay: Value(paymentDueDay),
+    interestRate: Value(interestRate),
     active: Value(active),
     createdAt: Value(createdAt),
     updatedAt: Value(updatedAt),
@@ -64,10 +83,12 @@ class CreditCardModel {
     name: name,
     description: description,
     quota: quota,
-    closingDate: closingDate,
+    closingDay: closingDay, 
+    paymentDueDay: paymentDueDay,
+    interestRate: interestRate,
     active: active,
     createdAt: createdAt,
-    updatedAt: updatedAt,
+    updatedAt: updatedAt ?? DateTime.now(), // Provide a default value when null
     deletedAt: deletedAt,
   );
 
@@ -78,7 +99,9 @@ class CreditCardModel {
     name: entity.name,
     description: entity.description,
     quota: entity.quota,
-    closingDate: entity.closingDate,
+    closingDay: entity.closingDay,
+    paymentDueDay: entity.paymentDueDay,
+    interestRate: entity.interestRate,
     active: entity.active,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,

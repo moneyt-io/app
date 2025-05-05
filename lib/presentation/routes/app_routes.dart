@@ -15,7 +15,14 @@ class AppRoutes {
   static const String transactionForm = '/transactionForm';
   static const String transactionDetail = '/transactionDetail';
   static const String wallets = '/wallets';
-  static const String walletForm = '/walletForm';
+  static const String walletForm = '/wallet-form';
+  static const String walletDetail = '/wallet-detail';
+  
+  // Credit Card Routes
+  static const String creditCards = '/credit-cards';
+  static const String creditCardForm = '/credit-card-form';
+  static const String creditCardDetail = '/credit-card-detail';
+  
   static const String chartAccounts = '/chartAccounts';
   static const String chartAccountForm = '/chartAccountForm';
   static const String journals = '/journals';

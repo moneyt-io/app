@@ -43,6 +43,12 @@ class AppDrawer extends StatelessWidget {
         route: AppRoutes.wallets,
       ),
       DrawerItemData(
+        icon: Icons.credit_card,
+        selectedIcon: Icons.credit_card,
+        label: 'Tarjetas de Crédito',
+        route: AppRoutes.creditCards,
+      ),
+      DrawerItemData(
         icon: Icons.category_outlined,
         selectedIcon: Icons.category,
         label: 'Categorías',

@@ -2,6 +2,10 @@ import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/datasources/local/database.dart';
+import '../../data/repositories/credit_card_repository_impl.dart';
+import '../../domain/repositories/chart_account_repository.dart';
+import '../../domain/repositories/credit_card_repository.dart';
+import '../../domain/usecases/credit_card_usecases.dart';
 import '../services/backup_service.dart';
 import '../../domain/repositories/backup_repository.dart';
 import '../../data/repositories/backup_repository_impl.dart';
@@ -60,6 +64,27 @@ Future<void> initializeDependencies() async {
   );
   // --- Fin Registro Dependencias de Backup ---
 
+  _registerRepositories();
+  _registerUseCases();
 
   _dependenciesInitialized = true;
+}
+
+// Register repositories
+void _registerRepositories() {
+  // Credit Card Repository
+  GetIt.instance.registerLazySingleton<CreditCardRepository>(
+    () => CreditCardRepositoryImpl(GetIt.instance<AppDatabase>()),
+  );
+}
+
+// Register use cases
+void _registerUseCases() {
+  // Credit Card UseCases
+  GetIt.instance.registerLazySingleton<CreditCardUseCases>(
+    () => CreditCardUseCases(
+      GetIt.instance<CreditCardRepository>(),
+      GetIt.instance<ChartAccountRepository>(),
+    ),
+  );
 }

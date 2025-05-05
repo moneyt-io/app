@@ -3076,8 +3076,6 @@ class $CreditCardTable extends CreditCard
   @override
   late final GeneratedColumn<String> currencyId = GeneratedColumn<String>(
       'currency_id', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 3, maxTextLength: 3),
       type: DriftSqlType.string,
       requiredDuringInsert: true,
       defaultConstraints:
@@ -3095,10 +3093,7 @@ class $CreditCardTable extends CreditCard
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 50),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true);
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _descriptionMeta =
       const VerificationMeta('description');
   @override
@@ -3110,12 +3105,26 @@ class $CreditCardTable extends CreditCard
   late final GeneratedColumn<double> quota = GeneratedColumn<double>(
       'quota', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _closingDateMeta =
-      const VerificationMeta('closingDate');
+  static const VerificationMeta _closingDayMeta =
+      const VerificationMeta('closingDay');
   @override
-  late final GeneratedColumn<int> closingDate = GeneratedColumn<int>(
-      'closing_date', aliasedName, false,
+  late final GeneratedColumn<int> closingDay = GeneratedColumn<int>(
+      'closing_day', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _paymentDueDayMeta =
+      const VerificationMeta('paymentDueDay');
+  @override
+  late final GeneratedColumn<int> paymentDueDay = GeneratedColumn<int>(
+      'payment_due_day', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _interestRateMeta =
+      const VerificationMeta('interestRate');
+  @override
+  late final GeneratedColumn<double> interestRate = GeneratedColumn<double>(
+      'interest_rate', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
   static const VerificationMeta _activeMeta = const VerificationMeta('active');
   @override
   late final GeneratedColumn<bool> active = GeneratedColumn<bool>(
@@ -3130,9 +3139,7 @@ class $CreditCardTable extends CreditCard
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
       'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _updatedAtMeta =
       const VerificationMeta('updatedAt');
   @override
@@ -3153,7 +3160,9 @@ class $CreditCardTable extends CreditCard
         name,
         description,
         quota,
-        closingDate,
+        closingDay,
+        paymentDueDay,
+        interestRate,
         active,
         createdAt,
         updatedAt,
@@ -3206,13 +3215,27 @@ class $CreditCardTable extends CreditCard
     } else if (isInserting) {
       context.missing(_quotaMeta);
     }
-    if (data.containsKey('closing_date')) {
+    if (data.containsKey('closing_day')) {
       context.handle(
-          _closingDateMeta,
-          closingDate.isAcceptableOrUnknown(
-              data['closing_date']!, _closingDateMeta));
+          _closingDayMeta,
+          closingDay.isAcceptableOrUnknown(
+              data['closing_day']!, _closingDayMeta));
     } else if (isInserting) {
-      context.missing(_closingDateMeta);
+      context.missing(_closingDayMeta);
+    }
+    if (data.containsKey('payment_due_day')) {
+      context.handle(
+          _paymentDueDayMeta,
+          paymentDueDay.isAcceptableOrUnknown(
+              data['payment_due_day']!, _paymentDueDayMeta));
+    } else if (isInserting) {
+      context.missing(_paymentDueDayMeta);
+    }
+    if (data.containsKey('interest_rate')) {
+      context.handle(
+          _interestRateMeta,
+          interestRate.isAcceptableOrUnknown(
+              data['interest_rate']!, _interestRateMeta));
     }
     if (data.containsKey('active')) {
       context.handle(_activeMeta,
@@ -3221,6 +3244,8 @@ class $CreditCardTable extends CreditCard
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
     }
     if (data.containsKey('updated_at')) {
       context.handle(_updatedAtMeta,
@@ -3251,8 +3276,12 @@ class $CreditCardTable extends CreditCard
           .read(DriftSqlType.string, data['${effectivePrefix}description']),
       quota: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}quota'])!,
-      closingDate: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}closing_date'])!,
+      closingDay: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}closing_day'])!,
+      paymentDueDay: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}payment_due_day'])!,
+      interestRate: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}interest_rate'])!,
       active: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}active'])!,
       createdAt: attachedDatabase.typeMapping
@@ -3277,7 +3306,9 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
   final String name;
   final String? description;
   final double quota;
-  final int closingDate;
+  final int closingDay;
+  final int paymentDueDay;
+  final double interestRate;
   final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -3289,7 +3320,9 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
       required this.name,
       this.description,
       required this.quota,
-      required this.closingDate,
+      required this.closingDay,
+      required this.paymentDueDay,
+      required this.interestRate,
       required this.active,
       required this.createdAt,
       this.updatedAt,
@@ -3305,7 +3338,9 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
       map['description'] = Variable<String>(description);
     }
     map['quota'] = Variable<double>(quota);
-    map['closing_date'] = Variable<int>(closingDate);
+    map['closing_day'] = Variable<int>(closingDay);
+    map['payment_due_day'] = Variable<int>(paymentDueDay);
+    map['interest_rate'] = Variable<double>(interestRate);
     map['active'] = Variable<bool>(active);
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || updatedAt != null) {
@@ -3327,7 +3362,9 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
           ? const Value.absent()
           : Value(description),
       quota: Value(quota),
-      closingDate: Value(closingDate),
+      closingDay: Value(closingDay),
+      paymentDueDay: Value(paymentDueDay),
+      interestRate: Value(interestRate),
       active: Value(active),
       createdAt: Value(createdAt),
       updatedAt: updatedAt == null && nullToAbsent
@@ -3349,7 +3386,9 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String?>(json['description']),
       quota: serializer.fromJson<double>(json['quota']),
-      closingDate: serializer.fromJson<int>(json['closingDate']),
+      closingDay: serializer.fromJson<int>(json['closingDay']),
+      paymentDueDay: serializer.fromJson<int>(json['paymentDueDay']),
+      interestRate: serializer.fromJson<double>(json['interestRate']),
       active: serializer.fromJson<bool>(json['active']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
@@ -3366,7 +3405,9 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String?>(description),
       'quota': serializer.toJson<double>(quota),
-      'closingDate': serializer.toJson<int>(closingDate),
+      'closingDay': serializer.toJson<int>(closingDay),
+      'paymentDueDay': serializer.toJson<int>(paymentDueDay),
+      'interestRate': serializer.toJson<double>(interestRate),
       'active': serializer.toJson<bool>(active),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
@@ -3381,7 +3422,9 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
           String? name,
           Value<String?> description = const Value.absent(),
           double? quota,
-          int? closingDate,
+          int? closingDay,
+          int? paymentDueDay,
+          double? interestRate,
           bool? active,
           DateTime? createdAt,
           Value<DateTime?> updatedAt = const Value.absent(),
@@ -3393,7 +3436,9 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
         name: name ?? this.name,
         description: description.present ? description.value : this.description,
         quota: quota ?? this.quota,
-        closingDate: closingDate ?? this.closingDate,
+        closingDay: closingDay ?? this.closingDay,
+        paymentDueDay: paymentDueDay ?? this.paymentDueDay,
+        interestRate: interestRate ?? this.interestRate,
         active: active ?? this.active,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
@@ -3411,8 +3456,14 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
       description:
           data.description.present ? data.description.value : this.description,
       quota: data.quota.present ? data.quota.value : this.quota,
-      closingDate:
-          data.closingDate.present ? data.closingDate.value : this.closingDate,
+      closingDay:
+          data.closingDay.present ? data.closingDay.value : this.closingDay,
+      paymentDueDay: data.paymentDueDay.present
+          ? data.paymentDueDay.value
+          : this.paymentDueDay,
+      interestRate: data.interestRate.present
+          ? data.interestRate.value
+          : this.interestRate,
       active: data.active.present ? data.active.value : this.active,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -3429,7 +3480,9 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('quota: $quota, ')
-          ..write('closingDate: $closingDate, ')
+          ..write('closingDay: $closingDay, ')
+          ..write('paymentDueDay: $paymentDueDay, ')
+          ..write('interestRate: $interestRate, ')
           ..write('active: $active, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -3439,8 +3492,20 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
   }
 
   @override
-  int get hashCode => Object.hash(id, currencyId, chartAccountId, name,
-      description, quota, closingDate, active, createdAt, updatedAt, deletedAt);
+  int get hashCode => Object.hash(
+      id,
+      currencyId,
+      chartAccountId,
+      name,
+      description,
+      quota,
+      closingDay,
+      paymentDueDay,
+      interestRate,
+      active,
+      createdAt,
+      updatedAt,
+      deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3451,7 +3516,9 @@ class CreditCards extends DataClass implements Insertable<CreditCards> {
           other.name == this.name &&
           other.description == this.description &&
           other.quota == this.quota &&
-          other.closingDate == this.closingDate &&
+          other.closingDay == this.closingDay &&
+          other.paymentDueDay == this.paymentDueDay &&
+          other.interestRate == this.interestRate &&
           other.active == this.active &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
@@ -3465,7 +3532,9 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
   final Value<String> name;
   final Value<String?> description;
   final Value<double> quota;
-  final Value<int> closingDate;
+  final Value<int> closingDay;
+  final Value<int> paymentDueDay;
+  final Value<double> interestRate;
   final Value<bool> active;
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
@@ -3477,7 +3546,9 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
     this.name = const Value.absent(),
     this.description = const Value.absent(),
     this.quota = const Value.absent(),
-    this.closingDate = const Value.absent(),
+    this.closingDay = const Value.absent(),
+    this.paymentDueDay = const Value.absent(),
+    this.interestRate = const Value.absent(),
     this.active = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -3490,16 +3561,20 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
     required String name,
     this.description = const Value.absent(),
     required double quota,
-    required int closingDate,
+    required int closingDay,
+    required int paymentDueDay,
+    this.interestRate = const Value.absent(),
     this.active = const Value.absent(),
-    this.createdAt = const Value.absent(),
+    required DateTime createdAt,
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
   })  : currencyId = Value(currencyId),
         chartAccountId = Value(chartAccountId),
         name = Value(name),
         quota = Value(quota),
-        closingDate = Value(closingDate);
+        closingDay = Value(closingDay),
+        paymentDueDay = Value(paymentDueDay),
+        createdAt = Value(createdAt);
   static Insertable<CreditCards> custom({
     Expression<int>? id,
     Expression<String>? currencyId,
@@ -3507,7 +3582,9 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
     Expression<String>? name,
     Expression<String>? description,
     Expression<double>? quota,
-    Expression<int>? closingDate,
+    Expression<int>? closingDay,
+    Expression<int>? paymentDueDay,
+    Expression<double>? interestRate,
     Expression<bool>? active,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -3520,7 +3597,9 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
       if (name != null) 'name': name,
       if (description != null) 'description': description,
       if (quota != null) 'quota': quota,
-      if (closingDate != null) 'closing_date': closingDate,
+      if (closingDay != null) 'closing_day': closingDay,
+      if (paymentDueDay != null) 'payment_due_day': paymentDueDay,
+      if (interestRate != null) 'interest_rate': interestRate,
       if (active != null) 'active': active,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -3535,7 +3614,9 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
       Value<String>? name,
       Value<String?>? description,
       Value<double>? quota,
-      Value<int>? closingDate,
+      Value<int>? closingDay,
+      Value<int>? paymentDueDay,
+      Value<double>? interestRate,
       Value<bool>? active,
       Value<DateTime>? createdAt,
       Value<DateTime?>? updatedAt,
@@ -3547,7 +3628,9 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
       name: name ?? this.name,
       description: description ?? this.description,
       quota: quota ?? this.quota,
-      closingDate: closingDate ?? this.closingDate,
+      closingDay: closingDay ?? this.closingDay,
+      paymentDueDay: paymentDueDay ?? this.paymentDueDay,
+      interestRate: interestRate ?? this.interestRate,
       active: active ?? this.active,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -3576,8 +3659,14 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
     if (quota.present) {
       map['quota'] = Variable<double>(quota.value);
     }
-    if (closingDate.present) {
-      map['closing_date'] = Variable<int>(closingDate.value);
+    if (closingDay.present) {
+      map['closing_day'] = Variable<int>(closingDay.value);
+    }
+    if (paymentDueDay.present) {
+      map['payment_due_day'] = Variable<int>(paymentDueDay.value);
+    }
+    if (interestRate.present) {
+      map['interest_rate'] = Variable<double>(interestRate.value);
     }
     if (active.present) {
       map['active'] = Variable<bool>(active.value);
@@ -3603,7 +3692,9 @@ class CreditCardsCompanion extends UpdateCompanion<CreditCards> {
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('quota: $quota, ')
-          ..write('closingDate: $closingDate, ')
+          ..write('closingDay: $closingDay, ')
+          ..write('paymentDueDay: $paymentDueDay, ')
+          ..write('interestRate: $interestRate, ')
           ..write('active: $active, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -12342,9 +12433,11 @@ typedef $$CreditCardTableCreateCompanionBuilder = CreditCardsCompanion
   required String name,
   Value<String?> description,
   required double quota,
-  required int closingDate,
+  required int closingDay,
+  required int paymentDueDay,
+  Value<double> interestRate,
   Value<bool> active,
-  Value<DateTime> createdAt,
+  required DateTime createdAt,
   Value<DateTime?> updatedAt,
   Value<DateTime?> deletedAt,
 });
@@ -12356,7 +12449,9 @@ typedef $$CreditCardTableUpdateCompanionBuilder = CreditCardsCompanion
   Value<String> name,
   Value<String?> description,
   Value<double> quota,
-  Value<int> closingDate,
+  Value<int> closingDay,
+  Value<int> paymentDueDay,
+  Value<double> interestRate,
   Value<bool> active,
   Value<DateTime> createdAt,
   Value<DateTime?> updatedAt,
@@ -12415,8 +12510,14 @@ class $$CreditCardTableFilterComposer
   ColumnFilters<double> get quota => $composableBuilder(
       column: $table.quota, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get closingDate => $composableBuilder(
-      column: $table.closingDate, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get closingDay => $composableBuilder(
+      column: $table.closingDay, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get paymentDueDay => $composableBuilder(
+      column: $table.paymentDueDay, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get interestRate => $composableBuilder(
+      column: $table.interestRate, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get active => $composableBuilder(
       column: $table.active, builder: (column) => ColumnFilters(column));
@@ -12492,8 +12593,16 @@ class $$CreditCardTableOrderingComposer
   ColumnOrderings<double> get quota => $composableBuilder(
       column: $table.quota, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get closingDate => $composableBuilder(
-      column: $table.closingDate, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get closingDay => $composableBuilder(
+      column: $table.closingDay, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get paymentDueDay => $composableBuilder(
+      column: $table.paymentDueDay,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get interestRate => $composableBuilder(
+      column: $table.interestRate,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get active => $composableBuilder(
       column: $table.active, builder: (column) => ColumnOrderings(column));
@@ -12569,8 +12678,14 @@ class $$CreditCardTableAnnotationComposer
   GeneratedColumn<double> get quota =>
       $composableBuilder(column: $table.quota, builder: (column) => column);
 
-  GeneratedColumn<int> get closingDate => $composableBuilder(
-      column: $table.closingDate, builder: (column) => column);
+  GeneratedColumn<int> get closingDay => $composableBuilder(
+      column: $table.closingDay, builder: (column) => column);
+
+  GeneratedColumn<int> get paymentDueDay => $composableBuilder(
+      column: $table.paymentDueDay, builder: (column) => column);
+
+  GeneratedColumn<double> get interestRate => $composableBuilder(
+      column: $table.interestRate, builder: (column) => column);
 
   GeneratedColumn<bool> get active =>
       $composableBuilder(column: $table.active, builder: (column) => column);
@@ -12654,7 +12769,9 @@ class $$CreditCardTableTableManager extends RootTableManager<
             Value<String> name = const Value.absent(),
             Value<String?> description = const Value.absent(),
             Value<double> quota = const Value.absent(),
-            Value<int> closingDate = const Value.absent(),
+            Value<int> closingDay = const Value.absent(),
+            Value<int> paymentDueDay = const Value.absent(),
+            Value<double> interestRate = const Value.absent(),
             Value<bool> active = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime?> updatedAt = const Value.absent(),
@@ -12667,7 +12784,9 @@ class $$CreditCardTableTableManager extends RootTableManager<
             name: name,
             description: description,
             quota: quota,
-            closingDate: closingDate,
+            closingDay: closingDay,
+            paymentDueDay: paymentDueDay,
+            interestRate: interestRate,
             active: active,
             createdAt: createdAt,
             updatedAt: updatedAt,
@@ -12680,9 +12799,11 @@ class $$CreditCardTableTableManager extends RootTableManager<
             required String name,
             Value<String?> description = const Value.absent(),
             required double quota,
-            required int closingDate,
+            required int closingDay,
+            required int paymentDueDay,
+            Value<double> interestRate = const Value.absent(),
             Value<bool> active = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
+            required DateTime createdAt,
             Value<DateTime?> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
           }) =>
@@ -12693,7 +12814,9 @@ class $$CreditCardTableTableManager extends RootTableManager<
             name: name,
             description: description,
             quota: quota,
-            closingDate: closingDate,
+            closingDay: closingDay,
+            paymentDueDay: paymentDueDay,
+            interestRate: interestRate,
             active: active,
             createdAt: createdAt,
             updatedAt: updatedAt,

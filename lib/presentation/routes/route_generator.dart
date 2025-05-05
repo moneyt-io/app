@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../domain/entities/credit_card.dart';
 import '../../domain/entities/journal_entry.dart';
 import '../../domain/entities/transaction_entry.dart';
+import '../../domain/entities/wallet.dart';
 import '../pages/journals/journal_detail_screen.dart';
 import '../pages/journals/journals_screen.dart';
 import '../pages/welcome_screen.dart';
@@ -17,8 +19,11 @@ import '../pages/chart_accounts/chart_accounts_screen.dart';
 import '../pages/chart_accounts/chart_account_form_screen.dart';
 import '../pages/wallets/wallets_screen.dart';
 import '../pages/wallets/wallet_form_screen.dart';
+import '../pages/wallets/wallet_detail_screen.dart'; // Add this import
 import '../pages/transactions/transaction_detail_screen.dart'; // Importar la pantalla de detalles
 import '../pages/backup_screen.dart'; // Importar la pantalla de respaldos
+import '../pages/credit_cards/credit_cards_screen.dart';
+import '../pages/credit_cards/credit_card_form_screen.dart';
 import './app_routes.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/entities/category.dart';
@@ -149,6 +154,18 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => WalletFormScreen(wallet: args as dynamic),
         );
+      
+      case AppRoutes.walletDetail:
+        final wallet = settings.arguments as Wallet;
+        return MaterialPageRoute(builder: (_) => WalletDetailScreen(wallet: wallet));
+      
+      // Credit Card Routes
+      case AppRoutes.creditCards:
+        return MaterialPageRoute(builder: (_) => const CreditCardsScreen());
+      
+      case AppRoutes.creditCardForm:
+        final creditCard = settings.arguments as CreditCard?;
+        return MaterialPageRoute(builder: (_) => CreditCardFormScreen(creditCard: creditCard));
       
       // Implementar caso para la ruta de journals
       case AppRoutes.journals:
