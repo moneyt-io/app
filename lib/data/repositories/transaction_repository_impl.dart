@@ -306,7 +306,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
     required String description,
     required double amount,
     required String currencyId,
-    required int walletId,
+    required String paymentTypeId, // Actualizado
+    required int paymentId,
     required int categoryId,
     int? contactId,
     double rateExchange = 1.0,
@@ -334,13 +335,13 @@ class TransactionRepositoryImpl implements TransactionRepository {
       throw Exception('Error al insertar la transacción de egreso');
     }
     
-    // 5. Crear detalle de la transacción
+    // 5. Crear detalle de la transacción (actualizado)
     final detailModel = TransactionDetailModel.create(
       transactionId: transactionId,
       currencyId: currencyId,
       flowId: 'O', // Egreso/Outflow
-      paymentTypeId: 'W', // Wallet
-      paymentId: walletId,
+      paymentTypeId: paymentTypeId, // Usar el valor pasado (W o C)
+      paymentId: paymentId,
       categoryId: categoryId,
       amount: amount,
       rateExchange: rateExchange,

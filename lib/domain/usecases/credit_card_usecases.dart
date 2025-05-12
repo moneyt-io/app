@@ -3,7 +3,10 @@ import '../entities/credit_card.dart';
 import '../entities/chart_account.dart';
 import '../repositories/credit_card_repository.dart';
 import '../repositories/chart_account_repository.dart';
+import 'package:injectable/injectable.dart';
+import 'package:intl/intl.dart';
 
+@injectable
 class CreditCardUseCases {
   final CreditCardRepository _creditCardRepository;
   final ChartAccountRepository _chartAccountRepository;
@@ -18,6 +21,10 @@ class CreditCardUseCases {
     return _creditCardRepository.getCreditCardById(id);
   }
 
+  Stream<List<CreditCard>> watchAllCreditCards() {
+    return _creditCardRepository.watchAllCreditCards();
+  }
+
   Future<CreditCard> createCreditCardWithAccount({
     required String name,
     String? description,
@@ -30,20 +37,27 @@ class CreditCardUseCases {
     // Use the specialized method for creating credit card chart accounts
     final chartAccount = await _chartAccountRepository.generateAccountForCreditCard('Tarjeta $name');
     
-    // Then create the credit card with reference to the chart account
-    return _creditCardRepository.createCreditCard(
-      name: name,
-      description: description,
+    // Create the credit card with the generated chart account
+    final creditCard = CreditCard(
+      id: 0,
       currencyId: currencyId,
       chartAccountId: chartAccount.id,
+      name: name,
+      description: description,
       quota: quota,
       closingDay: closingDay,
       paymentDueDay: paymentDueDay,
       interestRate: interestRate,
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      deletedAt: null,
     );
+    
+    return _creditCardRepository.createCreditCard(creditCard);
   }
 
-  Future<CreditCard> updateCreditCard(CreditCard creditCard) {
+  Future<void> updateCreditCard(CreditCard creditCard) {
     return _creditCardRepository.updateCreditCard(creditCard);
   }
 
@@ -51,30 +65,42 @@ class CreditCardUseCases {
     return _creditCardRepository.deleteCreditCard(id);
   }
 
-  // Utility method to calculate the next payment date based on today and the card's payment due day
+  /// Calcula la próxima fecha de pago para una tarjeta de crédito.
+  /// 
+  /// Basado en el día de pago (paymentDueDay) y el mes actual.
+  /// Si el día de pago ya pasó este mes, devuelve la fecha del próximo mes.
+  /// 
+  /// @param creditCard La tarjeta de crédito para la que se calcula la fecha de pago
+  /// @return Un objeto DateTime con la fecha del próximo pago
   DateTime getNextPaymentDate(CreditCard creditCard) {
-    final today = DateTime.now();
-    int paymentDay = creditCard.paymentDueDay;
+    final now = DateTime.now();
     
-    // If today is after payment day this month, get next month's date
-    if (today.day > paymentDay) {
-      int nextMonth = today.month + 1;
-      int year = today.year;
+    // Crear una fecha con el día de pago de este mes
+    DateTime paymentDate = DateTime(now.year, now.month, creditCard.paymentDueDay);
+    
+    // Si el día de pago ya pasó este mes, calcular para el próximo mes
+    if (paymentDate.isBefore(now)) {
+      // Avanzar al próximo mes
+      int nextMonth = now.month + 1;
+      int year = now.year;
+      
+      // Manejar cambio de año
       if (nextMonth > 12) {
         nextMonth = 1;
         year++;
       }
       
-      // Handle invalid dates (e.g., Feb 30)
-      int daysInMonth = DateTime(year, nextMonth + 1, 0).day;
-      if (paymentDay > daysInMonth) {
-        paymentDay = daysInMonth;
-      }
-      
-      return DateTime(year, nextMonth, paymentDay);
-    } else {
-      // If today is before or on payment day, use this month's date
-      return DateTime(today.year, today.month, paymentDay);
+      paymentDate = DateTime(year, nextMonth, creditCard.paymentDueDay);
     }
+    
+    return paymentDate;
+  }
+  
+  /// Calcula el crédito disponible para una tarjeta.
+  /// Por ahora, simplemente devuelve el cupo total, pero en una implementación real
+  /// debería restar el saldo utilizado.
+  double getAvailableCredit(CreditCard creditCard) {
+    // TODO: Implementar lógica para obtener saldo usado y calcular disponible
+    return creditCard.quota;
   }
 }

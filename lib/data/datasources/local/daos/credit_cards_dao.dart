@@ -8,14 +8,11 @@ part 'credit_cards_dao.g.dart';
 class CreditCardDao extends DatabaseAccessor<AppDatabase> with _$CreditCardDaoMixin {
   CreditCardDao(AppDatabase db) : super(db);
 
-  // Cambiado el tipo de retorno a CreditCardData
   Future<List<CreditCards>> getAllCreditCards() => select(creditCard).get();
   
-  // Cambiado el tipo de retorno a CreditCardData
   Future<CreditCards?> getCreditCardById(int id) =>
       (select(creditCard)..where((t) => t.id.equals(id))).getSingleOrNull();
 
-  // Cambiado el tipo de retorno a CreditCardData
   Stream<List<CreditCards>> watchAllCreditCards() => select(creditCard).watch();
 
   Future<int> insertCreditCard(CreditCardsCompanion creditCard) =>

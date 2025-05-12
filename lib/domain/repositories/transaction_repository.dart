@@ -33,7 +33,8 @@ abstract class TransactionRepository {
     required String description,
     required double amount,
     required String currencyId,
-    required int walletId,
+    required String paymentTypeId, // Añadir este parámetro
+    required int paymentId,
     required int categoryId,
     int? contactId,
     double rateExchange = 1.0,

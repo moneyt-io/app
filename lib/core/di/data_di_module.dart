@@ -15,10 +15,12 @@ import '../../domain/repositories/wallet_repository.dart';
 import '../../data/datasources/local/daos/journal_dao.dart';
 import '../../domain/repositories/journal_repository.dart';
 import '../../data/repositories/journal_repository_impl.dart';
-// Agregar nuevas importaciones para Transaction
 import '../../data/datasources/local/daos/transaction_dao.dart';
 import '../../domain/repositories/transaction_repository.dart';
 import '../../data/repositories/transaction_repository_impl.dart';
+import '../../data/datasources/local/daos/credit_cards_dao.dart';
+import '../../domain/repositories/credit_card_repository.dart';
+import '../../data/repositories/credit_card_repository_impl.dart';
 
 final getIt = GetIt.instance;
 
@@ -34,6 +36,7 @@ Future<void> initializeDataDependencies() async {
   getIt.registerLazySingleton<WalletDao>(() => WalletDao(getIt<AppDatabase>())); // Añadir DAO de Wallet
   getIt.registerLazySingleton<JournalDao>(() => JournalDao(getIt<AppDatabase>())); // Registrar el JournalDao
   getIt.registerLazySingleton<TransactionDao>(() => TransactionDao(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<CreditCardDao>(() => CreditCardDao(getIt<AppDatabase>())); // Registrar CreditCardDao
   
   // Repositorios
   getIt.registerSingleton<ChartAccountRepository>(
@@ -60,5 +63,10 @@ Future<void> initializeDataDependencies() async {
       getIt<WalletRepository>(),
       getIt<ContactRepository>(),
     ),
+  );
+  
+  // Registrar CreditCardRepository aquí, no en injection_container.dart
+  getIt.registerLazySingleton<CreditCardRepository>(
+    () => CreditCardRepositoryImpl(getIt<CreditCardDao>()),
   );
 }

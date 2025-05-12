@@ -2,18 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
 import '../../../domain/entities/transaction.dart';
 import '../../../domain/entities/category.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/contact.dart';
+import '../../../domain/entities/credit_card.dart';
+
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/usecases/category_usecases.dart';
 import '../../../domain/usecases/contact_usecases.dart';
 import '../../../domain/usecases/transaction_usecases.dart';
+import '../../../domain/usecases/credit_card_usecases.dart';
+
 import '../../atoms/app_button.dart';
 import '../../molecules/form_field_container.dart';
+import '../../molecules/error_message_card.dart';
+import '../../organisms/account_selector_modal.dart';
+
 import '../../../core/presentation/app_dimensions.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
 class TransactionFormScreen extends StatefulWidget {
   final TransactionEntity? transaction;
@@ -40,8 +48,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
   late String _flow;
   late DateTime _selectedDate;
   
-  int? _selectedAccountId;
-  int? _selectedToAccountId;
   int? _selectedCategoryId;
   int? _selectedContactId;
   
@@ -52,6 +58,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
   List<Wallet> _wallets = [];
   List<Category> _categories = [];
   List<Contact> _contacts = [];
+  List<CreditCard> _creditCards = [];
+  Map<int, SelectableAccount> _accountsMap = {}; // Para mapear IDs a cuentas seleccionables
+  SelectableAccount? _selectedAccount;
+  SelectableAccount? _selectedToAccount; // Para transferencias
   
   // Obtener casos de uso usando GetIt
   final _walletUseCases = GetIt.instance<WalletUseCases>();
@@ -100,19 +110,27 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
       final walletsResult = await _walletUseCases.getAllWallets();
       final categoriesResult = await _categoryUseCases.getAllCategories();
       final contactsResult = await _contactUseCases.getAllContacts();
+      final creditCardResult = await GetIt.instance<CreditCardUseCases>().getAllCreditCards();
 
-      // Si estamos editando, asegurarnos de cargar la transacción completa
-      if (isEditing && widget.transaction != null) {
-        final transactionResult = await _transactionUseCases.getTransactionById(widget.transaction!.id!);
-        if (transactionResult != null) {
-          // Podemos usar la transacción completa si es necesario
-        }
+      // Crear el mapa de cuentas seleccionables
+      final Map<int, SelectableAccount> accountsMap = {};
+      
+      // Agregar wallets al mapa
+      for (final wallet in walletsResult) {
+        accountsMap[wallet.id] = SelectableAccount.fromWallet(wallet);
+      }
+      
+      // Agregar tarjetas de crédito al mapa
+      for (final card in creditCardResult) {
+        accountsMap[-card.id] = SelectableAccount.fromCreditCard(card); // Usamos ID negativo para distinguir
       }
 
       setState(() {
         _wallets = walletsResult;
         _categories = categoriesResult;
         _contacts = contactsResult;
+        _creditCards = creditCardResult;
+        _accountsMap = accountsMap;
         _isLoading = false;
       });
     } catch (e) {
@@ -124,8 +142,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
   }
 
   void _handleTabChange() {
-    // Eliminar la condición que solo actualizaba en indexIsChanging
-    // Ahora actualizará tanto con taps como con swipes
     setState(() {
       switch (_typeTabController.index) {
         case 0:
@@ -155,15 +171,26 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
       _amountController.text = transaction.amount.toString();
       _descriptionController.text = transaction.description ?? '';
       _selectedDate = transaction.transactionDate;
-      _selectedAccountId = transaction.accountId;
+      
+      // Asignar la cuenta seleccionada según el tipo y ID
+      if (transaction.accountId != null) {
+        if (_accountsMap.containsKey(transaction.accountId)) {
+          // Es una wallet
+          _selectedAccount = _accountsMap[transaction.accountId];
+        } else if (_accountsMap.containsKey(-transaction.accountId!)) {
+          // Es una tarjeta de crédito
+          _selectedAccount = _accountsMap[-transaction.accountId!];
+        }
+      }
+      
       _selectedCategoryId = transaction.categoryId;
       _selectedContactId = transaction.contactId;
       
       // Para transferencias, buscar la cuenta destino usando la referencia
       if (isTransfer && transaction.reference != null) {
-        for (var wallet in _wallets) {
+        for (final wallet in _wallets) {
           if (wallet.name == transaction.reference) {
-            _selectedToAccountId = wallet.id;
+            _selectedToAccount = SelectableAccount.fromWallet(wallet);
             break;
           }
         }
@@ -200,11 +227,53 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
     }
   }
 
+  Future<void> _showAccountSelector({bool isSource = true}) async {
+    // Recopilar todas las cuentas disponibles
+    List<SelectableAccount> availableAccounts = [];
+    
+    // Agregar wallets
+    for (final wallet in _wallets) {
+      availableAccounts.add(SelectableAccount.fromWallet(wallet));
+    }
+    
+    // Agregar tarjetas de crédito solo para gastos (no para ingresos ni transferencias)
+    if (isExpense && isSource) {
+      for (final card in _creditCards) {
+        availableAccounts.add(SelectableAccount.fromCreditCard(card));
+      }
+    }
+    
+    // En transferencias, no mostrar la cuenta origen como destino
+    if (isTransfer && !isSource && _selectedAccount != null) {
+      availableAccounts = availableAccounts.where((acc) => 
+        acc.id != _selectedAccount!.id || acc.isCreditCard != _selectedAccount!.isCreditCard
+      ).toList();
+    }
+    
+    final result = await AccountSelectorModal.show(
+      context: context,
+      accounts: availableAccounts,
+      title: isSource ? 'Seleccionar cuenta' : 'Seleccionar cuenta destino',
+      confirmButtonText: 'Seleccionar',
+      initialSelection: isSource ? _selectedAccount : _selectedToAccount,
+    );
+    
+    if (result != null) {
+      setState(() {
+        if (isSource) {
+          _selectedAccount = result;
+        } else {
+          _selectedToAccount = result;
+        }
+      });
+    }
+  }
+
   void _saveTransaction() async {
     if (!_formKey.currentState!.validate()) return;
     
     // Validaciones adicionales
-    if (_selectedAccountId == null) {
+    if (_selectedAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor seleccione una cuenta')),
       );
@@ -218,7 +287,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
       return;
     }
 
-    if (isTransfer && _selectedToAccountId == null) {
+    if (isTransfer && _selectedToAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor seleccione una cuenta destino')),
       );
@@ -243,28 +312,30 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
         amount = -amount;
       }
 
-      // Obtener referencia para transferencias
-      String? reference;
-      if (isTransfer && _selectedToAccountId != null) {
-        final selectedWallet = _wallets.firstWhere(
-          (wallet) => wallet.id == _selectedToAccountId,
-          orElse: () => throw Exception('Wallet destino no encontrada'),
-        );
-        reference = selectedWallet.name;
+      // Obtener el ID real de la cuenta y el tipo (wallet o tarjeta)
+      int paymentId;
+      String paymentTypeId;
+      
+      if (_selectedAccount!.isCreditCard) {
+        paymentId = _selectedAccount!.id;
+        paymentTypeId = 'C'; // Tarjeta de crédito
+      } else {
+        paymentId = _selectedAccount!.id;
+        paymentTypeId = 'W'; // Wallet normal
       }
 
       if (isEditing) {
-        // Actualizar transacción existente
-        // Implementar según necesidad
+        // Implementar edición si es necesario
       } else {
         // Crear nueva transacción
         if (isExpense) {
           await _transactionUseCases.createExpense(
             date: _selectedDate,
             description: _descriptionController.text,
-            amount: amount.abs(), // Siempre positivo, el signo se maneja internamente
-            currencyId: 'USD', // Ajustar según tu implementación
-            walletId: _selectedAccountId!,
+            amount: amount.abs(),
+            currencyId: _selectedAccount!.currencyId,
+            paymentId: paymentId,
+            paymentTypeId: paymentTypeId,
             categoryId: _selectedCategoryId!,
             contactId: _selectedContactId,
           );
@@ -273,27 +344,21 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
             date: _selectedDate,
             description: _descriptionController.text,
             amount: amount,
-            currencyId: 'USD', // Ajustar según tu implementación
-            walletId: _selectedAccountId!,
+            currencyId: _selectedAccount!.currencyId,
+            walletId: paymentId, // Asumimos que ingresos solo con wallets
             categoryId: _selectedCategoryId!,
             contactId: _selectedContactId,
           );
         } else if (isTransfer) {
-          // Obtener la divisa de la cuenta destino
-          final targetWallet = _wallets.firstWhere(
-            (wallet) => wallet.id == _selectedToAccountId,
-            orElse: () => throw Exception('Wallet destino no encontrada'),
-          );
-          
           await _transactionUseCases.createTransfer(
             date: _selectedDate,
             description: _descriptionController.text,
             amount: amount,
-            currencyId: 'USD', // Divisa de origen
-            targetCurrencyId: 'USD', // Divisa de destino (debería ser targetWallet.currencyId)
-            sourceWalletId: _selectedAccountId!,
-            targetWalletId: _selectedToAccountId!,
-            targetAmount: amount, // Ajustar según tu implementación de cambio de divisa
+            currencyId: _selectedAccount!.currencyId,
+            sourceWalletId: paymentId, // Solo wallets para transferencias
+            targetWalletId: _selectedToAccount!.id, // Solo wallets para destino
+            targetCurrencyId: _selectedToAccount!.currencyId,
+            targetAmount: amount, // Simplificado
             contactId: _selectedContactId,
           );
         }
@@ -392,7 +457,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
                   key: _formKey,
                   child: Column(
                     children: [
-                      // Eliminamos el ícono circular y usamos directamente el TabBarView
                       Expanded(
                         child: TabBarView(
                           controller: _typeTabController,
@@ -430,7 +494,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
     );
   }
   
-  // Método para obtener el color según el tipo de transacción
   Color _getTabColor(ColorScheme colorScheme) {
     switch (_selectedType) {
       case 'E': return colorScheme.error;
@@ -440,12 +503,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
     }
   }
   
-  // Nuevo método para construir el contenido del formulario
   Widget _buildFormContent(BuildContext context, ColorScheme colorScheme, TextTheme textTheme) {
     return ListView(
       padding: EdgeInsets.all(AppDimensions.spacing16),
       children: [
-        // Monto
         FormFieldContainer(
           child: TextFormField(
             controller: _amountController,
@@ -476,7 +537,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
         ),
         SizedBox(height: AppDimensions.spacing16),
         
-        // Fecha
         FormFieldContainer(
           child: InkWell(
             onTap: _selectDate,
@@ -498,92 +558,59 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
         ),
         SizedBox(height: AppDimensions.spacing16),
 
-        // Cuenta origen
         FormFieldContainer(
-          child: DropdownButtonFormField<int>(
-            value: _selectedAccountId,
-            isExpanded: true,
-            alignment: AlignmentDirectional.centerStart,
-            hint: Text('Seleccione una cuenta'), // Añadir texto hint
-            itemHeight: 60, // Ajuste para mejorar la alineación vertical
-            decoration: FormFieldContainer.getOutlinedDecoration(
-              context,
-              labelText: 'Cuenta',
-              prefixIcon: Icon(
-                Icons.account_balance_wallet,
-                color: colorScheme.primary,
-              ),
-            ),
-            items: _wallets.map((wallet) {
-              return DropdownMenuItem<int>(
-                value: wallet.id,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  wallet.name,
-                  overflow: TextOverflow.ellipsis,
+          child: InkWell(
+            onTap: () => _showAccountSelector(isSource: true),
+            child: InputDecorator(
+              decoration: FormFieldContainer.getOutlinedDecoration(
+                context,
+                labelText: 'Cuenta',
+                prefixIcon: Icon(
+                  _selectedAccount?.isCreditCard ?? false 
+                    ? Icons.credit_card
+                    : Icons.account_balance_wallet,
+                  color: colorScheme.primary,
                 ),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                _selectedAccountId = value;
-              });
-            },
-            validator: (value) {
-              if (value == null) {
-                return 'Por favor seleccione una cuenta';
-              }
-              return null;
-            },
+                suffixIcon: Icon(Icons.arrow_drop_down, color: colorScheme.primary),
+              ),
+              child: _selectedAccount == null 
+                ? Text('Seleccione una cuenta', style: textTheme.bodyLarge)
+                : Text(
+                    _selectedAccount?.name ?? '',
+                    style: textTheme.bodyLarge,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+            ),
           ),
         ),
 
-        // Cuenta destino (solo para transferencias)
         if (isTransfer) ...[
           SizedBox(height: AppDimensions.spacing16),
           FormFieldContainer(
-            child: DropdownButtonFormField<int>(
-              value: _selectedToAccountId,
-              isExpanded: true,
-              alignment: AlignmentDirectional.centerStart,
-              hint: Text('Seleccione cuenta destino'), // Añadir texto hint
-              itemHeight: 60, // Ajuste para mejorar la alineación vertical
-              decoration: FormFieldContainer.getOutlinedDecoration(
-                context,
-                labelText: 'Cuenta destino',
-                prefixIcon: Icon(
-                  Icons.account_balance_wallet,
-                  color: colorScheme.primary,
-                ),
-              ),
-              items: _wallets
-                  .where((wallet) => wallet.id != _selectedAccountId)
-                  .map((wallet) {
-                return DropdownMenuItem<int>(
-                  value: wallet.id,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    wallet.name,
-                    overflow: TextOverflow.ellipsis,
+            child: InkWell(
+              onTap: () => _showAccountSelector(isSource: false),
+              child: InputDecorator(
+                decoration: FormFieldContainer.getOutlinedDecoration(
+                  context,
+                  labelText: 'Cuenta destino',
+                  prefixIcon: Icon(
+                    Icons.account_balance_wallet,
+                    color: colorScheme.primary,
                   ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedToAccountId = value;
-                });
-              },
-              validator: (value) {
-                if (isTransfer && value == null) {
-                  return 'Por favor seleccione una cuenta destino';
-                }
-                return null;
-              },
+                  suffixIcon: Icon(Icons.arrow_drop_down, color: colorScheme.primary),
+                ),
+                child: _selectedToAccount == null 
+                  ? Text('Seleccione cuenta destino', style: textTheme.bodyLarge)
+                  : Text(
+                      _selectedToAccount?.name ?? '',
+                      style: textTheme.bodyLarge,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+              ),
             ),
           ),
         ],
 
-        // Categoría (solo para ingresos y gastos)
         if (!isTransfer) ...[
           SizedBox(height: AppDimensions.spacing16),
           FormFieldContainer(
@@ -591,8 +618,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
               value: _selectedCategoryId,
               isExpanded: true,
               alignment: AlignmentDirectional.centerStart,
-              hint: Text('Seleccione una categoría'), // Añadir texto hint
-              itemHeight: 60, // Ajuste para mejorar la alineación vertical
+              hint: Text('Seleccione una categoría'),
+              itemHeight: 60,
               decoration: FormFieldContainer.getOutlinedDecoration(
                 context,
                 labelText: 'Categoría',
@@ -628,7 +655,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
           ),
         ],
 
-        // Contacto (opcional)
         if (!isTransfer) ...[
           SizedBox(height: AppDimensions.spacing16),
           FormFieldContainer(
@@ -636,8 +662,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
               value: _selectedContactId,
               isExpanded: true,
               alignment: AlignmentDirectional.centerStart,
-              hint: Text('Seleccione un contacto (opcional)'), // Añadir un texto hint
-              itemHeight: 60, // Ajuste para mejorar la alineación vertical
+              hint: Text('Seleccione un contacto (opcional)'),
+              itemHeight: 60,
               decoration: FormFieldContainer.getOutlinedDecoration(
                 context,
                 labelText: 'Contacto (opcional)',
@@ -665,7 +691,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
           ),
         ],
 
-        // Descripción
         SizedBox(height: AppDimensions.spacing16),
         FormFieldContainer(
           child: TextFormField(

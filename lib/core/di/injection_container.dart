@@ -13,6 +13,7 @@ import '../../presentation/providers/backup_provider.dart'; // Asegúrate de que
 import 'app_di_module.dart';
 import 'data_di_module.dart';
 import 'domain_di_module.dart';
+import '../../data/datasources/local/daos/credit_cards_dao.dart';
 
 final getIt = GetIt.instance;
 
@@ -64,27 +65,5 @@ Future<void> initializeDependencies() async {
   );
   // --- Fin Registro Dependencias de Backup ---
 
-  _registerRepositories();
-  _registerUseCases();
-
   _dependenciesInitialized = true;
-}
-
-// Register repositories
-void _registerRepositories() {
-  // Credit Card Repository
-  GetIt.instance.registerLazySingleton<CreditCardRepository>(
-    () => CreditCardRepositoryImpl(GetIt.instance<AppDatabase>()),
-  );
-}
-
-// Register use cases
-void _registerUseCases() {
-  // Credit Card UseCases
-  GetIt.instance.registerLazySingleton<CreditCardUseCases>(
-    () => CreditCardUseCases(
-      GetIt.instance<CreditCardRepository>(),
-      GetIt.instance<ChartAccountRepository>(),
-    ),
-  );
 }

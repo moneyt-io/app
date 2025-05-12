@@ -11,6 +11,8 @@ import '../../domain/repositories/journal_repository.dart';
 import '../../domain/usecases/journal_usecases.dart';
 import '../../domain/repositories/transaction_repository.dart';
 import '../../domain/usecases/transaction_usecases.dart';
+import '../../domain/repositories/credit_card_repository.dart';
+import '../../domain/usecases/credit_card_usecases.dart';
 
 final getIt = GetIt.instance;
 
@@ -34,7 +36,7 @@ Future<void> initializeDomainDependencies() async {
   getIt.registerSingleton<WalletUseCases>(
     WalletUseCases(
       getIt<WalletRepository>(),
-      getIt<ChartAccountUseCases>() // Añadimos la dependencia
+      getIt<ChartAccountUseCases>()
     )
   );
   
@@ -43,13 +45,22 @@ Future<void> initializeDomainDependencies() async {
     () => JournalUseCases(getIt<JournalRepository>()),
   );
   
-  // Registro del caso de uso de Transacciones (actualizado)
+  // Registro de CreditCardUseCases
+  getIt.registerSingleton<CreditCardUseCases>(
+    CreditCardUseCases(
+      getIt<CreditCardRepository>(),
+      getIt<ChartAccountRepository>()
+    )
+  );
+  
+  // Registro del caso de uso de Transacciones con CreditCardRepository
   getIt.registerSingleton<TransactionUseCases>(
     TransactionUseCases(
       getIt<TransactionRepository>(),
       getIt<JournalRepository>(),
       getIt<WalletRepository>(),
-      getIt<CategoryRepository>()
+      getIt<CategoryRepository>(),
+      getIt<CreditCardRepository>()
     )
   );
 }
