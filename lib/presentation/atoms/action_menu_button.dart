@@ -5,7 +5,8 @@ import '../../core/presentation/app_dimensions.dart';
 enum ActionMenuOption {
   edit(Icons.edit_outlined, 'Editar'),
   view(Icons.visibility_outlined, 'Ver detalle'),
-  delete(Icons.delete_outline, 'Eliminar');
+  delete(Icons.delete_outline, 'Eliminar'),
+  pay(Icons.payment_outlined, 'Pagar'); // ← NUEVO: Opción para pagar tarjetas de crédito
 
   final IconData icon;
   final String label;

@@ -93,6 +93,18 @@ class _CreditCardsScreenState extends State<CreditCardsScreen> {
     }
   }
 
+  void _navigateToPayment(CreditCard creditCard) {
+    Navigator.of(context).pushNamed(
+      AppRoutes.creditCardPayment,
+      arguments: creditCard,
+    ).then((result) {
+      // Si el pago fue exitoso, refrescar la lista
+      if (result == true) {
+        _loadCreditCards();
+      }
+    });
+  }
+
   Future<void> _deleteCreditCard(CreditCard creditCard) async {
     try {
       final confirmed = await ConfirmDeleteDialog.show(
@@ -187,7 +199,6 @@ class _CreditCardsScreenState extends State<CreditCardsScreen> {
                   itemCount: filteredCards.length,
                   itemBuilder: (context, index) {
                     final card = filteredCards[index];
-                    final chartAccount = _chartAccountsMap[card.chartAccountId];
                     
                     // Calcular próxima fecha de pago
                     final nextPayment = _creditCardUseCases.getNextPaymentDate(card);
@@ -198,11 +209,11 @@ class _CreditCardsScreenState extends State<CreditCardsScreen> {
                     
                     return CreditCardListItem(
                       creditCard: card,
-                      chartAccount: chartAccount,
                       availableCredit: availableCredit,
                       nextPaymentDate: formattedNextPayment,
                       onTap: () => _navigateToCreditCardForm(creditCard: card),
                       onDelete: () => _deleteCreditCard(card),
+                      onPay: () => _navigateToPayment(card),
                     );
                   },
                 ),

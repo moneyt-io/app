@@ -19,11 +19,12 @@ import '../pages/chart_accounts/chart_accounts_screen.dart';
 import '../pages/chart_accounts/chart_account_form_screen.dart';
 import '../pages/wallets/wallets_screen.dart';
 import '../pages/wallets/wallet_form_screen.dart';
-import '../pages/wallets/wallet_detail_screen.dart'; // Add this import
-import '../pages/transactions/transaction_detail_screen.dart'; // Importar la pantalla de detalles
-import '../pages/backup_screen.dart'; // Importar la pantalla de respaldos
+import '../pages/wallets/wallet_detail_screen.dart';
+import '../pages/transactions/transaction_detail_screen.dart';
+import '../pages/backup_screen.dart';
 import '../pages/credit_cards/credit_cards_screen.dart';
 import '../pages/credit_cards/credit_card_form_screen.dart';
+import '../pages/credit_cards/credit_card_payment_screen.dart'; // ← NUEVA IMPORTACIÓN
 import './app_routes.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/entities/category.dart';
@@ -167,6 +168,13 @@ class RouteGenerator {
         final creditCard = settings.arguments as CreditCard?;
         return MaterialPageRoute(builder: (_) => CreditCardFormScreen(creditCard: creditCard));
       
+      // Ruta para el pago de tarjeta de crédito
+      case AppRoutes.creditCardPayment:
+        if (args is CreditCard) {
+          return MaterialPageRoute(builder: (_) => CreditCardPaymentScreen(creditCard: args));
+        }
+        return _errorRoute();
+
       // Implementar caso para la ruta de journals
       case AppRoutes.journals:
         return MaterialPageRoute(

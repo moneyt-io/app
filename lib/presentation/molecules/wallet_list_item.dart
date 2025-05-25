@@ -108,13 +108,18 @@ class WalletListItem extends StatelessWidget {
                 onOptionSelected: (option) {
                   switch (option) {
                     case ActionMenuOption.edit:
-                      if (onEdit != null) onEdit!();
-                      break;
-                    case ActionMenuOption.view:
                       onTap();
                       break;
                     case ActionMenuOption.delete:
                       onDelete();
+                      break;
+                    case ActionMenuOption.view:
+                      // Implementar si es necesario
+                      break;
+                    case ActionMenuOption.pay:
+                      // No aplica para wallets, ignorar
+                      break;
+                    default:
                       break;
                   }
                 },

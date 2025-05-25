@@ -24,11 +24,24 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
           .get();
 
   // Queries por tipo
-  Future<List<TransactionEntries>> getTransactionsByType(String documentTypeId) => 
-      (select(transactionEntry)
-        ..where((t) => t.documentTypeId.equals(documentTypeId))
-        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+  Future<List<TransactionEntries>> getTransactionsByType(String documentTypeId) {
+    return (select(transactionEntry) // ← CORREGIDO: usar transactionEntry en lugar de transactionEntries
+        ..where((t) => t.documentTypeId.equals(documentTypeId) & t.active.equals(true)))
         .get();
+  }
+
+  Future<List<TransactionEntries>> getTransactionsByPaymentTypeAndId(String paymentTypeId, int paymentId) {
+    return customSelect(
+      '''
+      SELECT DISTINCT t.* FROM transaction_entries t
+      INNER JOIN transaction_details td ON t.id = td.transaction_id
+      WHERE td.payment_type_id = ? AND td.payment_id = ? AND t.active = 1
+      ORDER BY t.date DESC
+      ''',
+      variables: [Variable.withString(paymentTypeId), Variable.withInt(paymentId)],
+      readsFrom: {transactionEntry, transactionDetail}, // ← CORREGIDO: usar transactionEntry y transactionDetail
+    ).asyncMap((row) => TransactionEntries.fromJson(row.data)).get();
+  }
 
   // Watch Queries
   Stream<List<TransactionEntries>> watchAllTransactions() =>

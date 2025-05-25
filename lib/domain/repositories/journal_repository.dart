@@ -52,6 +52,21 @@ abstract class JournalRepository {
     required int targetChartAccountId,
     required String targetCurrencyId,
     required double targetAmount,
-    required double rateExchange,
+    double rateExchange = 1.0,
   });
+
+  /// Crea un diario contable para pago de tarjeta de crédito
+  Future<JournalEntry> createCreditCardPaymentJournal({
+    required DateTime date,
+    String? description,
+    required double amount,
+    required String currencyId,
+    required int sourceWalletChartAccountId,
+    required int targetCreditCardChartAccountId,
+    required String targetCurrencyId,
+    required double targetAmount,
+    double rateExchange = 1.0,
+  });
+
+  // Utilitarios
 }

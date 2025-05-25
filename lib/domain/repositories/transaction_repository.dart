@@ -45,13 +45,34 @@ abstract class TransactionRepository {
     required DateTime date,
     required String description,
     required double amount,
-    required int sourceWalletId,
-    required int targetWalletId,
+    required String currencyId,
+    required int sourcePaymentId,
+    required int targetPaymentId,
+    required String targetPaymentTypeId,
+    required String targetCurrencyId,
     required double targetAmount,
     required double rateExchange,
     int? contactId,
   });
-  
+
+  /// Crea una transacción de pago de tarjeta de crédito
+  Future<TransactionEntry> createCreditCardPaymentTransaction({
+    required int journalId,
+    required DateTime date,
+    String? description,
+    required double amount,
+    required String currencyId,
+    required int sourceWalletId,
+    required int targetCreditCardId,
+    required String targetCurrencyId,
+    required double targetAmount,
+    double rateExchange = 1.0,
+  });
+
+  // Métodos de consulta específicos para tarjetas de crédito
+  Future<List<TransactionEntry>> getTransactionsByPaymentTypeAndId(String paymentTypeId, int paymentId);
+  Future<List<TransactionEntry>> getTransactionsByCreditCardPayment(int creditCardId);
+
   // Utilitarios
   Future<int> getNextSecuencial(String documentTypeId);
 }

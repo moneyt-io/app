@@ -203,3 +203,5 @@ El sistema seguirá la arquitectura limpia existente (Domain, Data, Presentation
 -   **(Fase 4) googleapis` / `googleapis_auth`: Para integración con Google Drive.
 
 Este esquema proporciona una guía completa para la implementación del sistema de copias de seguridad. Puedes ajustarlo según las prioridades y complejidad que desees alcanzar en cada fase.
+
+---

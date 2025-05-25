@@ -248,7 +248,7 @@ class JournalRepositoryImpl implements JournalRepository {
     required int targetChartAccountId,
     required String targetCurrencyId,
     required double targetAmount,
-    required double rateExchange,
+    double rateExchange = 1.0,
   }) async {
     final secuencial = await getNextSecuencial('T');
     final journalModel = JournalEntryModel.create(
@@ -311,6 +311,79 @@ class JournalRepositoryImpl implements JournalRepository {
     final journalEntry = await getJournalEntryById(journalId);
     if (journalEntry == null) {
       throw Exception('No se pudo crear el diario de transferencia');
+    }
+    return journalEntry;
+  }
+
+  @override
+  Future<JournalEntry> createCreditCardPaymentJournal({
+    required DateTime date,
+    String? description,
+    required double amount,
+    required String currencyId,
+    required int sourceWalletChartAccountId,
+    required int targetCreditCardChartAccountId,
+    required String targetCurrencyId,
+    required double targetAmount,
+    double rateExchange = 1.0,
+  }) async {
+    final secuencial = await getNextSecuencial('C'); // Card Payment
+    
+    final journalModel = JournalEntryModel.create(
+      documentTypeId: 'C',
+      secuencial: secuencial,
+      date: date,
+      description: description ?? 'Card payment',
+      active: true,
+    );
+    
+    final journalId = await _dao.insertJournalEntry(journalModel.toCompanion());
+    
+    // Asiento contable: Débito a tarjeta (reduce pasivo), Crédito a wallet (reduce activo)
+    final details = [
+      JournalDetailModel(
+        id: 0,
+        journalId: journalId,
+        currencyId: targetCurrencyId,
+        chartAccountId: targetCreditCardChartAccountId,
+        debit: targetAmount, // Reduce el pasivo de la tarjeta
+        credit: 0,
+        rateExchange: rateExchange,
+      ),
+      JournalDetailModel(
+        id: 0,
+        journalId: journalId,
+        currencyId: currencyId,
+        chartAccountId: sourceWalletChartAccountId,
+        debit: 0,
+        credit: amount, // Reduce el activo de la wallet
+        rateExchange: 1.0,
+      ),
+    ];
+    
+    // Manejar diferencia de cambio si las monedas son diferentes
+    if (currencyId != targetCurrencyId && (amount * rateExchange) != targetAmount) {
+      final difference = targetAmount - (amount * rateExchange);
+      if (difference != 0) {
+        details.add(
+          JournalDetailModel(
+            id: 0,
+            journalId: journalId,
+            currencyId: targetCurrencyId,
+            chartAccountId: targetCreditCardChartAccountId, // Cuenta de ganancia/pérdida cambiaria
+            debit: difference > 0 ? 0 : difference.abs(),
+            credit: difference > 0 ? difference : 0,
+            rateExchange: rateExchange,
+          ),
+        );
+      }
+    }
+    
+    await _dao.insertJournalDetails(details.map((d) => d.toCompanion()).toList());
+    
+    final journalEntry = await getJournalEntryById(journalId);
+    if (journalEntry == null) {
+      throw Exception('No se pudo crear el diario de pago de tarjeta');
     }
     return journalEntry;
   }

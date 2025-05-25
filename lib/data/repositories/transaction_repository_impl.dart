@@ -4,6 +4,7 @@ import '../../domain/entities/transaction_detail.dart';
 import '../../domain/repositories/transaction_repository.dart';
 import '../../domain/repositories/journal_repository.dart';
 import '../datasources/local/daos/transaction_dao.dart';
+import '../datasources/local/database.dart'; // ← NUEVA IMPORTACIÓN para acceder a TransactionEntries
 import '../models/transaction_entry_model.dart';
 import '../models/transaction_detail_model.dart';
 import '../../domain/repositories/category_repository.dart';
@@ -365,13 +366,14 @@ class TransactionRepositoryImpl implements TransactionRepository {
     required DateTime date,
     required String description,
     required double amount,
-    required int sourceWalletId,
-    required int targetWalletId,
+    required String currencyId,
+    required int sourcePaymentId,
+    required int targetPaymentId,
+    required String targetPaymentTypeId,
+    required String targetCurrencyId,
     required double targetAmount,
     required double rateExchange,
     int? contactId,
-    String currencyId = 'USD', 
-    String targetCurrencyId = 'USD',
   }) async {
     // 2. Obtener el siguiente secuencial
     final secuencial = await getNextSecuencial('T');
@@ -402,7 +404,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       currencyId: currencyId,
       flowId: 'F', // From
       paymentTypeId: 'W', // Wallet
-      paymentId: sourceWalletId,
+      paymentId: sourcePaymentId,
       categoryId: 0, // No aplica categoría en transferencias
       amount: -amount, // Sale de la cuenta origen (negativo)
       rateExchange: 1.0, // Tasa base para el origen
@@ -414,7 +416,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       currencyId: targetCurrencyId,
       flowId: 'T', // To
       paymentTypeId: 'W', // Wallet
-      paymentId: targetWalletId,
+      paymentId: targetPaymentId,
       categoryId: 0, // No aplica categoría en transferencias
       amount: targetAmount, // Entra a la cuenta destino (positivo)
       rateExchange: rateExchange, // Tasa aplicada para la conversión
@@ -431,5 +433,161 @@ class TransactionRepositoryImpl implements TransactionRepository {
     }
     
     return transaction;
+  }
+
+  @override
+  Future<TransactionEntry> createCreditCardPaymentTransaction({
+    required int journalId,
+    required DateTime date,
+    String? description,
+    required double amount,
+    required String currencyId,
+    required int sourceWalletId,
+    required int targetCreditCardId,
+    required String targetCurrencyId,
+    required double targetAmount,
+    double rateExchange = 1.0,
+  }) async {
+    final secuencial = await getNextSecuencial('C');
+    
+    final transactionModel = TransactionEntryModel.create(
+      documentTypeId: 'C', // Card Payment
+      currencyId: currencyId,
+      journalId: journalId,
+      contactId: null,
+      secuencial: secuencial,
+      date: date,
+      amount: amount,
+      rateExchange: rateExchange,
+      description: description,
+    );
+    
+    final transactionId = await _dao.insertTransaction(transactionModel.toCompanion());
+    
+    if (transactionId == 0) {
+      throw Exception('Error al insertar la transacción de pago de tarjeta');
+    }
+    
+    // Crear detalles: origen (wallet) y destino (tarjeta)
+    final sourceDetailModel = TransactionDetailModel.create(
+      transactionId: transactionId,
+      currencyId: currencyId,
+      flowId: 'F', // From (salida de wallet)
+      paymentTypeId: 'W', // Wallet
+      paymentId: sourceWalletId,
+      categoryId: 0, // No aplica categoría en pagos de tarjeta
+      amount: -amount, // Salida de la wallet (negativo)
+      rateExchange: 1.0,
+    );
+    
+    final targetDetailModel = TransactionDetailModel.create(
+      transactionId: transactionId,
+      currencyId: targetCurrencyId,
+      flowId: 'T', // To (pago a tarjeta)
+      paymentTypeId: 'C', // Credit Card
+      paymentId: targetCreditCardId,
+      categoryId: 0, // No aplica categoría
+      amount: targetAmount, // Pago a la tarjeta (positivo, reduce deuda)
+      rateExchange: rateExchange,
+    );
+    
+    await _dao.insertTransactionDetail(sourceDetailModel.toCompanion());
+    await _dao.insertTransactionDetail(targetDetailModel.toCompanion());
+    
+    final transaction = await getTransactionById(transactionId);
+    if (transaction == null) {
+      throw Exception('Error al crear la transacción de pago de tarjeta');
+    }
+    
+    return transaction;
+  }
+
+  @override
+  Future<List<TransactionEntry>> getTransactionsByPaymentTypeAndId(String paymentTypeId, int paymentId) async {
+    final entries = await _dao.getTransactionsByPaymentTypeAndId(paymentTypeId, paymentId);
+    return Future.wait(entries.map((entry) async {
+      final details = await _dao.getTransactionDetailsForEntry(entry.id);
+      return TransactionEntryModel(
+        id: entry.id,
+        documentTypeId: entry.documentTypeId,
+        currencyId: entry.currencyId,
+        journalId: entry.journalId,
+        contactId: entry.contactId,
+        secuencial: entry.secuencial,
+        date: entry.date,
+        amount: entry.amount,
+        rateExchange: entry.rateExchange,
+        description: entry.description,
+        active: entry.active,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt,
+        deletedAt: entry.deletedAt,
+      ).toEntity(
+        details: details.map((detail) => TransactionDetailModel(
+          id: detail.id,
+          transactionId: detail.transactionId,
+          currencyId: detail.currencyId,
+          flowId: detail.flowId,
+          paymentTypeId: detail.paymentTypeId,
+          paymentId: detail.paymentId,
+          categoryId: detail.categoryId,
+          amount: detail.amount,
+          rateExchange: detail.rateExchange,
+        ).toEntity()).toList(),
+      );
+    }));
+  }
+
+  @override
+  Future<List<TransactionEntry>> getTransactionsByCreditCardPayment(int creditCardId) async {
+    // Obtener todas las transacciones de tipo 'C' (Card Payment) donde el destino es la tarjeta
+    final entries = await _dao.getTransactionsByType('C');
+    final filteredEntries = <TransactionEntries>[]; // ← CORREGIDO: ahora TransactionEntries está disponible
+    
+    for (final entry in entries) {
+      final details = await _dao.getTransactionDetailsForEntry(entry.id);
+      // Verificar si algún detalle es pago a esta tarjeta específica
+      final hasCardPayment = details.any((detail) => 
+        detail.paymentTypeId == 'C' && 
+        detail.paymentId == creditCardId &&
+        detail.flowId == 'T' // To (destino del pago)
+      );
+      
+      if (hasCardPayment) {
+        filteredEntries.add(entry);
+      }
+    }
+    
+    return Future.wait(filteredEntries.map((entry) async {
+      final details = await _dao.getTransactionDetailsForEntry(entry.id);
+      return TransactionEntryModel(
+        id: entry.id,
+        documentTypeId: entry.documentTypeId,
+        currencyId: entry.currencyId,
+        journalId: entry.journalId,
+        contactId: entry.contactId,
+        secuencial: entry.secuencial,
+        date: entry.date,
+        amount: entry.amount,
+        rateExchange: entry.rateExchange,
+        description: entry.description,
+        active: entry.active,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt,
+        deletedAt: entry.deletedAt,
+      ).toEntity(
+        details: details.map((detail) => TransactionDetailModel(
+          id: detail.id,
+          transactionId: detail.transactionId,
+          currencyId: detail.currencyId,
+          flowId: detail.flowId,
+          paymentTypeId: detail.paymentTypeId,
+          paymentId: detail.paymentId,
+          categoryId: detail.categoryId,
+          amount: detail.amount,
+          rateExchange: detail.rateExchange,
+        ).toEntity()).toList(),
+      );
+    }));
   }
 }

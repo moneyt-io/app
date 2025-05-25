@@ -355,8 +355,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
             description: _descriptionController.text,
             amount: amount,
             currencyId: _selectedAccount!.currencyId,
-            sourceWalletId: paymentId, // Solo wallets para transferencias
-            targetWalletId: _selectedToAccount!.id, // Solo wallets para destino
+            sourcePaymentId: paymentId, // ← CORREGIDO: Parámetro faltante
+            targetPaymentId: _selectedToAccount!.id, // ← CORREGIDO: Parámetro faltante
+            targetPaymentTypeId: 'W', // ← NUEVO: Tipo de pago destino (Wallet)
             targetCurrencyId: _selectedToAccount!.currencyId,
             targetAmount: amount, // Simplificado
             contactId: _selectedContactId,

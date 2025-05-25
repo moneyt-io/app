@@ -7,20 +7,20 @@ import '../atoms/action_menu_button.dart';
 
 class CreditCardListItem extends StatelessWidget {
   final CreditCard creditCard;
-  final ChartAccount? chartAccount;
-  final double availableCredit;
-  final String nextPaymentDate;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final VoidCallback onPay;
+  final double? availableCredit; // ← NUEVO parámetro opcional
+  final String? nextPaymentDate; // ← NUEVO parámetro opcional
 
   const CreditCardListItem({
     Key? key,
     required this.creditCard,
-    this.chartAccount,
-    required this.availableCredit,
-    required this.nextPaymentDate,
     required this.onTap,
     required this.onDelete,
+    required this.onPay,
+    this.availableCredit, // ← NUEVO
+    this.nextPaymentDate, // ← NUEVO
   }) : super(key: key);
 
   @override
@@ -100,16 +100,23 @@ class CreditCardListItem extends StatelessWidget {
               // Opciones
               ActionMenuButton(
                 options: const [
+                  ActionMenuOption.pay,
                   ActionMenuOption.edit,
                   ActionMenuOption.delete,
                 ],
                 onOptionSelected: (option) {
                   switch (option) {
+                    case ActionMenuOption.pay:
+                      onPay();
+                      break;
                     case ActionMenuOption.edit:
                       onTap();
                       break;
                     case ActionMenuOption.delete:
                       onDelete();
+                      break;
+                    case ActionMenuOption.view: // ← AGREGAR caso faltante
+                      // No aplica para tarjetas de crédito
                       break;
                     default:
                       break;

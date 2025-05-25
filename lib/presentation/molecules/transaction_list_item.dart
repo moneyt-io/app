@@ -155,6 +155,11 @@ class TransactionListItem extends StatelessWidget {
                     case ActionMenuOption.delete:
                       onDelete();
                       break;
+                    case ActionMenuOption.pay:
+                      // No aplica para transacciones
+                      break;
+                    default:
+                      break;
                   }
                 },
               ),

@@ -145,16 +145,17 @@ class TransactionUseCases {
     required String description,
     required double amount,
     required String currencyId,
-    required int sourceWalletId,
-    required int targetWalletId,
+    required int sourcePaymentId,
+    required int targetPaymentId,
+    required String targetPaymentTypeId,
     required String targetCurrencyId,
     required double targetAmount,
     double rateExchange = 1.0,
     int? contactId,
   }) async {
     // 1. Obtener información de las wallets
-    final sourceWallet = await _walletRepository.getWalletById(sourceWalletId);
-    final targetWallet = await _walletRepository.getWalletById(targetWalletId);
+    final sourceWallet = await _walletRepository.getWalletById(sourcePaymentId);
+    final targetWallet = await _walletRepository.getWalletById(targetPaymentId);
     
     if (sourceWallet == null || targetWallet == null) {
       throw Exception('Wallet origen o destino no encontrada');
@@ -175,18 +176,72 @@ class TransactionUseCases {
     
     // 3. Crear transacción vinculada al diario
     return _transactionRepository.createTransferTransaction(
-      journalId: journalEntry.id, // <-- Pasar journalId
+      journalId: journalEntry.id,
       date: date,
       description: description,
       amount: amount,
-      sourceWalletId: sourceWalletId,
-      targetWalletId: targetWalletId,
+      currencyId: currencyId, // ← CORREGIDO: Añadido parámetro faltante
+      sourcePaymentId: sourcePaymentId,
+      targetPaymentId: targetPaymentId,
+      targetPaymentTypeId: targetPaymentTypeId,
+      targetCurrencyId: targetCurrencyId,
       targetAmount: targetAmount,
       rateExchange: rateExchange,
       contactId: contactId,
     );
   }
-  
+
+  /// Crea un pago de tarjeta de crédito desde una wallet
+  Future<TransactionEntry> createCreditCardPayment({
+    required DateTime date,
+    String? description,
+    required double amount,
+    required String currencyId,
+    required int sourceWalletId,
+    required int targetCreditCardId,
+    required String targetCurrencyId,
+    double? targetAmount, // Para manejar conversión de moneda
+    double rateExchange = 1.0,
+  }) async {
+    // 1. Obtener información de la wallet origen y la tarjeta destino
+    final sourceWallet = await _walletRepository.getWalletById(sourceWalletId);
+    final targetCreditCard = await _creditCardRepository.getCreditCardById(targetCreditCardId);
+    
+    if (sourceWallet == null || targetCreditCard == null) {
+      throw Exception('Wallet origen o tarjeta de crédito no encontrada');
+    }
+    
+    // 2. Calcular targetAmount si no se proporciona (para misma moneda)
+    final finalTargetAmount = targetAmount ?? amount;
+    
+    // 3. Crear diario contable
+    final journalEntry = await _journalRepository.createCreditCardPaymentJournal(
+      date: date,
+      description: description ?? 'Pago tarjeta ${targetCreditCard.name}',
+      amount: amount,
+      currencyId: currencyId,
+      sourceWalletChartAccountId: sourceWallet.chartAccountId,
+      targetCreditCardChartAccountId: targetCreditCard.chartAccountId,
+      targetCurrencyId: targetCurrencyId,
+      targetAmount: finalTargetAmount,
+      rateExchange: rateExchange,
+    );
+    
+    // 4. Crear transacción
+    return _transactionRepository.createCreditCardPaymentTransaction(
+      journalId: journalEntry.id,
+      date: date,
+      description: description,
+      amount: amount,
+      currencyId: currencyId,
+      sourceWalletId: sourceWalletId,
+      targetCreditCardId: targetCreditCardId,
+      targetCurrencyId: targetCurrencyId,
+      targetAmount: finalTargetAmount,
+      rateExchange: rateExchange,
+    );
+  }
+
   // CRUD Operations para transacciones existentes
   Future<void> updateTransaction(TransactionEntry transaction) => 
       _transactionRepository.updateTransaction(transaction);

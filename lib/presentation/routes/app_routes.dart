@@ -21,7 +21,7 @@ class AppRoutes {
   // Credit Card Routes
   static const String creditCards = '/credit-cards';
   static const String creditCardForm = '/credit-card-form';
-  static const String creditCardDetail = '/credit-card-detail';
+  static const String creditCardPayment = '/credit-card-payment'; // Nueva ruta
   
   static const String chartAccounts = '/chartAccounts';
   static const String chartAccountForm = '/chartAccountForm';

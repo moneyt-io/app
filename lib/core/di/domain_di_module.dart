@@ -49,7 +49,8 @@ Future<void> initializeDomainDependencies() async {
   getIt.registerSingleton<CreditCardUseCases>(
     CreditCardUseCases(
       getIt<CreditCardRepository>(),
-      getIt<ChartAccountRepository>()
+      getIt<ChartAccountRepository>(),
+      getIt<TransactionRepository>(), // ← AGREGAR el TransactionRepository faltante
     )
   );
   
