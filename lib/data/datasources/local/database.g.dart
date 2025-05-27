@@ -5784,29 +5784,22 @@ class $LoanEntryTable extends LoanEntry
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 1),
       type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES document_type (id)'));
+      requiredDuringInsert: true);
   static const VerificationMeta _currencyIdMeta =
       const VerificationMeta('currencyId');
   @override
   late final GeneratedColumn<String> currencyId = GeneratedColumn<String>(
       'currency_id', aliasedName, false,
       additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 3, maxTextLength: 3),
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 3),
       type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES currency (id)'));
+      requiredDuringInsert: true);
   static const VerificationMeta _contactIdMeta =
       const VerificationMeta('contactId');
   @override
   late final GeneratedColumn<int> contactId = GeneratedColumn<int>(
       'contact_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES contact (id)'));
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _secuencialMeta =
       const VerificationMeta('secuencial');
   @override
@@ -5828,7 +5821,9 @@ class $LoanEntryTable extends LoanEntry
   @override
   late final GeneratedColumn<double> rateExchange = GeneratedColumn<double>(
       'rate_exchange', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1.0));
   static const VerificationMeta _descriptionMeta =
       const VerificationMeta('description');
   @override
@@ -5839,10 +5834,17 @@ class $LoanEntryTable extends LoanEntry
   @override
   late final GeneratedColumn<String> status = GeneratedColumn<String>(
       'status', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 1),
       type: DriftSqlType.string,
-      requiredDuringInsert: true);
+      requiredDuringInsert: false,
+      defaultValue: const Constant('ACTIVE'));
+  static const VerificationMeta _totalPaidMeta =
+      const VerificationMeta('totalPaid');
+  @override
+  late final GeneratedColumn<double> totalPaid = GeneratedColumn<double>(
+      'total_paid', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
   static const VerificationMeta _activeMeta = const VerificationMeta('active');
   @override
   late final GeneratedColumn<bool> active = GeneratedColumn<bool>(
@@ -5864,8 +5866,10 @@ class $LoanEntryTable extends LoanEntry
       const VerificationMeta('updatedAt');
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _deletedAtMeta =
       const VerificationMeta('deletedAt');
   @override
@@ -5884,6 +5888,7 @@ class $LoanEntryTable extends LoanEntry
         rateExchange,
         description,
         status,
+        totalPaid,
         active,
         createdAt,
         updatedAt,
@@ -5893,7 +5898,7 @@ class $LoanEntryTable extends LoanEntry
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'loan_entry';
+  static const String $name = 'loan_entries';
   @override
   VerificationContext validateIntegrity(Insertable<LoanEntries> instance,
       {bool isInserting = false}) {
@@ -5949,8 +5954,6 @@ class $LoanEntryTable extends LoanEntry
           _rateExchangeMeta,
           rateExchange.isAcceptableOrUnknown(
               data['rate_exchange']!, _rateExchangeMeta));
-    } else if (isInserting) {
-      context.missing(_rateExchangeMeta);
     }
     if (data.containsKey('description')) {
       context.handle(
@@ -5961,8 +5964,10 @@ class $LoanEntryTable extends LoanEntry
     if (data.containsKey('status')) {
       context.handle(_statusMeta,
           status.isAcceptableOrUnknown(data['status']!, _statusMeta));
-    } else if (isInserting) {
-      context.missing(_statusMeta);
+    }
+    if (data.containsKey('total_paid')) {
+      context.handle(_totalPaidMeta,
+          totalPaid.isAcceptableOrUnknown(data['total_paid']!, _totalPaidMeta));
     }
     if (data.containsKey('active')) {
       context.handle(_activeMeta,
@@ -6009,12 +6014,14 @@ class $LoanEntryTable extends LoanEntry
           .read(DriftSqlType.string, data['${effectivePrefix}description']),
       status: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      totalPaid: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}total_paid'])!,
       active: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}active'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
       deletedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
     );
@@ -6037,9 +6044,10 @@ class LoanEntries extends DataClass implements Insertable<LoanEntries> {
   final double rateExchange;
   final String? description;
   final String status;
+  final double totalPaid;
   final bool active;
   final DateTime createdAt;
-  final DateTime? updatedAt;
+  final DateTime updatedAt;
   final DateTime? deletedAt;
   const LoanEntries(
       {required this.id,
@@ -6052,9 +6060,10 @@ class LoanEntries extends DataClass implements Insertable<LoanEntries> {
       required this.rateExchange,
       this.description,
       required this.status,
+      required this.totalPaid,
       required this.active,
       required this.createdAt,
-      this.updatedAt,
+      required this.updatedAt,
       this.deletedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6071,11 +6080,10 @@ class LoanEntries extends DataClass implements Insertable<LoanEntries> {
       map['description'] = Variable<String>(description);
     }
     map['status'] = Variable<String>(status);
+    map['total_paid'] = Variable<double>(totalPaid);
     map['active'] = Variable<bool>(active);
     map['created_at'] = Variable<DateTime>(createdAt);
-    if (!nullToAbsent || updatedAt != null) {
-      map['updated_at'] = Variable<DateTime>(updatedAt);
-    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
     }
@@ -6096,11 +6104,10 @@ class LoanEntries extends DataClass implements Insertable<LoanEntries> {
           ? const Value.absent()
           : Value(description),
       status: Value(status),
+      totalPaid: Value(totalPaid),
       active: Value(active),
       createdAt: Value(createdAt),
-      updatedAt: updatedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(updatedAt),
+      updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(deletedAt),
@@ -6121,9 +6128,10 @@ class LoanEntries extends DataClass implements Insertable<LoanEntries> {
       rateExchange: serializer.fromJson<double>(json['rateExchange']),
       description: serializer.fromJson<String?>(json['description']),
       status: serializer.fromJson<String>(json['status']),
+      totalPaid: serializer.fromJson<double>(json['totalPaid']),
       active: serializer.fromJson<bool>(json['active']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
   }
@@ -6141,9 +6149,10 @@ class LoanEntries extends DataClass implements Insertable<LoanEntries> {
       'rateExchange': serializer.toJson<double>(rateExchange),
       'description': serializer.toJson<String?>(description),
       'status': serializer.toJson<String>(status),
+      'totalPaid': serializer.toJson<double>(totalPaid),
       'active': serializer.toJson<bool>(active),
       'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
   }
@@ -6159,9 +6168,10 @@ class LoanEntries extends DataClass implements Insertable<LoanEntries> {
           double? rateExchange,
           Value<String?> description = const Value.absent(),
           String? status,
+          double? totalPaid,
           bool? active,
           DateTime? createdAt,
-          Value<DateTime?> updatedAt = const Value.absent(),
+          DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       LoanEntries(
         id: id ?? this.id,
@@ -6174,9 +6184,10 @@ class LoanEntries extends DataClass implements Insertable<LoanEntries> {
         rateExchange: rateExchange ?? this.rateExchange,
         description: description.present ? description.value : this.description,
         status: status ?? this.status,
+        totalPaid: totalPaid ?? this.totalPaid,
         active: active ?? this.active,
         createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
       );
   LoanEntries copyWithCompanion(LoanEntriesCompanion data) {
@@ -6198,6 +6209,7 @@ class LoanEntries extends DataClass implements Insertable<LoanEntries> {
       description:
           data.description.present ? data.description.value : this.description,
       status: data.status.present ? data.status.value : this.status,
+      totalPaid: data.totalPaid.present ? data.totalPaid.value : this.totalPaid,
       active: data.active.present ? data.active.value : this.active,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -6218,6 +6230,7 @@ class LoanEntries extends DataClass implements Insertable<LoanEntries> {
           ..write('rateExchange: $rateExchange, ')
           ..write('description: $description, ')
           ..write('status: $status, ')
+          ..write('totalPaid: $totalPaid, ')
           ..write('active: $active, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -6238,6 +6251,7 @@ class LoanEntries extends DataClass implements Insertable<LoanEntries> {
       rateExchange,
       description,
       status,
+      totalPaid,
       active,
       createdAt,
       updatedAt,
@@ -6256,6 +6270,7 @@ class LoanEntries extends DataClass implements Insertable<LoanEntries> {
           other.rateExchange == this.rateExchange &&
           other.description == this.description &&
           other.status == this.status &&
+          other.totalPaid == this.totalPaid &&
           other.active == this.active &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
@@ -6273,9 +6288,10 @@ class LoanEntriesCompanion extends UpdateCompanion<LoanEntries> {
   final Value<double> rateExchange;
   final Value<String?> description;
   final Value<String> status;
+  final Value<double> totalPaid;
   final Value<bool> active;
   final Value<DateTime> createdAt;
-  final Value<DateTime?> updatedAt;
+  final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
   const LoanEntriesCompanion({
     this.id = const Value.absent(),
@@ -6288,6 +6304,7 @@ class LoanEntriesCompanion extends UpdateCompanion<LoanEntries> {
     this.rateExchange = const Value.absent(),
     this.description = const Value.absent(),
     this.status = const Value.absent(),
+    this.totalPaid = const Value.absent(),
     this.active = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -6301,9 +6318,10 @@ class LoanEntriesCompanion extends UpdateCompanion<LoanEntries> {
     required int secuencial,
     required DateTime date,
     required double amount,
-    required double rateExchange,
+    this.rateExchange = const Value.absent(),
     this.description = const Value.absent(),
-    required String status,
+    this.status = const Value.absent(),
+    this.totalPaid = const Value.absent(),
     this.active = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -6313,9 +6331,7 @@ class LoanEntriesCompanion extends UpdateCompanion<LoanEntries> {
         contactId = Value(contactId),
         secuencial = Value(secuencial),
         date = Value(date),
-        amount = Value(amount),
-        rateExchange = Value(rateExchange),
-        status = Value(status);
+        amount = Value(amount);
   static Insertable<LoanEntries> custom({
     Expression<int>? id,
     Expression<String>? documentTypeId,
@@ -6327,6 +6343,7 @@ class LoanEntriesCompanion extends UpdateCompanion<LoanEntries> {
     Expression<double>? rateExchange,
     Expression<String>? description,
     Expression<String>? status,
+    Expression<double>? totalPaid,
     Expression<bool>? active,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -6343,6 +6360,7 @@ class LoanEntriesCompanion extends UpdateCompanion<LoanEntries> {
       if (rateExchange != null) 'rate_exchange': rateExchange,
       if (description != null) 'description': description,
       if (status != null) 'status': status,
+      if (totalPaid != null) 'total_paid': totalPaid,
       if (active != null) 'active': active,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -6361,9 +6379,10 @@ class LoanEntriesCompanion extends UpdateCompanion<LoanEntries> {
       Value<double>? rateExchange,
       Value<String?>? description,
       Value<String>? status,
+      Value<double>? totalPaid,
       Value<bool>? active,
       Value<DateTime>? createdAt,
-      Value<DateTime?>? updatedAt,
+      Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt}) {
     return LoanEntriesCompanion(
       id: id ?? this.id,
@@ -6376,6 +6395,7 @@ class LoanEntriesCompanion extends UpdateCompanion<LoanEntries> {
       rateExchange: rateExchange ?? this.rateExchange,
       description: description ?? this.description,
       status: status ?? this.status,
+      totalPaid: totalPaid ?? this.totalPaid,
       active: active ?? this.active,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -6416,6 +6436,9 @@ class LoanEntriesCompanion extends UpdateCompanion<LoanEntries> {
     if (status.present) {
       map['status'] = Variable<String>(status.value);
     }
+    if (totalPaid.present) {
+      map['total_paid'] = Variable<double>(totalPaid.value);
+    }
     if (active.present) {
       map['active'] = Variable<bool>(active.value);
     }
@@ -6444,6 +6467,7 @@ class LoanEntriesCompanion extends UpdateCompanion<LoanEntries> {
           ..write('rateExchange: $rateExchange, ')
           ..write('description: $description, ')
           ..write('status: $status, ')
+          ..write('totalPaid: $totalPaid, ')
           ..write('active: $active, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -6472,21 +6496,16 @@ class $LoanDetailTable extends LoanDetail
   @override
   late final GeneratedColumn<int> loanId = GeneratedColumn<int>(
       'loan_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES loan_entry (id)'));
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _currencyIdMeta =
       const VerificationMeta('currencyId');
   @override
   late final GeneratedColumn<String> currencyId = GeneratedColumn<String>(
       'currency_id', aliasedName, false,
       additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 3, maxTextLength: 3),
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 3),
       type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES currency (id)'));
+      requiredDuringInsert: true);
   static const VerificationMeta _paymentTypeIdMeta =
       const VerificationMeta('paymentTypeId');
   @override
@@ -6495,9 +6514,7 @@ class $LoanDetailTable extends LoanDetail
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 1),
       type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES payment_type (id)'));
+      requiredDuringInsert: true);
   static const VerificationMeta _paymentIdMeta =
       const VerificationMeta('paymentId');
   @override
@@ -6509,19 +6526,13 @@ class $LoanDetailTable extends LoanDetail
   @override
   late final GeneratedColumn<int> journalId = GeneratedColumn<int>(
       'journal_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES journal_entry (id)'));
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _transactionIdMeta =
       const VerificationMeta('transactionId');
   @override
   late final GeneratedColumn<int> transactionId = GeneratedColumn<int>(
       'transaction_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES transaction_entry (id)'));
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
   late final GeneratedColumn<double> amount = GeneratedColumn<double>(
@@ -6532,7 +6543,9 @@ class $LoanDetailTable extends LoanDetail
   @override
   late final GeneratedColumn<double> rateExchange = GeneratedColumn<double>(
       'rate_exchange', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1.0));
   static const VerificationMeta _activeMeta = const VerificationMeta('active');
   @override
   late final GeneratedColumn<bool> active = GeneratedColumn<bool>(
@@ -6554,8 +6567,10 @@ class $LoanDetailTable extends LoanDetail
       const VerificationMeta('updatedAt');
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _deletedAtMeta =
       const VerificationMeta('deletedAt');
   @override
@@ -6582,7 +6597,7 @@ class $LoanDetailTable extends LoanDetail
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'loan_detail';
+  static const String $name = 'loan_details';
   @override
   VerificationContext validateIntegrity(Insertable<LoanDetails> instance,
       {bool isInserting = false}) {
@@ -6644,8 +6659,6 @@ class $LoanDetailTable extends LoanDetail
           _rateExchangeMeta,
           rateExchange.isAcceptableOrUnknown(
               data['rate_exchange']!, _rateExchangeMeta));
-    } else if (isInserting) {
-      context.missing(_rateExchangeMeta);
     }
     if (data.containsKey('active')) {
       context.handle(_activeMeta,
@@ -6695,7 +6708,7 @@ class $LoanDetailTable extends LoanDetail
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
       deletedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
     );
@@ -6719,7 +6732,7 @@ class LoanDetails extends DataClass implements Insertable<LoanDetails> {
   final double rateExchange;
   final bool active;
   final DateTime createdAt;
-  final DateTime? updatedAt;
+  final DateTime updatedAt;
   final DateTime? deletedAt;
   const LoanDetails(
       {required this.id,
@@ -6733,7 +6746,7 @@ class LoanDetails extends DataClass implements Insertable<LoanDetails> {
       required this.rateExchange,
       required this.active,
       required this.createdAt,
-      this.updatedAt,
+      required this.updatedAt,
       this.deletedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6749,9 +6762,7 @@ class LoanDetails extends DataClass implements Insertable<LoanDetails> {
     map['rate_exchange'] = Variable<double>(rateExchange);
     map['active'] = Variable<bool>(active);
     map['created_at'] = Variable<DateTime>(createdAt);
-    if (!nullToAbsent || updatedAt != null) {
-      map['updated_at'] = Variable<DateTime>(updatedAt);
-    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
     }
@@ -6771,9 +6782,7 @@ class LoanDetails extends DataClass implements Insertable<LoanDetails> {
       rateExchange: Value(rateExchange),
       active: Value(active),
       createdAt: Value(createdAt),
-      updatedAt: updatedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(updatedAt),
+      updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(deletedAt),
@@ -6795,7 +6804,7 @@ class LoanDetails extends DataClass implements Insertable<LoanDetails> {
       rateExchange: serializer.fromJson<double>(json['rateExchange']),
       active: serializer.fromJson<bool>(json['active']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
   }
@@ -6814,7 +6823,7 @@ class LoanDetails extends DataClass implements Insertable<LoanDetails> {
       'rateExchange': serializer.toJson<double>(rateExchange),
       'active': serializer.toJson<bool>(active),
       'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
   }
@@ -6831,7 +6840,7 @@ class LoanDetails extends DataClass implements Insertable<LoanDetails> {
           double? rateExchange,
           bool? active,
           DateTime? createdAt,
-          Value<DateTime?> updatedAt = const Value.absent(),
+          DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       LoanDetails(
         id: id ?? this.id,
@@ -6845,7 +6854,7 @@ class LoanDetails extends DataClass implements Insertable<LoanDetails> {
         rateExchange: rateExchange ?? this.rateExchange,
         active: active ?? this.active,
         createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
       );
   LoanDetails copyWithCompanion(LoanDetailsCompanion data) {
@@ -6939,7 +6948,7 @@ class LoanDetailsCompanion extends UpdateCompanion<LoanDetails> {
   final Value<double> rateExchange;
   final Value<bool> active;
   final Value<DateTime> createdAt;
-  final Value<DateTime?> updatedAt;
+  final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
   const LoanDetailsCompanion({
     this.id = const Value.absent(),
@@ -6965,7 +6974,7 @@ class LoanDetailsCompanion extends UpdateCompanion<LoanDetails> {
     required int journalId,
     required int transactionId,
     required double amount,
-    required double rateExchange,
+    this.rateExchange = const Value.absent(),
     this.active = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -6976,8 +6985,7 @@ class LoanDetailsCompanion extends UpdateCompanion<LoanDetails> {
         paymentId = Value(paymentId),
         journalId = Value(journalId),
         transactionId = Value(transactionId),
-        amount = Value(amount),
-        rateExchange = Value(rateExchange);
+        amount = Value(amount);
   static Insertable<LoanDetails> custom({
     Expression<int>? id,
     Expression<int>? loanId,
@@ -7022,7 +7030,7 @@ class LoanDetailsCompanion extends UpdateCompanion<LoanDetails> {
       Value<double>? rateExchange,
       Value<bool>? active,
       Value<DateTime>? createdAt,
-      Value<DateTime?>? updatedAt,
+      Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt}) {
     return LoanDetailsCompanion(
       id: id ?? this.id,
@@ -7708,7 +7716,7 @@ class $SharedExpenseDetailTable extends SharedExpenseDetail
       type: DriftSqlType.int,
       requiredDuringInsert: true,
       defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES loan_entry (id)'));
+          GeneratedColumn.constraintIsAlways('REFERENCES loan_entries (id)'));
   static const VerificationMeta _transactionIdMeta =
       const VerificationMeta('transactionId');
   @override
@@ -8183,6 +8191,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $SharedExpenseEntryTable(this);
   late final $SharedExpenseDetailTable sharedExpenseDetail =
       $SharedExpenseDetailTable(this);
+  late final LoanDao loanDao = LoanDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -8487,21 +8496,6 @@ final class $$DocumentTypeTableReferences
         manager.$state.copyWith(prefetchedData: cache));
   }
 
-  static MultiTypedResultKey<$LoanEntryTable, List<LoanEntries>>
-      _loanEntryRefsTable(_$AppDatabase db) =>
-          MultiTypedResultKey.fromTable(db.loanEntry,
-              aliasName: $_aliasNameGenerator(
-                  db.documentType.id, db.loanEntry.documentTypeId));
-
-  $$LoanEntryTableProcessedTableManager get loanEntryRefs {
-    final manager = $$LoanEntryTableTableManager($_db, $_db.loanEntry)
-        .filter((f) => f.documentTypeId.id($_item.id));
-
-    final cache = $_typedResult.readTableOrNull(_loanEntryRefsTable($_db));
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
-
   static MultiTypedResultKey<$SharedExpenseEntryTable,
       List<SharedExpenseEntries>> _sharedExpenseEntryRefsTable(
           _$AppDatabase db) =>
@@ -8591,27 +8585,6 @@ class $$DocumentTypeTableFilterComposer
             $$TransactionEntryTableFilterComposer(
               $db: $db,
               $table: $db.transactionEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
-  Expression<bool> loanEntryRefs(
-      Expression<bool> Function($$LoanEntryTableFilterComposer f) f) {
-    final $$LoanEntryTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanEntry,
-        getReferencedColumn: (t) => t.documentTypeId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanEntryTableFilterComposer(
-              $db: $db,
-              $table: $db.loanEntry,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -8736,27 +8709,6 @@ class $$DocumentTypeTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> loanEntryRefs<T extends Object>(
-      Expression<T> Function($$LoanEntryTableAnnotationComposer a) f) {
-    final $$LoanEntryTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanEntry,
-        getReferencedColumn: (t) => t.documentTypeId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanEntryTableAnnotationComposer(
-              $db: $db,
-              $table: $db.loanEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
   Expression<T> sharedExpenseEntryRefs<T extends Object>(
       Expression<T> Function($$SharedExpenseEntryTableAnnotationComposer a) f) {
     final $$SharedExpenseEntryTableAnnotationComposer composer =
@@ -8795,7 +8747,6 @@ class $$DocumentTypeTableTableManager extends RootTableManager<
         {bool categoryRefs,
         bool journalEntryRefs,
         bool transactionEntryRefs,
-        bool loanEntryRefs,
         bool sharedExpenseEntryRefs})> {
   $$DocumentTypeTableTableManager(_$AppDatabase db, $DocumentTypeTable table)
       : super(TableManagerState(
@@ -8837,7 +8788,6 @@ class $$DocumentTypeTableTableManager extends RootTableManager<
               {categoryRefs = false,
               journalEntryRefs = false,
               transactionEntryRefs = false,
-              loanEntryRefs = false,
               sharedExpenseEntryRefs = false}) {
             return PrefetchHooks(
               db: db,
@@ -8845,7 +8795,6 @@ class $$DocumentTypeTableTableManager extends RootTableManager<
                 if (categoryRefs) db.category,
                 if (journalEntryRefs) db.journalEntry,
                 if (transactionEntryRefs) db.transactionEntry,
-                if (loanEntryRefs) db.loanEntry,
                 if (sharedExpenseEntryRefs) db.sharedExpenseEntry
               ],
               addJoins: null,
@@ -8887,18 +8836,6 @@ class $$DocumentTypeTableTableManager extends RootTableManager<
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.documentTypeId == item.id),
                         typedResults: items),
-                  if (loanEntryRefs)
-                    await $_getPrefetchedData(
-                        currentTable: table,
-                        referencedTable: $$DocumentTypeTableReferences
-                            ._loanEntryRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$DocumentTypeTableReferences(db, table, p0)
-                                .loanEntryRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.documentTypeId == item.id),
-                        typedResults: items),
                   if (sharedExpenseEntryRefs)
                     await $_getPrefetchedData(
                         currentTable: table,
@@ -8933,7 +8870,6 @@ typedef $$DocumentTypeTableProcessedTableManager = ProcessedTableManager<
         {bool categoryRefs,
         bool journalEntryRefs,
         bool transactionEntryRefs,
-        bool loanEntryRefs,
         bool sharedExpenseEntryRefs})>;
 typedef $$FlowTypeTableCreateCompanionBuilder = FlowTypesCompanion Function({
   required String id,
@@ -9178,21 +9114,6 @@ final class $$PaymentTypeTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
-
-  static MultiTypedResultKey<$LoanDetailTable, List<LoanDetails>>
-      _loanDetailRefsTable(_$AppDatabase db) =>
-          MultiTypedResultKey.fromTable(db.loanDetail,
-              aliasName: $_aliasNameGenerator(
-                  db.paymentType.id, db.loanDetail.paymentTypeId));
-
-  $$LoanDetailTableProcessedTableManager get loanDetailRefs {
-    final manager = $$LoanDetailTableTableManager($_db, $_db.loanDetail)
-        .filter((f) => f.paymentTypeId.id($_item.id));
-
-    final cache = $_typedResult.readTableOrNull(_loanDetailRefsTable($_db));
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
 }
 
 class $$PaymentTypeTableFilterComposer
@@ -9223,27 +9144,6 @@ class $$PaymentTypeTableFilterComposer
             $$TransactionDetailTableFilterComposer(
               $db: $db,
               $table: $db.transactionDetail,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
-  Expression<bool> loanDetailRefs(
-      Expression<bool> Function($$LoanDetailTableFilterComposer f) f) {
-    final $$LoanDetailTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanDetail,
-        getReferencedColumn: (t) => t.paymentTypeId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanDetailTableFilterComposer(
-              $db: $db,
-              $table: $db.loanDetail,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -9305,27 +9205,6 @@ class $$PaymentTypeTableAnnotationComposer
                 ));
     return f(composer);
   }
-
-  Expression<T> loanDetailRefs<T extends Object>(
-      Expression<T> Function($$LoanDetailTableAnnotationComposer a) f) {
-    final $$LoanDetailTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanDetail,
-        getReferencedColumn: (t) => t.paymentTypeId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanDetailTableAnnotationComposer(
-              $db: $db,
-              $table: $db.loanDetail,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
 }
 
 class $$PaymentTypeTableTableManager extends RootTableManager<
@@ -9339,7 +9218,7 @@ class $$PaymentTypeTableTableManager extends RootTableManager<
     $$PaymentTypeTableUpdateCompanionBuilder,
     (PaymentTypes, $$PaymentTypeTableReferences),
     PaymentTypes,
-    PrefetchHooks Function({bool transactionDetailRefs, bool loanDetailRefs})> {
+    PrefetchHooks Function({bool transactionDetailRefs})> {
   $$PaymentTypeTableTableManager(_$AppDatabase db, $PaymentTypeTable table)
       : super(TableManagerState(
           db: db,
@@ -9376,13 +9255,11 @@ class $$PaymentTypeTableTableManager extends RootTableManager<
                     $$PaymentTypeTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: (
-              {transactionDetailRefs = false, loanDetailRefs = false}) {
+          prefetchHooksCallback: ({transactionDetailRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
-                if (transactionDetailRefs) db.transactionDetail,
-                if (loanDetailRefs) db.loanDetail
+                if (transactionDetailRefs) db.transactionDetail
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -9395,18 +9272,6 @@ class $$PaymentTypeTableTableManager extends RootTableManager<
                         managerFromTypedResult: (p0) =>
                             $$PaymentTypeTableReferences(db, table, p0)
                                 .transactionDetailRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.paymentTypeId == item.id),
-                        typedResults: items),
-                  if (loanDetailRefs)
-                    await $_getPrefetchedData(
-                        currentTable: table,
-                        referencedTable: $$PaymentTypeTableReferences
-                            ._loanDetailRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$PaymentTypeTableReferences(db, table, p0)
-                                .loanDetailRefs,
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.paymentTypeId == item.id),
@@ -9429,7 +9294,7 @@ typedef $$PaymentTypeTableProcessedTableManager = ProcessedTableManager<
     $$PaymentTypeTableUpdateCompanionBuilder,
     (PaymentTypes, $$PaymentTypeTableReferences),
     PaymentTypes,
-    PrefetchHooks Function({bool transactionDetailRefs, bool loanDetailRefs})>;
+    PrefetchHooks Function({bool transactionDetailRefs})>;
 typedef $$CurrencyTableCreateCompanionBuilder = CurrenciesCompanion Function({
   required String id,
   required String name,
@@ -9524,36 +9389,6 @@ final class $$CurrencyTableReferences
 
     final cache =
         $_typedResult.readTableOrNull(_transactionDetailRefsTable($_db));
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
-
-  static MultiTypedResultKey<$LoanEntryTable, List<LoanEntries>>
-      _loanEntryRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-          db.loanEntry,
-          aliasName:
-              $_aliasNameGenerator(db.currency.id, db.loanEntry.currencyId));
-
-  $$LoanEntryTableProcessedTableManager get loanEntryRefs {
-    final manager = $$LoanEntryTableTableManager($_db, $_db.loanEntry)
-        .filter((f) => f.currencyId.id($_item.id));
-
-    final cache = $_typedResult.readTableOrNull(_loanEntryRefsTable($_db));
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
-
-  static MultiTypedResultKey<$LoanDetailTable, List<LoanDetails>>
-      _loanDetailRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-          db.loanDetail,
-          aliasName:
-              $_aliasNameGenerator(db.currency.id, db.loanDetail.currencyId));
-
-  $$LoanDetailTableProcessedTableManager get loanDetailRefs {
-    final manager = $$LoanDetailTableTableManager($_db, $_db.loanDetail)
-        .filter((f) => f.currencyId.id($_item.id));
-
-    final cache = $_typedResult.readTableOrNull(_loanDetailRefsTable($_db));
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
@@ -9713,48 +9548,6 @@ class $$CurrencyTableFilterComposer
             $$TransactionDetailTableFilterComposer(
               $db: $db,
               $table: $db.transactionDetail,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
-  Expression<bool> loanEntryRefs(
-      Expression<bool> Function($$LoanEntryTableFilterComposer f) f) {
-    final $$LoanEntryTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanEntry,
-        getReferencedColumn: (t) => t.currencyId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanEntryTableFilterComposer(
-              $db: $db,
-              $table: $db.loanEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
-  Expression<bool> loanDetailRefs(
-      Expression<bool> Function($$LoanDetailTableFilterComposer f) f) {
-    final $$LoanDetailTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanDetail,
-        getReferencedColumn: (t) => t.currencyId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanDetailTableFilterComposer(
-              $db: $db,
-              $table: $db.loanDetail,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -9956,48 +9749,6 @@ class $$CurrencyTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> loanEntryRefs<T extends Object>(
-      Expression<T> Function($$LoanEntryTableAnnotationComposer a) f) {
-    final $$LoanEntryTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanEntry,
-        getReferencedColumn: (t) => t.currencyId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanEntryTableAnnotationComposer(
-              $db: $db,
-              $table: $db.loanEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
-  Expression<T> loanDetailRefs<T extends Object>(
-      Expression<T> Function($$LoanDetailTableAnnotationComposer a) f) {
-    final $$LoanDetailTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanDetail,
-        getReferencedColumn: (t) => t.currencyId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanDetailTableAnnotationComposer(
-              $db: $db,
-              $table: $db.loanDetail,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
   Expression<T> sharedExpenseEntryRefs<T extends Object>(
       Expression<T> Function($$SharedExpenseEntryTableAnnotationComposer a) f) {
     final $$SharedExpenseEntryTableAnnotationComposer composer =
@@ -10061,8 +9812,6 @@ class $$CurrencyTableTableManager extends RootTableManager<
         bool journalDetailRefs,
         bool transactionEntryRefs,
         bool transactionDetailRefs,
-        bool loanEntryRefs,
-        bool loanDetailRefs,
         bool sharedExpenseEntryRefs,
         bool sharedExpenseDetailRefs})> {
   $$CurrencyTableTableManager(_$AppDatabase db, $CurrencyTable table)
@@ -10113,8 +9862,6 @@ class $$CurrencyTableTableManager extends RootTableManager<
               journalDetailRefs = false,
               transactionEntryRefs = false,
               transactionDetailRefs = false,
-              loanEntryRefs = false,
-              loanDetailRefs = false,
               sharedExpenseEntryRefs = false,
               sharedExpenseDetailRefs = false}) {
             return PrefetchHooks(
@@ -10125,8 +9872,6 @@ class $$CurrencyTableTableManager extends RootTableManager<
                 if (journalDetailRefs) db.journalDetail,
                 if (transactionEntryRefs) db.transactionEntry,
                 if (transactionDetailRefs) db.transactionDetail,
-                if (loanEntryRefs) db.loanEntry,
-                if (loanDetailRefs) db.loanDetail,
                 if (sharedExpenseEntryRefs) db.sharedExpenseEntry,
                 if (sharedExpenseDetailRefs) db.sharedExpenseDetail
               ],
@@ -10192,30 +9937,6 @@ class $$CurrencyTableTableManager extends RootTableManager<
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.currencyId == item.id),
                         typedResults: items),
-                  if (loanEntryRefs)
-                    await $_getPrefetchedData(
-                        currentTable: table,
-                        referencedTable:
-                            $$CurrencyTableReferences._loanEntryRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$CurrencyTableReferences(db, table, p0)
-                                .loanEntryRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.currencyId == item.id),
-                        typedResults: items),
-                  if (loanDetailRefs)
-                    await $_getPrefetchedData(
-                        currentTable: table,
-                        referencedTable:
-                            $$CurrencyTableReferences._loanDetailRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$CurrencyTableReferences(db, table, p0)
-                                .loanDetailRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.currencyId == item.id),
-                        typedResults: items),
                   if (sharedExpenseEntryRefs)
                     await $_getPrefetchedData(
                         currentTable: table,
@@ -10264,8 +9985,6 @@ typedef $$CurrencyTableProcessedTableManager = ProcessedTableManager<
         bool journalDetailRefs,
         bool transactionEntryRefs,
         bool transactionDetailRefs,
-        bool loanEntryRefs,
-        bool loanDetailRefs,
         bool sharedExpenseEntryRefs,
         bool sharedExpenseDetailRefs})>;
 typedef $$ChartAccountTableCreateCompanionBuilder = ChartAccountsCompanion
@@ -11602,21 +11321,6 @@ final class $$ContactTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
-
-  static MultiTypedResultKey<$LoanEntryTable, List<LoanEntries>>
-      _loanEntryRefsTable(_$AppDatabase db) =>
-          MultiTypedResultKey.fromTable(db.loanEntry,
-              aliasName:
-                  $_aliasNameGenerator(db.contact.id, db.loanEntry.contactId));
-
-  $$LoanEntryTableProcessedTableManager get loanEntryRefs {
-    final manager = $$LoanEntryTableTableManager($_db, $_db.loanEntry)
-        .filter((f) => f.contactId.id($_item.id));
-
-    final cache = $_typedResult.readTableOrNull(_loanEntryRefsTable($_db));
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
 }
 
 class $$ContactTableFilterComposer
@@ -11668,27 +11372,6 @@ class $$ContactTableFilterComposer
             $$TransactionEntryTableFilterComposer(
               $db: $db,
               $table: $db.transactionEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
-  Expression<bool> loanEntryRefs(
-      Expression<bool> Function($$LoanEntryTableFilterComposer f) f) {
-    final $$LoanEntryTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanEntry,
-        getReferencedColumn: (t) => t.contactId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanEntryTableFilterComposer(
-              $db: $db,
-              $table: $db.loanEntry,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -11791,27 +11474,6 @@ class $$ContactTableAnnotationComposer
             ));
     return f(composer);
   }
-
-  Expression<T> loanEntryRefs<T extends Object>(
-      Expression<T> Function($$LoanEntryTableAnnotationComposer a) f) {
-    final $$LoanEntryTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanEntry,
-        getReferencedColumn: (t) => t.contactId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanEntryTableAnnotationComposer(
-              $db: $db,
-              $table: $db.loanEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
 }
 
 class $$ContactTableTableManager extends RootTableManager<
@@ -11825,7 +11487,7 @@ class $$ContactTableTableManager extends RootTableManager<
     $$ContactTableUpdateCompanionBuilder,
     (Contacts, $$ContactTableReferences),
     Contacts,
-    PrefetchHooks Function({bool transactionEntryRefs, bool loanEntryRefs})> {
+    PrefetchHooks Function({bool transactionEntryRefs})> {
   $$ContactTableTableManager(_$AppDatabase db, $ContactTable table)
       : super(TableManagerState(
           db: db,
@@ -11884,13 +11546,11 @@ class $$ContactTableTableManager extends RootTableManager<
               .map((e) =>
                   (e.readTable(table), $$ContactTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: (
-              {transactionEntryRefs = false, loanEntryRefs = false}) {
+          prefetchHooksCallback: ({transactionEntryRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
-                if (transactionEntryRefs) db.transactionEntry,
-                if (loanEntryRefs) db.loanEntry
+                if (transactionEntryRefs) db.transactionEntry
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -11903,18 +11563,6 @@ class $$ContactTableTableManager extends RootTableManager<
                         managerFromTypedResult: (p0) =>
                             $$ContactTableReferences(db, table, p0)
                                 .transactionEntryRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.contactId == item.id),
-                        typedResults: items),
-                  if (loanEntryRefs)
-                    await $_getPrefetchedData(
-                        currentTable: table,
-                        referencedTable:
-                            $$ContactTableReferences._loanEntryRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$ContactTableReferences(db, table, p0)
-                                .loanEntryRefs,
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.contactId == item.id),
@@ -11937,7 +11585,7 @@ typedef $$ContactTableProcessedTableManager = ProcessedTableManager<
     $$ContactTableUpdateCompanionBuilder,
     (Contacts, $$ContactTableReferences),
     Contacts,
-    PrefetchHooks Function({bool transactionEntryRefs, bool loanEntryRefs})>;
+    PrefetchHooks Function({bool transactionEntryRefs})>;
 typedef $$WalletTableCreateCompanionBuilder = WalletsCompanion Function({
   Value<int> id,
   Value<int?> parentId,
@@ -12962,21 +12610,6 @@ final class $$JournalEntryTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
-
-  static MultiTypedResultKey<$LoanDetailTable, List<LoanDetails>>
-      _loanDetailRefsTable(_$AppDatabase db) =>
-          MultiTypedResultKey.fromTable(db.loanDetail,
-              aliasName: $_aliasNameGenerator(
-                  db.journalEntry.id, db.loanDetail.journalId));
-
-  $$LoanDetailTableProcessedTableManager get loanDetailRefs {
-    final manager = $$LoanDetailTableTableManager($_db, $_db.loanDetail)
-        .filter((f) => f.journalId.id($_item.id));
-
-    final cache = $_typedResult.readTableOrNull(_loanDetailRefsTable($_db));
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
 }
 
 class $$JournalEntryTableFilterComposer
@@ -13066,27 +12699,6 @@ class $$JournalEntryTableFilterComposer
             $$TransactionEntryTableFilterComposer(
               $db: $db,
               $table: $db.transactionEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
-  Expression<bool> loanDetailRefs(
-      Expression<bool> Function($$LoanDetailTableFilterComposer f) f) {
-    final $$LoanDetailTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanDetail,
-        getReferencedColumn: (t) => t.journalId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanDetailTableFilterComposer(
-              $db: $db,
-              $table: $db.loanDetail,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -13244,27 +12856,6 @@ class $$JournalEntryTableAnnotationComposer
             ));
     return f(composer);
   }
-
-  Expression<T> loanDetailRefs<T extends Object>(
-      Expression<T> Function($$LoanDetailTableAnnotationComposer a) f) {
-    final $$LoanDetailTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanDetail,
-        getReferencedColumn: (t) => t.journalId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanDetailTableAnnotationComposer(
-              $db: $db,
-              $table: $db.loanDetail,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
 }
 
 class $$JournalEntryTableTableManager extends RootTableManager<
@@ -13281,8 +12872,7 @@ class $$JournalEntryTableTableManager extends RootTableManager<
     PrefetchHooks Function(
         {bool documentTypeId,
         bool journalDetailRefs,
-        bool transactionEntryRefs,
-        bool loanDetailRefs})> {
+        bool transactionEntryRefs})> {
   $$JournalEntryTableTableManager(_$AppDatabase db, $JournalEntryTable table)
       : super(TableManagerState(
           db: db,
@@ -13346,14 +12936,12 @@ class $$JournalEntryTableTableManager extends RootTableManager<
           prefetchHooksCallback: (
               {documentTypeId = false,
               journalDetailRefs = false,
-              transactionEntryRefs = false,
-              loanDetailRefs = false}) {
+              transactionEntryRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
                 if (journalDetailRefs) db.journalDetail,
-                if (transactionEntryRefs) db.transactionEntry,
-                if (loanDetailRefs) db.loanDetail
+                if (transactionEntryRefs) db.transactionEntry
               ],
               addJoins: <
                   T extends TableManagerState<
@@ -13407,18 +12995,6 @@ class $$JournalEntryTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.journalId == item.id),
-                        typedResults: items),
-                  if (loanDetailRefs)
-                    await $_getPrefetchedData(
-                        currentTable: table,
-                        referencedTable: $$JournalEntryTableReferences
-                            ._loanDetailRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$JournalEntryTableReferences(db, table, p0)
-                                .loanDetailRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.journalId == item.id),
                         typedResults: items)
                 ];
               },
@@ -13441,8 +13017,7 @@ typedef $$JournalEntryTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function(
         {bool documentTypeId,
         bool journalDetailRefs,
-        bool transactionEntryRefs,
-        bool loanDetailRefs})>;
+        bool transactionEntryRefs})>;
 typedef $$JournalDetailTableCreateCompanionBuilder = JournalDetailsCompanion
     Function({
   Value<int> id,
@@ -14004,21 +13579,6 @@ final class $$TransactionEntryTableReferences extends BaseReferences<
         manager.$state.copyWith(prefetchedData: cache));
   }
 
-  static MultiTypedResultKey<$LoanDetailTable, List<LoanDetails>>
-      _loanDetailRefsTable(_$AppDatabase db) =>
-          MultiTypedResultKey.fromTable(db.loanDetail,
-              aliasName: $_aliasNameGenerator(
-                  db.transactionEntry.id, db.loanDetail.transactionId));
-
-  $$LoanDetailTableProcessedTableManager get loanDetailRefs {
-    final manager = $$LoanDetailTableTableManager($_db, $_db.loanDetail)
-        .filter((f) => f.transactionId.id($_item.id));
-
-    final cache = $_typedResult.readTableOrNull(_loanDetailRefsTable($_db));
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
-
   static MultiTypedResultKey<$SharedExpenseDetailTable,
       List<SharedExpenseDetails>> _sharedExpenseDetailRefsTable(
           _$AppDatabase db) =>
@@ -14170,27 +13730,6 @@ class $$TransactionEntryTableFilterComposer
             $$TransactionDetailTableFilterComposer(
               $db: $db,
               $table: $db.transactionDetail,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
-  Expression<bool> loanDetailRefs(
-      Expression<bool> Function($$LoanDetailTableFilterComposer f) f) {
-    final $$LoanDetailTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanDetail,
-        getReferencedColumn: (t) => t.transactionId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanDetailTableFilterComposer(
-              $db: $db,
-              $table: $db.loanDetail,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -14483,27 +14022,6 @@ class $$TransactionEntryTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> loanDetailRefs<T extends Object>(
-      Expression<T> Function($$LoanDetailTableAnnotationComposer a) f) {
-    final $$LoanDetailTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanDetail,
-        getReferencedColumn: (t) => t.transactionId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanDetailTableAnnotationComposer(
-              $db: $db,
-              $table: $db.loanDetail,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-
   Expression<T> sharedExpenseDetailRefs<T extends Object>(
       Expression<T> Function($$SharedExpenseDetailTableAnnotationComposer a)
           f) {
@@ -14545,7 +14063,6 @@ class $$TransactionEntryTableTableManager extends RootTableManager<
         bool journalId,
         bool contactId,
         bool transactionDetailRefs,
-        bool loanDetailRefs,
         bool sharedExpenseDetailRefs})> {
   $$TransactionEntryTableTableManager(
       _$AppDatabase db, $TransactionEntryTable table)
@@ -14634,13 +14151,11 @@ class $$TransactionEntryTableTableManager extends RootTableManager<
               journalId = false,
               contactId = false,
               transactionDetailRefs = false,
-              loanDetailRefs = false,
               sharedExpenseDetailRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
                 if (transactionDetailRefs) db.transactionDetail,
-                if (loanDetailRefs) db.loanDetail,
                 if (sharedExpenseDetailRefs) db.sharedExpenseDetail
               ],
               addJoins: <
@@ -14717,18 +14232,6 @@ class $$TransactionEntryTableTableManager extends RootTableManager<
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.transactionId == item.id),
                         typedResults: items),
-                  if (loanDetailRefs)
-                    await $_getPrefetchedData(
-                        currentTable: table,
-                        referencedTable: $$TransactionEntryTableReferences
-                            ._loanDetailRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$TransactionEntryTableReferences(db, table, p0)
-                                .loanDetailRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.transactionId == item.id),
-                        typedResults: items),
                   if (sharedExpenseDetailRefs)
                     await $_getPrefetchedData(
                         currentTable: table,
@@ -14765,7 +14268,6 @@ typedef $$TransactionEntryTableProcessedTableManager = ProcessedTableManager<
         bool journalId,
         bool contactId,
         bool transactionDetailRefs,
-        bool loanDetailRefs,
         bool sharedExpenseDetailRefs})>;
 typedef $$TransactionDetailTableCreateCompanionBuilder
     = TransactionDetailsCompanion Function({
@@ -15422,12 +14924,13 @@ typedef $$LoanEntryTableCreateCompanionBuilder = LoanEntriesCompanion Function({
   required int secuencial,
   required DateTime date,
   required double amount,
-  required double rateExchange,
+  Value<double> rateExchange,
   Value<String?> description,
-  required String status,
+  Value<String> status,
+  Value<double> totalPaid,
   Value<bool> active,
   Value<DateTime> createdAt,
-  Value<DateTime?> updatedAt,
+  Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
 });
 typedef $$LoanEntryTableUpdateCompanionBuilder = LoanEntriesCompanion Function({
@@ -15441,68 +14944,16 @@ typedef $$LoanEntryTableUpdateCompanionBuilder = LoanEntriesCompanion Function({
   Value<double> rateExchange,
   Value<String?> description,
   Value<String> status,
+  Value<double> totalPaid,
   Value<bool> active,
   Value<DateTime> createdAt,
-  Value<DateTime?> updatedAt,
+  Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
 });
 
 final class $$LoanEntryTableReferences
     extends BaseReferences<_$AppDatabase, $LoanEntryTable, LoanEntries> {
   $$LoanEntryTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $DocumentTypeTable _documentTypeIdTable(_$AppDatabase db) =>
-      db.documentType.createAlias($_aliasNameGenerator(
-          db.loanEntry.documentTypeId, db.documentType.id));
-
-  $$DocumentTypeTableProcessedTableManager get documentTypeId {
-    final manager = $$DocumentTypeTableTableManager($_db, $_db.documentType)
-        .filter((f) => f.id($_item.documentTypeId!));
-    final item = $_typedResult.readTableOrNull(_documentTypeIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
-  }
-
-  static $CurrencyTable _currencyIdTable(_$AppDatabase db) =>
-      db.currency.createAlias(
-          $_aliasNameGenerator(db.loanEntry.currencyId, db.currency.id));
-
-  $$CurrencyTableProcessedTableManager get currencyId {
-    final manager = $$CurrencyTableTableManager($_db, $_db.currency)
-        .filter((f) => f.id($_item.currencyId!));
-    final item = $_typedResult.readTableOrNull(_currencyIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
-  }
-
-  static $ContactTable _contactIdTable(_$AppDatabase db) => db.contact
-      .createAlias($_aliasNameGenerator(db.loanEntry.contactId, db.contact.id));
-
-  $$ContactTableProcessedTableManager get contactId {
-    final manager = $$ContactTableTableManager($_db, $_db.contact)
-        .filter((f) => f.id($_item.contactId!));
-    final item = $_typedResult.readTableOrNull(_contactIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
-  }
-
-  static MultiTypedResultKey<$LoanDetailTable, List<LoanDetails>>
-      _loanDetailRefsTable(_$AppDatabase db) =>
-          MultiTypedResultKey.fromTable(db.loanDetail,
-              aliasName:
-                  $_aliasNameGenerator(db.loanEntry.id, db.loanDetail.loanId));
-
-  $$LoanDetailTableProcessedTableManager get loanDetailRefs {
-    final manager = $$LoanDetailTableTableManager($_db, $_db.loanDetail)
-        .filter((f) => f.loanId.id($_item.id));
-
-    final cache = $_typedResult.readTableOrNull(_loanDetailRefsTable($_db));
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
 
   static MultiTypedResultKey<$SharedExpenseDetailTable,
       List<SharedExpenseDetails>> _sharedExpenseDetailRefsTable(
@@ -15535,6 +14986,16 @@ class $$LoanEntryTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get documentTypeId => $composableBuilder(
+      column: $table.documentTypeId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currencyId => $composableBuilder(
+      column: $table.currencyId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get contactId => $composableBuilder(
+      column: $table.contactId, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<int> get secuencial => $composableBuilder(
       column: $table.secuencial, builder: (column) => ColumnFilters(column));
 
@@ -15553,6 +15014,9 @@ class $$LoanEntryTableFilterComposer
   ColumnFilters<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<double> get totalPaid => $composableBuilder(
+      column: $table.totalPaid, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<bool> get active => $composableBuilder(
       column: $table.active, builder: (column) => ColumnFilters(column));
 
@@ -15564,87 +15028,6 @@ class $$LoanEntryTableFilterComposer
 
   ColumnFilters<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnFilters(column));
-
-  $$DocumentTypeTableFilterComposer get documentTypeId {
-    final $$DocumentTypeTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.documentTypeId,
-        referencedTable: $db.documentType,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$DocumentTypeTableFilterComposer(
-              $db: $db,
-              $table: $db.documentType,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$CurrencyTableFilterComposer get currencyId {
-    final $$CurrencyTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.currencyId,
-        referencedTable: $db.currency,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$CurrencyTableFilterComposer(
-              $db: $db,
-              $table: $db.currency,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$ContactTableFilterComposer get contactId {
-    final $$ContactTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.contactId,
-        referencedTable: $db.contact,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$ContactTableFilterComposer(
-              $db: $db,
-              $table: $db.contact,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  Expression<bool> loanDetailRefs(
-      Expression<bool> Function($$LoanDetailTableFilterComposer f) f) {
-    final $$LoanDetailTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanDetail,
-        getReferencedColumn: (t) => t.loanId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanDetailTableFilterComposer(
-              $db: $db,
-              $table: $db.loanDetail,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
 
   Expression<bool> sharedExpenseDetailRefs(
       Expression<bool> Function($$SharedExpenseDetailTableFilterComposer f) f) {
@@ -15680,6 +15063,16 @@ class $$LoanEntryTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get documentTypeId => $composableBuilder(
+      column: $table.documentTypeId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currencyId => $composableBuilder(
+      column: $table.currencyId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get contactId => $composableBuilder(
+      column: $table.contactId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get secuencial => $composableBuilder(
       column: $table.secuencial, builder: (column) => ColumnOrderings(column));
 
@@ -15699,6 +15092,9 @@ class $$LoanEntryTableOrderingComposer
   ColumnOrderings<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<double> get totalPaid => $composableBuilder(
+      column: $table.totalPaid, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get active => $composableBuilder(
       column: $table.active, builder: (column) => ColumnOrderings(column));
 
@@ -15710,66 +15106,6 @@ class $$LoanEntryTableOrderingComposer
 
   ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
-
-  $$DocumentTypeTableOrderingComposer get documentTypeId {
-    final $$DocumentTypeTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.documentTypeId,
-        referencedTable: $db.documentType,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$DocumentTypeTableOrderingComposer(
-              $db: $db,
-              $table: $db.documentType,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$CurrencyTableOrderingComposer get currencyId {
-    final $$CurrencyTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.currencyId,
-        referencedTable: $db.currency,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$CurrencyTableOrderingComposer(
-              $db: $db,
-              $table: $db.currency,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$ContactTableOrderingComposer get contactId {
-    final $$ContactTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.contactId,
-        referencedTable: $db.contact,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$ContactTableOrderingComposer(
-              $db: $db,
-              $table: $db.contact,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
 }
 
 class $$LoanEntryTableAnnotationComposer
@@ -15783,6 +15119,15 @@ class $$LoanEntryTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get documentTypeId => $composableBuilder(
+      column: $table.documentTypeId, builder: (column) => column);
+
+  GeneratedColumn<String> get currencyId => $composableBuilder(
+      column: $table.currencyId, builder: (column) => column);
+
+  GeneratedColumn<int> get contactId =>
+      $composableBuilder(column: $table.contactId, builder: (column) => column);
 
   GeneratedColumn<int> get secuencial => $composableBuilder(
       column: $table.secuencial, builder: (column) => column);
@@ -15802,6 +15147,9 @@ class $$LoanEntryTableAnnotationComposer
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
+  GeneratedColumn<double> get totalPaid =>
+      $composableBuilder(column: $table.totalPaid, builder: (column) => column);
+
   GeneratedColumn<bool> get active =>
       $composableBuilder(column: $table.active, builder: (column) => column);
 
@@ -15813,87 +15161,6 @@ class $$LoanEntryTableAnnotationComposer
 
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
-
-  $$DocumentTypeTableAnnotationComposer get documentTypeId {
-    final $$DocumentTypeTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.documentTypeId,
-        referencedTable: $db.documentType,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$DocumentTypeTableAnnotationComposer(
-              $db: $db,
-              $table: $db.documentType,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$CurrencyTableAnnotationComposer get currencyId {
-    final $$CurrencyTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.currencyId,
-        referencedTable: $db.currency,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$CurrencyTableAnnotationComposer(
-              $db: $db,
-              $table: $db.currency,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$ContactTableAnnotationComposer get contactId {
-    final $$ContactTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.contactId,
-        referencedTable: $db.contact,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$ContactTableAnnotationComposer(
-              $db: $db,
-              $table: $db.contact,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  Expression<T> loanDetailRefs<T extends Object>(
-      Expression<T> Function($$LoanDetailTableAnnotationComposer a) f) {
-    final $$LoanDetailTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.loanDetail,
-        getReferencedColumn: (t) => t.loanId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanDetailTableAnnotationComposer(
-              $db: $db,
-              $table: $db.loanDetail,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
 
   Expression<T> sharedExpenseDetailRefs<T extends Object>(
       Expression<T> Function($$SharedExpenseDetailTableAnnotationComposer a)
@@ -15930,12 +15197,7 @@ class $$LoanEntryTableTableManager extends RootTableManager<
     $$LoanEntryTableUpdateCompanionBuilder,
     (LoanEntries, $$LoanEntryTableReferences),
     LoanEntries,
-    PrefetchHooks Function(
-        {bool documentTypeId,
-        bool currencyId,
-        bool contactId,
-        bool loanDetailRefs,
-        bool sharedExpenseDetailRefs})> {
+    PrefetchHooks Function({bool sharedExpenseDetailRefs})> {
   $$LoanEntryTableTableManager(_$AppDatabase db, $LoanEntryTable table)
       : super(TableManagerState(
           db: db,
@@ -15957,9 +15219,10 @@ class $$LoanEntryTableTableManager extends RootTableManager<
             Value<double> rateExchange = const Value.absent(),
             Value<String?> description = const Value.absent(),
             Value<String> status = const Value.absent(),
+            Value<double> totalPaid = const Value.absent(),
             Value<bool> active = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
-            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
           }) =>
               LoanEntriesCompanion(
@@ -15973,6 +15236,7 @@ class $$LoanEntryTableTableManager extends RootTableManager<
             rateExchange: rateExchange,
             description: description,
             status: status,
+            totalPaid: totalPaid,
             active: active,
             createdAt: createdAt,
             updatedAt: updatedAt,
@@ -15986,12 +15250,13 @@ class $$LoanEntryTableTableManager extends RootTableManager<
             required int secuencial,
             required DateTime date,
             required double amount,
-            required double rateExchange,
+            Value<double> rateExchange = const Value.absent(),
             Value<String?> description = const Value.absent(),
-            required String status,
+            Value<String> status = const Value.absent(),
+            Value<double> totalPaid = const Value.absent(),
             Value<bool> active = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
-            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
           }) =>
               LoanEntriesCompanion.insert(
@@ -16005,6 +15270,7 @@ class $$LoanEntryTableTableManager extends RootTableManager<
             rateExchange: rateExchange,
             description: description,
             status: status,
+            totalPaid: totalPaid,
             active: active,
             createdAt: createdAt,
             updatedAt: updatedAt,
@@ -16016,78 +15282,15 @@ class $$LoanEntryTableTableManager extends RootTableManager<
                     $$LoanEntryTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: (
-              {documentTypeId = false,
-              currencyId = false,
-              contactId = false,
-              loanDetailRefs = false,
-              sharedExpenseDetailRefs = false}) {
+          prefetchHooksCallback: ({sharedExpenseDetailRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
-                if (loanDetailRefs) db.loanDetail,
                 if (sharedExpenseDetailRefs) db.sharedExpenseDetail
               ],
-              addJoins: <
-                  T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic>>(state) {
-                if (documentTypeId) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.documentTypeId,
-                    referencedTable:
-                        $$LoanEntryTableReferences._documentTypeIdTable(db),
-                    referencedColumn:
-                        $$LoanEntryTableReferences._documentTypeIdTable(db).id,
-                  ) as T;
-                }
-                if (currencyId) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.currencyId,
-                    referencedTable:
-                        $$LoanEntryTableReferences._currencyIdTable(db),
-                    referencedColumn:
-                        $$LoanEntryTableReferences._currencyIdTable(db).id,
-                  ) as T;
-                }
-                if (contactId) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.contactId,
-                    referencedTable:
-                        $$LoanEntryTableReferences._contactIdTable(db),
-                    referencedColumn:
-                        $$LoanEntryTableReferences._contactIdTable(db).id,
-                  ) as T;
-                }
-
-                return state;
-              },
+              addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
-                  if (loanDetailRefs)
-                    await $_getPrefetchedData(
-                        currentTable: table,
-                        referencedTable:
-                            $$LoanEntryTableReferences._loanDetailRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$LoanEntryTableReferences(db, table, p0)
-                                .loanDetailRefs,
-                        referencedItemsForCurrentItem: (item,
-                                referencedItems) =>
-                            referencedItems.where((e) => e.loanId == item.id),
-                        typedResults: items),
                   if (sharedExpenseDetailRefs)
                     await $_getPrefetchedData(
                         currentTable: table,
@@ -16118,12 +15321,7 @@ typedef $$LoanEntryTableProcessedTableManager = ProcessedTableManager<
     $$LoanEntryTableUpdateCompanionBuilder,
     (LoanEntries, $$LoanEntryTableReferences),
     LoanEntries,
-    PrefetchHooks Function(
-        {bool documentTypeId,
-        bool currencyId,
-        bool contactId,
-        bool loanDetailRefs,
-        bool sharedExpenseDetailRefs})>;
+    PrefetchHooks Function({bool sharedExpenseDetailRefs})>;
 typedef $$LoanDetailTableCreateCompanionBuilder = LoanDetailsCompanion
     Function({
   Value<int> id,
@@ -16134,10 +15332,10 @@ typedef $$LoanDetailTableCreateCompanionBuilder = LoanDetailsCompanion
   required int journalId,
   required int transactionId,
   required double amount,
-  required double rateExchange,
+  Value<double> rateExchange,
   Value<bool> active,
   Value<DateTime> createdAt,
-  Value<DateTime?> updatedAt,
+  Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
 });
 typedef $$LoanDetailTableUpdateCompanionBuilder = LoanDetailsCompanion
@@ -16153,79 +15351,9 @@ typedef $$LoanDetailTableUpdateCompanionBuilder = LoanDetailsCompanion
   Value<double> rateExchange,
   Value<bool> active,
   Value<DateTime> createdAt,
-  Value<DateTime?> updatedAt,
+  Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
 });
-
-final class $$LoanDetailTableReferences
-    extends BaseReferences<_$AppDatabase, $LoanDetailTable, LoanDetails> {
-  $$LoanDetailTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $LoanEntryTable _loanIdTable(_$AppDatabase db) => db.loanEntry
-      .createAlias($_aliasNameGenerator(db.loanDetail.loanId, db.loanEntry.id));
-
-  $$LoanEntryTableProcessedTableManager get loanId {
-    final manager = $$LoanEntryTableTableManager($_db, $_db.loanEntry)
-        .filter((f) => f.id($_item.loanId!));
-    final item = $_typedResult.readTableOrNull(_loanIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
-  }
-
-  static $CurrencyTable _currencyIdTable(_$AppDatabase db) =>
-      db.currency.createAlias(
-          $_aliasNameGenerator(db.loanDetail.currencyId, db.currency.id));
-
-  $$CurrencyTableProcessedTableManager get currencyId {
-    final manager = $$CurrencyTableTableManager($_db, $_db.currency)
-        .filter((f) => f.id($_item.currencyId!));
-    final item = $_typedResult.readTableOrNull(_currencyIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
-  }
-
-  static $PaymentTypeTable _paymentTypeIdTable(_$AppDatabase db) =>
-      db.paymentType.createAlias(
-          $_aliasNameGenerator(db.loanDetail.paymentTypeId, db.paymentType.id));
-
-  $$PaymentTypeTableProcessedTableManager get paymentTypeId {
-    final manager = $$PaymentTypeTableTableManager($_db, $_db.paymentType)
-        .filter((f) => f.id($_item.paymentTypeId!));
-    final item = $_typedResult.readTableOrNull(_paymentTypeIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
-  }
-
-  static $JournalEntryTable _journalIdTable(_$AppDatabase db) =>
-      db.journalEntry.createAlias(
-          $_aliasNameGenerator(db.loanDetail.journalId, db.journalEntry.id));
-
-  $$JournalEntryTableProcessedTableManager get journalId {
-    final manager = $$JournalEntryTableTableManager($_db, $_db.journalEntry)
-        .filter((f) => f.id($_item.journalId!));
-    final item = $_typedResult.readTableOrNull(_journalIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
-  }
-
-  static $TransactionEntryTable _transactionIdTable(_$AppDatabase db) =>
-      db.transactionEntry.createAlias($_aliasNameGenerator(
-          db.loanDetail.transactionId, db.transactionEntry.id));
-
-  $$TransactionEntryTableProcessedTableManager get transactionId {
-    final manager =
-        $$TransactionEntryTableTableManager($_db, $_db.transactionEntry)
-            .filter((f) => f.id($_item.transactionId!));
-    final item = $_typedResult.readTableOrNull(_transactionIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
-  }
-}
 
 class $$LoanDetailTableFilterComposer
     extends Composer<_$AppDatabase, $LoanDetailTable> {
@@ -16239,8 +15367,23 @@ class $$LoanDetailTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<int> get loanId => $composableBuilder(
+      column: $table.loanId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currencyId => $composableBuilder(
+      column: $table.currencyId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get paymentTypeId => $composableBuilder(
+      column: $table.paymentTypeId, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<int> get paymentId => $composableBuilder(
       column: $table.paymentId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get journalId => $composableBuilder(
+      column: $table.journalId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get transactionId => $composableBuilder(
+      column: $table.transactionId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get amount => $composableBuilder(
       column: $table.amount, builder: (column) => ColumnFilters(column));
@@ -16259,106 +15402,6 @@ class $$LoanDetailTableFilterComposer
 
   ColumnFilters<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnFilters(column));
-
-  $$LoanEntryTableFilterComposer get loanId {
-    final $$LoanEntryTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.loanId,
-        referencedTable: $db.loanEntry,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanEntryTableFilterComposer(
-              $db: $db,
-              $table: $db.loanEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$CurrencyTableFilterComposer get currencyId {
-    final $$CurrencyTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.currencyId,
-        referencedTable: $db.currency,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$CurrencyTableFilterComposer(
-              $db: $db,
-              $table: $db.currency,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$PaymentTypeTableFilterComposer get paymentTypeId {
-    final $$PaymentTypeTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.paymentTypeId,
-        referencedTable: $db.paymentType,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$PaymentTypeTableFilterComposer(
-              $db: $db,
-              $table: $db.paymentType,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$JournalEntryTableFilterComposer get journalId {
-    final $$JournalEntryTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.journalId,
-        referencedTable: $db.journalEntry,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$JournalEntryTableFilterComposer(
-              $db: $db,
-              $table: $db.journalEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$TransactionEntryTableFilterComposer get transactionId {
-    final $$TransactionEntryTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.transactionId,
-        referencedTable: $db.transactionEntry,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$TransactionEntryTableFilterComposer(
-              $db: $db,
-              $table: $db.transactionEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
 }
 
 class $$LoanDetailTableOrderingComposer
@@ -16373,8 +15416,25 @@ class $$LoanDetailTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get loanId => $composableBuilder(
+      column: $table.loanId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currencyId => $composableBuilder(
+      column: $table.currencyId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get paymentTypeId => $composableBuilder(
+      column: $table.paymentTypeId,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get paymentId => $composableBuilder(
       column: $table.paymentId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get journalId => $composableBuilder(
+      column: $table.journalId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get transactionId => $composableBuilder(
+      column: $table.transactionId,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get amount => $composableBuilder(
       column: $table.amount, builder: (column) => ColumnOrderings(column));
@@ -16394,106 +15454,6 @@ class $$LoanDetailTableOrderingComposer
 
   ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
-
-  $$LoanEntryTableOrderingComposer get loanId {
-    final $$LoanEntryTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.loanId,
-        referencedTable: $db.loanEntry,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanEntryTableOrderingComposer(
-              $db: $db,
-              $table: $db.loanEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$CurrencyTableOrderingComposer get currencyId {
-    final $$CurrencyTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.currencyId,
-        referencedTable: $db.currency,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$CurrencyTableOrderingComposer(
-              $db: $db,
-              $table: $db.currency,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$PaymentTypeTableOrderingComposer get paymentTypeId {
-    final $$PaymentTypeTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.paymentTypeId,
-        referencedTable: $db.paymentType,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$PaymentTypeTableOrderingComposer(
-              $db: $db,
-              $table: $db.paymentType,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$JournalEntryTableOrderingComposer get journalId {
-    final $$JournalEntryTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.journalId,
-        referencedTable: $db.journalEntry,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$JournalEntryTableOrderingComposer(
-              $db: $db,
-              $table: $db.journalEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$TransactionEntryTableOrderingComposer get transactionId {
-    final $$TransactionEntryTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.transactionId,
-        referencedTable: $db.transactionEntry,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$TransactionEntryTableOrderingComposer(
-              $db: $db,
-              $table: $db.transactionEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
 }
 
 class $$LoanDetailTableAnnotationComposer
@@ -16508,8 +15468,23 @@ class $$LoanDetailTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
+  GeneratedColumn<int> get loanId =>
+      $composableBuilder(column: $table.loanId, builder: (column) => column);
+
+  GeneratedColumn<String> get currencyId => $composableBuilder(
+      column: $table.currencyId, builder: (column) => column);
+
+  GeneratedColumn<String> get paymentTypeId => $composableBuilder(
+      column: $table.paymentTypeId, builder: (column) => column);
+
   GeneratedColumn<int> get paymentId =>
       $composableBuilder(column: $table.paymentId, builder: (column) => column);
+
+  GeneratedColumn<int> get journalId =>
+      $composableBuilder(column: $table.journalId, builder: (column) => column);
+
+  GeneratedColumn<int> get transactionId => $composableBuilder(
+      column: $table.transactionId, builder: (column) => column);
 
   GeneratedColumn<double> get amount =>
       $composableBuilder(column: $table.amount, builder: (column) => column);
@@ -16528,106 +15503,6 @@ class $$LoanDetailTableAnnotationComposer
 
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
-
-  $$LoanEntryTableAnnotationComposer get loanId {
-    final $$LoanEntryTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.loanId,
-        referencedTable: $db.loanEntry,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$LoanEntryTableAnnotationComposer(
-              $db: $db,
-              $table: $db.loanEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$CurrencyTableAnnotationComposer get currencyId {
-    final $$CurrencyTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.currencyId,
-        referencedTable: $db.currency,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$CurrencyTableAnnotationComposer(
-              $db: $db,
-              $table: $db.currency,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$PaymentTypeTableAnnotationComposer get paymentTypeId {
-    final $$PaymentTypeTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.paymentTypeId,
-        referencedTable: $db.paymentType,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$PaymentTypeTableAnnotationComposer(
-              $db: $db,
-              $table: $db.paymentType,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$JournalEntryTableAnnotationComposer get journalId {
-    final $$JournalEntryTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.journalId,
-        referencedTable: $db.journalEntry,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$JournalEntryTableAnnotationComposer(
-              $db: $db,
-              $table: $db.journalEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$TransactionEntryTableAnnotationComposer get transactionId {
-    final $$TransactionEntryTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.transactionId,
-        referencedTable: $db.transactionEntry,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$TransactionEntryTableAnnotationComposer(
-              $db: $db,
-              $table: $db.transactionEntry,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
 }
 
 class $$LoanDetailTableTableManager extends RootTableManager<
@@ -16639,14 +15514,9 @@ class $$LoanDetailTableTableManager extends RootTableManager<
     $$LoanDetailTableAnnotationComposer,
     $$LoanDetailTableCreateCompanionBuilder,
     $$LoanDetailTableUpdateCompanionBuilder,
-    (LoanDetails, $$LoanDetailTableReferences),
+    (LoanDetails, BaseReferences<_$AppDatabase, $LoanDetailTable, LoanDetails>),
     LoanDetails,
-    PrefetchHooks Function(
-        {bool loanId,
-        bool currencyId,
-        bool paymentTypeId,
-        bool journalId,
-        bool transactionId})> {
+    PrefetchHooks Function()> {
   $$LoanDetailTableTableManager(_$AppDatabase db, $LoanDetailTable table)
       : super(TableManagerState(
           db: db,
@@ -16669,7 +15539,7 @@ class $$LoanDetailTableTableManager extends RootTableManager<
             Value<double> rateExchange = const Value.absent(),
             Value<bool> active = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
-            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
           }) =>
               LoanDetailsCompanion(
@@ -16696,10 +15566,10 @@ class $$LoanDetailTableTableManager extends RootTableManager<
             required int journalId,
             required int transactionId,
             required double amount,
-            required double rateExchange,
+            Value<double> rateExchange = const Value.absent(),
             Value<bool> active = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
-            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
           }) =>
               LoanDetailsCompanion.insert(
@@ -16718,91 +15588,9 @@ class $$LoanDetailTableTableManager extends RootTableManager<
             deletedAt: deletedAt,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (
-                    e.readTable(table),
-                    $$LoanDetailTableReferences(db, table, e)
-                  ))
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: (
-              {loanId = false,
-              currencyId = false,
-              paymentTypeId = false,
-              journalId = false,
-              transactionId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins: <
-                  T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic>>(state) {
-                if (loanId) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.loanId,
-                    referencedTable:
-                        $$LoanDetailTableReferences._loanIdTable(db),
-                    referencedColumn:
-                        $$LoanDetailTableReferences._loanIdTable(db).id,
-                  ) as T;
-                }
-                if (currencyId) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.currencyId,
-                    referencedTable:
-                        $$LoanDetailTableReferences._currencyIdTable(db),
-                    referencedColumn:
-                        $$LoanDetailTableReferences._currencyIdTable(db).id,
-                  ) as T;
-                }
-                if (paymentTypeId) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.paymentTypeId,
-                    referencedTable:
-                        $$LoanDetailTableReferences._paymentTypeIdTable(db),
-                    referencedColumn:
-                        $$LoanDetailTableReferences._paymentTypeIdTable(db).id,
-                  ) as T;
-                }
-                if (journalId) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.journalId,
-                    referencedTable:
-                        $$LoanDetailTableReferences._journalIdTable(db),
-                    referencedColumn:
-                        $$LoanDetailTableReferences._journalIdTable(db).id,
-                  ) as T;
-                }
-                if (transactionId) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.transactionId,
-                    referencedTable:
-                        $$LoanDetailTableReferences._transactionIdTable(db),
-                    referencedColumn:
-                        $$LoanDetailTableReferences._transactionIdTable(db).id,
-                  ) as T;
-                }
-
-                return state;
-              },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
+          prefetchHooksCallback: null,
         ));
 }
 
@@ -16815,14 +15603,9 @@ typedef $$LoanDetailTableProcessedTableManager = ProcessedTableManager<
     $$LoanDetailTableAnnotationComposer,
     $$LoanDetailTableCreateCompanionBuilder,
     $$LoanDetailTableUpdateCompanionBuilder,
-    (LoanDetails, $$LoanDetailTableReferences),
+    (LoanDetails, BaseReferences<_$AppDatabase, $LoanDetailTable, LoanDetails>),
     LoanDetails,
-    PrefetchHooks Function(
-        {bool loanId,
-        bool currencyId,
-        bool paymentTypeId,
-        bool journalId,
-        bool transactionId})>;
+    PrefetchHooks Function()>;
 typedef $$SharedExpenseEntryTableCreateCompanionBuilder
     = SharedExpenseEntriesCompanion Function({
   Value<int> id,

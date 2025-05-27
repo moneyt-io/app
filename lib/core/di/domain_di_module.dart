@@ -13,6 +13,8 @@ import '../../domain/repositories/transaction_repository.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../../domain/repositories/credit_card_repository.dart';
 import '../../domain/usecases/credit_card_usecases.dart';
+import '../../domain/repositories/loan_repository.dart';
+import '../../domain/usecases/loan_usecases.dart';
 
 final getIt = GetIt.instance;
 
@@ -63,5 +65,18 @@ Future<void> initializeDomainDependencies() async {
       getIt<CategoryRepository>(),
       getIt<CreditCardRepository>()
     )
+  );
+
+  // Registrar LoanUseCases
+  getIt.registerLazySingleton<LoanUseCases>(
+    () => LoanUseCases(
+      getIt<LoanRepository>(),
+      getIt<ContactRepository>(),
+      getIt<JournalRepository>(),
+      getIt<TransactionRepository>(),
+      getIt<WalletRepository>(),
+      getIt<CreditCardRepository>(),
+      getIt<CategoryRepository>(),
+    ),
   );
 }

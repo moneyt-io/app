@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/credit_card.dart';
 import '../../domain/entities/journal_entry.dart';
+import '../../domain/entities/loan_entry.dart';
 import '../../domain/entities/transaction_entry.dart';
 import '../../domain/entities/wallet.dart';
 import '../pages/journals/journal_detail_screen.dart';
 import '../pages/journals/journals_screen.dart';
 import '../pages/welcome_screen.dart';
 import '../pages/login_screen.dart';
-import '../pages/home_screen.dart';
+import '../pages/home_screen.dart'; // Usar home_screen en lugar de dashboard
 import '../pages/settings_screen.dart';
 import '../pages/contacts/contacts_screen.dart';
 import '../pages/contacts/contact_form_screen.dart';
@@ -24,8 +25,11 @@ import '../pages/transactions/transaction_detail_screen.dart';
 import '../pages/backup_screen.dart';
 import '../pages/credit_cards/credit_cards_screen.dart';
 import '../pages/credit_cards/credit_card_form_screen.dart';
-import '../pages/credit_cards/credit_card_payment_screen.dart'; // ← NUEVA IMPORTACIÓN
-import './app_routes.dart';
+import '../pages/credit_cards/credit_card_payment_screen.dart';
+import '../pages/loans/loans_screen.dart';
+import '../pages/loans/loan_form_screen.dart';
+import '../pages/loans/loan_detail_screen.dart';
+import 'app_routes.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/chart_account.dart';
@@ -52,8 +56,9 @@ class RouteGenerator {
         );
         
       case AppRoutes.home:
+      case AppRoutes.dashboard:
         return MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
+          builder: (_) => const HomeScreen(), // Cambiar a HomeScreen
         );
         
       case AppRoutes.settings:
@@ -100,7 +105,7 @@ class RouteGenerator {
           ),
         );
       
-      // NUEVAS RUTAS AÑADIDAS PARA TRANSACCIONES
+      // RUTAS PARA TRANSACCIONES
       case AppRoutes.transactions:
         return MaterialPageRoute(
           builder: (_) => const TransactionsScreen(),
@@ -118,7 +123,7 @@ class RouteGenerator {
         return _errorRoute();
         
       case AppRoutes.transactionDetail:
-        if (args != null && args is TransactionEntry) {  // Añadir verificación explícita del tipo
+        if (args != null && args is TransactionEntry) {
           return MaterialPageRoute(
             builder: (_) => TransactionDetailScreen(
               transaction: args,
@@ -127,7 +132,7 @@ class RouteGenerator {
         }
         return _errorRoute();
       
-      // NUEVAS RUTAS PARA EL PLAN DE CUENTAS
+      // RUTAS PARA EL PLAN DE CUENTAS
       case AppRoutes.chartAccounts:
         return MaterialPageRoute(
           builder: (_) => const ChartAccountsScreen(),
@@ -175,7 +180,7 @@ class RouteGenerator {
         }
         return _errorRoute();
 
-      // Implementar caso para la ruta de journals
+      // Rutas para journals
       case AppRoutes.journals:
         return MaterialPageRoute(
           builder: (_) => const JournalsScreen(),
@@ -187,29 +192,49 @@ class RouteGenerator {
         if (args != null && args is JournalEntry) {
           journal = args;
           
-          // Solo navegar a la pantalla si journal no es nulo
           return MaterialPageRoute(
             builder: (_) => JournalDetailScreen(
               journal: journal,
             ),
           );
         } else {
-          // Si journal es nulo, redirigir a la lista de journals
           return MaterialPageRoute(
             builder: (_) => const JournalsScreen(),
           );
         }
 
-      // Añadir caso para la ruta de respaldos
+      // Ruta para respaldos
       case AppRoutes.backups:
         return MaterialPageRoute(
           builder: (_) => const BackupScreen(),
         );
       
-      // En el futuro, agregar las demás rutas aquí
-      
+      // Rutas para préstamos
+      case AppRoutes.loans:
+        return MaterialPageRoute(
+          builder: (_) => const LoansScreen(),
+        );
+        
+      case AppRoutes.loanForm:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => LoanFormScreen(
+            loanType: args?['loanType'] ?? 'L',
+            editingLoan: args?['editingLoan'],
+          ),
+        );
+        
+      case AppRoutes.loanDetail:
+        if (args != null && args is LoanEntry) {
+          return MaterialPageRoute(
+            builder: (_) => LoanDetailScreen(
+              loan: args,
+            ),
+          );
+        }
+        return _errorRoute();
+        
       default:
-        // Ruta no encontrada
         return _errorRoute();
     }
   }

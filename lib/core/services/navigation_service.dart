@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// Servicio de navegación que permite navegar entre pantallas desde cualquier parte de la app
-/// sin necesidad de un BuildContext.
 class NavigationService {
-  // Clave global para acceder al estado del navegador desde cualquier lugar
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   static NavigatorState? get navigator => navigatorKey.currentState;
 
-  /// Navega a una ruta específica
   static Future<T?> navigateTo<T extends Object?>(
     String routeName, {
     Object? arguments,
@@ -16,7 +12,6 @@ class NavigationService {
     return navigator!.pushNamed<T>(routeName, arguments: arguments);
   }
 
-  /// Reemplaza la ruta actual por una nueva
   static Future<T?> navigateToAndReplace<T extends Object?>(
     String routeName, {
     Object? arguments,
@@ -25,7 +20,6 @@ class NavigationService {
     return result as T?;
   }
 
-  /// Navega al inicio y elimina todas las rutas anteriores
   static Future<T?> navigateToAndClearStack<T extends Object?>(
     String routeName, {
     Object? arguments,
@@ -38,7 +32,6 @@ class NavigationService {
     return result as T?;
   }
 
-  /// Vuelve a la pantalla anterior
   static void goBack<T extends Object?>([T? result]) {
     return navigator!.pop<T>(result);
   }

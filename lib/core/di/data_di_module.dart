@@ -21,23 +21,28 @@ import '../../data/repositories/transaction_repository_impl.dart';
 import '../../data/datasources/local/daos/credit_cards_dao.dart';
 import '../../domain/repositories/credit_card_repository.dart';
 import '../../data/repositories/credit_card_repository_impl.dart';
+import '../../data/datasources/local/daos/loan_dao.dart';
+import '../../domain/repositories/loan_repository.dart';
+import '../../../data/repositories/loan_repository_impl.dart';
 
 final getIt = GetIt.instance;
 
 Future<void> initializeDataDependencies() async {
   // Base de datos
-  final database = AppDatabase();
-  getIt.registerSingleton<AppDatabase>(database);
-  
+  if (!getIt.isRegistered<AppDatabase>()) {
+    getIt.registerLazySingleton<AppDatabase>(() => AppDatabase());
+  }
+
   // DAOs
-  getIt.registerSingleton<ChartAccountsDao>(ChartAccountsDao(database));
+  getIt.registerSingleton<ChartAccountsDao>(ChartAccountsDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<ContactDao>(() => ContactDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<CategoriesDao>(() => CategoriesDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<WalletDao>(() => WalletDao(getIt<AppDatabase>())); // Añadir DAO de Wallet
   getIt.registerLazySingleton<JournalDao>(() => JournalDao(getIt<AppDatabase>())); // Registrar el JournalDao
   getIt.registerLazySingleton<TransactionDao>(() => TransactionDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<CreditCardDao>(() => CreditCardDao(getIt<AppDatabase>())); // Registrar CreditCardDao
-  
+  getIt.registerLazySingleton<LoanDao>(() => getIt<AppDatabase>().loanDao); // ← AGREGADO
+
   // Repositorios
   getIt.registerSingleton<ChartAccountRepository>(
     ChartAccountRepositoryImpl(getIt<ChartAccountsDao>())
@@ -68,5 +73,8 @@ Future<void> initializeDataDependencies() async {
   // Registrar CreditCardRepository aquí, no en injection_container.dart
   getIt.registerLazySingleton<CreditCardRepository>(
     () => CreditCardRepositoryImpl(getIt<CreditCardDao>()),
+  );
+  getIt.registerLazySingleton<LoanRepository>( // ← AGREGADO
+    () => LoanRepositoryImpl(getIt<LoanDao>()),
   );
 }

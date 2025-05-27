@@ -16,7 +16,7 @@ class CategoryIcon extends StatelessWidget {
     required this.icon,
     required this.bgColor,
     required this.iconColor,
-    this.size = AppDimensions.iconSizeMedium,
+    this.size = AppDimensions.iconMedium, // CORREGIDO
   }) : super(key: key);
 
   @override

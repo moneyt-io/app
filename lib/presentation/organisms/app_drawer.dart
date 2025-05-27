@@ -1,159 +1,221 @@
 import 'package:flutter/material.dart';
-import '../atoms/drawer_header_logo.dart';
-import '../molecules/drawer_footer.dart';
-import '../organisms/drawer_section.dart';
-import '../routes/app_routes.dart';
 import '../routes/navigation_service.dart';
+import '../routes/app_routes.dart';
+import '../../core/presentation/app_dimensions.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({Key? key}) : super(key: key);
+  const AppDrawer({super.key});
+
+  void _navigateAndClose(String routeName) {
+    NavigationService.navigateTo(routeName);
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final currentRoute = ModalRoute.of(context)?.settings.name;
-    
-    // Mock data - esto se reemplazará con datos reales posteriormente
-    final mainItems = [
-      DrawerItemData(
-        icon: Icons.dashboard_outlined,
-        selectedIcon: Icons.dashboard,
-        label: 'Inicio',
-        route: AppRoutes.home,
-      ),
-      DrawerItemData(
-        icon: Icons.receipt_long_outlined,
-        selectedIcon: Icons.receipt_long,
-        label: 'Transacciones',
-        route: AppRoutes.transactions,
-      ),
-    ];
-    
-    final managementItems = [
-      DrawerItemData(
-        icon: Icons.contacts,
-        selectedIcon: Icons.contacts,
-        label: 'Contactos',
-        route: AppRoutes.contacts,
-      ),
-      DrawerItemData(
-        icon: Icons.account_balance_wallet_outlined,
-        selectedIcon: Icons.account_balance_wallet,
-        label: 'Billeteras',
-        route: AppRoutes.wallets,
-      ),
-      DrawerItemData(
-        icon: Icons.credit_card,
-        selectedIcon: Icons.credit_card,
-        label: 'Tarjetas de Crédito',
-        route: AppRoutes.creditCards,
-      ),
-      DrawerItemData(
-        icon: Icons.category_outlined,
-        selectedIcon: Icons.category,
-        label: 'Categorías',
-        route: AppRoutes.categories,
-      ),
-    ];
-    
-    // Nueva sección para opciones de contabilidad
-    final accountingItems = [
-      DrawerItemData(
-        icon: Icons.account_tree_outlined,
-        selectedIcon: Icons.account_tree,
-        label: 'Plan de Cuentas',
-        route: AppRoutes.chartAccounts,
-      ),
-      DrawerItemData(
-        icon: Icons.book_outlined,
-        selectedIcon: Icons.book,
-        label: 'Diarios Contables',
-        route: AppRoutes.journals,
-      ),
-    ];
-    
-    final preferenceItems = [
-      DrawerItemData(
-        icon: Icons.settings_outlined,
-        selectedIcon: Icons.settings,
-        label: 'Configuración',
-        route: AppRoutes.settings,
-      ),
-    ];
-
-    void _navigateTo(String route, Map<String, dynamic>? arguments) {
-      Navigator.pop(context); // Cerrar drawer
-      NavigationService.navigateTo(route, arguments: arguments);
-    }
+    final textTheme = Theme.of(context).textTheme;
 
     return Drawer(
-      backgroundColor: colorScheme.surface,
-      elevation: 0,
-      child: Column(
+      child: ListView(
+        padding: EdgeInsets.zero,
         children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+          // Header del drawer
+          DrawerHeader(
             decoration: BoxDecoration(
-              color: colorScheme.primaryContainer,
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
-              ),
+              color: colorScheme.primary,
             ),
-            child: SafeArea(
-              bottom: false,
-              child: DrawerHeaderLogo(
-                title: 'MoneyT',
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DrawerSection(
-                  title: 'Principal',
-                  items: mainItems,
-                  currentRoute: currentRoute,
-                  onNavigate: _navigateTo,
+                Icon(
+                  Icons.account_balance_wallet,
+                  size: 48,
+                  color: colorScheme.onPrimary,
                 ),
-                const SizedBox(height: 16),
-                DrawerSection(
-                  title: 'Gestión',
-                  items: managementItems,
-                  currentRoute: currentRoute,
-                  onNavigate: _navigateTo,
+                const SizedBox(height: AppDimensions.spacing16),
+                Text(
+                  'MoneyT',
+                  style: textTheme.headlineSmall?.copyWith(
+                    color: colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(height: 16),
-                // Nueva sección de contabilidad
-                DrawerSection(
-                  title: 'Contabilidad',
-                  items: accountingItems,
-                  currentRoute: currentRoute,
-                  onNavigate: _navigateTo,
-                ),
-                const SizedBox(height: 16),
-                DrawerSection(
-                  title: 'Preferencias',
-                  items: preferenceItems,
-                  currentRoute: currentRoute,
-                  onNavigate: _navigateTo,
+                Text(
+                  'Gestor Financiero',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onPrimary.withOpacity(0.8),
+                  ),
                 ),
               ],
             ),
           ),
-          const Divider(height: 1),
-          Container(
-            padding: const EdgeInsets.all(12),
-            child: SafeArea(
-              top: false,
-              child: DrawerFooter(
-                title: 'MoneyT',
-              ),
-            ),
+
+          // Dashboard/Home
+          DrawerListTile(
+            icon: Icons.dashboard,
+            title: 'Dashboard',
+            onTap: () => _navigateAndClose(AppRoutes.home),
+          ),
+
+          const DrawerDivider(),
+
+          // Sección de Transacciones
+          DrawerSectionHeader(title: 'TRANSACCIONES'),
+
+          DrawerListTile(
+            icon: Icons.receipt_long,
+            title: 'Transacciones',
+            onTap: () => _navigateAndClose(AppRoutes.transactions),
+          ),
+
+          DrawerListTile(
+            icon: Icons.trending_up,
+            title: 'Préstamos',
+            onTap: () => _navigateAndClose(AppRoutes.loans),
+          ),
+
+          const DrawerDivider(),
+
+          // Sección de Cuentas
+          DrawerSectionHeader(title: 'CUENTAS'),
+
+          DrawerListTile(
+            icon: Icons.account_balance_wallet_outlined,
+            title: 'Billeteras',
+            onTap: () => _navigateAndClose(AppRoutes.wallets),
+          ),
+
+          DrawerListTile(
+            icon: Icons.credit_card,
+            title: 'Tarjetas de Crédito',
+            onTap: () => _navigateAndClose(AppRoutes.creditCards),
+          ),
+
+          const DrawerDivider(),
+
+          // Sección de Configuración
+          DrawerSectionHeader(title: 'CONFIGURACIÓN'),
+
+          DrawerListTile(
+            icon: Icons.category,
+            title: 'Categorías',
+            onTap: () => _navigateAndClose(AppRoutes.categories),
+          ),
+
+          DrawerListTile(
+            icon: Icons.people,
+            title: 'Contactos',
+            onTap: () => _navigateAndClose(AppRoutes.contacts),
+          ),
+
+          DrawerListTile(
+            icon: Icons.account_tree,
+            title: 'Plan de Cuentas',
+            onTap: () => _navigateAndClose(AppRoutes.chartAccounts),
+          ),
+
+          DrawerListTile(
+            icon: Icons.book,
+            title: 'Diarios Contables',
+            onTap: () => _navigateAndClose(AppRoutes.journals),
+          ),
+
+          const DrawerDivider(),
+
+          // Sección de Sistema
+          DrawerSectionHeader(title: 'SISTEMA'),
+
+          DrawerListTile(
+            icon: Icons.backup,
+            title: 'Respaldos',
+            onTap: () => _navigateAndClose(AppRoutes.backups),
+          ),
+
+          DrawerListTile(
+            icon: Icons.settings,
+            title: 'Configuración',
+            onTap: () => _navigateAndClose(AppRoutes.settings),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class DrawerListTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+
+  const DrawerListTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        size: AppDimensions.iconSizeMedium,
+      ),
+      title: Text(title),
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.spacing24,
+        vertical: AppDimensions.spacing4,
+      ),
+    );
+  }
+}
+
+class DrawerSectionHeader extends StatelessWidget {
+  final String title;
+
+  const DrawerSectionHeader({
+    super.key,
+    required this.title,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimensions.spacing24,
+        AppDimensions.spacing16,
+        AppDimensions.spacing24,
+        AppDimensions.spacing8,
+      ),
+      child: Text(
+        title,
+        style: textTheme.labelSmall?.copyWith(
+          color: colorScheme.onSurfaceVariant,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+}
+
+class DrawerDivider extends StatelessWidget {
+  const DrawerDivider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.spacing16,
+        vertical: AppDimensions.spacing8,
+      ),
+      child: Divider(
+        height: 1,
+        color: Theme.of(context).colorScheme.outlineVariant,
       ),
     );
   }

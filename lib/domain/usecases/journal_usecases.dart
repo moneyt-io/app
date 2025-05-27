@@ -362,4 +362,451 @@ class JournalUseCases {
       toDate: toDate,
     );
   }
+  
+  /// Crear journal para préstamo otorgado desde wallet
+  Future<JournalEntry> createLendFromWalletJournal({
+    required int contactId,
+    required int walletChartAccountId,
+    required double amount,
+    required String currencyId,
+    required DateTime date,
+    required String description,
+  }) async {
+    // Obtener las cuentas contables necesarias
+    final receivableAccountId = await _getReceivableAccountId(contactId);
+
+    // Crear journal entry usando el método existente
+    final entry = JournalEntry(
+      id: 0,
+      documentTypeId: 'L',
+      secuencial: await _repository.getNextSecuencial('L'),
+      date: date,
+      description: description,
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: null,
+      deletedAt: null,
+      details: [],
+    );
+
+    // Crear detalles del journal (partida doble)
+    final details = [
+      // Débito: Cuentas por Cobrar
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: receivableAccountId,
+        currencyId: currencyId,
+        debit: amount,
+        credit: 0.0,
+        rateExchange: 1.0,
+      ),
+      // Crédito: Wallet
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: walletChartAccountId,
+        currencyId: currencyId,
+        debit: 0.0,
+        credit: amount,
+        rateExchange: 1.0,
+      ),
+    ];
+
+    // Usar el método existente createJournalEntry
+    return await createJournalEntry(entry, details);
+  }
+
+  /// Crear journal para préstamo otorgado desde tarjeta de crédito
+  Future<JournalEntry> createLendFromCreditCardJournal({
+    required int contactId,
+    required int creditCardChartAccountId,
+    required double amount,
+    required String currencyId,
+    required DateTime date,
+    required String description,
+  }) async {
+    // Obtener las cuentas contables necesarias
+    final receivableAccountId = await _getReceivableAccountId(contactId);
+
+    // Crear journal entry usando el método existente
+    final entry = JournalEntry(
+      id: 0,
+      documentTypeId: 'L',
+      secuencial: await _repository.getNextSecuencial('L'),
+      date: date,
+      description: description,
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: null,
+      deletedAt: null,
+      details: [],
+    );
+
+    // Crear detalles del journal (partida doble)
+    final details = [
+      // Débito: Cuentas por Cobrar
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: receivableAccountId,
+        currencyId: currencyId,
+        debit: amount,
+        credit: 0.0,
+        rateExchange: 1.0,
+      ),
+      // Crédito: Tarjeta de Crédito
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: creditCardChartAccountId,
+        currencyId: currencyId,
+        debit: 0.0,
+        credit: amount,
+        rateExchange: 1.0,
+      ),
+    ];
+
+    // Usar el método existente createJournalEntry
+    return await createJournalEntry(entry, details);
+  }
+
+  /// Crear journal para préstamo recibido hacia wallet
+  Future<JournalEntry> createBorrowToWalletJournal({
+    required int contactId,
+    required int walletChartAccountId,
+    required double amount,
+    required String currencyId,
+    required DateTime date,
+    required String description,
+  }) async {
+    // Obtener las cuentas contables necesarias
+    final payableAccountId = await _getPayableAccountId(contactId);
+
+    // Crear journal entry usando el método existente
+    final entry = JournalEntry(
+      id: 0,
+      documentTypeId: 'B',
+      secuencial: await _repository.getNextSecuencial('B'),
+      date: date,
+      description: description,
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: null,
+      deletedAt: null,
+      details: [],
+    );
+
+    // Crear detalles del journal (partida doble)
+    final details = [
+      // Débito: Wallet
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: walletChartAccountId,
+        currencyId: currencyId,
+        debit: amount,
+        credit: 0.0,
+        rateExchange: 1.0,
+      ),
+      // Crédito: Cuentas por Pagar
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: payableAccountId,
+        currencyId: currencyId,
+        debit: 0.0,
+        credit: amount,
+        rateExchange: 1.0,
+      ),
+    ];
+
+    // Usar el método existente createJournalEntry
+    return await createJournalEntry(entry, details);
+  }
+
+  /// Crear journal para préstamo otorgado por servicios
+  Future<JournalEntry> createLendFromServiceJournal({
+    required int contactId,
+    required int categoryChartAccountId,
+    required double amount,
+    required String currencyId,
+    required DateTime date,
+    required String description,
+  }) async {
+    // Obtener las cuentas contables necesarias
+    final receivableAccountId = await _getReceivableAccountId(contactId);
+
+    // Crear journal entry usando el método existente
+    final entry = JournalEntry(
+      id: 0,
+      documentTypeId: 'L',
+      secuencial: await _repository.getNextSecuencial('L'),
+      date: date,
+      description: description,
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: null,
+      deletedAt: null,
+      details: [],
+    );
+
+    // Crear detalles del journal (partida doble)
+    final details = [
+      // Débito: Cuentas por Cobrar
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: receivableAccountId,
+        currencyId: currencyId,
+        debit: amount,
+        credit: 0.0,
+        rateExchange: 1.0,
+      ),
+      // Crédito: Categoría de Ingreso
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: categoryChartAccountId,
+        currencyId: currencyId,
+        debit: 0.0,
+        credit: amount,
+        rateExchange: 1.0,
+      ),
+    ];
+
+    // Usar el método existente createJournalEntry
+    return await createJournalEntry(entry, details);
+  }
+
+  /// Crear journal para préstamo recibido por servicios
+  Future<JournalEntry> createBorrowFromServiceJournal({
+    required int contactId,
+    required int categoryChartAccountId,
+    required double amount,
+    required String currencyId,
+    required DateTime date,
+    required String description,
+  }) async {
+    // Obtener las cuentas contables necesarias
+    final payableAccountId = await _getPayableAccountId(contactId);
+
+    // Crear journal entry usando el método existente
+    final entry = JournalEntry(
+      id: 0,
+      documentTypeId: 'B',
+      secuencial: await _repository.getNextSecuencial('B'),
+      date: date,
+      description: description,
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: null,
+      deletedAt: null,
+      details: [],
+    );
+
+    // Crear detalles del journal (partida doble)
+    final details = [
+      // Débito: Categoría de Gasto
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: categoryChartAccountId,
+        currencyId: currencyId,
+        debit: amount,
+        credit: 0.0,
+        rateExchange: 1.0,
+      ),
+      // Crédito: Cuentas por Pagar
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        currencyId: currencyId,
+        chartAccountId: payableAccountId,
+        debit: 0.0,
+        credit: amount,
+        rateExchange: 1.0,
+      ),
+    ];
+
+    // Usar el método existente createJournalEntry
+    return await createJournalEntry(entry, details);
+  }
+
+  /// Crear journal para pago de préstamo otorgado - SIMPLIFICADO
+  Future<JournalEntry> createLendPaymentJournal({
+    required int loanId,
+    required int walletId,
+    required double amount,
+    required String currencyId,
+    required DateTime date,
+    required String description,
+  }) async {
+    // Por ahora usar cuentas placeholder hasta implementar la lógica completa
+    final receivableAccountId = await _getReceivableAccountId(0); // Placeholder
+    final walletChartAccountId = 1001; // Placeholder
+
+    // Crear journal entry usando el método existente
+    final entry = JournalEntry(
+      id: 0,
+      documentTypeId: 'L',
+      secuencial: await _repository.getNextSecuencial('L'),
+      date: date,
+      description: description,
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: null,
+      deletedAt: null,
+      details: [],
+    );
+
+    // Crear detalles del journal (partida doble)
+    final details = [
+      // Débito: Wallet (recibimos dinero)
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: walletChartAccountId,
+        currencyId: currencyId,
+        debit: amount,
+        credit: 0.0,
+        rateExchange: 1.0,
+      ),
+      // Crédito: Cuentas por Cobrar (disminuye la deuda)
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: receivableAccountId,
+        currencyId: currencyId,
+        debit: 0.0,
+        credit: amount,
+        rateExchange: 1.0,
+      ),
+    ];
+
+    // Usar el método existente createJournalEntry
+    return await createJournalEntry(entry, details);
+  }
+
+  /// Crear journal para pago de préstamo recibido - SIMPLIFICADO
+  Future<JournalEntry> createBorrowPaymentJournal({
+    required int loanId,
+    required int walletId,
+    required double amount,
+    required String currencyId,
+    required DateTime date,
+    required String description,
+  }) async {
+    // Por ahora usar cuentas placeholder hasta implementar la lógica completa
+    final payableAccountId = await _getPayableAccountId(0); // Placeholder
+    final walletChartAccountId = 1001; // Placeholder
+
+    // Crear journal entry usando el método existente
+    final entry = JournalEntry(
+      id: 0,
+      documentTypeId: 'B',
+      secuencial: await _repository.getNextSecuencial('B'),
+      date: date,
+      description: description,
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: null,
+      deletedAt: null,
+      details: [],
+    );
+
+    // Crear detalles del journal (partida doble)
+    final details = [
+      // Débito: Cuentas por Pagar (disminuye la deuda)
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: payableAccountId,
+        currencyId: currencyId,
+        debit: amount,
+        credit: 0.0,
+        rateExchange: 1.0,
+      ),
+      // Crédito: Wallet (sale dinero)
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: walletChartAccountId,
+        currencyId: currencyId,
+        debit: 0.0,
+        credit: amount,
+        rateExchange: 1.0,
+      ),
+    ];
+
+    // Usar el método existente createJournalEntry
+    return await createJournalEntry(entry, details);
+  }
+
+  /// Crear journal para cancelación de saldo pendiente - SIMPLIFICADO
+  Future<JournalEntry> createLoanWriteOffJournal({
+    required int loanId,
+    required int categoryChartAccountId,
+    required double amount,
+    required String currencyId,
+    required DateTime date,
+    required String description,
+  }) async {
+    // Por ahora usar cuentas placeholder - TODO: implementar lógica completa
+    final receivableAccountId = await _getReceivableAccountId(0); // Placeholder
+
+    // Crear journal entry usando el método existente
+    final entry = JournalEntry(
+      id: 0,
+      documentTypeId: 'L', // Asumiendo préstamo otorgado por ahora
+      secuencial: await _repository.getNextSecuencial('L'),
+      date: date,
+      description: description,
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: null,
+      deletedAt: null,
+      details: [],
+    );
+
+    // Crear detalles del journal - para préstamos otorgados: cancelar como gasto
+    final details = [
+      // Débito: Categoría de Gasto
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: categoryChartAccountId,
+        currencyId: currencyId,
+        debit: amount,
+        credit: 0.0,
+        rateExchange: 1.0,
+      ),
+      // Crédito: Cuentas por Cobrar
+      JournalDetail(
+        id: 0,
+        journalId: 0, // Se asignará después
+        chartAccountId: receivableAccountId,
+        currencyId: currencyId,
+        debit: 0.0,
+        credit: amount,
+        rateExchange: 1.0,
+      ),
+    ];
+
+    // Usar el método existente createJournalEntry
+    return await createJournalEntry(entry, details);
+  }
+
+  // Métodos helper privados
+  Future<int> _getReceivableAccountId(int contactId) async {
+    // TODO: Implementar lógica para obtener/crear cuenta "Cuentas por Cobrar - [Contacto]"
+    // Por ahora retornamos un placeholder
+    return 1001; // ID de cuenta "Cuentas por Cobrar"
+  }
+
+  Future<int> _getPayableAccountId(int contactId) async {
+    // TODO: Implementar lógica para obtener/crear cuenta "Cuentas por Pagar - [Contacto]"
+    // Por ahora retornamos un placeholder
+    return 2001; // ID de cuenta "Cuentas por Pagar"
+  }
 }

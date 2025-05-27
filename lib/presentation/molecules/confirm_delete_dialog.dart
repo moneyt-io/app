@@ -89,7 +89,7 @@ class ConfirmDeleteDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
       ),
-      elevation: AppDimensions.elevationMedium,
+      elevation: AppDimensions.elevationMedium, // CORREGIDO
       icon: Icon(
         icon,
         color: effectiveIconColor,

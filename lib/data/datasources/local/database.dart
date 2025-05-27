@@ -26,6 +26,9 @@ import 'tables/chart_accounts_table.dart';
 import 'tables/credit_cards_table.dart';
 import 'tables/journal_entries_table.dart';
 import 'tables/journal_details_table.dart';
+import 'tables/loan_entries_table.dart';
+import 'tables/loan_details_table.dart';
+import 'daos/loan_dao.dart';
 
 import 'seeds/reference_seeds.dart';
 
@@ -63,23 +66,25 @@ LazyDatabase _openConnection() {
     Wallet,
     CreditCard,
     
-    
     // Tablas transaccionales
     JournalEntry,
     JournalDetail,
     TransactionEntry,
     TransactionDetail,
-    LoanEntry,
-    LoanDetail,
+    LoanEntry, // ← AGREGADO
+    LoanDetail, // ← AGREGADO
     SharedExpenseEntry,
     SharedExpenseDetail,
+  ],
+  daos: [
+    LoanDao, // ← AGREGADO
   ]
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2; // ← INCREMENTADO
 
   // Método necesario para backups locales
   Future<String> getDatabasePath() async {
@@ -95,6 +100,13 @@ class AppDatabase extends _$AppDatabase {
       await m.createAll();
       // 2. Llamar al seeder centralizado
       await ReferenceSeeds.seedAll(this);
+    },
+    onUpgrade: (Migrator m, int from, int to) async {
+      if (from < 2) {
+        // Crear las nuevas tablas de préstamos
+        await m.createTable(loanEntry);
+        await m.createTable(loanDetail);
+      }
     },
   );
 }

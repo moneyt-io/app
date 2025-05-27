@@ -3,29 +3,52 @@
 /// Esta clase contiene únicamente constantes que identifican las rutas,
 /// sin lógica de navegación.
 class AppRoutes {
+  // Pantallas principales
   static const String welcome = '/welcome';
   static const String login = '/login';
-  static const String home = '/home';
+  static const String home = '/';
+  static const String dashboard = '/dashboard';
+  
+  // Settings
   static const String settings = '/settings';
+  
+  // Contactos
   static const String contacts = '/contacts';
-  static const String contactForm = '/contactForm';
+  static const String contactForm = '/contacts/form';
+  
+  // Categorías
   static const String categories = '/categories';
-  static const String categoryForm = '/categoryForm';
+  static const String categoryForm = '/categories/form';
+  
+  // Transacciones
   static const String transactions = '/transactions';
-  static const String transactionForm = '/transactionForm';
-  static const String transactionDetail = '/transactionDetail';
+  static const String transactionForm = '/transactions/form';
+  static const String transactionDetail = '/transactions/detail';
+  
+  // Plan de cuentas
+  static const String chartAccounts = '/chart-accounts';
+  static const String chartAccountForm = '/chart-accounts/form';
+  
+  // Wallets
   static const String wallets = '/wallets';
-  static const String walletForm = '/wallet-form';
-  static const String walletDetail = '/wallet-detail';
+  static const String walletForm = '/wallets/form';
+  static const String walletDetail = '/wallets/detail';
   
-  // Credit Card Routes
+  // Tarjetas de crédito
   static const String creditCards = '/credit-cards';
-  static const String creditCardForm = '/credit-card-form';
-  static const String creditCardPayment = '/credit-card-payment'; // Nueva ruta
+  static const String creditCardForm = '/credit-cards/form';
+  static const String creditCardPayment = '/credit-cards/payment';
   
-  static const String chartAccounts = '/chartAccounts';
-  static const String chartAccountForm = '/chartAccountForm';
+  // Journals
   static const String journals = '/journals';
-  static const String journalDetail = '/journalDetail';
-  static const String backups = '/backups'; // Nueva ruta
+  static const String journalDetail = '/journals/detail';
+  
+  // Respaldos
+  static const String backups = '/backups';
+  
+  // Préstamos
+  static const String loans = '/loans';
+  static const String loanForm = '/loans/form';
+  static const String loanDetail = '/loans/detail';
+  static const String loanTest = '/loans/test'; // AGREGADO
 }
