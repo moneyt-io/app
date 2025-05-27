@@ -37,18 +37,35 @@ class TransactionDetailModel {
     required this.rateExchange,
   }) : id = 0;
 
-  // Convertir a Companion para Drift
-  TransactionDetailsCompanion toCompanion() => TransactionDetailsCompanion(
-    id: id == 0 ? const Value.absent() : Value(id),
-    transactionId: Value(transactionId),
-    currencyId: Value(currencyId),
-    flowId: Value(flowId),
-    paymentTypeId: Value(paymentTypeId),
-    paymentId: Value(paymentId),
-    categoryId: Value(categoryId),
-    amount: Value(amount),
-    rateExchange: Value(rateExchange),
-  );
+  // Factory desde entidad de base de datos
+  factory TransactionDetailModel.fromDatabase(TransactionDetails detail) {
+    return TransactionDetailModel(
+      id: detail.id,
+      transactionId: detail.transactionId,
+      currencyId: detail.currencyId,
+      flowId: detail.flowId,
+      paymentTypeId: detail.paymentTypeId,
+      paymentId: detail.paymentId,
+      categoryId: detail.categoryId,
+      amount: detail.amount,
+      rateExchange: detail.rateExchange,
+    );
+  }
+
+  // Convertir a Companion para operaciones de BD
+  TransactionDetailsCompanion toCompanion() {
+    return TransactionDetailsCompanion(
+      id: id == 0 ? const Value.absent() : Value(id),
+      transactionId: Value(transactionId),
+      currencyId: Value(currencyId),
+      flowId: Value(flowId),
+      paymentTypeId: Value(paymentTypeId),
+      paymentId: Value(paymentId),
+      categoryId: Value(categoryId),
+      amount: Value(amount),
+      rateExchange: Value(rateExchange),
+    );
+  }
 
   // Conversión desde/hacia Domain Entity
   TransactionDetail toEntity() => TransactionDetail(

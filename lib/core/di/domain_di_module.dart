@@ -15,68 +15,77 @@ import '../../domain/repositories/credit_card_repository.dart';
 import '../../domain/usecases/credit_card_usecases.dart';
 import '../../domain/repositories/loan_repository.dart';
 import '../../domain/usecases/loan_usecases.dart';
+import '../../domain/usecases/shared_expense_usecases.dart';
+import '../../domain/services/balance_calculation_service.dart'; // AGREGADO: Import faltante
 
 final getIt = GetIt.instance;
 
-Future<void> initializeDomainDependencies() async {
-  // Casos de uso existentes
-  getIt.registerSingleton<ChartAccountUseCases>(
-    ChartAccountUseCases(getIt<ChartAccountRepository>())
-  );
-  
-  getIt.registerSingleton<ContactUseCases>(
-    ContactUseCases(getIt<ContactRepository>())
-  );
-  
-  getIt.registerSingleton<CategoryUseCases>(
-    CategoryUseCases(
-      getIt<CategoryRepository>(),
-      getIt<ChartAccountUseCases>()
-    )
-  );
-  
-  getIt.registerSingleton<WalletUseCases>(
-    WalletUseCases(
-      getIt<WalletRepository>(),
-      getIt<ChartAccountUseCases>()
-    )
-  );
-  
-  // Registrar JournalUseCases
-  getIt.registerLazySingleton<JournalUseCases>(
-    () => JournalUseCases(getIt<JournalRepository>()),
-  );
-  
-  // Registro de CreditCardUseCases
-  getIt.registerSingleton<CreditCardUseCases>(
-    CreditCardUseCases(
-      getIt<CreditCardRepository>(),
-      getIt<ChartAccountRepository>(),
-      getIt<TransactionRepository>(), // ← AGREGAR el TransactionRepository faltante
-    )
-  );
-  
-  // Registro del caso de uso de Transacciones con CreditCardRepository
-  getIt.registerSingleton<TransactionUseCases>(
-    TransactionUseCases(
-      getIt<TransactionRepository>(),
-      getIt<JournalRepository>(),
-      getIt<WalletRepository>(),
-      getIt<CategoryRepository>(),
-      getIt<CreditCardRepository>()
-    )
+void registerDomainDependencies() {
+  // PRIMERO: Registrar el servicio de cálculo de balances
+  getIt.registerLazySingleton<BalanceCalculationService>(
+    () => BalanceCalculationService(getIt<TransactionRepository>()),
   );
 
-  // Registrar LoanUseCases
+  // Casos de Uso - Dependen de los repositorios registrados en data_di_module
+  
   getIt.registerLazySingleton<LoanUseCases>(
     () => LoanUseCases(
-      getIt<LoanRepository>(),
-      getIt<ContactRepository>(),
-      getIt<JournalRepository>(),
-      getIt<TransactionRepository>(),
-      getIt<WalletRepository>(),
-      getIt<CreditCardRepository>(),
-      getIt<CategoryRepository>(),
+      getIt(), // LoanRepository
+      getIt(), // ContactRepository
+      getIt(), // JournalRepository
+      getIt(), // TransactionRepository
+      getIt(), // WalletRepository
+      getIt(), // CreditCardRepository
+      getIt(), // CategoryRepository
+      getIt(), // BalanceCalculationService - AGREGADO: 8vo parámetro faltante
     ),
+  );
+
+  getIt.registerLazySingleton<TransactionUseCases>(
+    () => TransactionUseCases(
+      getIt(), // TransactionRepository
+      getIt(), // JournalRepository
+      getIt(), // CategoryRepository
+      getIt(), // WalletRepository
+      getIt(), // ContactRepository
+    ),
+  );
+
+  getIt.registerLazySingleton<JournalUseCases>(
+    () => JournalUseCases(getIt()),
+  );
+
+  getIt.registerLazySingleton<ChartAccountUseCases>(
+    () => ChartAccountUseCases(getIt()),
+  );
+
+  getIt.registerLazySingleton<CategoryUseCases>(
+    () => CategoryUseCases(
+      getIt(), // CategoryRepository
+      getIt(), // ChartAccountRepository
+    ),
+  );
+
+  getIt.registerLazySingleton<ContactUseCases>(
+    () => ContactUseCases(getIt()),
+  );
+
+  getIt.registerLazySingleton<WalletUseCases>(
+    () => WalletUseCases(
+      getIt(), // WalletRepository
+      getIt(), // ChartAccountRepository
+    ),
+  );
+
+  getIt.registerLazySingleton<CreditCardUseCases>(
+    () => CreditCardUseCases(
+      getIt(), // CreditCardRepository
+      getIt(), // ChartAccountRepository
+      getIt(), // TransactionRepository
+    ),
+  );
+
+  getIt.registerLazySingleton<SharedExpenseUseCases>(
+    () => SharedExpenseUseCases(getIt()),
   );
 }

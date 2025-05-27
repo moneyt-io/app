@@ -69,10 +69,61 @@ abstract class TransactionRepository {
     double rateExchange = 1.0,
   });
 
+  // MÉTODO AGREGADO PARA GASTOS CON TARJETA DE CRÉDITO
+  Future<TransactionEntry> createCreditCardExpenseTransaction({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int creditCardId,
+    required int categoryId,
+    int? contactId,
+    double rateExchange = 1.0,
+  });
+
   // Métodos de consulta específicos para tarjetas de crédito
   Future<List<TransactionEntry>> getTransactionsByPaymentTypeAndId(String paymentTypeId, int paymentId);
   Future<List<TransactionEntry>> getTransactionsByCreditCardPayment(int creditCardId);
 
   // Utilitarios
   Future<int> getNextSecuencial(String documentTypeId);
+
+  // MÉTODOS PARA PRÉSTAMOS SIN TRANSFERENCIA
+  Future<TransactionEntry> createLendFromServiceTransaction({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int categoryId,
+    required int journalId,
+    required int contactId,
+    double rateExchange = 1.0,
+  });
+
+  Future<TransactionEntry> createBorrowFromServiceTransaction({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int categoryId,
+    required int journalId,
+    required int contactId,
+    double rateExchange = 1.0,
+  });
+
+  // MÉTODOS PARA AJUSTES CONTABLES
+  Future<TransactionEntry> createAdjustmentTransaction({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int categoryId,
+    required String adjustmentType, // 'WRITE_OFF', 'EXTRA', 'DISCOUNT'
+    int? contactId,
+    double rateExchange = 1.0,
+  });
+
+  // CONSULTAS ESPECIALIZADAS PARA LOANS
+  Future<List<TransactionEntry>> getTransactionsByLoan(int loanId);
+  Future<List<TransactionEntry>> getAdjustmentTransactions();
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../domain/entities/loan_entry.dart';
+import 'app_routes.dart';
 
 /// Servicio de navegación que permite navegar entre pantallas desde cualquier parte de la app
 /// sin necesidad de un BuildContext.
@@ -12,8 +14,12 @@ class NavigationService {
   static Future<T?> navigateTo<T extends Object?>(
     String routeName, {
     Object? arguments,
-  }) {
-    return navigator!.pushNamed<T>(routeName, arguments: arguments);
+  }) async {
+    final result = await navigator!.pushNamed(
+      routeName,
+      arguments: arguments,
+    );
+    return result as T?;
   }
 
   /// Reemplaza la ruta actual por una nueva
@@ -61,21 +67,14 @@ class NavigationService {
   }
 
   static Future<void> goToLoans() {
-    return navigateTo('/loans');
+    return navigateTo(AppRoutes.loans);
+  }
+
+  static Future<void> goToLoanForm({LoanEntry? loan}) {
+    return navigateTo(AppRoutes.loanForm, arguments: {'loan': loan});
   }
 
   static Future<void> goToLoanDetail(int loanId) {
-    return navigateTo('/loans/detail', arguments: loanId);
-  }
-
-  static Future<void> goToCreateLoan(String loanType) {
-    return navigateTo('/loans/form', arguments: {'loanType': loanType});
-  }
-
-  static Future<void> goToEditLoan(dynamic loan) {
-    return navigateTo('/loans/form', arguments: {
-      'loanType': loan.documentTypeId,
-      'editingLoan': loan,
-    });
+    return navigateTo(AppRoutes.loanDetail, arguments: {'loanId': loanId});
   }
 }

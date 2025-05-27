@@ -1,12 +1,12 @@
 import 'package:equatable/equatable.dart';
-import 'loan_detail.dart';
 import 'contact.dart';
+import 'loan_detail.dart' as loan_detail;
 
 enum LoanStatus { active, paid, cancelled, writtenOff }
 
 class LoanEntry extends Equatable {
   final int id;
-  final String documentTypeId; // 'L' o 'B'
+  final String documentTypeId; // 'L' (Lend) o 'B' (Borrow)
   final String currencyId;
   final int contactId;
   final int secuencial;
@@ -15,15 +15,15 @@ class LoanEntry extends Equatable {
   final double rateExchange;
   final String? description;
   final LoanStatus status;
-  final double totalPaid; // AGREGADO
+  final double totalPaid;
   final bool active;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-  final List<LoanDetail> details;
   
   // Entidades relacionadas cargadas
   final Contact? contact;
+  final List<loan_detail.LoanDetail> details;
 
   const LoanEntry({
     required this.id,
@@ -33,27 +33,56 @@ class LoanEntry extends Equatable {
     required this.secuencial,
     required this.date,
     required this.amount,
-    required this.rateExchange,
+    this.rateExchange = 1.0,
     this.description,
-    required this.status,
-    this.totalPaid = 0.0, // AGREGADO
-    required this.active,
+    this.status = LoanStatus.active,
+    this.totalPaid = 0.0,
+    this.active = true,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
-    this.details = const [],
     this.contact,
+    this.details = const [],
   });
 
-  // Getters helper críticos para UI
+  /// Calcula el saldo pendiente del préstamo
   double get outstandingBalance => amount - totalPaid;
-  bool get isPaid => outstandingBalance <= 0.01; // Tolerancia para decimales
-  bool get isActive => status == LoanStatus.active && !isPaid;
-  bool get canReceivePayments => isActive;
-  bool get canWriteOff => isActive && outstandingBalance > 0;
+
+  /// Verifica si el préstamo está completamente pagado
+  bool get isPaid => outstandingBalance <= 0 || status == LoanStatus.paid;
+
+  /// Verifica si es un préstamo otorgado (prestado a otros)
   bool get isLend => documentTypeId == 'L';
+
+  /// Verifica si es un préstamo recibido (prestado de otros)
   bool get isBorrow => documentTypeId == 'B';
 
+  /// Verifica si se puede realizar un pago en este préstamo
+  bool get canMakePayment => status == LoanStatus.active && outstandingBalance > 0;
+
+  /// Verifica si se puede cancelar el saldo pendiente del préstamo
+  bool get canWriteOff => status == LoanStatus.active && outstandingBalance > 0;
+
+  /// Verifica si es un préstamo otorgado (alias para isLend)
+  bool get isLendLoan => documentTypeId == 'L';
+
+  /// Verifica si es un préstamo recibido (alias para isBorrow)  
+  bool get isBorrowLoan => documentTypeId == 'B';
+
+  /// Calcula el porcentaje pagado del préstamo
+  double get paymentPercentage {
+    if (amount <= 0) return 0.0;
+    return (totalPaid / amount * 100).clamp(0.0, 100.0);
+  }
+
+  /// Verifica si el préstamo está activo y puede ser modificado
+  bool get isActive => status == LoanStatus.active && active;
+
+  /// Verifica si el préstamo fue cancelado o dado de baja
+  bool get isCancelledOrWrittenOff => 
+      status == LoanStatus.cancelled || status == LoanStatus.writtenOff;
+
+  /// Crea una copia del préstamo con los campos especificados modificados
   LoanEntry copyWith({
     int? id,
     String? documentTypeId,
@@ -65,13 +94,13 @@ class LoanEntry extends Equatable {
     double? rateExchange,
     String? description,
     LoanStatus? status,
-    double? totalPaid, // AGREGADO
+    double? totalPaid,
     bool? active,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
-    List<LoanDetail>? details,
     Contact? contact,
+    List<loan_detail.LoanDetail>? details,
   }) {
     return LoanEntry(
       id: id ?? this.id,
@@ -84,13 +113,13 @@ class LoanEntry extends Equatable {
       rateExchange: rateExchange ?? this.rateExchange,
       description: description ?? this.description,
       status: status ?? this.status,
-      totalPaid: totalPaid ?? this.totalPaid, // AGREGADO
+      totalPaid: totalPaid ?? this.totalPaid,
       active: active ?? this.active,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
-      details: details ?? this.details,
       contact: contact ?? this.contact,
+      details: details ?? this.details,
     );
   }
 
@@ -106,17 +135,25 @@ class LoanEntry extends Equatable {
         rateExchange,
         description,
         status,
-        totalPaid, // AGREGADO
+        totalPaid,
         active,
         createdAt,
         updatedAt,
         deletedAt,
-        details,
         contact,
+        details,
       ];
 
   @override
   String toString() {
-    return 'LoanEntry{id: $id, documentTypeId: $documentTypeId, contactId: $contactId, amount: $amount, totalPaid: $totalPaid, status: $status}';
+    return 'LoanEntry('
+        'id: $id, '
+        'documentTypeId: $documentTypeId, '
+        'contactId: $contactId, '
+        'amount: $amount, '
+        'totalPaid: $totalPaid, '
+        'status: $status, '
+        'outstandingBalance: $outstandingBalance'
+        ')';
   }
 }

@@ -9,113 +9,49 @@ part 'journal_dao.g.dart';
 class JournalDao extends DatabaseAccessor<AppDatabase> with _$JournalDaoMixin {
   JournalDao(AppDatabase db) : super(db);
 
-  // Queries básicas para Journal Entry
+  // Queries básicas
   Future<List<JournalEntries>> getAllJournalEntries() => 
-      (select(journalEntry)..orderBy([(t) => OrderingTerm.desc(t.date)])).get();
-  
-  Future<JournalEntries?> getJournalEntryById(int id) =>
-      (select(journalEntry)..where((t) => t.id.equals(id))).getSingleOrNull();
+      (select(journalEntry)
+        ..where((t) => t.active.equals(true))
+        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+        .get();
 
-  Stream<List<JournalEntries>> watchAllJournalEntries() => 
-      (select(journalEntry)..orderBy([(t) => OrderingTerm.desc(t.date)])).watch();
-  
-  // NUEVO: Stream para observar un diario específico
-  Stream<JournalEntries?> watchJournalEntryById(int id) =>
-      (select(journalEntry)..where((t) => t.id.equals(id))).watchSingleOrNull();
-  
-  // NUEVO: Obtener diarios por tipo de documento
+  Future<JournalEntries?> getJournalEntryById(int id) =>
+      (select(journalEntry)..where((t) => t.id.equals(id)))
+          .getSingleOrNull();
+
+  Future<List<JournalDetails>> getJournalDetailsForEntry(int journalId) =>
+      (select(journalDetail)..where((t) => t.journalId.equals(journalId)))
+          .get(); // REMOVIDO: filtro por active
+
+  // Watch Queries
+  Stream<List<JournalEntries>> watchAllJournalEntries() =>
+      (select(journalEntry)
+        ..where((t) => t.active.equals(true))
+        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+        .watch();
+
+  // Queries especializadas
   Future<List<JournalEntries>> getJournalEntriesByType(String documentTypeId) =>
       (select(journalEntry)
-        ..where((t) => t.documentTypeId.equals(documentTypeId))
+        ..where((t) => t.documentTypeId.equals(documentTypeId) & t.active.equals(true))
         ..orderBy([(t) => OrderingTerm.desc(t.date)]))
-      .get();
-  
-  // NUEVO: Obtener diarios por rango de fechas
+        .get();
+
   Future<List<JournalEntries>> getJournalEntriesByDateRange(DateTime startDate, DateTime endDate) =>
       (select(journalEntry)
-        ..where((t) => t.date.isBiggerOrEqualValue(startDate) & 
-                        t.date.isSmallerOrEqualValue(endDate))
+        ..where((t) => t.date.isBetweenValues(startDate, endDate) & t.active.equals(true))
         ..orderBy([(t) => OrderingTerm.desc(t.date)]))
-      .get();
-  
-  // NUEVO: Obtener diarios por cuenta contable
-  Future<List<JournalEntries>> getJournalEntriesByAccount(int chartAccountId) {
-    final query = select(journalEntry).join([
-      innerJoin(
-        journalDetail, 
-        journalDetail.journalId.equalsExp(journalEntry.id),
-      )
-    ])
-    ..where(journalDetail.chartAccountId.equals(chartAccountId));
-    
-    return query.get().then((rows) {
-      // Extraer entradas únicas de journal_entry
-      final Map<int, JournalEntries> uniqueEntries = {};
-      for (final row in rows) {
-        final entry = row.readTable(journalEntry);
-        uniqueEntries[entry.id] = entry;
-      }
-      return uniqueEntries.values.toList()
-        ..sort((a, b) => b.date.compareTo(a.date));
-    });
-  }
-  
-  // NUEVO: Obtener el siguiente secuencial para un tipo de documento
-  Future<int> getNextSecuencial(String documentTypeId) async {
-    final query = select(journalEntry)
-      ..where((t) => t.documentTypeId.equals(documentTypeId))
-      ..orderBy([(t) => OrderingTerm.desc(t.secuencial)])
-      ..limit(1);
-    
-    final result = await query.getSingleOrNull();
-    return (result?.secuencial ?? 0) + 1;
-  }
-  
-  // NUEVO: Calcular balance de una cuenta
-  Future<Map<String, double>> getAccountBalance(
-    int chartAccountId, 
-    DateTime? fromDate, 
-    DateTime? toDate
-  ) async {
-    var query = select(journalDetail).join([
-      innerJoin(
-        journalEntry, 
-        journalEntry.id.equalsExp(journalDetail.journalId),
-      )
-    ])
-    ..where(journalDetail.chartAccountId.equals(chartAccountId));
-    
-    // Aplicar filtros de fecha si se proporcionan
-    if (fromDate != null) {
-      query = query..where(journalEntry.date.isBiggerOrEqualValue(fromDate));
-    }
-    
-    if (toDate != null) {
-      query = query..where(journalEntry.date.isSmallerOrEqualValue(toDate));
-    }
-    
-    final results = await query.get();
-    
-    double totalDebit = 0.0;
-    double totalCredit = 0.0;
-    
-    for (final row in results) {
-      final detail = row.readTable(journalDetail);
-      totalDebit += detail.debit;
-      totalCredit += detail.credit;
-    }
-    
-    return {
-      'debit': totalDebit,
-      'credit': totalCredit,
-    };
-  }
+        .get();
 
-  // Queries para Journal Details
-  Future<List<JournalDetails>> getJournalDetailsForEntry(int journalId) =>
-      (select(journalDetail)..where((t) => t.journalId.equals(journalId))).get();
+  // MÉTODO AGREGADO PARA REPORTES
+  Future<List<JournalEntries>> getJournalsByDateRange(DateTime startDate, DateTime endDate) =>
+      (select(journalEntry)
+        ..where((j) => j.date.isBetweenValues(startDate, endDate) & j.active.equals(true))
+        ..orderBy([(j) => OrderingTerm.desc(j.date)]))
+        .get();
 
-  // CRUD Operations para Journal Entry
+  // CRUD Operations para Entry
   Future<int> insertJournalEntry(JournalEntriesCompanion entry) =>
       into(journalEntry).insert(entry);
 
@@ -125,16 +61,56 @@ class JournalDao extends DatabaseAccessor<AppDatabase> with _$JournalDaoMixin {
   Future<int> deleteJournalEntry(int id) =>
       (delete(journalEntry)..where((t) => t.id.equals(id))).go();
 
-  // CRUD Operations para Journal Details
+  // CRUD Operations para Details
   Future<int> insertJournalDetail(JournalDetailsCompanion detail) =>
       into(journalDetail).insert(detail);
 
-  Future<void> insertJournalDetails(List<JournalDetailsCompanion> details) async {
-    await batch((batch) {
-      batch.insertAll(journalDetail, details);
-    });
+  Future<bool> updateJournalDetail(JournalDetailsCompanion detail) =>
+      update(journalDetail).replace(detail);
+
+  Future<int> deleteJournalDetails(int journalId) =>
+      (delete(journalDetail)..where((t) => t.journalId.equals(journalId))).go();
+
+  Future<List<JournalDetails>> getJournalDetailsByAccount(int chartAccountId) =>
+      (select(journalDetail)
+        ..where((t) => t.chartAccountId.equals(chartAccountId)))
+        .get(); // REMOVIDO: filtro por active
+
+  // Utilidades
+  Future<int> getNextSecuencial(String documentTypeId) async {
+    final lastEntry = await (select(journalEntry)
+      ..where((t) => t.documentTypeId.equals(documentTypeId))
+      ..orderBy([(t) => OrderingTerm.desc(t.secuencial)])
+      ..limit(1)).getSingleOrNull();
+    
+    return (lastEntry?.secuencial ?? 0) + 1;
   }
 
-  Future<void> deleteJournalDetails(int journalId) =>
-      (delete(journalDetail)..where((t) => t.journalId.equals(journalId))).go();
+  // Métodos para balance de cuentas
+  Future<Map<String, double>> getAccountBalance(int chartAccountId, {DateTime? fromDate, DateTime? toDate}) async {
+    var query = select(journalDetail).join([
+      innerJoin(journalEntry, journalEntry.id.equalsExp(journalDetail.journalId))
+    ])..where(journalDetail.chartAccountId.equals(chartAccountId)); // REMOVIDO: filtro por active em journalDetail
+
+    if (fromDate != null && toDate != null) {
+      query = query..where(journalEntry.date.isBetweenValues(fromDate, toDate));
+    }
+
+    final results = await query.get();
+    
+    double totalDebit = 0.0;
+    double totalCredit = 0.0;
+    
+    for (final row in results) {
+      final detail = row.readTable(journalDetail);
+      totalDebit += detail.debit ?? 0.0;
+      totalCredit += detail.credit ?? 0.0;
+    }
+    
+    return {
+      'debit': totalDebit,
+      'credit': totalCredit,
+      'balance': totalDebit - totalCredit,
+    };
+  }
 }

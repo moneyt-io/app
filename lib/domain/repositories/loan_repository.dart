@@ -27,12 +27,12 @@ abstract class LoanRepository {
     {String? description}
   );
   
-  // Estadísticas básicas
+  // MÉTODOS ADICIONALES PARA ESTADÍSTICAS
   Future<double> getTotalLentAmount();
   Future<double> getTotalBorrowedAmount();
   Future<double> getOutstandingLentAmount();
   Future<double> getOutstandingBorrowedAmount();
   
-  // Utilidades
+  // MÉTODO PARA SECUENCIALES
   Future<int> getNextSecuencial(String documentTypeId);
 }

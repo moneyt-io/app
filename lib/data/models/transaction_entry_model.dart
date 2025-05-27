@@ -57,23 +57,45 @@ class TransactionEntryModel {
         updatedAt = null,
         deletedAt = null;
 
-  // Convertir a Companion para Drift
-  TransactionEntriesCompanion toCompanion() => TransactionEntriesCompanion(
-    id: id == 0 ? const Value.absent() : Value(id),
-    documentTypeId: Value(documentTypeId),
-    currencyId: Value(currencyId),
-    journalId: Value(journalId),
-    contactId: Value(contactId),
-    secuencial: Value(secuencial),
-    date: Value(date),
-    amount: Value(amount),
-    rateExchange: Value(rateExchange),
-    description: Value(description),
-    active: Value(active),
-    createdAt: Value(createdAt),
-    updatedAt: Value(updatedAt),
-    deletedAt: Value(deletedAt),
-  );
+  // Factory desde entidad de base de datos
+  factory TransactionEntryModel.fromDatabase(TransactionEntries entry) {
+    return TransactionEntryModel(
+      id: entry.id,
+      documentTypeId: entry.documentTypeId,
+      currencyId: entry.currencyId,
+      journalId: entry.journalId,
+      contactId: entry.contactId,
+      secuencial: entry.secuencial,
+      date: entry.date,
+      amount: entry.amount,
+      rateExchange: entry.rateExchange,
+      description: entry.description,
+      active: entry.active,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
+      deletedAt: entry.deletedAt,
+    );
+  }
+
+  // Convertir a Companion para operaciones de BD
+  TransactionEntriesCompanion toCompanion() {
+    return TransactionEntriesCompanion(
+      id: id == 0 ? const Value.absent() : Value(id),
+      documentTypeId: Value(documentTypeId),
+      currencyId: Value(currencyId),
+      journalId: Value(journalId),
+      contactId: Value(contactId),
+      secuencial: Value(secuencial),
+      date: Value(date),
+      amount: Value(amount),
+      rateExchange: Value(rateExchange),
+      description: Value(description),
+      active: Value(active),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: Value(deletedAt),
+    );
+  }
 
   TransactionEntry toEntity({
     List<TransactionDetail> details = const [],

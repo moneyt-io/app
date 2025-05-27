@@ -1,24 +1,21 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'dart:async';
 import '../../domain/entities/loan_entry.dart';
-import '../../domain/entities/contact.dart';
 import '../../domain/usecases/loan_usecases.dart';
 
-class LoanProvider with ChangeNotifier {
+class LoanProvider extends ChangeNotifier {
   final LoanUseCases _loanUseCases = GetIt.instance<LoanUseCases>();
-
-  // Estado interno
+  
   List<LoanEntry> _loans = [];
   bool _isLoading = false;
   String? _errorMessage;
 
-  // Getters públicos
+  // Getters
   List<LoanEntry> get loans => _loans;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // Getters especializados
+  // Getters para listas filtradas
   List<LoanEntry> get activeLends => _loans
       .where((loan) => loan.documentTypeId == 'L' && loan.status == LoanStatus.active)
       .toList();
@@ -31,7 +28,22 @@ class LoanProvider with ChangeNotifier {
       .where((loan) => loan.status == LoanStatus.active && loan.outstandingBalance > 0)
       .toList();
 
-  /// Carga todos los préstamos
+  // Métodos para gestión de estado
+  void _setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
+  void _setError(String? error) {
+    _errorMessage = error;
+    notifyListeners();
+  }
+
+  void _clearError() {
+    _errorMessage = null;
+  }
+
+  // Cargar préstamos
   Future<void> loadLoans() async {
     if (_isLoading) return;
 
@@ -46,15 +58,14 @@ class LoanProvider with ChangeNotifier {
     }
   }
 
-  /// Crea un préstamo simple
-  Future<LoanEntry?> createSimpleLoan({
+  // Crear préstamo simple
+  Future<LoanEntry?> createLoan({
     required String documentTypeId,
     required int contactId,
     required double amount,
     required String currencyId,
     required DateTime date,
     String? description,
-    double rateExchange = 1.0,
   }) async {
     if (_isLoading) return null;
 
@@ -67,10 +78,78 @@ class LoanProvider with ChangeNotifier {
         currencyId: currencyId,
         date: date,
         description: description,
-        rateExchange: rateExchange,
       );
+      
+      await loadLoans(); // Recargar lista
+      _clearError();
+      return loan;
+    } catch (e) {
+      _setError('Error al crear préstamo: ${e.toString()}');
+      return null;
+    } finally {
+      _setLoading(false);
+    }
+  }
 
-      // Recargar la lista
+  // Obtener estadísticas de préstamos
+  Future<Map<String, double>> getStatistics() async {
+    try {
+      final allLoans = _loans;
+      
+      double totalLent = 0.0;
+      double totalBorrowed = 0.0;
+      double outstandingLent = 0.0;
+      double outstandingBorrowed = 0.0;
+      
+      for (final loan in allLoans) {
+        if (loan.documentTypeId == 'L') {
+          totalLent += loan.amount;
+          outstandingLent += loan.outstandingBalance;
+        } else {
+          totalBorrowed += loan.amount;
+          outstandingBorrowed += loan.outstandingBalance;
+        }
+      }
+      
+      final netBalance = totalLent - totalBorrowed;
+      
+      return {
+        'totalLent': totalLent,
+        'totalBorrowed': totalBorrowed,
+        'outstandingLent': outstandingLent,
+        'outstandingBorrowed': outstandingBorrowed,
+        'netBalance': netBalance,
+      };
+    } catch (e) {
+      _setError('Error al cargar estadísticas: ${e.toString()}');
+      return {};
+    }
+  }
+
+  // Crear préstamo con método de pago específico
+  Future<LoanEntry?> createLoanWithPaymentMethod({
+    required String documentTypeId,
+    required int contactId,
+    required double amount,
+    required String currencyId,
+    required DateTime date,
+    required String paymentType,
+    required int? paymentId,
+    String? description,
+  }) async {
+    if (_isLoading) return null;
+
+    _setLoading(true);
+    try {
+      final loan = await _loanUseCases.createSimpleLoan(
+        documentTypeId: documentTypeId,
+        contactId: contactId,
+        amount: amount,
+        currencyId: currencyId,
+        date: date,
+        description: description,
+      );
+      
       await loadLoans();
       _clearError();
       return loan;
@@ -82,49 +161,7 @@ class LoanProvider with ChangeNotifier {
     }
   }
 
-  /// Actualiza el estado de un préstamo
-  Future<void> updateLoanStatus({
-    required int loanId,
-    required LoanStatus newStatus,
-  }) async {
-    if (_isLoading) return;
-
-    _setLoading(true);
-    try {
-      await _loanUseCases.updateLoanStatus(
-        loanId: loanId,
-        newStatus: newStatus,
-      );
-
-      // Recargar la lista
-      await loadLoans();
-      _clearError();
-    } catch (e) {
-      _setError('Error al actualizar préstamo: ${e.toString()}');
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  /// Marca un préstamo como pagado
-  Future<void> markLoanAsPaid(int loanId) async {
-    if (_isLoading) return;
-
-    _setLoading(true);
-    try {
-      await _loanUseCases.markLoanAsPaid(loanId);
-
-      // Recargar la lista
-      await loadLoans();
-      _clearError();
-    } catch (e) {
-      _setError('Error al marcar préstamo como pagado: ${e.toString()}');
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  /// Registra un pago simple de préstamo
+  // Crear pago de préstamo
   Future<void> createLoanPayment({
     required int loanId,
     required double paymentAmount,
@@ -141,8 +178,7 @@ class LoanProvider with ChangeNotifier {
         date: date,
         description: description,
       );
-
-      // Recargar la lista
+      
       await loadLoans();
       _clearError();
     } catch (e) {
@@ -152,7 +188,7 @@ class LoanProvider with ChangeNotifier {
     }
   }
 
-  /// Cancela el saldo pendiente de un préstamo
+  // Cancelar saldo de préstamo
   Future<void> writeOffLoan({
     required int loanId,
     String? description,
@@ -165,8 +201,7 @@ class LoanProvider with ChangeNotifier {
         loanId: loanId,
         description: description,
       );
-
-      // Recargar la lista
+      
       await loadLoans();
       _clearError();
     } catch (e) {
@@ -176,89 +211,42 @@ class LoanProvider with ChangeNotifier {
     }
   }
 
-  /// Elimina un préstamo
+  // Actualizar estado de préstamo
+  Future<void> updateLoanStatus({
+    required int loanId,
+    required LoanStatus newStatus,
+  }) async {
+    if (_isLoading) return;
+
+    _setLoading(true);
+    try {
+      await _loanUseCases.updateLoanStatus(
+        loanId: loanId,
+        newStatus: newStatus,
+      );
+      
+      await loadLoans();
+      _clearError();
+    } catch (e) {
+      _setError('Error al actualizar estado: ${e.toString()}');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Eliminar préstamo
   Future<void> deleteLoan(int id) async {
     if (_isLoading) return;
 
     _setLoading(true);
     try {
       await _loanUseCases.deleteLoan(id);
-
-      // Recargar la lista
       await loadLoans();
       _clearError();
     } catch (e) {
       _setError('Error al eliminar préstamo: ${e.toString()}');
     } finally {
       _setLoading(false);
-    }
-  }
-
-  /// Obtiene estadísticas básicas
-  Future<Map<String, double>> getStatistics() async {
-    try {
-      final totalLent = await _loanUseCases.getTotalLentAmount();
-      final totalBorrowed = await _loanUseCases.getTotalBorrowedAmount();
-      final outstandingLent = await _loanUseCases.getOutstandingLentAmount();
-      final outstandingBorrowed = await _loanUseCases.getOutstandingBorrowedAmount();
-      final netBalance = await _loanUseCases.getNetLoanBalance();
-      
-      return {
-        'totalLent': totalLent,
-        'totalBorrowed': totalBorrowed,
-        'outstandingLent': outstandingLent,
-        'outstandingBorrowed': outstandingBorrowed,
-        'netBalance': netBalance,
-      };
-    } catch (e) {
-      _setError('Error al calcular estadísticas: ${e.toString()}');
-      return {};
-    }
-  }
-
-  /// Filtra préstamos por contacto
-  List<LoanEntry> getLoansByContact(int contactId) {
-    return _loans.where((loan) => loan.contactId == contactId).toList();
-  }
-
-  /// Filtra préstamos por tipo
-  List<LoanEntry> getLoansByType(String documentTypeId) {
-    return _loans.where((loan) => loan.documentTypeId == documentTypeId).toList();
-  }
-
-  // Métodos helper
-  double getOutstandingBalance(LoanEntry loan) {
-    return _loanUseCases.getOutstandingBalance(loan);
-  }
-
-  bool canWriteOffLoan(LoanEntry loan) {
-    return _loanUseCases.canWriteOffLoan(loan);
-  }
-
-  bool isLoanFullyPaid(LoanEntry loan) {
-    return _loanUseCases.isLoanFullyPaid(loan);
-  }
-
-  // Métodos privados para gestión de estado - CORREGIDOS
-  void _setLoading(bool loading) {
-    if (_isLoading != loading) {
-      _isLoading = loading;
-      // Usar scheduleMicrotask para evitar setState durante build
-      scheduleMicrotask(() => notifyListeners());
-    }
-  }
-
-  void _setError(String error) {
-    if (_errorMessage != error) {
-      _errorMessage = error;
-      scheduleMicrotask(() => notifyListeners());
-    }
-  }
-
-  void _clearError() {
-    if (_errorMessage != null) {
-      _errorMessage = null;
-      scheduleMicrotask(() => notifyListeners());
     }
   }
 }

@@ -3,197 +3,175 @@ import '../../domain/entities/wallet.dart';
 import '../../domain/entities/credit_card.dart';
 import '../../core/presentation/app_dimensions.dart';
 
-class PaymentMethodSelector extends StatelessWidget {
+class PaymentMethodSelector extends StatefulWidget {
   final List<Wallet> wallets;
   final List<CreditCard> creditCards;
-  final String selectedPaymentType; // 'W' o 'C'
+  final String? selectedPaymentType;
   final int? selectedPaymentId;
-  final Function(String type, int? id) onPaymentMethodChanged;
   final bool isLendingOperation;
+  final bool allowNoTransfer;
+  final Function(String?, int?) onPaymentMethodChanged;
 
   const PaymentMethodSelector({
     super.key,
     required this.wallets,
     required this.creditCards,
-    required this.selectedPaymentType,
-    required this.selectedPaymentId,
-    required this.onPaymentMethodChanged,
+    this.selectedPaymentType,
+    this.selectedPaymentId,
     required this.isLendingOperation,
+    this.allowNoTransfer = true,
+    required this.onPaymentMethodChanged,
   });
 
   @override
+  State<PaymentMethodSelector> createState() => _PaymentMethodSelectorState();
+}
+
+class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
+  String? _selectedType;
+  int? _selectedId;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedType = widget.selectedPaymentType;
+    _selectedId = widget.selectedPaymentId;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Selector de tipo de pago
-        if (isLendingOperation && creditCards.isNotEmpty) ...[
-          Text(
-            'Tipo de Pago',
-            style: Theme.of(context).textTheme.labelMedium,
-          ),
-          const SizedBox(height: AppDimensions.spacing8),
-          Row(
-            children: [
-              Expanded(
-                child: RadioListTile<String>(
-                  title: const Text('Wallet'),
-                  value: 'W',
-                  groupValue: selectedPaymentType,
-                  onChanged: (value) {
-                    if (value != null) {
-                      onPaymentMethodChanged(value, null);
-                    }
-                  },
-                  contentPadding: EdgeInsets.zero,
-                ),
+    final theme = Theme.of(context);
+    
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimensions.paddingMedium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Método de Pago',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
               ),
-              Expanded(
-                child: RadioListTile<String>(
-                  title: const Text('Tarjeta'),
-                  value: 'C',
-                  groupValue: selectedPaymentType,
+            ),
+            const SizedBox(height: AppDimensions.paddingMedium),
+            
+            // Opción: Sin transferencia
+            if (widget.allowNoTransfer)
+              RadioListTile<String?>(
+                title: const Text('Sin transferencia de dinero'),
+                subtitle: Text(
+                  widget.isLendingOperation
+                      ? 'Registrar como ingreso por servicios'
+                      : 'Registrar como gasto por servicios',
+                  style: theme.textTheme.bodySmall,
+                ),
+                value: null,
+                groupValue: _selectedType,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedType = value;
+                    _selectedId = null;
+                  });
+                  widget.onPaymentMethodChanged(_selectedType, _selectedId);
+                },
+              ),
+            
+            // Opción: Wallets
+            RadioListTile<String>(
+              title: const Text('Desde/Hacia Wallet'),
+              subtitle: Text(
+                widget.isLendingOperation
+                    ? 'Dinero sale del wallet'
+                    : 'Dinero entra al wallet',
+                style: theme.textTheme.bodySmall,
+              ),
+              value: 'W',
+              groupValue: _selectedType,
+              onChanged: (value) {
+                setState(() {
+                  _selectedType = value;
+                  _selectedId = null;
+                });
+                widget.onPaymentMethodChanged(_selectedType, _selectedId);
+              },
+            ),
+            
+            // Selector de wallet específico
+            if (_selectedType == 'W') ...[
+              const SizedBox(height: AppDimensions.paddingSmall),
+              Padding(
+                padding: const EdgeInsets.only(left: AppDimensions.paddingLarge),
+                child: DropdownButtonFormField<int>(
+                  decoration: const InputDecoration(
+                    labelText: 'Seleccionar Wallet',
+                    border: OutlineInputBorder(),
+                  ),
+                  value: _selectedId,
+                  items: widget.wallets.map((wallet) {
+                    return DropdownMenuItem<int>(
+                      value: wallet.id,
+                      child: Text('${wallet.name} (${wallet.currencyId})'),
+                    );
+                  }).toList(),
                   onChanged: (value) {
-                    if (value != null) {
-                      onPaymentMethodChanged(value, null);
-                    }
+                    setState(() {
+                      _selectedId = value;
+                    });
+                    widget.onPaymentMethodChanged(_selectedType, _selectedId);
                   },
-                  contentPadding: EdgeInsets.zero,
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: AppDimensions.spacing16),
-        ],
-
-        // Selector específico según el tipo
-        if (selectedPaymentType == 'W') 
-          _buildWalletSelector(context)
-        else if (selectedPaymentType == 'C')
-          _buildCreditCardSelector(context),
-      ],
-    );
-  }
-
-  Widget _buildWalletSelector(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          isLendingOperation ? 'Wallet Origen' : 'Wallet Destino',
-          style: Theme.of(context).textTheme.labelMedium,
-        ),
-        const SizedBox(height: AppDimensions.spacing8),
-        DropdownButtonFormField<int>(
-          value: selectedPaymentId,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.account_balance_wallet),
-          ),
-          items: wallets.map((wallet) {
-            return DropdownMenuItem<int>(
-              value: wallet.id,
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.account_balance_wallet,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: AppDimensions.spacing12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          wallet.name,
-                          style: const TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                        Text(
-                          wallet.currencyId,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+            
+            // Opción: Tarjetas de crédito (solo para préstamos otorgados)
+            if (widget.isLendingOperation && widget.creditCards.isNotEmpty)
+              RadioListTile<String>(
+                title: const Text('Desde Tarjeta de Crédito'),
+                subtitle: Text(
+                  'Usar tarjeta de crédito para el préstamo',
+                  style: theme.textTheme.bodySmall,
+                ),
+                value: 'C',
+                groupValue: _selectedType,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedType = value;
+                    _selectedId = null;
+                  });
+                  widget.onPaymentMethodChanged(_selectedType, _selectedId);
+                },
               ),
-            );
-          }).toList(),
-          onChanged: (value) {
-            onPaymentMethodChanged('W', value);
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Debe seleccionar un wallet';
-            }
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCreditCardSelector(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Tarjeta de Crédito',
-          style: Theme.of(context).textTheme.labelMedium,
-        ),
-        const SizedBox(height: AppDimensions.spacing8),
-        DropdownButtonFormField<int>(
-          value: selectedPaymentId,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.credit_card),
-          ),
-          items: creditCards.map((card) {
-            return DropdownMenuItem<int>(
-              value: card.id,
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.credit_card,
-                    color: Theme.of(context).colorScheme.secondary,
+            
+            // Selector de tarjeta específica
+            if (_selectedType == 'C') ...[
+              const SizedBox(height: AppDimensions.paddingSmall),
+              Padding(
+                padding: const EdgeInsets.only(left: AppDimensions.paddingLarge),
+                child: DropdownButtonFormField<int>(
+                  decoration: const InputDecoration(
+                    labelText: 'Seleccionar Tarjeta',
+                    border: OutlineInputBorder(),
                   ),
-                  const SizedBox(width: AppDimensions.spacing12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          card.name,
-                          style: const TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                        Text(
-                          card.currencyId,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  value: _selectedId,
+                  items: widget.creditCards.map((card) {
+                    return DropdownMenuItem<int>(
+                      value: card.id,
+                      child: Text('${card.name} (${card.currencyId})'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedId = value;
+                    });
+                    widget.onPaymentMethodChanged(_selectedType, _selectedId);
+                  },
+                ),
               ),
-            );
-          }).toList(),
-          onChanged: (value) {
-            onPaymentMethodChanged('C', value);
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Debe seleccionar una tarjeta';
-            }
-            return null;
-          },
+            ],
+          ],
         ),
-      ],
+      ),
     );
   }
 }

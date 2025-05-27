@@ -12,6 +12,7 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
   // Queries básicas
   Future<List<TransactionEntries>> getAllTransactions() => 
       (select(transactionEntry)
+        ..where((t) => t.active.equals(true))
         ..orderBy([(t) => OrderingTerm.desc(t.date)]))
         .get();
 
@@ -21,39 +22,33 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
 
   Future<List<TransactionDetails>> getTransactionDetailsForEntry(int transactionId) =>
       (select(transactionDetail)..where((t) => t.transactionId.equals(transactionId)))
-          .get();
-
-  // Queries por tipo
-  Future<List<TransactionEntries>> getTransactionsByType(String documentTypeId) {
-    return (select(transactionEntry) // ← CORREGIDO: usar transactionEntry en lugar de transactionEntries
-        ..where((t) => t.documentTypeId.equals(documentTypeId) & t.active.equals(true)))
-        .get();
-  }
-
-  Future<List<TransactionEntries>> getTransactionsByPaymentTypeAndId(String paymentTypeId, int paymentId) {
-    return customSelect(
-      '''
-      SELECT DISTINCT t.* FROM transaction_entries t
-      INNER JOIN transaction_details td ON t.id = td.transaction_id
-      WHERE td.payment_type_id = ? AND td.payment_id = ? AND t.active = 1
-      ORDER BY t.date DESC
-      ''',
-      variables: [Variable.withString(paymentTypeId), Variable.withInt(paymentId)],
-      readsFrom: {transactionEntry, transactionDetail}, // ← CORREGIDO: usar transactionEntry y transactionDetail
-    ).asyncMap((row) => TransactionEntries.fromJson(row.data)).get();
-  }
+          .get(); // REMOVIDO: & t.active.equals(true) - active no existe en transaction_details
 
   // Watch Queries
   Stream<List<TransactionEntries>> watchAllTransactions() =>
       (select(transactionEntry)
+        ..where((t) => t.active.equals(true))
         ..orderBy([(t) => OrderingTerm.desc(t.date)]))
         .watch();
 
-  Stream<List<TransactionEntries>> watchTransactionsByType(String documentTypeId) =>
+  // Queries especializadas
+  Future<List<TransactionEntries>> getTransactionsByType(String documentTypeId) =>
       (select(transactionEntry)
-        ..where((t) => t.documentTypeId.equals(documentTypeId))
+        ..where((t) => t.documentTypeId.equals(documentTypeId) & t.active.equals(true))
         ..orderBy([(t) => OrderingTerm.desc(t.date)]))
-        .watch();
+        .get();
+
+  Future<List<TransactionEntries>> getTransactionsByContact(int contactId) =>
+      (select(transactionEntry)
+        ..where((t) => t.contactId.equals(contactId) & t.active.equals(true))
+        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+        .get();
+
+  Future<List<TransactionEntries>> getTransactionsByDateRange(DateTime startDate, DateTime endDate) =>
+      (select(transactionEntry)
+        ..where((t) => t.date.isBetweenValues(startDate, endDate) & t.active.equals(true))
+        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+        .get();
 
   // CRUD Operations para Entry
   Future<int> insertTransaction(TransactionEntriesCompanion entry) =>
@@ -69,39 +64,72 @@ class TransactionDao extends DatabaseAccessor<AppDatabase> with _$TransactionDao
   Future<int> insertTransactionDetail(TransactionDetailsCompanion detail) =>
       into(transactionDetail).insert(detail);
 
-  Future<int> deleteTransactionDetails(int transactionId) =>
-      (delete(transactionDetail)..where((t) => t.transactionId.equals(transactionId))).go();
-
   Future<bool> updateTransactionDetail(TransactionDetailsCompanion detail) =>
       update(transactionDetail).replace(detail);
 
-  // Balance Queries
-  Future<double> getAccountBalance(int accountId) async {
-    final details = await (select(transactionDetail)
-      ..where((t) => t.paymentId.equals(accountId)))
-      .get();
-    
-    return details.fold<double>(0.0, (sum, detail) => sum + detail.amount);
-  }
+  Future<int> deleteTransactionDetails(int transactionId) =>
+      (delete(transactionDetail)..where((t) => t.transactionId.equals(transactionId))).go();
 
-  Stream<double> watchAccountBalance(int accountId) {
-    return (select(transactionDetail)
-      ..where((t) => t.paymentId.equals(accountId)))
-      .watch()
-      .map((details) => details.fold<double>(
-        0.0, 
-        (sum, detail) => sum + detail.amount
-      ));
-  }
-
-  // Obtener siguiente secuencial para un tipo de documento
+  // Utilidades
   Future<int> getNextSecuencial(String documentTypeId) async {
-    final query = select(transactionEntry)
+    final lastEntry = await (select(transactionEntry)
       ..where((t) => t.documentTypeId.equals(documentTypeId))
       ..orderBy([(t) => OrderingTerm.desc(t.secuencial)])
-      ..limit(1);
+      ..limit(1)).getSingleOrNull();
     
-    final result = await query.getSingleOrNull();
-    return (result?.secuencial ?? 0) + 1;
+    return (lastEntry?.secuencial ?? 0) + 1;
+  }
+
+  // Estadísticas básicas
+  Future<double> getTotalIncomeAmount() async {
+    final result = await customSelect(
+      'SELECT SUM(amount) as total FROM transaction_entries WHERE document_type_id = ? AND active = 1',
+      variables: [Variable.withString('I')],
+      readsFrom: {transactionEntry},
+    ).getSingleOrNull();
+    
+    return result?.data['total']?.toDouble() ?? 0.0;
+  }
+
+  Future<double> getTotalExpenseAmount() async {
+    final result = await customSelect(
+      'SELECT SUM(amount) as total FROM transaction_entries WHERE document_type_id = ? AND active = 1',
+      variables: [Variable.withString('E')],
+      readsFrom: {transactionEntry},
+    ).getSingleOrNull();
+    
+    return result?.data['total']?.toDouble() ?? 0.0;
+  }
+
+  // MÉTODOS AGREGADOS PARA SOPORTE DE TRANSACTIONREPOSITORY:
+
+  Future<List<TransactionEntries>> getTransactionsByCreditCardPayment(int creditCardId) async {
+    final query = select(transactionEntry).join([
+      innerJoin(transactionDetail, transactionDetail.transactionId.equalsExp(transactionEntry.id))
+    ]);
+    
+    query.where(transactionEntry.active.equals(true) & 
+                transactionDetail.paymentTypeId.equals('C') & 
+                transactionDetail.paymentId.equals(creditCardId));
+    
+    query.orderBy([OrderingTerm.desc(transactionEntry.date)]);
+    
+    final results = await query.get();
+    return results.map((row) => row.readTable(transactionEntry)).toList();
+  }
+
+  Future<List<TransactionEntries>> getTransactionsByPaymentTypeAndId(String paymentTypeId, int paymentId) async {
+    final query = select(transactionEntry).join([
+      innerJoin(transactionDetail, transactionDetail.transactionId.equalsExp(transactionEntry.id))
+    ]);
+    
+    query.where(transactionEntry.active.equals(true) & 
+                transactionDetail.paymentTypeId.equals(paymentTypeId) & 
+                transactionDetail.paymentId.equals(paymentId));
+    
+    query.orderBy([OrderingTerm.desc(transactionEntry.date)]);
+    
+    final results = await query.get();
+    return results.map((row) => row.readTable(transactionEntry)).toList();
   }
 }

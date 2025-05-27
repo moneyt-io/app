@@ -1,22 +1,17 @@
 import 'package:drift/drift.dart';
-import 'transaction_entries_table.dart';
-import 'currencies_table.dart';
-import 'flow_types_table.dart';
-import 'payment_types_table.dart';
-import 'categories_table.dart';
 
 @DataClassName('TransactionDetails')
 class TransactionDetail extends Table {
   // Relational fields
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get transactionId => integer().references(TransactionEntry, #id)();
-  TextColumn get currencyId => text().withLength(min: 3, max: 3).references(Currency, #id)();
-  TextColumn get flowId => text().withLength(min: 1, max: 1).references(FlowType, #id)();
-  TextColumn get paymentTypeId => text().withLength(min: 1, max: 1).references(PaymentType, #id)();
-  IntColumn get paymentId => integer()();
-  IntColumn get categoryId => integer().references(Category, #id)();
+  IntColumn get transactionId => integer()();
+  TextColumn get currencyId => text().withLength(min: 1, max: 3)();
+  TextColumn get flowId => text().withLength(min: 1, max: 1)(); // F=From, T=To
+  TextColumn get paymentTypeId => text().withLength(min: 1, max: 1)(); // W=Wallet, C=CreditCard
+  IntColumn get paymentId => integer().nullable()();
+  IntColumn get categoryId => integer().nullable()();
 
   // Main data fields
   RealColumn get amount => real()();
-  RealColumn get rateExchange => real()();
+  RealColumn get rateExchange => real().withDefault(const Constant(1.0))();
 }

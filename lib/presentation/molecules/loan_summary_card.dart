@@ -2,177 +2,133 @@ import 'package:flutter/material.dart';
 import '../../core/presentation/app_dimensions.dart';
 
 class LoanSummaryCard extends StatelessWidget {
-  final double totalLent;
-  final double totalBorrowed;
-  final double outstandingLent;
-  final double outstandingBorrowed;
-  final double netBalance;
+  final Map<String, double> statistics;
   final bool isLoading;
 
   const LoanSummaryCard({
     super.key,
-    required this.totalLent,
-    required this.totalBorrowed,
-    required this.outstandingLent,
-    required this.outstandingBorrowed,
-    required this.netBalance,
+    required this.statistics,
     this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
+    final theme = Theme.of(context);
+    
     if (isLoading) {
       return Card(
-        child: Container(
-          height: 120,
-          padding: const EdgeInsets.all(AppDimensions.spacing16),
-          child: const Center(
+        margin: const EdgeInsets.all(AppDimensions.paddingMedium),
+        child: const Padding(
+          padding: EdgeInsets.all(AppDimensions.paddingLarge),
+          child: Center(
             child: CircularProgressIndicator(),
           ),
         ),
       );
     }
 
+    final totalLent = statistics['totalLent'] ?? 0.0;
+    final totalBorrowed = statistics['totalBorrowed'] ?? 0.0;
+    final outstandingLent = statistics['outstandingLent'] ?? 0.0;
+    final outstandingBorrowed = statistics['outstandingBorrowed'] ?? 0.0;
+    final netBalance = statistics['netBalance'] ?? 0.0;
+
     return Card(
+      margin: const EdgeInsets.all(AppDimensions.paddingMedium),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.spacing16),
+        padding: const EdgeInsets.all(AppDimensions.paddingLarge),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Título
             Text(
               'Resumen de Préstamos',
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: AppDimensions.spacing16),
-
+            const SizedBox(height: AppDimensions.paddingMedium),
+            
             // Balance neto
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(AppDimensions.spacing12),
-              decoration: BoxDecoration(
-                color: _getBalanceColor(colorScheme).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'Balance Neto',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: AppDimensions.spacing4),
-                  Text(
-                    '\$${netBalance.toStringAsFixed(2)}',
-                    style: textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: _getBalanceColor(colorScheme),
-                    ),
-                  ),
-                ],
-              ),
+            _buildBalanceRow(
+              context,
+              'Balance Neto',
+              netBalance,
+              isTotal: true,
             ),
-            const SizedBox(height: AppDimensions.spacing16),
-
-            // Estadísticas detalladas
-            Row(
-              children: [
-                // Préstamos otorgados
-                Expanded(
-                  child: _buildStatColumn(
-                    context,
-                    'Prestado',
-                    totalLent,
-                    outstandingLent,
-                    Icons.trending_up,
-                    Colors.blue,
-                  ),
-                ),
-                const SizedBox(width: AppDimensions.spacing16),
-                
-                // Préstamos recibidos
-                Expanded(
-                  child: _buildStatColumn(
-                    context,
-                    'Recibido',
-                    totalBorrowed,
-                    outstandingBorrowed,
-                    Icons.trending_down,
-                    Colors.orange,
-                  ),
-                ),
-              ],
-            ),
+            
+            const Divider(height: AppDimensions.paddingLarge),
+            
+            // Préstamos otorgados
+            _buildSectionHeader(context, 'Préstamos Otorgados', Icons.arrow_upward),
+            _buildBalanceRow(context, 'Total prestado', totalLent),
+            _buildBalanceRow(context, 'Pendiente por cobrar', outstandingLent),
+            
+            const SizedBox(height: AppDimensions.paddingMedium),
+            
+            // Préstamos recibidos
+            _buildSectionHeader(context, 'Préstamos Recibidos', Icons.arrow_downward),
+            _buildBalanceRow(context, 'Total recibido', totalBorrowed),
+            _buildBalanceRow(context, 'Pendiente por pagar', outstandingBorrowed),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatColumn(
-    BuildContext context,
-    String title,
-    double total,
-    double outstanding,
-    IconData icon,
-    Color color,
-  ) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Column(
-      children: [
-        // Icono y título
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(width: AppDimensions.spacing4),
-            Text(
-              title,
-              style: textTheme.labelMedium?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppDimensions.spacing8),
-        
-        // Total
-        Text(
-          '\$${total.toStringAsFixed(2)}',
-          style: textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        
-        // Pendiente
-        if (outstanding > 0) ...[
-          const SizedBox(height: AppDimensions.spacing2),
+  Widget _buildSectionHeader(BuildContext context, String title, IconData icon) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDimensions.paddingSmall),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: theme.colorScheme.primary),
+          const SizedBox(width: 8),
           Text(
-            'Pendiente: \$${outstanding.toStringAsFixed(2)}',
-            style: textTheme.bodySmall?.copyWith(
-              color: Colors.red,
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.primary,
             ),
           ),
         ],
-      ],
+      ),
     );
   }
 
-  Color _getBalanceColor(ColorScheme colorScheme) {
-    if (netBalance > 0) {
-      return Colors.green; // Positivo: más prestado que recibido
-    } else if (netBalance < 0) {
-      return Colors.red; // Negativo: más recibido que prestado
-    } else {
-      return colorScheme.onSurfaceVariant; // Neutro
+  Widget _buildBalanceRow(
+    BuildContext context,
+    String label,
+    double amount, {
+    bool isTotal = false,
+  }) {
+    final theme = Theme.of(context);
+    final isNegative = amount < 0;
+    
+    Color amountColor = theme.colorScheme.onSurface;
+    if (isTotal) {
+      amountColor = isNegative ? Colors.red : Colors.green;
     }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: isTotal ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+          Text(
+            '\$${amount.abs().toStringAsFixed(2)}',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
+              color: amountColor,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

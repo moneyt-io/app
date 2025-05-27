@@ -27,21 +27,19 @@ import '../../../data/repositories/loan_repository_impl.dart';
 
 final getIt = GetIt.instance;
 
-Future<void> initializeDataDependencies() async {
+void registerDataDependencies() {
   // Base de datos
-  if (!getIt.isRegistered<AppDatabase>()) {
-    getIt.registerLazySingleton<AppDatabase>(() => AppDatabase());
-  }
+  getIt.registerLazySingleton<AppDatabase>(() => AppDatabase());
 
   // DAOs
-  getIt.registerSingleton<ChartAccountsDao>(ChartAccountsDao(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<ChartAccountsDao>(() => ChartAccountsDao(getIt<AppDatabase>())); // CORREGIDO
   getIt.registerLazySingleton<ContactDao>(() => ContactDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<CategoriesDao>(() => CategoriesDao(getIt<AppDatabase>()));
-  getIt.registerLazySingleton<WalletDao>(() => WalletDao(getIt<AppDatabase>())); // Añadir DAO de Wallet
-  getIt.registerLazySingleton<JournalDao>(() => JournalDao(getIt<AppDatabase>())); // Registrar el JournalDao
+  getIt.registerLazySingleton<WalletDao>(() => WalletDao(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<JournalDao>(() => JournalDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<TransactionDao>(() => TransactionDao(getIt<AppDatabase>()));
-  getIt.registerLazySingleton<CreditCardDao>(() => CreditCardDao(getIt<AppDatabase>())); // Registrar CreditCardDao
-  getIt.registerLazySingleton<LoanDao>(() => getIt<AppDatabase>().loanDao); // ← AGREGADO
+  getIt.registerLazySingleton<CreditCardDao>(() => CreditCardDao(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<LoanDao>(() => LoanDao(getIt<AppDatabase>())); // CORREGIDO
 
   // Repositorios
   getIt.registerSingleton<ChartAccountRepository>(
@@ -53,28 +51,27 @@ Future<void> initializeDataDependencies() async {
   getIt.registerSingleton<CategoryRepository>(
     CategoryRepositoryImpl(getIt<CategoriesDao>())
   );
-  getIt.registerSingleton<WalletRepository>( // Añadir Repositorio de Wallet
+  getIt.registerSingleton<WalletRepository>(
     WalletRepositoryImpl(getIt<WalletDao>())
   );
-  getIt.registerLazySingleton<JournalRepository>( // Registrar el JournalRepository
+  getIt.registerLazySingleton<JournalRepository>(
     () => JournalRepositoryImpl(getIt<JournalDao>()),
   );
-  // Registrar TransactionRepository con todas sus dependencias
+  
+  // CORREGIDO: TransactionRepository solo necesita TransactionDao
   getIt.registerLazySingleton<TransactionRepository>(
-    () => TransactionRepositoryImpl(
-      getIt<TransactionDao>(),
-      getIt<JournalRepository>(),
-      getIt<CategoryRepository>(), 
-      getIt<WalletRepository>(),
-      getIt<ContactRepository>(),
-    ),
+    () => TransactionRepositoryImpl(getIt<TransactionDao>()),
   );
   
-  // Registrar CreditCardRepository aquí, no en injection_container.dart
   getIt.registerLazySingleton<CreditCardRepository>(
     () => CreditCardRepositoryImpl(getIt<CreditCardDao>()),
   );
-  getIt.registerLazySingleton<LoanRepository>( // ← AGREGADO
+  getIt.registerLazySingleton<LoanRepository>(
     () => LoanRepositoryImpl(getIt<LoanDao>()),
   );
+  
+  // AGREGAR SharedExpenseRepository cuando se implemente
+  // getIt.registerLazySingleton<SharedExpenseRepository>(
+  //   () => SharedExpenseRepositoryImpl(getIt<SharedExpenseDao>()),
+  // );
 }

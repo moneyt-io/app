@@ -1,219 +1,95 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/loan_entry.dart';
+import '../atoms/loan_status_chip.dart';
+import '../routes/navigation_service.dart';
 import '../../core/presentation/app_dimensions.dart';
-import '../atoms/action_menu_button.dart';
 
 class LoanListItem extends StatelessWidget {
   final LoanEntry loan;
   final VoidCallback? onTap;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
-  final VoidCallback? onMarkPaid;
-  final Widget? trailing;
+  final VoidCallback? onLongPress;
 
   const LoanListItem({
     super.key,
     required this.loan,
     this.onTap,
-    this.onEdit,
-    this.onDelete,
-    this.onMarkPaid,
-    this.trailing,
+    this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
+    final theme = Theme.of(context);
+    final isLend = loan.documentTypeId == 'L';
+    final outstandingBalance = loan.outstandingBalance;
+    
     return Card(
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(AppDimensions.spacing16),
-          child: Row(
-            children: [
-              // Icono del tipo de préstamo
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: _getStatusColor(colorScheme).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Icon(
-                  _getLoanIcon(),
-                  color: _getStatusColor(colorScheme),
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: AppDimensions.spacing16),
-
-              // Información principal
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Contacto y tipo
-                    Text(
-                      '${loan.contact?.name ?? 'Contacto #${loan.contactId}'} • ${_getLoanTypeText()}',
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: AppDimensions.spacing4),
-                    
-                    // Monto y saldo
-                    Row(
-                      children: [
-                        Text(
-                          '\$${loan.amount.toStringAsFixed(2)}',
-                          style: textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.primary,
-                          ),
-                        ),
-                        // Calcular saldo pendiente dinámicamente
-                        Builder(builder: (context) {
-                          final outstandingBalance = loan.amount - loan.totalPaid;
-                          if (outstandingBalance > 0) {
-                            return Text(
-                              ' • Pendiente: \$${outstandingBalance.toStringAsFixed(2)}',
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colorScheme.error,
-                              ),
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        }),
-                      ],
-                    ),
-                    
-                    // Descripción si existe
-                    if (loan.description != null && loan.description!.isNotEmpty) ...[
-                      const SizedBox(height: AppDimensions.spacing4), // Cambiar spacing2 por spacing4
-                      Text(
-                        loan.description!,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-
-              // Chip de estado
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimensions.spacing8,
-                  vertical: AppDimensions.spacing4,
-                ),
-                decoration: BoxDecoration(
-                  color: _getStatusColor(colorScheme).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  _getStatusText(),
-                  style: textTheme.labelSmall?.copyWith(
-                    color: _getStatusColor(colorScheme),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.paddingSmall,
+        vertical: 4.0, // Usar valor directo en lugar de paddingExtraSmall
+      ),
+      child: ListTile(
+        onTap: onTap ?? () => NavigationService.goToLoanDetail(loan.id),
+        onLongPress: onLongPress,
+        leading: CircleAvatar(
+          backgroundColor: isLend 
+              ? theme.colorScheme.primary.withOpacity(0.1)
+              : theme.colorScheme.secondary.withOpacity(0.1),
+          child: Icon(
+            isLend ? Icons.arrow_upward : Icons.arrow_downward,
+            color: isLend 
+                ? theme.colorScheme.primary
+                : theme.colorScheme.secondary,
+          ),
+        ),
+        title: Text(
+          loan.contact?.name ?? 'Contacto desconocido',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              loan.description ?? (isLend ? 'Préstamo otorgado' : 'Préstamo recibido'),
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Text(
+                  'Monto: \$${loan.amount.toStringAsFixed(2)}',
+                  style: theme.textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-
-              const SizedBox(width: AppDimensions.spacing8),
-
-              // Menú de acciones
-              ActionMenuButton(
-                options: _getMenuOptions(),
-                onOptionSelected: (option) {
-                  switch (option) {
-                    case ActionMenuOption.edit:
-                      onEdit?.call();
-                      break;
-                    case ActionMenuOption.delete:
-                      onDelete?.call();
-                      break;
-                    case ActionMenuOption.pay:
-                      onMarkPaid?.call();
-                      break;
-                    case ActionMenuOption.view:
-                      onTap?.call();
-                      break;
-                  }
-                },
-              ),
-
-              // Trailing widget
-              if (trailing != null)
-                Padding(
-                  padding: const EdgeInsets.only(left: AppDimensions.spacing4),
-                  child: trailing,
-                ),
-            ],
-          ),
+                if (outstandingBalance > 0) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    'Pendiente: \$${outstandingBalance.toStringAsFixed(2)}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.error,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            LoanStatusChip(status: loan.status),
+            const SizedBox(height: 4),
+            Text(
+              '${loan.date.day}/${loan.date.month}/${loan.date.year}',
+              style: theme.textTheme.bodySmall,
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  IconData _getLoanIcon() {
-    if (loan.isLend) {
-      return Icons.trending_up; // Préstamo otorgado
-    } else {
-      return Icons.trending_down; // Préstamo recibido
-    }
-  }
-
-  String _getLoanTypeText() {
-    return loan.isLend ? 'Prestado a' : 'Recibido de';
-  }
-
-  String _getStatusText() {
-    switch (loan.status) {
-      case LoanStatus.active:
-        return 'Activo';
-      case LoanStatus.paid:
-        return 'Pagado';
-      case LoanStatus.cancelled:
-        return 'Cancelado';
-      case LoanStatus.writtenOff:
-        return 'Asumido';
-    }
-  }
-
-  Color _getStatusColor(ColorScheme colorScheme) {
-    switch (loan.status) {
-      case LoanStatus.active:
-        return colorScheme.primary;
-      case LoanStatus.paid:
-        return Colors.green;
-      case LoanStatus.cancelled:
-        return colorScheme.outline;
-      case LoanStatus.writtenOff:
-        return Colors.orange;
-    }
-  }
-
-  List<ActionMenuOption> _getMenuOptions() {
-    final options = <ActionMenuOption>[ActionMenuOption.view];
-    
-    if (loan.status == LoanStatus.active) {
-      options.addAll([
-        ActionMenuOption.pay,
-        ActionMenuOption.edit,
-      ]);
-    }
-    
-    if (loan.totalPaid == 0) {
-      options.add(ActionMenuOption.delete);
-    }
-    
-    return options;
   }
 }

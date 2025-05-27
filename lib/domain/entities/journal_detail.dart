@@ -19,6 +19,26 @@ class JournalDetail extends Equatable {
     required this.rateExchange,
   });
 
+  JournalDetail copyWith({
+    int? id,
+    int? journalId,
+    String? currencyId,
+    int? chartAccountId,
+    double? credit,
+    double? debit,
+    double? rateExchange,
+  }) {
+    return JournalDetail(
+      id: id ?? this.id,
+      journalId: journalId ?? this.journalId,
+      currencyId: currencyId ?? this.currencyId,
+      chartAccountId: chartAccountId ?? this.chartAccountId,
+      credit: credit ?? this.credit,
+      debit: debit ?? this.debit,
+      rateExchange: rateExchange ?? this.rateExchange,
+    );
+  }
+
   @override
   List<Object?> get props => [
     id,

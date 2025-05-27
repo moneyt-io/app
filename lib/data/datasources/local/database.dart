@@ -13,9 +13,11 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 // Importar todas las tablas
+import 'daos/journal_dao.dart';
+import 'daos/transaction_dao.dart';
 import 'tables/categories_table.dart';
-import 'tables/transaction_entries_table.dart';
-import 'tables/transaction_details_table.dart';
+import 'tables/transaction_entries_table.dart'; // AGREGADO
+import 'tables/transaction_details_table.dart'; // AGREGADO
 import 'tables/contacts_table.dart';
 import 'tables/accounting_types_tables.dart';
 import 'tables/document_types_table.dart';
@@ -24,8 +26,8 @@ import 'tables/payment_types_table.dart';
 import 'tables/currencies_table.dart';
 import 'tables/chart_accounts_table.dart';
 import 'tables/credit_cards_table.dart';
-import 'tables/journal_entries_table.dart';
-import 'tables/journal_details_table.dart';
+import 'tables/journal_entries_table.dart'; // AGREGADO
+import 'tables/journal_details_table.dart'; // AGREGADO
 import 'tables/loan_entries_table.dart';
 import 'tables/loan_details_table.dart';
 import 'daos/loan_dao.dart';
@@ -78,13 +80,15 @@ LazyDatabase _openConnection() {
   ],
   daos: [
     LoanDao, // ← AGREGADO
+    TransactionDao, // AGREGADO
+    JournalDao, // AGREGADO
   ]
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2; // ← INCREMENTADO
+  int get schemaVersion => 2; // INCREMENTADO para nueva migración
 
   // Método necesario para backups locales
   Future<String> getDatabasePath() async {
@@ -98,14 +102,17 @@ class AppDatabase extends _$AppDatabase {
     onCreate: (Migrator m) async {
       // 1. Crear todas las tablas
       await m.createAll();
-      // 2. Llamar al seeder centralizado
-      await ReferenceSeeds.seedAll(this);
     },
     onUpgrade: (Migrator m, int from, int to) async {
       if (from < 2) {
-        // Crear las nuevas tablas de préstamos
-        await m.createTable(loanEntry);
-        await m.createTable(loanDetail);
+        // Migración para agregar nuevas tablas
+        await m.createTable(transactionEntry);
+        await m.createTable(transactionDetail);
+        await m.createTable(journalEntry);
+        await m.createTable(journalDetail);
+        
+        // Agregar columna totalPaid a loan_entries si no existe
+        await m.addColumn(loanEntry, loanEntry.totalPaid);
       }
     },
   );

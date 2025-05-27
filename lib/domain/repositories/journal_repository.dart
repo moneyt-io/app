@@ -79,4 +79,42 @@ abstract class JournalRepository {
   // Métodos helper para préstamos - AGREGADOS (temporalmente como dynamic)
   Future<dynamic> getLoanById(int loanId);
   Future<dynamic> getWalletById(int walletId);
+
+  // MÉTODOS ESPECIALIZADOS PARA PRÉSTAMOS
+  Future<JournalEntry> createLendFromCreditCardJournal({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int receivableAccountId,
+    required int creditCardAccountId,
+    double rateExchange = 1.0,
+  });
+
+  Future<JournalEntry> createLendFromServiceJournal({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int receivableAccountId,
+    required int incomeAccountId,
+    double rateExchange = 1.0,
+  });
+
+  Future<JournalEntry> createBorrowFromServiceJournal({
+    required DateTime date,
+    required String description,
+    required double amount,
+    required String currencyId,
+    required int expenseAccountId,
+    required int payableAccountId,
+    double rateExchange = 1.0,
+  });
+
+  // MÉTODOS PARA VALIDACIONES CONTABLES
+  Future<bool> validateJournalBalance(List<JournalDetail> details);
+  
+  // MÉTODOS PARA REPORTES
+  Future<Map<String, double>> getTrialBalance({DateTime? fromDate, DateTime? toDate});
+  Future<List<JournalEntry>> getJournalsByDateRange(DateTime startDate, DateTime endDate);
 }

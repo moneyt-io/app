@@ -37,8 +37,14 @@ class TransactionDetail extends Equatable {
 
   @override
   List<Object?> get props => [
-    id, transactionId, currencyId, flowId,
-    paymentTypeId, paymentId, categoryId,
-    amount, rateExchange
+    id,
+    transactionId,
+    currencyId,
+    flowId,
+    paymentTypeId,
+    paymentId,
+    categoryId,
+    amount,
+    rateExchange,
   ];
 }

@@ -36,9 +36,9 @@ Future<void> initializeDependencies() async {
   }
 
   // Inicializar los módulos en el orden correcto
-  await initializeDataDependencies();  // Primero los repositorios (incluye AppDatabase)
-  await initializeDomainDependencies(); // Luego los casos de uso
-  await initializeAppDependencies();   // Finalmente los servicios de aplicación
+  registerDataDependencies();     // CORREGIDO: usar nombre correcto
+  registerDomainDependencies();   // CORREGIDO: usar nombre correcto
+  registerAppDependencies();      // CORREGIDO: usar nombre correcto
 
   // --- Registro de Dependencias de Backup ---
 
