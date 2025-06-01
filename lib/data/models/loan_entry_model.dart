@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 import '../../domain/entities/loan_entry.dart';
 import '../../domain/entities/loan_detail.dart' as loan_detail;
 import '../datasources/local/database.dart';
-import 'loan_detail_model.dart';
 
 class LoanEntryModel {
   final int id;

@@ -2,18 +2,13 @@ import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/datasources/local/database.dart';
-import '../../data/repositories/credit_card_repository_impl.dart';
-import '../../domain/repositories/chart_account_repository.dart';
-import '../../domain/repositories/credit_card_repository.dart';
-import '../../domain/usecases/credit_card_usecases.dart';
 import '../services/backup_service.dart';
 import '../../domain/repositories/backup_repository.dart';
 import '../../data/repositories/backup_repository_impl.dart';
-import '../../presentation/providers/backup_provider.dart'; // Asegúrate de que esto exista o coméntalo si aún no
+import '../../presentation/features/backup/backup_provider.dart'; // Asegúrate de que esto exista o coméntalo si aún no
 import 'app_di_module.dart';
 import 'data_di_module.dart';
 import 'domain_di_module.dart';
-import '../../data/datasources/local/daos/credit_cards_dao.dart';
 
 final getIt = GetIt.instance;
 

@@ -1,7 +1,6 @@
 import 'package:injectable/injectable.dart';
 import '../entities/wallet.dart';
 import '../entities/credit_card.dart';
-import '../entities/transaction_entry.dart';
 import '../repositories/transaction_repository.dart';
 
 @injectable

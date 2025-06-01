@@ -1,14 +1,8 @@
 import 'package:injectable/injectable.dart';
 import '../entities/loan_entry.dart';
 import '../entities/loan_detail.dart';
-import '../entities/journal_entry.dart';
 import '../entities/journal_detail.dart';
-import '../entities/transaction_entry.dart';
-import '../entities/transaction_detail.dart';
 import '../entities/category.dart';
-import '../entities/wallet.dart';
-import '../entities/credit_card.dart';
-import '../entities/contact.dart';
 import '../repositories/loan_repository.dart';
 import '../repositories/contact_repository.dart';
 import '../repositories/journal_repository.dart';
@@ -577,8 +571,6 @@ class LoanUseCases {
     if (validationErrors.isNotEmpty) {
       throw LoanValidationException(validationErrors);
     }
-
-    final outstandingBalance = loan.outstandingBalance;
     
     // Calcular totales
     final totalPaidBefore = loan.totalPaid;

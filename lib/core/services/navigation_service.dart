@@ -1,74 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class NavigationService {
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-  static NavigatorState? get navigator => navigatorKey.currentState;
-
-  static Future<T?> navigateTo<T extends Object?>(
-    String routeName, {
-    Object? arguments,
-  }) {
-    return navigator!.pushNamed<T>(routeName, arguments: arguments);
-  }
-
-  static Future<T?> navigateToAndReplace<T extends Object?>(
+  static Future<void> navigateToScreen(
+    BuildContext context,
     String routeName, {
     Object? arguments,
   }) async {
-    final result = await navigator!.pushReplacementNamed(routeName, arguments: arguments);
-    return result as T?;
+    // Cerrar el drawer si está abierto
+    if (Scaffold.of(context).isDrawerOpen) {
+      Navigator.of(context).pop();
+    }
+
+    // Si vamos al home o estamos intentando navegar a la misma pantalla
+    if (routeName == '/' || ModalRoute.of(context)?.settings.name == routeName) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      return;
+    }
+
+    // Para cualquier otra pantalla, navegamos asegurándonos que solo el home esté en el stack
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    await Navigator.of(context).pushNamed(routeName, arguments: arguments);
   }
 
-  static Future<T?> navigateToAndClearStack<T extends Object?>(
-    String routeName, {
-    Object? arguments,
-  }) async {
-    final result = await navigator!.pushNamedAndRemoveUntil(
-      routeName,
-      (route) => false,
-      arguments: arguments,
-    );
-    return result as T?;
+  static void goBack(BuildContext context) {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pushReplacementNamed('/');
+    }
   }
 
-  static void goBack<T extends Object?>([T? result]) {
-    return navigator!.pop<T>(result);
-  }
-
-  static bool canGoBack() {
-    return navigator!.canPop();
-  }
-
-  static Future<bool> maybePop<T extends Object?>([T? result]) {
-    return navigator!.maybePop<T>(result);
-  }
-
-  // Métodos de conveniencia para las rutas más comunes
-  static Future<void> goToHome() {
-    return navigateToAndClearStack('/');
-  }
-
-  static Future<void> goToDashboard() {
-    return navigateToAndClearStack('/dashboard');
-  }
-
-  static Future<void> goToLoans() {
-    return navigateTo('/loans');
-  }
-
-  static Future<void> goToLoanDetail(int loanId) {
-    return navigateTo('/loans/detail', arguments: loanId);
-  }
-
-  static Future<void> goToCreateLoan(String loanType) {
-    return navigateTo('/loans/form', arguments: {'loanType': loanType});
-  }
-
-  static Future<void> goToEditLoan(dynamic loan) {
-    return navigateTo('/loans/form', arguments: {
-      'loanType': loan.documentTypeId,
-      'editingLoan': loan,
-    });
+  static Future<bool> handleWillPop(BuildContext context) async {
+    final currentRoute = ModalRoute.of(context);
+    
+    // Si estamos en el home
+    if (currentRoute?.settings.name == '/') {
+      try {
+        await SystemNavigator.pop();
+        return false;
+      } catch (e) {
+        debugPrint('Error al minimizar la app: $e');
+        return true;
+      }
+    }
+    
+    // Para otras pantallas, volvemos al home
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    return false;
   }
 }
