@@ -94,7 +94,7 @@ class AccountBalanceCard extends StatelessWidget {
               AppButton(
                 text: 'Detalles',
                 onPressed: onDetailsPressed,
-                type: AppButtonType.secondary,
+                type: AppButtonType.outlined, // CORREGIDO: usar outlined en lugar de secondary
                 isFullWidth: false,
               ),
             ],

@@ -259,7 +259,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
             AppButton(
               text: 'Reintentar',
               onPressed: _loadContacts,
-              type: AppButtonType.primary,
+              type: AppButtonType.filled,
             ),
           ],
         ),
@@ -371,7 +371,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           AppButton(
             text: 'Reintentar',
             onPressed: _loadContacts,
-            type: AppButtonType.primary,
+            type: AppButtonType.filled,
           ),
         ],
       ),

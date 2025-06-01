@@ -13,13 +13,15 @@
     "success": "Success"
   },
   "navigation": {
-    "dashboard": "Dashboard",
+    "home": "Home",
     "transactions": "Transactions",
-    "loans": "Loans",
+    "contacts": "Contacts",
+    "settings": "Settings",
     "wallets": "Wallets",
     "categories": "Categories",
-    "settings": "Settings",
-    "contacts": "Contacts"
+    "loans": "Loans",
+    "charts": "Chart of Accounts",
+    "backups": "Backups"
   },
   "transactions": {
     "types": {
@@ -30,5 +32,11 @@
   },
   "errors": {
     "loadingAccounts": "Error loading accounts: {error}"
+  },
+  "settings": {
+    "appearance": "Appearance",
+    "darkTheme": "Dark theme",
+    "lightTheme": "Light theme",
+    "systemTheme": "System theme"
   }
 }

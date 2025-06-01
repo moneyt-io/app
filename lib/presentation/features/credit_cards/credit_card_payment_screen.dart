@@ -395,7 +395,7 @@ class _CreditCardPaymentScreenState extends State<CreditCardPaymentScreen> {
                   AppButton(
                     text: 'Confirmar Pago',
                     onPressed: _isLoading ? null : _confirmPayment,
-                    type: AppButtonType.primary,
+                    type: AppButtonType.filled,
                     isFullWidth: true,
                     isLoading: _isLoading,
                   ),

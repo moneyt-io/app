@@ -440,7 +440,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
         child: AppButton(
           text: 'Guardar',
           onPressed: _saveWallet,
-          type: AppButtonType.primary,
+          type: AppButtonType.filled,
           isLoading: _isLoading,
           isFullWidth: true,
         ),

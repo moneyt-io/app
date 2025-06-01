@@ -253,7 +253,7 @@ class _AccountSelectorModalState extends State<AccountSelectorModal> {
                 onPressed: _selectedAccount != null
                   ? () => Navigator.of(context).pop(_selectedAccount)
                   : null,
-                type: AppButtonType.primary,
+                type: AppButtonType.filled, // CORREGIDO: usar filled en lugar de primary
                 isFullWidth: true,
               ),
             ),

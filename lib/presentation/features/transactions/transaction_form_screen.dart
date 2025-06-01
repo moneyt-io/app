@@ -488,7 +488,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
         child: AppButton(
           text: 'Guardar',
           onPressed: _saveTransaction,
-          type: AppButtonType.primary,
+          type: AppButtonType.filled,
           isFullWidth: true,
         ),
       ),

@@ -37,7 +37,7 @@ class FormSubmitButton extends StatelessWidget {
         text: text,
         onPressed: isLoading ? null : onPressed,
         isLoading: isLoading,
-        type: AppButtonType.primary,
+        type: AppButtonType.filled, // CORREGIDO: usar filled en lugar de primary
         isFullWidth: true,
       ),
     );

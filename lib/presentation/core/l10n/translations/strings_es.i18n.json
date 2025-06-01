@@ -13,13 +13,15 @@
     "success": "Éxito"
   },
   "navigation": {
-    "dashboard": "Dashboard",
+    "home": "Inicio",
     "transactions": "Transacciones",
-    "loans": "Préstamos",
-    "wallets": "Billeteras",
-    "categories": "Categorías",
+    "contacts": "Contactos",
     "settings": "Configuración",
-    "contacts": "Contactos"
+    "wallets": "Cuentas",
+    "categories": "Categorías",
+    "loans": "Préstamos",
+    "charts": "Plan de Cuentas",
+    "backups": "Respaldos"
   },
   "transactions": {
     "types": {
@@ -30,5 +32,11 @@
   },
   "errors": {
     "loadingAccounts": "Error al cargar las cuentas: {error}"
+  },
+  "settings": {
+    "appearance": "Apariencia",
+    "darkTheme": "Tema oscuro",
+    "lightTheme": "Tema claro",
+    "systemTheme": "Tema del sistema"
   }
 }

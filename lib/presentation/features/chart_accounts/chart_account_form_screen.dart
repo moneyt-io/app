@@ -488,7 +488,7 @@ class _ChartAccountFormScreenState extends State<ChartAccountFormScreen> {
           text: 'Guardar',
           onPressed: _isLoading ? null : _saveAccount,
           isLoading: _isLoading,
-          type: AppButtonType.primary,
+          type: AppButtonType.filled,
           isFullWidth: true,
         ),
       ),

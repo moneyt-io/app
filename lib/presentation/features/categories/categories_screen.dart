@@ -314,6 +314,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
             });
           },
           type: AppButtonType.text,
+          size: AppButtonSize.medium,
         ) : null,
       );
     }

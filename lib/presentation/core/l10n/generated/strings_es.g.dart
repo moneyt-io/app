@@ -43,6 +43,7 @@ class AppStringsEs extends AppStrings {
 	@override late final _AppStringsNavigationEs navigation = _AppStringsNavigationEs._(_root);
 	@override late final _AppStringsTransactionsEs transactions = _AppStringsTransactionsEs._(_root);
 	@override late final _AppStringsErrorsEs errors = _AppStringsErrorsEs._(_root);
+	@override late final _AppStringsSettingsEs settings = _AppStringsSettingsEs._(_root);
 }
 
 // Path: app
@@ -79,13 +80,15 @@ class _AppStringsNavigationEs extends AppStringsNavigationEn {
 	final AppStringsEs _root; // ignore: unused_field
 
 	// Translations
-	@override String get dashboard => 'Dashboard';
+	@override String get home => 'Inicio';
 	@override String get transactions => 'Transacciones';
-	@override String get loans => 'Préstamos';
-	@override String get wallets => 'Billeteras';
-	@override String get categories => 'Categorías';
-	@override String get settings => 'Configuración';
 	@override String get contacts => 'Contactos';
+	@override String get settings => 'Configuración';
+	@override String get wallets => 'Cuentas';
+	@override String get categories => 'Categorías';
+	@override String get loans => 'Préstamos';
+	@override String get charts => 'Plan de Cuentas';
+	@override String get backups => 'Respaldos';
 }
 
 // Path: transactions
@@ -106,6 +109,19 @@ class _AppStringsErrorsEs extends AppStringsErrorsEn {
 
 	// Translations
 	@override String get loadingAccounts => 'Error al cargar las cuentas: {error}';
+}
+
+// Path: settings
+class _AppStringsSettingsEs extends AppStringsSettingsEn {
+	_AppStringsSettingsEs._(AppStringsEs root) : this._root = root, super.internal(root);
+
+	final AppStringsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get appearance => 'Apariencia';
+	@override String get darkTheme => 'Tema oscuro';
+	@override String get lightTheme => 'Tema claro';
+	@override String get systemTheme => 'Tema del sistema';
 }
 
 // Path: transactions.types
@@ -134,17 +150,23 @@ extension on AppStringsEs {
 			case 'common.loading': return 'Cargando...';
 			case 'common.error': return 'Error';
 			case 'common.success': return 'Éxito';
-			case 'navigation.dashboard': return 'Dashboard';
+			case 'navigation.home': return 'Inicio';
 			case 'navigation.transactions': return 'Transacciones';
-			case 'navigation.loans': return 'Préstamos';
-			case 'navigation.wallets': return 'Billeteras';
-			case 'navigation.categories': return 'Categorías';
-			case 'navigation.settings': return 'Configuración';
 			case 'navigation.contacts': return 'Contactos';
+			case 'navigation.settings': return 'Configuración';
+			case 'navigation.wallets': return 'Cuentas';
+			case 'navigation.categories': return 'Categorías';
+			case 'navigation.loans': return 'Préstamos';
+			case 'navigation.charts': return 'Plan de Cuentas';
+			case 'navigation.backups': return 'Respaldos';
 			case 'transactions.types.income': return 'Ingreso';
 			case 'transactions.types.expense': return 'Gasto';
 			case 'transactions.types.transfer': return 'Transferencia';
 			case 'errors.loadingAccounts': return 'Error al cargar las cuentas: {error}';
+			case 'settings.appearance': return 'Apariencia';
+			case 'settings.darkTheme': return 'Tema oscuro';
+			case 'settings.lightTheme': return 'Tema claro';
+			case 'settings.systemTheme': return 'Tema del sistema';
 			default: return null;
 		}
 	}

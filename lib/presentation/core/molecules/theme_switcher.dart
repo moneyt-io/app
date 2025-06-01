@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import '../l10n/l10n_helper.dart';
+import '../design_system/tokens/app_dimensions.dart';
 
 class ThemeSwitcher extends StatelessWidget {
   const ThemeSwitcher({Key? key}) : super(key: key);
@@ -13,19 +15,19 @@ class ThemeSwitcher extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Container(
-        width: 40,
-        height: 40,
+        width: AppDimensions.buttonHeightMedium,
+        height: AppDimensions.buttonHeightMedium,
         decoration: BoxDecoration(
           color: colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
         ),
         child: Icon(
           themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
           color: colorScheme.onPrimaryContainer,
-          size: 20,
+          size: AppDimensions.iconSizeMedium,
         ),
       ),
-      title: const Text('Tema oscuro'),
+      title: Text(t.settings.darkTheme),
       trailing: Switch(
         value: themeProvider.isDarkMode,
         onChanged: (value) {

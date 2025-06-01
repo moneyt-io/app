@@ -61,7 +61,7 @@ class ScreenTemplate extends StatelessWidget {
           text: submitLabel,
           onPressed: isLoading ? null : onSubmit,
           isFullWidth: true,
-          type: AppButtonType.primary,
+          type: AppButtonType.filled, // CORREGIDO: usar filled en lugar de primary
         ),
         if (onCancel != null) ...[
           const SizedBox(height: 16),

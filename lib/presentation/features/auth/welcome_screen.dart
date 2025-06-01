@@ -200,7 +200,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     AppButton(
                       text: 'Continuar con Google',
                       onPressed: _signInWithGoogle,
-                      type: AppButtonType.secondary, // Cambiado de outlined a secondary
+                      type: AppButtonType.outlined, // Cambiado de outlined a secondary
                       isFullWidth: true,
                       icon: Icons.g_mobiledata,
                     ),
@@ -208,7 +208,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     AppButton(
                       text: 'Continuar con Email',
                       onPressed: _signInWithEmail,
-                      type: AppButtonType.primary,
+                      type: AppButtonType.filled,
                       isFullWidth: true,
                       icon: Icons.email,
                     ),

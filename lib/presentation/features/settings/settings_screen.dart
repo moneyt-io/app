@@ -139,7 +139,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // Botón de cerrar sesión (solo visible si está autenticado)
               AppButton(
                 text: 'Cerrar sesión',
-                type: AppButtonType.secondary,
+                type: AppButtonType.outlined,
                 isFullWidth: true,
                 icon: Icons.logout,
                 onPressed: () {

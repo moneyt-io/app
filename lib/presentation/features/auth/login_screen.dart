@@ -274,7 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   AppButton(
                     text: _state.isSignUp ? 'Registrarme' : 'Iniciar sesión',
                     onPressed: _submit,
-                    type: AppButtonType.primary,
+                    type: AppButtonType.filled,
                     isFullWidth: true,
                   ),
                   const SizedBox(height: 16),

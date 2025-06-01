@@ -44,6 +44,7 @@ class AppStrings implements BaseTranslations<AppLocale, AppStrings> {
 	late final AppStringsNavigationEn navigation = AppStringsNavigationEn.internal(_root);
 	late final AppStringsTransactionsEn transactions = AppStringsTransactionsEn.internal(_root);
 	late final AppStringsErrorsEn errors = AppStringsErrorsEn.internal(_root);
+	late final AppStringsSettingsEn settings = AppStringsSettingsEn.internal(_root);
 }
 
 // Path: app
@@ -80,13 +81,15 @@ class AppStringsNavigationEn {
 	final AppStrings _root; // ignore: unused_field
 
 	// Translations
-	String get dashboard => 'Dashboard';
+	String get home => 'Home';
 	String get transactions => 'Transactions';
-	String get loans => 'Loans';
+	String get contacts => 'Contacts';
+	String get settings => 'Settings';
 	String get wallets => 'Wallets';
 	String get categories => 'Categories';
-	String get settings => 'Settings';
-	String get contacts => 'Contacts';
+	String get loans => 'Loans';
+	String get charts => 'Chart of Accounts';
+	String get backups => 'Backups';
 }
 
 // Path: transactions
@@ -107,6 +110,19 @@ class AppStringsErrorsEn {
 
 	// Translations
 	String get loadingAccounts => 'Error loading accounts: {error}';
+}
+
+// Path: settings
+class AppStringsSettingsEn {
+	AppStringsSettingsEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+	String get appearance => 'Appearance';
+	String get darkTheme => 'Dark theme';
+	String get lightTheme => 'Light theme';
+	String get systemTheme => 'System theme';
 }
 
 // Path: transactions.types
@@ -135,17 +151,23 @@ extension on AppStrings {
 			case 'common.loading': return 'Loading...';
 			case 'common.error': return 'Error';
 			case 'common.success': return 'Success';
-			case 'navigation.dashboard': return 'Dashboard';
+			case 'navigation.home': return 'Home';
 			case 'navigation.transactions': return 'Transactions';
-			case 'navigation.loans': return 'Loans';
+			case 'navigation.contacts': return 'Contacts';
+			case 'navigation.settings': return 'Settings';
 			case 'navigation.wallets': return 'Wallets';
 			case 'navigation.categories': return 'Categories';
-			case 'navigation.settings': return 'Settings';
-			case 'navigation.contacts': return 'Contacts';
+			case 'navigation.loans': return 'Loans';
+			case 'navigation.charts': return 'Chart of Accounts';
+			case 'navigation.backups': return 'Backups';
 			case 'transactions.types.income': return 'Income';
 			case 'transactions.types.expense': return 'Expense';
 			case 'transactions.types.transfer': return 'Transfer';
 			case 'errors.loadingAccounts': return 'Error loading accounts: {error}';
+			case 'settings.appearance': return 'Appearance';
+			case 'settings.darkTheme': return 'Dark theme';
+			case 'settings.lightTheme': return 'Light theme';
+			case 'settings.systemTheme': return 'System theme';
 			default: return null;
 		}
 	}

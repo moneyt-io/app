@@ -364,7 +364,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
           text: 'Guardar',
           onPressed: _isLoading ? null : _saveContact,
           isLoading: _isLoading,
-          type: AppButtonType.primary,
+          type: AppButtonType.filled,
           isFullWidth: true,
         ),
       ),

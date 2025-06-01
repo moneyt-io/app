@@ -247,7 +247,7 @@ class _ChartAccountsScreenState extends State<ChartAccountsScreen> {
           AppButton(
             text: 'Reintentar',
             onPressed: _loadAccounts,
-            type: AppButtonType.primary,
+            type: AppButtonType.filled,
           ),
         ],
       ),

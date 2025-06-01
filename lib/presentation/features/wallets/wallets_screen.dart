@@ -265,7 +265,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
           ) : AppButton(
             text: 'Crear billetera',
             onPressed: () => _navigateToWalletForm(),
-            type: AppButtonType.primary,
+            type: AppButtonType.filled,
           ),
         ),
       ],
@@ -295,7 +295,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
             AppButton(
               text: 'Reintentar',
               onPressed: _loadWallets,
-              type: AppButtonType.primary,
+              type: AppButtonType.filled,
             ),
           ],
         ),

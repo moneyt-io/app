@@ -445,7 +445,7 @@ class _CreditCardFormScreenState extends State<CreditCardFormScreen> {
               text: isEditing ? 'Actualizar' : 'Crear',
               onPressed: _isLoading ? null : _saveCreditCard,
               isLoading: _isLoading,
-              type: AppButtonType.primary,
+              type: AppButtonType.filled,
               isFullWidth: true,
             ),
           ],

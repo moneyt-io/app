@@ -7,6 +7,7 @@ import '../../core/organisms/app_drawer.dart';
 import '../../navigation/navigation_service.dart';
 import '../../navigation/app_routes.dart';
 import '../../../domain/entities/transaction_entry.dart';
+import '../../../domain/entities/wallet.dart'; // Importar entidad Wallet
 import '../../../domain/usecases/transaction_usecases.dart'; // Añadir esta importación
 
 class HomeScreen extends StatefulWidget {
@@ -29,11 +30,44 @@ class _HomeScreenState extends State<HomeScreen> {
   // Lista de transacciones recientes para mostrar
   List<TransactionEntry> _recentTransactions = [];
   
-  // Simulación de cuentas
-  final _mockAccounts = [
-    {'name': 'Cuenta Principal', 'balance': 1800.0},
-    {'name': 'Ahorros', 'balance': 4500.0},
-    {'name': 'Efectivo', 'balance': 200.0},
+  // Simulación de cuentas - ACTUALIZADO para usar Wallet entities
+  final List<Wallet> _mockWallets = [
+    Wallet(
+      id: 1,
+      parentId: null,
+      currencyId: 'COP',
+      chartAccountId: 1,
+      name: 'Cuenta Principal',
+      description: 'Cuenta bancaria principal',
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      deletedAt: null,
+    ),
+    Wallet(
+      id: 2,
+      parentId: null,
+      currencyId: 'COP',
+      chartAccountId: 2,
+      name: 'Ahorros',
+      description: 'Cuenta de ahorros',
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      deletedAt: null,
+    ),
+    Wallet(
+      id: 3,
+      parentId: null,
+      currencyId: 'COP',
+      chartAccountId: 3,
+      name: 'Efectivo',
+      description: 'Dinero en efectivo',
+      active: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      deletedAt: null,
+    ),
   ];
 
   @override
@@ -99,11 +133,11 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Balance total
-              AccountBalanceCard(
-                title: 'Balance Total',
-                balance: _mockTotalBalance,
-                currencySymbol: '\$',
-                onTap: () => NavigationService.navigateTo(AppRoutes.wallets),
+              Column(
+                children: _mockWallets.map((wallet) => AccountBalanceCard(
+                  wallet: wallet,
+                  onTap: () => NavigationService.navigateTo(AppRoutes.wallets),
+                )).toList(),
               ),
               
               const SizedBox(height: 20),
@@ -114,22 +148,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: StatsCard(
                       title: 'Ingresos',
-                      amount: _mockIncomeMonth,
-                      iconData: Icons.arrow_upward,
-                      backgroundColor: colorScheme.primaryContainer,
-                      iconColor: colorScheme.primary,
-                      textColor: colorScheme.primary,
+                      value: '\$${_mockIncomeMonth.toStringAsFixed(0)}', // CORREGIDO: agregar value
+                      icon: Icons.arrow_upward, // CORREGIDO: cambiar iconData por icon
+                      color: colorScheme.primary, // CORREGIDO: usar color en lugar de múltiples propiedades
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: StatsCard(
                       title: 'Gastos',
-                      amount: _mockExpensesMonth,
-                      iconData: Icons.arrow_downward,
-                      backgroundColor: colorScheme.errorContainer,
-                      iconColor: colorScheme.error,
-                      textColor: colorScheme.error,
+                      value: '\$${_mockExpensesMonth.toStringAsFixed(0)}', // CORREGIDO: agregar value
+                      icon: Icons.arrow_downward, // CORREGIDO: cambiar iconData por icon
+                      color: colorScheme.error, // CORREGIDO: usar color en lugar de múltiples propiedades
                     ),
                   ),
                 ],
@@ -139,11 +169,9 @@ class _HomeScreenState extends State<HomeScreen> {
               
               StatsCard(
                 title: 'Ahorros',
-                amount: _mockSavingsMonth,
-                iconData: Icons.savings,
-                backgroundColor: colorScheme.tertiaryContainer,
-                iconColor: colorScheme.tertiary,
-                textColor: colorScheme.tertiary,
+                value: '\$${_mockSavingsMonth.toStringAsFixed(0)}', // CORREGIDO: agregar value
+                icon: Icons.savings, // CORREGIDO: cambiar iconData por icon
+                color: colorScheme.tertiary, // CORREGIDO: usar color en lugar de múltiples propiedades
               ),
               
               const SizedBox(height: 20),
@@ -198,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
   
   Widget _buildAccountsList() {
     return Column(
-      children: _mockAccounts.map((account) {
+      children: _mockWallets.map((wallet) {
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           shape: RoundedRectangleBorder(
@@ -208,10 +236,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           child: ListTile(
-            title: Text(account['name'] as String),
+            title: Text(wallet.name),
             subtitle: Text('Balance'),
             trailing: Text(
-              '\$${(account['balance'] as double).toStringAsFixed(2)}',
+              'Balance calculado', // CORREGIDO: remover referencia a wallet.balance
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),

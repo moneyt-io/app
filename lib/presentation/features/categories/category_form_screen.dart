@@ -383,7 +383,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
           text: 'Guardar',
           onPressed: _isLoadingData || _isLoading ? null : _saveCategory,
           isLoading: _isLoading,
-          type: AppButtonType.primary,
+          type: AppButtonType.filled,
           isFullWidth: true,
         ),
       ),
