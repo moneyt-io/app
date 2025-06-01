@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/contact.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 import '../molecules/confirm_delete_dialog.dart';
 import '../molecules/contact_list_item.dart'; // Asumiendo que este componente existe
 

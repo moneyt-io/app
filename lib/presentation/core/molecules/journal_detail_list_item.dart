@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../domain/entities/chart_account.dart';
 import '../../../domain/entities/journal_detail.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 class JournalDetailListItem extends StatelessWidget {
   final JournalDetail detail;

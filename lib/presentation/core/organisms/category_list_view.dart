@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/category.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 import '../molecules/confirm_delete_dialog.dart';
 
 /// Organismo que muestra una lista jerárquica de categorías con Material Design 3.

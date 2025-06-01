@@ -15,7 +15,6 @@ dependencies:
   path: ^1.9.0
   path_provider: ^2.1.5
   get_it: ^8.0.3
-  intl: ^0.20.1
   provider: ^6.1.2
   shared_preferences: ^2.3.4
   google_sign_in: ^6.2.2
@@ -34,6 +33,8 @@ dependencies:
   firebase_analytics: ^11.4.0
   equatable: ^2.0.7
   filesize: ^2.0.1
+  slang: ^4.7.2
+  slang_flutter: ^4.7.0
   
 dev_dependencies:
   flutter_test:
@@ -45,3 +46,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+# Scripts para desarrollo:
+# flutter packages pub run slang_build_runner    # Generar traducciones
+# flutter packages pub run build_runner watch   # Watch mode para desarrollo

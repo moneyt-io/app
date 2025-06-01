@@ -3,7 +3,7 @@ import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/credit_card.dart';
 import '../atoms/app_button.dart';
 import '../molecules/search_field.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 /// Modelo para representar una cuenta seleccionable
 /// (ya sea wallet o tarjeta de crédito)

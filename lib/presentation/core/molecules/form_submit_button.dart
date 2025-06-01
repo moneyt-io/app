@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../atoms/app_button.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 class FormSubmitButton extends StatelessWidget {
   final String text;

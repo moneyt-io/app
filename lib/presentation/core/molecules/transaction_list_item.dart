@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../domain/entities/transaction_entry.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 import '../atoms/action_menu_button.dart'; // Añadir esta importación
 
 class TransactionListItem extends StatelessWidget {

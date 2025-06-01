@@ -1,0 +1,34 @@
+{
+  "app": {
+    "name": "MoneyT",
+    "description": "Financial Manager"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "loans": "Loans",
+    "wallets": "Wallets",
+    "categories": "Categories",
+    "settings": "Settings",
+    "contacts": "Contacts"
+  },
+  "transactions": {
+    "types": {
+      "income": "Income",
+      "expense": "Expense",
+      "transfer": "Transfer"
+    }
+  },
+  "errors": {
+    "loadingAccounts": "Error loading accounts: {error}"
+  }
+}

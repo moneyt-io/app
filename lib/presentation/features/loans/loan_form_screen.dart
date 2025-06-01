@@ -11,7 +11,7 @@ import '../../../domain/usecases/credit_card_usecases.dart';
 import 'loan_provider.dart';
 import '../../core/molecules/payment_method_selector.dart';
 import '../../navigation/navigation_service.dart';
-import '../../core/theme/app_dimensions.dart';
+import '../../core/design_system/theme/app_dimensions.dart';
 
 class LoanFormScreen extends StatefulWidget {
   final LoanEntry? loan;

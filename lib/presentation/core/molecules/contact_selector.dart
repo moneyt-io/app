@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/contact.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 class ContactSelector extends StatelessWidget {
   final List<Contact> contacts;

@@ -1,0 +1,7 @@
+base_locale: en
+fallback_strategy: base_locale
+input_directory: lib/presentation/core/l10n/translations
+output_directory: lib/presentation/core/l10n/generated
+class_name: AppStrings
+translate_var: t
+enum_name: AppLocale

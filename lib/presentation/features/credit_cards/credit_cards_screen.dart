@@ -6,7 +6,7 @@ import '../../../domain/entities/chart_account.dart';
 import '../../../domain/usecases/credit_card_usecases.dart';
 import '../../../domain/usecases/chart_account_usecases.dart';
 import '../../core/atoms/app_button.dart';
-import '../../core/theme/app_dimensions.dart';
+import '../../core/design_system/theme/app_dimensions.dart';
 import '../../core/molecules/empty_state.dart';
 import '../../core/molecules/search_field.dart';
 import '../../core/molecules/confirm_delete_dialog.dart';

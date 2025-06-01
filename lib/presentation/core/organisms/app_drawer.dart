@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../navigation/navigation_service.dart';
 import '../../navigation/app_routes.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});

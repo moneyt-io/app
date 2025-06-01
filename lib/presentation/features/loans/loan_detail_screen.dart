@@ -10,7 +10,7 @@ import '../../core/atoms/loan_status_chip.dart';
 import '../../core/molecules/loan_payment_modal.dart';
 import '../../core/molecules/write_off_modal.dart';
 import '../../navigation/navigation_service.dart';
-import '../../core/theme/app_dimensions.dart';
+import '../../core/design_system/theme/app_dimensions.dart';
 
 class LoanDetailScreen extends StatefulWidget {
   final int loanId;

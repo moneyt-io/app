@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 class CurrencySelector extends StatelessWidget {
   final String selectedCurrencyId;

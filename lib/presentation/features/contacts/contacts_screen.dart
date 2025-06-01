@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as device_contacts;
 import 'package:get_it/get_it.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../core/theme/app_dimensions.dart';
+import '../../core/design_system/theme/app_dimensions.dart';
+import '../../core/l10n/l10n_helper.dart';
 import '../../../domain/entities/contact.dart';
 import '../../../domain/usecases/contact_usecases.dart';
 import '../../core/atoms/app_button.dart';
@@ -168,7 +169,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Contactos'),
+        title: Text(t.navigation.contacts),
         centerTitle: true,
         elevation: 0,
         // Eliminamos el botón de recargar

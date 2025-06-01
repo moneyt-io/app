@@ -6,7 +6,7 @@ import '../../core/molecules/loan_list_item.dart';
 import '../../core/molecules/loan_summary_card.dart';
 import '../../navigation/app_routes.dart';
 import '../../navigation/navigation_service.dart';
-import '../../core/theme/app_dimensions.dart';
+import '../../core/design_system/theme/app_dimensions.dart';
 
 class LoansScreen extends StatefulWidget {
   const LoansScreen({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 /// Un contenedor estilizado para campos de formulario siguiendo Material Design 3.
 /// 

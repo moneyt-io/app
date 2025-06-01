@@ -21,7 +21,7 @@ import '../../core/molecules/form_field_container.dart';
 import '../../core/molecules/error_message_card.dart';
 import '../../core/organisms/account_selector_modal.dart';
 
-import '../../core/theme/app_dimensions.dart';
+import '../../core/design_system/theme/app_dimensions.dart';
 
 class TransactionFormScreen extends StatefulWidget {
   final TransactionEntity? transaction;

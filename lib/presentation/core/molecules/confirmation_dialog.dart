@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 /// Diálogo de confirmación reutilizable que sigue el patrón de diseño de la aplicación.
 /// 

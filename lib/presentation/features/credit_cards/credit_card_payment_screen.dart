@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import '../../core/theme/app_dimensions.dart';
+import '../../core/design_system/theme/app_dimensions.dart';
 import '../../../domain/entities/credit_card.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/usecases/transaction_usecases.dart';

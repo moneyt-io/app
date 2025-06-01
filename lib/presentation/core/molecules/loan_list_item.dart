@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../domain/entities/loan_entry.dart';
 import '../atoms/loan_status_chip.dart';
 import '../../navigation/navigation_service.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 class LoanListItem extends StatelessWidget {
   final LoanEntry loan;

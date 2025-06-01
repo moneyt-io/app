@@ -5,7 +5,7 @@ import '../../../domain/entities/loan_entry.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../features/loans/loan_provider.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 class LoanPaymentModal extends StatefulWidget {
   final LoanEntry loan;

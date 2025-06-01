@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../domain/entities/loan_entry.dart';
 import '../../features/loans/loan_provider.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 class WriteOffModal extends StatefulWidget {
   final LoanEntry loan;

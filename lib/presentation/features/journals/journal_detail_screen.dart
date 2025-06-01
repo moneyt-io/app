@@ -5,7 +5,7 @@ import '../../../domain/entities/chart_account.dart';
 import '../../../domain/entities/journal_entry.dart';
 import '../../../domain/usecases/chart_account_usecases.dart';
 import '../../core/molecules/journal_detail_list_item.dart';
-import '../../core/theme/app_dimensions.dart';
+import '../../core/design_system/theme/app_dimensions.dart';
 
 class JournalDetailScreen extends StatefulWidget {
   final JournalEntry? journal;

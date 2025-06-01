@@ -1,0 +1,34 @@
+{
+  "app": {
+    "name": "MoneyT",
+    "description": "Gestor Financiero"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "transactions": "Transacciones",
+    "loans": "Préstamos",
+    "wallets": "Billeteras",
+    "categories": "Categorías",
+    "settings": "Configuración",
+    "contacts": "Contactos"
+  },
+  "transactions": {
+    "types": {
+      "income": "Ingreso",
+      "expense": "Gasto",
+      "transfer": "Transferencia"
+    }
+  },
+  "errors": {
+    "loadingAccounts": "Error al cargar las cuentas: {error}"
+  }
+}

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../domain/entities/journal_entry.dart';
 import '../molecules/journal_list_item.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 class JournalListView extends StatefulWidget {
   final List<JournalEntry> journals;

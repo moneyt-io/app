@@ -7,7 +7,7 @@ import '../../core/atoms/app_button.dart';
 import '../../core/molecules/form_field_container.dart';
 import '../../core/molecules/icon_selector.dart';
 import '../../navigation/navigation_service.dart';
-import '../../core/theme/app_dimensions.dart';
+import '../../core/design_system/theme/app_dimensions.dart';
 
 class CategoryFormScreen extends StatefulWidget {
   final Category? category;

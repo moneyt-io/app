@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/credit_card.dart';
-import '../theme/app_dimensions.dart';
+import '../design_system/theme/app_dimensions.dart';
 
 class PaymentMethodSelector extends StatefulWidget {
   final List<Wallet> wallets;
