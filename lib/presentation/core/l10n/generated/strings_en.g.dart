@@ -43,6 +43,7 @@ class AppStrings implements BaseTranslations<AppLocale, AppStrings> {
 	late final AppStringsCommonEn common = AppStringsCommonEn.internal(_root);
 	late final AppStringsNavigationEn navigation = AppStringsNavigationEn.internal(_root);
 	late final AppStringsTransactionsEn transactions = AppStringsTransactionsEn.internal(_root);
+	late final AppStringsContactsEn contacts = AppStringsContactsEn.internal(_root);
 	late final AppStringsErrorsEn errors = AppStringsErrorsEn.internal(_root);
 	late final AppStringsSettingsEn settings = AppStringsSettingsEn.internal(_root);
 }
@@ -72,6 +73,15 @@ class AppStringsCommonEn {
 	String get loading => 'Loading...';
 	String get error => 'Error';
 	String get success => 'Success';
+	String get search => 'Search';
+	String get clearSearch => 'Clear search';
+	String get viewAll => 'View all';
+	String get retry => 'Retry';
+	String get add => 'Add';
+	String get remove => 'Remove';
+	String get moreOptions => 'More options';
+	String get addToFavorites => 'Add to favorites';
+	String get removeFromFavorites => 'Remove from favorites';
 }
 
 // Path: navigation
@@ -102,6 +112,31 @@ class AppStringsTransactionsEn {
 	late final AppStringsTransactionsTypesEn types = AppStringsTransactionsTypesEn.internal(_root);
 }
 
+// Path: contacts
+class AppStringsContactsEn {
+	AppStringsContactsEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+	String get title => 'Contacts';
+	String get addContact => 'Add Contact';
+	String get editContact => 'Edit Contact';
+	String get noContacts => 'No contacts';
+	String get noContactsMessage => 'Add your first contact with the "+" button';
+	String get searchContacts => 'Search contacts';
+	String get deleteContact => 'Delete contact';
+	String get confirmDelete => 'Are you sure you want to delete';
+	String get contactDeleted => 'Contact deleted successfully';
+	String get errorDeleting => 'Error deleting contact';
+	String get errorLoading => 'Error loading contacts';
+	String get contactSaved => 'Contact saved successfully';
+	String get errorSaving => 'Error saving contact';
+	String get noContactInfo => 'No contact information';
+	late final AppStringsContactsFieldsEn fields = AppStringsContactsFieldsEn.internal(_root);
+	late final AppStringsContactsValidationEn validation = AppStringsContactsValidationEn.internal(_root);
+}
+
 // Path: errors
 class AppStringsErrorsEn {
 	AppStringsErrorsEn.internal(this._root);
@@ -110,6 +145,7 @@ class AppStringsErrorsEn {
 
 	// Translations
 	String get loadingAccounts => 'Error loading accounts: {error}';
+	String get unexpected => 'Unexpected error';
 }
 
 // Path: settings
@@ -137,6 +173,32 @@ class AppStringsTransactionsTypesEn {
 	String get transfer => 'Transfer';
 }
 
+// Path: contacts.fields
+class AppStringsContactsFieldsEn {
+	AppStringsContactsFieldsEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+	String get name => 'Name';
+	String get email => 'Email';
+	String get phone => 'Phone';
+	String get address => 'Address';
+	String get notes => 'Notes';
+}
+
+// Path: contacts.validation
+class AppStringsContactsValidationEn {
+	AppStringsContactsValidationEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+	String get nameRequired => 'Name is required';
+	String get invalidEmail => 'Invalid email';
+	String get invalidPhone => 'Invalid phone';
+}
+
 /// Flat map(s) containing all translations.
 /// Only for edge cases! For simple maps, use the map function of this library.
 extension on AppStrings {
@@ -151,6 +213,15 @@ extension on AppStrings {
 			case 'common.loading': return 'Loading...';
 			case 'common.error': return 'Error';
 			case 'common.success': return 'Success';
+			case 'common.search': return 'Search';
+			case 'common.clearSearch': return 'Clear search';
+			case 'common.viewAll': return 'View all';
+			case 'common.retry': return 'Retry';
+			case 'common.add': return 'Add';
+			case 'common.remove': return 'Remove';
+			case 'common.moreOptions': return 'More options';
+			case 'common.addToFavorites': return 'Add to favorites';
+			case 'common.removeFromFavorites': return 'Remove from favorites';
 			case 'navigation.home': return 'Home';
 			case 'navigation.transactions': return 'Transactions';
 			case 'navigation.contacts': return 'Contacts';
@@ -163,7 +234,30 @@ extension on AppStrings {
 			case 'transactions.types.income': return 'Income';
 			case 'transactions.types.expense': return 'Expense';
 			case 'transactions.types.transfer': return 'Transfer';
+			case 'contacts.title': return 'Contacts';
+			case 'contacts.addContact': return 'Add Contact';
+			case 'contacts.editContact': return 'Edit Contact';
+			case 'contacts.noContacts': return 'No contacts';
+			case 'contacts.noContactsMessage': return 'Add your first contact with the "+" button';
+			case 'contacts.searchContacts': return 'Search contacts';
+			case 'contacts.deleteContact': return 'Delete contact';
+			case 'contacts.confirmDelete': return 'Are you sure you want to delete';
+			case 'contacts.contactDeleted': return 'Contact deleted successfully';
+			case 'contacts.errorDeleting': return 'Error deleting contact';
+			case 'contacts.errorLoading': return 'Error loading contacts';
+			case 'contacts.contactSaved': return 'Contact saved successfully';
+			case 'contacts.errorSaving': return 'Error saving contact';
+			case 'contacts.noContactInfo': return 'No contact information';
+			case 'contacts.fields.name': return 'Name';
+			case 'contacts.fields.email': return 'Email';
+			case 'contacts.fields.phone': return 'Phone';
+			case 'contacts.fields.address': return 'Address';
+			case 'contacts.fields.notes': return 'Notes';
+			case 'contacts.validation.nameRequired': return 'Name is required';
+			case 'contacts.validation.invalidEmail': return 'Invalid email';
+			case 'contacts.validation.invalidPhone': return 'Invalid phone';
 			case 'errors.loadingAccounts': return 'Error loading accounts: {error}';
+			case 'errors.unexpected': return 'Unexpected error';
 			case 'settings.appearance': return 'Appearance';
 			case 'settings.darkTheme': return 'Dark theme';
 			case 'settings.lightTheme': return 'Light theme';

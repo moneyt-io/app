@@ -50,3 +50,5 @@ firebase_options.dart
 firebase-debug.log
 *-debug.log
 .firebase/
+
+design/

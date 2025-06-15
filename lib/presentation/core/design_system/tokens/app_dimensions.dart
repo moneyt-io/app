@@ -4,6 +4,7 @@ class AppDimensions {
   AppDimensions._();
 
   // --- Spacing Scale (8dp base unit) ---
+  static const double spacing2 = 2.0;   // 0.25x
   static const double spacing4 = 4.0;   // 0.5x
   static const double spacing8 = 8.0;   // 1x base
   static const double spacing12 = 12.0; // 1.5x
@@ -37,7 +38,7 @@ class AppDimensions {
   static const double buttonHeightXLarge = 56.0;
 
   static const double textFieldHeight = 56.0;
-  static const double listItemHeight = 56.0;
+  static const double listItemHeightDefault = 56.0; // RENOMBRADO: altura por defecto
   static const double appBarHeight = 64.0;
 
   // --- Elevation (Material 3) ---
@@ -67,4 +68,29 @@ class AppDimensions {
   static const Duration animationDurationShort = Duration(milliseconds: 150);
   static const Duration animationDurationMedium = Duration(milliseconds: 300);
   static const Duration animationDurationLong = Duration(milliseconds: 500);
+
+  // --- Dimensiones específicas del diseño de contactos ---
+  
+  /// Avatar sizes (match del diseño HTML)
+  static const double avatarSizeSmall = 32.0;
+  static const double avatarSizeMedium = 48.0;    // Tamaño principal del diseño
+  static const double avatarSizeLarge = 64.0;
+  
+  /// FAB dimensions (match del diseño HTML)
+  static const double fabSize = 64.0;             // 64x64px del diseño
+  static const double fabIconSize = 32.0;         // Ícono interno
+  static const double fabBorderRadius = 16.0;    // rounded-2xl
+  
+  /// Search field dimensions
+  static const double searchFieldHeight = 48.0;   // Altura específica del diseño
+  static const double searchIconSize = 24.0;      // Ícono de búsqueda
+  
+  /// Contact list dimensions (específico para contactos)
+  static const double contactListItemHeight = 72.0;    // RENOMBRADO: altura específica contactos
+  static const double contactListItemPaddingV = 12.0;  // RENOMBRADO: padding vertical
+  static const double contactListItemPaddingH = 16.0;  // RENOMBRADO: padding horizontal
+  
+  /// Contact info spacing
+  static const double contactInfoSpacing = 4.0;   // Entre nombre y info secundaria
+  static const double contactItemSpacing = 16.0;  // Entre avatar y texto
 }

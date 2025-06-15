@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_contacts/flutter_contacts.dart' as device_contacts;
-import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
+import '../../core/design_system/tokens/app_dimensions.dart';
+import '../../core/design_system/tokens/app_colors.dart';
+import '../../core/l10n/l10n_helper.dart';
 import '../../../domain/entities/contact.dart';
-import '../../../domain/usecases/contact_usecases.dart';
-import '../../core/atoms/app_button.dart';
-import '../../core/molecules/form_field_container.dart';
-import '../../navigation/navigation_service.dart';
+import 'contact_provider.dart';
 
 class ContactFormScreen extends StatefulWidget {
   final Contact? contact;
-  final device_contacts.Contact? deviceContact;
 
   const ContactFormScreen({
     Key? key,
     this.contact,
-    this.deviceContact,
   }) : super(key: key);
 
   @override
@@ -26,83 +23,37 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _noteController = TextEditingController();
   
   bool _isLoading = false;
-  String? _error;
+  bool _hasChanges = false;
 
-  bool get isEditing => widget.contact != null;
-  late final ContactUseCases _contactUseCases;
-
-  // Expresión regular para validar emails
-  final _emailRegex = RegExp(
-    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    caseSensitive: false,
-  );
+  bool get _isEditing => widget.contact != null;
 
   @override
   void initState() {
     super.initState();
-    _contactUseCases = GetIt.instance<ContactUseCases>();
-    
-    if (isEditing) {
-      // Modo de edición: prellenar con datos del contacto existente
-      _nameController.text = widget.contact!.name;
-      _emailController.text = widget.contact!.email ?? '';
-      _phoneController.text = widget.contact!.phone ?? '';
-      _noteController.text = widget.contact!.note ?? '';
-    } else if (widget.deviceContact != null) {
-      // Prellenar con datos del contacto del dispositivo
-      final deviceContact = widget.deviceContact!;
-      _nameController.text = deviceContact.displayName;
-      
-      if (deviceContact.emails.isNotEmpty) {
-        _emailController.text = deviceContact.emails.first.address;
-      }
-      
-      if (deviceContact.phones.isNotEmpty) {
-        _phoneController.text = deviceContact.phones.first.normalizedNumber.isNotEmpty 
-            ? deviceContact.phones.first.normalizedNumber 
-            : deviceContact.phones.first.number;
-      }
-      
-      // Validar si el contacto ya existe
-      _checkExistingContact();
-    }
+    _loadContactData();
   }
-  
-  Future<void> _checkExistingContact() async {
-    try {
-      final email = _emailController.text.trim().isEmpty ? null : _emailController.text.trim();
-      final phone = _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim();
-      
-      final existingContact = await _contactUseCases.findExistingContact(email, phone);
-      
-      if (existingContact != null && mounted) {
-        setState(() {
-          _error = 'Este contacto ya existe en tu lista de contactos';
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Contacto ya existente: ${existingContact.name}'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            action: SnackBarAction(
-              label: 'Editar',
-              textColor: Colors.white,
-              onPressed: () {
-                NavigationService.goBack(); // Cerrar este formulario
-                NavigationService.navigateTo(
-                  'contactForm',
-                  arguments: {'contact': existingContact}
-                );
-              },
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      // Ignorar errores en esta validación
+
+  void _loadContactData() {
+    if (_isEditing) {
+      final contact = widget.contact!;
+      _nameController.text = contact.name;
+      _emailController.text = contact.email ?? '';
+      _phoneController.text = contact.phone ?? '';
+    }
+    
+    // Detectar cambios
+    _nameController.addListener(_onFieldChanged);
+    _emailController.addListener(_onFieldChanged);
+    _phoneController.addListener(_onFieldChanged);
+  }
+
+  void _onFieldChanged() {
+    if (!_hasChanges) {
+      setState(() {
+        _hasChanges = true;
+      });
     }
   }
 
@@ -111,262 +62,403 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _noteController.dispose();
     super.dispose();
+  }
+
+  String? _validateName(String? value) {
+    if (value?.trim().isEmpty == true) {
+      return 'El nombre es requerido';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value?.isNotEmpty == true) {
+      final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+      if (!emailRegex.hasMatch(value!)) {
+        return 'Email no válido';
+      }
+    }
+    return null;
+  }
+
+  String? _validatePhone(String? value) {
+    if (value?.isNotEmpty == true) {
+      final phoneRegex = RegExp(r'^\+?[\d\s\-\(\)]{7,}$');
+      if (!phoneRegex.hasMatch(value!)) {
+        return 'Teléfono no válido';
+      }
+    }
+    return null;
   }
 
   Future<void> _saveContact() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() {
       _isLoading = true;
-      _error = null;
     });
 
-    try {
-      final now = DateTime.now();
-      
-      final contact = Contact(
-        id: isEditing ? widget.contact!.id : 0, // 0 para nuevas entidades
-        name: _nameController.text.trim(),
-        email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
-        phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-        note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
-        active: true,
-        createdAt: isEditing ? widget.contact!.createdAt : now,
-        updatedAt: now,
-        deletedAt: null,
-      );
+    final provider = context.read<ContactProvider>();
 
-      Contact savedContact;
-      if (isEditing) {
-        await _contactUseCases.updateContact(contact);
-        savedContact = contact;
+    final contact = Contact(
+      id: _isEditing ? widget.contact!.id : 0,
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+      phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+      active: true,
+      createdAt: _isEditing ? widget.contact!.createdAt : DateTime.now(),
+      updatedAt: DateTime.now(),
+      deletedAt: null,
+    );
+
+    final success = _isEditing
+        ? await provider.updateContact(contact)
+        : await provider.createContact(contact);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (mounted) {
+      if (success) {
+        Navigator.of(context).pop(true);
       } else {
-        savedContact = await _contactUseCases.createContact(contact);
-      }
-      
-      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isEditing ? 'Contacto actualizado con éxito' : 'Contacto creado con éxito'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            content: Text(provider.error ?? 'Error al guardar contacto'),
+            backgroundColor: AppColors.error,
           ),
         );
-        
-        // Devolver el contacto a la pantalla anterior
-        NavigationService.goBack(savedContact);
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _isLoading = false;
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
+        provider.clearError();
       }
     }
   }
 
+  void _importContact() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Función de importar contacto próximamente'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? 'Editar contacto' : 'Nuevo contacto'),
-        centerTitle: true,
-        elevation: 0,
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // Error (si existe)
-            if (_error != null) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: colorScheme.errorContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      color: colorScheme.error,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _error!,
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onErrorContainer,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.close,
-                        color: colorScheme.onErrorContainer,
-                      ),
-                      onPressed: () => setState(() => _error = null),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-            
-            // Tarjeta de información del contacto
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(
-                  color: colorScheme.outline.withOpacity(0.2),
+      backgroundColor: AppColors.slate50,
+      body: Column(
+        children: [
+          // Header con backdrop blur effect
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.slate50.withOpacity(0.8),
+              border: Border(
+                bottom: BorderSide(
+                  color: AppColors.slate200,
                   width: 1,
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            child: SafeArea(
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                child: Row(
                   children: [
-                    Text(
-                      'Información del contacto',
-                      style: textTheme.titleMedium?.copyWith(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    // Nombre (requerido)
-                    FormFieldContainer(
-                      child: TextFormField(
-                        controller: _nameController,
-                        decoration: FormFieldContainer.getOutlinedDecoration(
-                          context,
-                          labelText: 'Nombre',
-                          prefixIcon: Icon(
-                            Icons.person_outline_rounded,
-                            color: Theme.of(context).colorScheme.primary,
+                    // Close button
+                    SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => Navigator.of(context).pop(),
+                          borderRadius: BorderRadius.circular(20),
+                          child: Center(
+                            child: Icon(
+                              Icons.close,
+                              size: 24,
+                              color: AppColors.slate700,
+                            ),
                           ),
                         ),
-                        textInputAction: TextInputAction.next,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'El nombre es requerido';
-                          }
-                          return null;
-                        },
                       ),
                     ),
-                    const SizedBox(height: 16),
                     
-                    // Email (opcional)
-                    FormFieldContainer(
-                      child: TextFormField(
-                        controller: _emailController,
-                        decoration: FormFieldContainer.getOutlinedDecoration(
-                          context,
-                          labelText: 'Email',
-                          prefixIcon: Icon(
-                            Icons.email_outlined,
-                            color: Theme.of(context).colorScheme.primary,
+                    // Title
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 32), // Compensar el botón close
+                        child: Text(
+                          _isEditing ? 'Edit contact' : 'New contact',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.slate900,
+                            letterSpacing: -0.3,
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.next,
-                        validator: (value) {
-                          if (value != null && value.trim().isNotEmpty) {
-                            if (!_emailRegex.hasMatch(value.trim())) {
-                              return 'Ingrese un email válido';
-                            }
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    // Teléfono (opcional)
-                    FormFieldContainer(
-                      child: TextFormField(
-                        controller: _phoneController,
-                        decoration: FormFieldContainer.getOutlinedDecoration(
-                          context,
-                          labelText: 'Teléfono',
-                          prefixIcon: Icon(
-                            Icons.phone_outlined,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        keyboardType: TextInputType.phone,
-                        textInputAction: TextInputAction.next,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    // Notas (opcional)
-                    FormFieldContainer(
-                      child: TextFormField(
-                        controller: _noteController,
-                        decoration: FormFieldContainer.getOutlinedDecoration(
-                          context,
-                          labelText: 'Notas',
-                          prefixIcon: Icon(
-                            Icons.note_outlined,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        maxLines: 3,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          bottom: MediaQuery.of(context).padding.bottom + 16,
-          top: 16,
-        ),
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withOpacity(0.1),
-              blurRadius: 4,
-              offset: const Offset(0, -1),
+          ),
+          
+          // Form content
+          Expanded(
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    SizedBox(height: AppDimensions.spacing8),
+                    
+                    // Full name field
+                    _buildFormField(
+                      controller: _nameController,
+                      label: 'Full name',
+                      placeholder: 'Enter full name',
+                      validator: _validateName,
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    
+                    SizedBox(height: AppDimensions.spacing24),
+                    
+                    // Phone field
+                    _buildFormField(
+                      controller: _phoneController,
+                      label: 'Phone',
+                      placeholder: 'Enter phone number',
+                      keyboardType: TextInputType.phone,
+                      validator: _validatePhone,
+                    ),
+                    
+                    SizedBox(height: AppDimensions.spacing24),
+                    
+                    // Email field
+                    _buildFormField(
+                      controller: _emailController,
+                      label: 'Email',
+                      placeholder: 'Enter email address',
+                      keyboardType: TextInputType.emailAddress,
+                      validator: _validateEmail,
+                    ),
+                    
+                    SizedBox(height: AppDimensions.spacing24),
+                    
+                    // Import contact button
+                    Container(
+                      width: double.infinity,
+                      height: 48,
+                      child: OutlinedButton.icon(
+                        onPressed: _importContact,
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: AppColors.slate50,
+                          side: BorderSide(color: AppColors.slate300),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        icon: Icon(
+                          Icons.person_add,
+                          size: 18,
+                          color: AppColors.slate700,
+                        ),
+                        label: Text(
+                          'Import contact',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.slate700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
-        ),
-        child: AppButton(
-          text: 'Guardar',
-          onPressed: _isLoading ? null : _saveContact,
-          isLoading: _isLoading,
-          type: AppButtonType.filled,
-          isFullWidth: true,
-        ),
+          ),
+          
+          // Footer buttons - PADDING ULTRA CORREGIDO
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.slate50.withOpacity(0.8),
+              border: Border(
+                top: BorderSide(
+                  color: AppColors.slate200,
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // CORREGIDO: Padding mínimo sin SafeArea adicional arriba
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0), // Solo 8px arriba
+                  child: Row(
+                    children: [
+                      // Cancel button
+                      Expanded(
+                        child: Container(
+                          height: 48,
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: AppColors.slate200,
+                              side: BorderSide.none,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.slate700,
+                                letterSpacing: -0.2,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      SizedBox(width: AppDimensions.spacing12),
+                      
+                      // Save button
+                      Expanded(
+                        child: Container(
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _saveContact,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryBlue,
+                              foregroundColor: AppColors.slate50,
+                              elevation: 1,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                            ),
+                            child: _isLoading
+                                ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        AppColors.slate50,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    'Save',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: -0.2,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // SafeArea solo para el bottom
+                SizedBox(height: MediaQuery.of(context).padding.bottom + 8),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormField({
+    required TextEditingController controller,
+    required String label,
+    required String placeholder,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+  }) {
+    return Container(
+      height: 68, // CORREGIDO: Aumentado de 56 a 68 para acomodar floating label
+      child: Stack(
+        children: [
+          // Text field - posicionado más abajo para espacio del label
+          Positioned(
+            top: 12, // CORREGIDO: Mover el TextFormField hacia abajo
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: TextFormField(
+              controller: controller,
+              keyboardType: keyboardType,
+              textCapitalization: textCapitalization,
+              validator: validator,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: AppColors.slate900,
+              ),
+              decoration: InputDecoration(
+                hintText: placeholder,
+                hintStyle: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.slate400,
+                ),
+                filled: true,
+                fillColor: AppColors.slate50,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: AppColors.slate300),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: AppColors.slate300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: AppColors.error),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+              ),
+            ),
+          ),
+          
+          // Floating label - ahora con espacio suficiente
+          Positioned(
+            left: 12,
+            top: 4, // CORREGIDO: Ajustado para estar dentro del container
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              color: AppColors.slate50,
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.slate500,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

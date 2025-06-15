@@ -10,7 +10,16 @@
     "edit": "Editar",
     "loading": "Cargando...",
     "error": "Error",
-    "success": "Éxito"
+    "success": "Éxito",
+    "search": "Buscar",
+    "clearSearch": "Limpiar búsqueda",
+    "viewAll": "Ver todo",
+    "retry": "Reintentar",
+    "add": "Agregar",
+    "remove": "Quitar",
+    "moreOptions": "Más opciones",
+    "addToFavorites": "Agregar a favoritos",
+    "removeFromFavorites": "Quitar de favoritos"
   },
   "navigation": {
     "home": "Inicio",
@@ -30,8 +39,37 @@
       "transfer": "Transferencia"
     }
   },
+  "contacts": {
+    "title": "Contactos",
+    "addContact": "Agregar Contacto",
+    "editContact": "Editar Contacto",
+    "noContacts": "No hay contactos",
+    "noContactsMessage": "Agrega tu primer contacto con el botón \"+\"",
+    "searchContacts": "Buscar contactos",
+    "deleteContact": "Eliminar contacto",
+    "confirmDelete": "¿Estás seguro de eliminar",
+    "contactDeleted": "Contacto eliminado exitosamente",
+    "errorDeleting": "Error al eliminar contacto",
+    "errorLoading": "Error al cargar contactos",
+    "contactSaved": "Contacto guardado exitosamente",
+    "errorSaving": "Error al guardar contacto",
+    "noContactInfo": "Sin información de contacto",
+    "fields": {
+      "name": "Nombre",
+      "email": "Email",
+      "phone": "Teléfono",
+      "address": "Dirección",
+      "notes": "Notas"
+    },
+    "validation": {
+      "nameRequired": "El nombre es requerido",
+      "invalidEmail": "Email no válido",
+      "invalidPhone": "Teléfono no válido"
+    }
+  },
   "errors": {
-    "loadingAccounts": "Error al cargar las cuentas: {error}"
+    "loadingAccounts": "Error al cargar las cuentas: {error}",
+    "unexpected": "Error inesperado"
   },
   "settings": {
     "appearance": "Apariencia",

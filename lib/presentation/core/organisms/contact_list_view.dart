@@ -51,8 +51,8 @@ class _ContactListViewState extends State<ContactListView> {
         return ContactListItem(
           contact: contact,
           onTap: () => widget.onContactTap(contact),
-          onDelete: () => _confirmDeleteContact(context, contact),
-          onEdit: () => widget.onContactTap(contact),
+          //onDelete: () => _confirmDeleteContact(context, contact),
+          //onEdit: () => widget.onContactTap(contact),
         );
       },
     );

@@ -6,8 +6,12 @@ import '../design_system/theme/app_dimensions.dart';
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
-  void _navigateAndClose(String routeName) {
-    NavigationService.navigateTo(routeName);
+  void _navigateToScreen(BuildContext context, String routeName) {
+    // Cerrar el drawer primero
+    Navigator.of(context).pop();
+    
+    // Navegar usando context en lugar de NavigationService
+    Navigator.of(context).pushNamed(routeName);
   }
 
   @override
@@ -54,7 +58,7 @@ class AppDrawer extends StatelessWidget {
           DrawerListTile(
             icon: Icons.dashboard,
             title: 'Dashboard',
-            onTap: () => _navigateAndClose(AppRoutes.home),
+            onTap: () => _navigateToScreen(context, AppRoutes.home),
           ),
 
           const DrawerDivider(),
@@ -65,13 +69,13 @@ class AppDrawer extends StatelessWidget {
           DrawerListTile(
             icon: Icons.receipt_long,
             title: 'Transacciones',
-            onTap: () => _navigateAndClose(AppRoutes.transactions),
+            onTap: () => _navigateToScreen(context, AppRoutes.transactions),
           ),
 
           DrawerListTile(
             icon: Icons.trending_up,
             title: 'Préstamos',
-            onTap: () => _navigateAndClose(AppRoutes.loans),
+            onTap: () => _navigateToScreen(context, AppRoutes.loans),
           ),
 
           const DrawerDivider(),
@@ -82,13 +86,13 @@ class AppDrawer extends StatelessWidget {
           DrawerListTile(
             icon: Icons.account_balance_wallet_outlined,
             title: 'Billeteras',
-            onTap: () => _navigateAndClose(AppRoutes.wallets),
+            onTap: () => _navigateToScreen(context, AppRoutes.wallets),
           ),
 
           DrawerListTile(
             icon: Icons.credit_card,
             title: 'Tarjetas de Crédito',
-            onTap: () => _navigateAndClose(AppRoutes.creditCards),
+            onTap: () => _navigateToScreen(context, AppRoutes.creditCards),
           ),
 
           const DrawerDivider(),
@@ -99,25 +103,25 @@ class AppDrawer extends StatelessWidget {
           DrawerListTile(
             icon: Icons.category,
             title: 'Categorías',
-            onTap: () => _navigateAndClose(AppRoutes.categories),
+            onTap: () => _navigateToScreen(context, AppRoutes.categories),
           ),
 
           DrawerListTile(
             icon: Icons.people,
             title: 'Contactos',
-            onTap: () => _navigateAndClose(AppRoutes.contacts),
+            onTap: () => _navigateToScreen(context, AppRoutes.contacts),
           ),
 
           DrawerListTile(
             icon: Icons.account_tree,
             title: 'Plan de Cuentas',
-            onTap: () => _navigateAndClose(AppRoutes.chartAccounts),
+            onTap: () => _navigateToScreen(context, AppRoutes.chartAccounts),
           ),
 
           DrawerListTile(
             icon: Icons.book,
             title: 'Diarios Contables',
-            onTap: () => _navigateAndClose(AppRoutes.journals),
+            onTap: () => _navigateToScreen(context, AppRoutes.journals),
           ),
 
           const DrawerDivider(),
@@ -128,13 +132,13 @@ class AppDrawer extends StatelessWidget {
           DrawerListTile(
             icon: Icons.backup,
             title: 'Respaldos',
-            onTap: () => _navigateAndClose(AppRoutes.backups),
+            onTap: () => _navigateToScreen(context, AppRoutes.backups),
           ),
 
           DrawerListTile(
             icon: Icons.settings,
             title: 'Configuración',
-            onTap: () => _navigateAndClose(AppRoutes.settings),
+            onTap: () => _navigateToScreen(context, AppRoutes.settings),
           ),
         ],
       ),

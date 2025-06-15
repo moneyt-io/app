@@ -1,150 +1,114 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/contact.dart';
-import '../design_system/theme/app_dimensions.dart';
-import '../atoms/action_menu_button.dart';
+import '../atoms/app_avatar.dart';
+import '../atoms/app_icon_button.dart';
+import '../design_system/tokens/app_dimensions.dart';
+import '../design_system/tokens/app_colors.dart';
 
+/// Contact list item que match el diseño HTML exactamente
+/// 
+/// Ejemplo de uso:
+/// ```dart
+/// ContactListItem(
+///   contact: contact,
+///   onTap: () => _navigateToDetail(contact),
+///   onEdit: () => _editContact(contact),
+///   onDelete: () => _deleteContact(contact),
+/// )
+/// ```
 class ContactListItem extends StatelessWidget {
-  final Contact contact;
-  final VoidCallback onTap;
-  final VoidCallback onDelete;
-  final VoidCallback? onEdit;
-  // Añadir estos parámetros si son necesarios:
-  final VoidCallback? onCall;
-  final VoidCallback? onEmail;
-
   const ContactListItem({
     Key? key,
     required this.contact,
-    required this.onTap,
-    required this.onDelete,
-    this.onEdit,
-    this.onCall,
-    this.onEmail,
+    this.onTap,
+    this.onMorePressed,
   }) : super(key: key);
+
+  final Contact contact;
+  final VoidCallback? onTap;
+  final VoidCallback? onMorePressed;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: AppDimensions.spacing8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-        side: BorderSide(
-          color: colorScheme.outline.withOpacity(0.2),
-          width: 1,
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppDimensions.spacing16,
+          vertical: AppDimensions.spacing12,
         ),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-        child: Padding(
-          padding: const EdgeInsets.all(AppDimensions.spacing16),
-          child: Row(
-            children: [
-              // Icono con fondo circular
-              Container(
-                width: AppDimensions.spacing40,
-                height: AppDimensions.spacing40,
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.person,
-                  color: colorScheme.onPrimaryContainer,
-                  size: AppDimensions.iconSizeMedium,
-                ),
-              ),
-              const SizedBox(width: AppDimensions.spacing16),
-              
-              // Información principal
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      contact.name,
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (contact.email != null && contact.email!.isNotEmpty) ...[
-                      const SizedBox(height: AppDimensions.spacing4),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.email_outlined,
-                            size: AppDimensions.iconSizeSmall,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: AppDimensions.spacing4),
-                          Text(
-                            contact.email!,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                    if (contact.phone != null && contact.phone!.isNotEmpty) ...[
-                      const SizedBox(height: AppDimensions.spacing4),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.phone_outlined,
-                            size: AppDimensions.iconSizeSmall,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: AppDimensions.spacing4),
-                          Text(
-                            contact.phone!,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              
-              // Menú de acciones usando el átomo
-              ActionMenuButton(
-                options: [
-                  ActionMenuOption.edit,
-                  ActionMenuOption.view,
-                  ActionMenuOption.delete,
-                ],
-                onOptionSelected: (option) {
-                  switch (option) {
-                    case ActionMenuOption.edit:
-                      onTap();
-                      break;
-                    case ActionMenuOption.delete:
-                      onDelete();
-                      break;
-                    case ActionMenuOption.view:
-                      // Implementar si es necesario
-                      break;
-                    case ActionMenuOption.pay:
-                      // No aplica para contactos
-                      break;
-                    default:
-                      break;
-                  }
-                },
-              ),
-            ],
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            bottom: BorderSide(
+              color: AppColors.slate100,
+              width: 1,
+            ),
           ),
+        ),
+        child: Row(
+          children: [
+            // Avatar
+            AppAvatar(
+              name: contact.name,
+              size: AppAvatarSize.medium,
+            ),
+            
+            SizedBox(width: AppDimensions.spacing16),
+            
+            // Información del contacto
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Nombre
+                  Text(
+                    contact.name,
+                    style: textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.slate800,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  
+                  SizedBox(height: AppDimensions.spacing2),
+                  
+                  // Información de contacto
+                  Text(
+                    _getContactInfo(),
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AppColors.slate500,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            
+            // Botón de más opciones
+            AppIconButton(
+              icon: Icons.more_vert,
+              type: AppIconButtonType.header,
+              onPressed: onMorePressed,
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  String _getContactInfo() {
+    if (contact.phone?.isNotEmpty == true) {
+      return 'Mobile · ${contact.phone}';
+    } else if (contact.email?.isNotEmpty == true) {
+      return contact.email!;
+    } else {
+      return 'Sin información de contacto';
+    }
   }
 }

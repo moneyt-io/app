@@ -1,35 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'presentation/core/providers/theme_provider.dart';
-import 'presentation/core/providers/language_provider.dart';
-import 'presentation/core/l10n/generated/strings.g.dart';
-import 'presentation/navigation/navigation_service.dart';
+import 'presentation/core/providers/language_provider.dart'; // AGREGADO: import faltante
+import 'presentation/navigation/navigation_service.dart'; // AGREGADO
 import 'presentation/navigation/route_generator.dart';
 import 'presentation/navigation/app_routes.dart';
+import 'presentation/core/l10n/generated/strings.g.dart';
 
 class MoneyTApp extends StatelessWidget {
-  const MoneyTApp({super.key});
+  const MoneyTApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<ThemeProvider, LanguageProvider>(
-      builder: (context, themeProvider, languageProvider, child) {
+    return Consumer<ThemeProvider>( // SIMPLIFICADO: solo ThemeProvider por ahora
+      builder: (context, themeProvider, child) {
         return MaterialApp(
-          title: 'MoneyT',
           debugShowCheckedModeBanner: false,
+          title: 'MoneyT',
           
-          // Configuración de navegación
+          // AGREGADO: Configurar navigatorKey
           navigatorKey: NavigationService.navigatorKey,
-          onGenerateRoute: RouteGenerator.generateRoute,
-          initialRoute: AppRoutes.home,
           
-          // Configuración de idioma MANUAL (sin TranslationProvider)
-          locale: languageProvider.currentLocale.flutterLocale,
-          supportedLocales: [
-            const Locale('es'),
-            const Locale('en'),
-          ],
+          // Configuración de rutas
+          initialRoute: AppRoutes.home,
+          onGenerateRoute: RouteGenerator.generateRoute,
+          
+          // Configuración de localización básica
+          locale: const Locale('es', 'ES'), // SIMPLIFICADO: español por defecto
+          supportedLocales: const [
+            Locale('en', 'US'),
+            Locale('es', 'ES'),
+          ], // SIMPLIFICADO: locales básicos
           
           // Delegados de localización MANUALES
           localizationsDelegates: [

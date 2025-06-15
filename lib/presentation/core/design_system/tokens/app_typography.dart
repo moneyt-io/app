@@ -5,124 +5,90 @@ import 'package:flutter/material.dart';
 class AppTypography {
   AppTypography._();
 
-  // --- Font Family ---
-  static const String _fontFamily = 'Roboto';
+  // Font family base
+  static const String _fontFamily = 'Public Sans';
 
-  // --- Material 3 Text Theme ---
-  static const TextTheme textTheme = TextTheme(
-    // Display styles (más grandes, para headings principales)
-    displayLarge: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: 57,
-      fontWeight: FontWeight.w400,
-      letterSpacing: -0.25,
-      height: 1.12,
-    ),
-    displayMedium: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: 45,
-      fontWeight: FontWeight.w400,
-      letterSpacing: 0,
-      height: 1.16,
-    ),
-    displaySmall: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: 36,
-      fontWeight: FontWeight.w400,
-      letterSpacing: 0,
-      height: 1.22,
-    ),
-
-    // Headline styles (para títulos de secciones)
+  /// Text Theme específico para match del diseño HTML
+  static TextTheme get textTheme => const TextTheme(
+    // Headers y títulos
     headlineLarge: TextStyle(
       fontFamily: _fontFamily,
       fontSize: 32,
-      fontWeight: FontWeight.w400,
-      letterSpacing: 0,
+      fontWeight: FontWeight.w600,
       height: 1.25,
     ),
     headlineMedium: TextStyle(
       fontFamily: _fontFamily,
       fontSize: 28,
-      fontWeight: FontWeight.w400,
-      letterSpacing: 0,
-      height: 1.29,
+      fontWeight: FontWeight.w600,
+      height: 1.3,
     ),
     headlineSmall: TextStyle(
       fontFamily: _fontFamily,
       fontSize: 24,
-      fontWeight: FontWeight.w400,
-      letterSpacing: 0,
-      height: 1.33,
+      fontWeight: FontWeight.w600,
+      height: 1.3,
     ),
 
-    // Title styles (para títulos de componentes)
+    // Títulos de pantalla (match "Contacts")
     titleLarge: TextStyle(
       fontFamily: _fontFamily,
-      fontSize: 22,
-      fontWeight: FontWeight.w400,
-      letterSpacing: 0,
-      height: 1.27,
+      fontSize: 20,           // Match del diseño HTML
+      fontWeight: FontWeight.w600,
+      height: 1.2,
+      letterSpacing: -0.3,
     ),
     titleMedium: TextStyle(
       fontFamily: _fontFamily,
-      fontSize: 16,
+      fontSize: 16,           // Nombres de contactos
       fontWeight: FontWeight.w500,
-      letterSpacing: 0.15,
-      height: 1.50,
+      height: 1.25,
     ),
     titleSmall: TextStyle(
       fontFamily: _fontFamily,
       fontSize: 14,
       fontWeight: FontWeight.w500,
-      letterSpacing: 0.1,
-      height: 1.43,
+      height: 1.25,
     ),
 
-    // Label styles (para etiquetas y botones)
-    labelLarge: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: 14,
-      fontWeight: FontWeight.w500,
-      letterSpacing: 0.1,
-      height: 1.43,
-    ),
-    labelMedium: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: 12,
-      fontWeight: FontWeight.w500,
-      letterSpacing: 0.5,
-      height: 1.33,
-    ),
-    labelSmall: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: 11,
-      fontWeight: FontWeight.w500,
-      letterSpacing: 0.5,
-      height: 1.45,
-    ),
-
-    // Body styles (para contenido principal)
+    // Body text (información de contactos)
     bodyLarge: TextStyle(
       fontFamily: _fontFamily,
-      fontSize: 16,
+      fontSize: 16,           // Search placeholder
       fontWeight: FontWeight.w400,
-      letterSpacing: 0.5,
-      height: 1.50,
+      height: 1.25,
     ),
     bodyMedium: TextStyle(
       fontFamily: _fontFamily,
-      fontSize: 14,
+      fontSize: 14,           // Info secundaria contactos
       fontWeight: FontWeight.w400,
-      letterSpacing: 0.25,
-      height: 1.43,
+      height: 1.25,
     ),
     bodySmall: TextStyle(
       fontFamily: _fontFamily,
       fontSize: 12,
       fontWeight: FontWeight.w400,
-      letterSpacing: 0.4,
-      height: 1.33,
+      height: 1.25,
+    ),
+
+    // Labels y captions
+    labelLarge: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      height: 1.25,
+    ),
+    labelMedium: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      height: 1.25,
+    ),
+    labelSmall: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: 11,
+      fontWeight: FontWeight.w500,
+      height: 1.25,
     ),
   );
 

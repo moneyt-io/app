@@ -8,6 +8,7 @@ import 'presentation/core/providers/language_provider.dart';
 import 'presentation/core/l10n/generated/strings.g.dart';
 import 'presentation/features/backup/backup_provider.dart';
 import 'presentation/features/loans/loan_provider.dart';
+import 'presentation/features/contacts/contact_provider.dart'; // AGREGADO
 import 'app.dart';
 import 'core/di/injection_container.dart';
 
@@ -17,8 +18,8 @@ void main() async {
   // Inicializar formateo de fechas
   await initializeDateFormatting('es_ES', null);
 
-  // Inicializar slang con idioma del dispositivo (API v4.7)
-  LocaleSettings.useDeviceLocale();
+  // Inicializar slang con idioma por defecto (español)
+  LocaleSettings.setLocale(AppLocale.es); // CORREGIDO: usar método existente
 
   // Inicializar dependencias
   await initializeDependencies();
@@ -41,6 +42,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => LoanProvider(),
+        ),
+        ChangeNotifierProvider( // AGREGADO
+          create: (_) => ContactProvider(GetIt.instance()),
         ),
       ],
       child: const MoneyTApp(),

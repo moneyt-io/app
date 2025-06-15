@@ -5,54 +5,61 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // --- Seed Color (Color principal de la marca) ---
-  static const Color _seedColor = Color(0xFF6750A4); // Purple base M3
+  // --- Primary Brand Color ---
+  static const Color primaryBlue = Color(0xFF0c7ff2);
 
-  // --- Light Theme Color Scheme ---
-  static final ColorScheme lightColorScheme = ColorScheme.fromSeed(
-    seedColor: _seedColor,
-    brightness: Brightness.light,
-  );
+  // --- Slate Color Palette (del diseño HTML) ---
+  static const Color slate50 = Color(0xfff8fafc);
+  static const Color slate100 = Color(0xfff1f5f9);
+  static const Color slate200 = Color(0xffe2e8f0);
+  static const Color slate300 = Color(0xffcbd5e1);
+  static const Color slate400 = Color(0xff94a3b8);
+  static const Color slate500 = Color(0xff64748b);
+  static const Color slate600 = Color(0xff475569);
+  static const Color slate700 = Color(0xff334155);
+  static const Color slate800 = Color(0xff1e293b);
+  static const Color slate900 = Color(0xff0f172a);
 
-  // --- Dark Theme Color Scheme ---
-  static final ColorScheme darkColorScheme = ColorScheme.fromSeed(
-    seedColor: _seedColor,
-    brightness: Brightness.dark,
-  );
-
-  // --- Custom Colors (Extensión del sistema M3) ---
+  // --- Design System Color Roles ---
+  
+  /// Colores de texto basados en el diseño
+  static const Color textPrimary = slate800;     // Nombres de contactos
+  static const Color textSecondary = slate500;   // Info secundaria
+  static const Color textTertiary = slate400;    // Placeholders
+  
+  /// Colores de superficie y bordes
+  static const Color surfaceWhite = Color(0xffffffff);
+  static const Color surfaceHover = slate50;
+  static const Color borderLight = slate100;
+  static const Color borderFocus = primaryBlue;
+  
+  /// Colores de estado (conservar existentes)
   static const Color success = Color(0xFF4CAF50);
   static const Color warning = Color(0xFFFF9800);
-  static const Color info = Color(0xFF2196F3);
+  static const Color error = Color(0xFFF44336);
 
-  // Versiones para dark theme
-  static const Color successDark = Color(0xFF81C784);
-  static const Color warningDark = Color(0xFFFFB74D);
-  static const Color infoDark = Color(0xFF64B5F6);
+  // --- Color Schemes M3 ---
+  static ColorScheme get lightColorScheme => ColorScheme.fromSeed(
+    seedColor: primaryBlue,
+    brightness: Brightness.light,
+  ).copyWith(
+    // Override específicos para match del diseño
+    surface: surfaceWhite,
+    onSurface: textPrimary,
+    onSurfaceVariant: textSecondary,
+    outline: borderLight,
+    primary: primaryBlue,
+  );
 
-  // --- Color Roles Específicos de la App ---
-  
-  /// Colors para transacciones financieras
-  static const Color income = Color(0xFF4CAF50);   // Verde para ingresos
-  static const Color expense = Color(0xFFF44336);  // Rojo para gastos
-  static const Color transfer = Color(0xFF2196F3); // Azul para transferencias
-  
-  /// Colors para transacciones en dark theme
-  static const Color incomeDark = Color(0xFF81C784);
-  static const Color expenseDark = Color(0xFFEF5350);
-  static const Color transferDark = Color(0xFF64B5F6);
-
-  /// Helper para obtener color de transacción según tipo
-  static Color getTransactionColor(String type, bool isDark) {
-    switch (type.toUpperCase()) {
-      case 'I': // Income
-        return isDark ? incomeDark : income;
-      case 'E': // Expense
-        return isDark ? expenseDark : expense;
-      case 'T': // Transfer
-        return isDark ? transferDark : transfer;
-      default:
-        return isDark ? darkColorScheme.primary : lightColorScheme.primary;
-    }
-  }
+  static ColorScheme get darkColorScheme => ColorScheme.fromSeed(
+    seedColor: primaryBlue,
+    brightness: Brightness.dark,
+  ).copyWith(
+    // Override específicos para match del diseño
+    surface: slate900,
+    onSurface: slate50,
+    onSurfaceVariant: slate400,
+    outline: slate600,
+    primary: primaryBlue,
+  );
 }

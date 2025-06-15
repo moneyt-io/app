@@ -15,11 +15,21 @@ class NavigationService {
     String routeName, {
     Object? arguments,
   }) async {
-    final result = await navigator!.pushNamed(
-      routeName,
-      arguments: arguments,
-    );
-    return result as T?;
+    if (navigator == null) {
+      debugPrint('NavigationService: Navigator is null');
+      return null;
+    }
+    
+    try {
+      final result = await navigator!.pushNamed(
+        routeName,
+        arguments: arguments,
+      );
+      return result as T?;
+    } catch (e) {
+      debugPrint('NavigationService error: $e');
+      return null;
+    }
   }
 
   /// Reemplaza la ruta actual por una nueva
@@ -27,8 +37,15 @@ class NavigationService {
     String routeName, {
     Object? arguments,
   }) async {
-    final result = await navigator!.pushReplacementNamed(routeName, arguments: arguments);
-    return result as T?;
+    if (navigator == null) return null;
+    
+    try {
+      final result = await navigator!.pushReplacementNamed(routeName, arguments: arguments);
+      return result as T?;
+    } catch (e) {
+      debugPrint('NavigationService error: $e');
+      return null;
+    }
   }
 
   /// Navega al inicio y elimina todas las rutas anteriores
@@ -36,24 +53,34 @@ class NavigationService {
     String routeName, {
     Object? arguments,
   }) async {
-    final result = await navigator!.pushNamedAndRemoveUntil(
-      routeName,
-      (route) => false,
-      arguments: arguments,
-    );
-    return result as T?;
+    if (navigator == null) return null;
+    
+    try {
+      final result = await navigator!.pushNamedAndRemoveUntil(
+        routeName,
+        (route) => false,
+        arguments: arguments,
+      );
+      return result as T?;
+    } catch (e) {
+      debugPrint('NavigationService error: $e');
+      return null;
+    }
   }
 
   /// Vuelve a la pantalla anterior
   static void goBack<T extends Object?>([T? result]) {
-    return navigator!.pop<T>(result);
+    if (navigator != null) {
+      navigator!.pop<T>(result);
+    }
   }
 
   static bool canGoBack() {
-    return navigator!.canPop();
+    return navigator?.canPop() ?? false;
   }
 
-  static Future<bool> maybePop<T extends Object?>([T? result]) {
+  static Future<bool> maybePop<T extends Object?>([T? result]) async {
+    if (navigator == null) return false;
     return navigator!.maybePop<T>(result);
   }
 

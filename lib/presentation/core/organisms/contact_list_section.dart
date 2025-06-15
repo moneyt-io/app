@@ -47,7 +47,7 @@ class ContactListSection extends StatelessWidget {
             return ContactListItem(
               contact: contact,
               onTap: () => onContactTap(contact),
-              onDelete: () => onContactDelete(contact),
+              //onDelete: () => onContactDelete(contact),
             );
           },
         ),
