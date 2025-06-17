@@ -19,7 +19,7 @@ void main() async {
   await initializeDateFormatting('es_ES', null);
 
   // Inicializar slang con idioma por defecto (español)
-  LocaleSettings.setLocale(AppLocale.es); // CORREGIDO: usar método existente
+  LocaleSettings.setLocale(AppLocale.es);
 
   // Inicializar dependencias
   await initializeDependencies();
@@ -43,7 +43,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => LoanProvider(),
         ),
-        ChangeNotifierProvider( // AGREGADO
+        ChangeNotifierProvider(
           create: (_) => ContactProvider(GetIt.instance()),
         ),
       ],

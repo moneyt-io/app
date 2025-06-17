@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/atoms/app_app_bar.dart';
+import '../../core/atoms/app_button.dart';
 import '../../core/molecules/import_contacts_button.dart';
 import '../../core/molecules/contact_group_header.dart';
 import '../../core/molecules/contact_list_item.dart';
 import '../../core/molecules/empty_state.dart';
+import '../../core/molecules/contact_options_dialog.dart'; // AGREGADO: Import del diálogo
 import '../../core/atoms/app_floating_action_button.dart';
 import '../../core/atoms/app_search_field.dart';
 import '../../core/organisms/app_drawer.dart';
@@ -15,21 +17,6 @@ import '../../core/l10n/l10n_helper.dart';
 import 'contact_provider.dart';
 import '../../../domain/entities/contact.dart';
 
-/// ANÁLISIS: Pantalla principal de contactos que sigue el patrón de contact_list.html
-/// 
-/// CARACTERÍSTICAS ACTUALES:
-/// ✅ Usa AppAppBar del core (migración exitosa)
-/// ✅ Implementa agrupación alfabética por letra inicial
-/// ✅ Tiene funcionalidad de búsqueda con toggle
-/// ✅ Maneja estados de loading/error/empty
-/// ✅ FAB personalizado siguiendo diseño HTML
-/// 
-/// POSIBLES MEJORAS IDENTIFICADAS:
-/// ⚠️ Lógica de agrupación muy compleja y difícil de mantener
-/// ⚠️ Método _buildGroupedContactItem muy verboso
-/// ⚠️ No usa componentes existentes del design system
-/// ⚠️ Funcionalidad de search podría ser más robusta
-/// ⚠️ Falta integración con import contacts button del HTML
 class ContactsScreen extends StatefulWidget {
   const ContactsScreen({Key? key}) : super(key: key);
 
@@ -38,9 +25,6 @@ class ContactsScreen extends StatefulWidget {
 }
 
 class _ContactsScreenState extends State<ContactsScreen> {
-  // ANÁLISIS: Variables de estado para búsqueda
-  // ✅ CORRECTO: Controllers y flags necesarios para search functionality
-  // ⚠️ MEJORA: Podrían estar en un cubit/bloc para mejor separación de responsabilidades
   final TextEditingController _searchController = TextEditingController();
   bool _isSearchVisible = false;
   String _searchQuery = '';
@@ -49,8 +33,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
   void initState() {
     super.initState();
     // ANÁLISIS: Carga inicial de contactos
-    // ✅ CORRECTO: Usa addPostFrameCallback para evitar setState durante build
-    // ✅ CORRECTO: Usa Provider.read para evitar rebuilds innecesarios
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ContactProvider>().loadContacts();
     });
@@ -64,8 +46,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   // ANÁLISIS: Método para toggle de búsqueda
-  // ✅ FUNCIONAL: Cambia visibilidad y limpia búsqueda al cerrar
-  // ⚠️ MEJORA: Podría tener animaciones más suaves
   void _toggleSearch() {
     setState(() {
       _isSearchVisible = !_isSearchVisible;
@@ -76,27 +56,63 @@ class _ContactsScreenState extends State<ContactsScreen> {
     });
   }
 
+  // ANÁLISIS: Método para manejar importación de contactos
+  void _handleImportContacts() {
+    // TODO: Implementar importación real de contactos del dispositivo
+    // HTML: onclick para "Import contact" button
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Import contacts functionality coming soon'),
+        backgroundColor: AppColors.primaryBlue,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   // ANÁLISIS: Handler para cambios en el texto de búsqueda
-  // ✅ SIMPLE: Actualiza el query state
-  // ⚠️ MEJORA: Podría implementar debouncing para mejor performance
   void _handleSearch(String query) {
     setState(() {
       _searchQuery = query;
     });
+    // TODO: Cuando ContactProvider tenga método de búsqueda, se puede implementar aquí
+    // final provider = context.read<ContactProvider>();
+    // if (provider.searchContacts != null) {
+    //   provider.searchContacts!(query);
+    // }
   }
 
+  /// Navegación al formulario de contactos con resultado opcional
   Future<void> _navigateToContactForm({Contact? contact}) async {
     try {
+      // ✅ AGREGADO: Logging detallado para debugging
+      debugPrint('🔍 Navigating to contact form with contact: ${contact?.toString()}');
+      debugPrint('🔍 Contact type: ${contact.runtimeType}');
+      debugPrint('🔍 Route: ${AppRoutes.contactForm}');
+      
       final result = await Navigator.of(context).pushNamed(
         AppRoutes.contactForm,
-        arguments: contact,
+        arguments: contact, // Contact? directo
       );
+      
+      debugPrint('🔍 Navigation result: $result');
       
       if (result == true && mounted) {
         context.read<ContactProvider>().loadContacts();
       }
-    } catch (e) {
-      debugPrint('Navigation error: $e');
+    } catch (e, stackTrace) {
+      // ✅ MEJORADO: Logging detallado del error
+      debugPrint('❌ Navigation error: $e');
+      debugPrint('❌ Stack trace: $stackTrace');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error navigating to contact form: $e'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 5), // Más tiempo para leer el error
+          ),
+        );
+      }
     }
   }
 
@@ -163,7 +179,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   // ANÁLISIS: Método para recargar contactos
-  // ✅ CORRECTO: Llama al método del provider para recargar datos
   Future<void> _loadContacts() async {
     context.read<ContactProvider>().loadContacts();
   }
@@ -171,40 +186,35 @@ class _ContactsScreenState extends State<ContactsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ✅ CORRECTO: Background color coincide con contact_list.html (bg-white)
       backgroundColor: Colors.white,
       
-      // ✅ EXCELENTE: Usa AppAppBar del core con configuración exacta del HTML
-      // HTML match: header class="sticky top-0 z-10 bg-white shadow-sm"
       appBar: AppAppBar(
-        title: 'Contacts', // HTML: "Contacts"
-        type: AppAppBarType.standard, // HTML: bg-white shadow-sm
-        leading: AppAppBarLeading.drawer, // HTML: arrow_back_ios_new (drawer)
-        actions: [AppAppBarAction.search], // HTML: search button
+        title: 'Contacts',
+        type: AppAppBarType.standard,
+        leading: AppAppBarLeading.drawer,
+        actions: [AppAppBarAction.search],
         onLeadingPressed: () => Scaffold.of(context).openDrawer(),
         onActionsPressed: [_toggleSearch],
       ),
       
-      // ✅ CORRECTO: Drawer integration
       drawer: const AppDrawer(),
       
-      // ANÁLISIS: Estructura del body
-      // ✅ CORRECTO: Column layout para search + content
-      // ⚠️ MEJORA: Search bar podría ser un componente reutilizable
       body: Column(
         children: [
-          // ANÁLISIS: Barra de búsqueda condicional
-          // ✅ FUNCIONAL: Aparece/desaparece según _isSearchVisible
-          // ✅ STYLING: Colores y shadow coinciden con el diseño
-          // ⚠️ MEJORA: Podría usar AppSearchField más consistentemente
+          // Search bar cuando está visible
           if (_isSearchVisible)
             Container(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              padding: EdgeInsets.fromLTRB(
+                AppDimensions.spacing16, 
+                AppDimensions.spacing8, 
+                AppDimensions.spacing16, 
+                AppDimensions.spacing16
+              ), // ✅ MEJORA 3: Usar AppDimensions
               decoration: const BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Color(0x0A000000), // shadow-sm del HTML
+                    color: Color(0x0A000000),
                     blurRadius: 2,
                     offset: Offset(0, 1),
                   ),
@@ -212,7 +222,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
               ),
               child: AppSearchField(
                 controller: _searchController,
-                hintText: 'Search contacts', // HTML: "Search contacts"
+                hintText: 'Search contacts',
                 onChanged: _handleSearch,
                 onClear: () {
                   _searchController.clear();
@@ -222,9 +232,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
               ),
             ),
           
-          // ANÁLISIS: Contenido principal expandido
-          // ✅ CORRECTO: RefreshIndicator para pull-to-refresh
-          // ✅ CORRECTO: Consumer para reactive updates del Provider
+          // Contenido principal expandido
           Expanded(
             child: RefreshIndicator(
               onRefresh: _loadContacts,
@@ -239,46 +247,18 @@ class _ContactsScreenState extends State<ContactsScreen> {
         ],
       ),
       
-      // ANÁLISIS: FAB personalizado
-      // ✅ EXCELENTE: Sigue exactamente el diseño del contact_list.html
-      // HTML match: class="fixed bottom-0 right-0 p-6" + "rounded-2xl h-16 w-16 bg-[#0c7ff2]"
-      // ✅ CORRECTO: Colores, dimensiones y sombras exactas del HTML
-      floatingActionButton: Container(
-        width: 64, // HTML: h-16 w-16
-        height: 64,
-        decoration: BoxDecoration(
-          color: const Color(0xFF0c7ff2), // HTML: bg-[#0c7ff2]
-          borderRadius: BorderRadius.circular(16), // HTML: rounded-2xl
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x26000000), // HTML: shadow-lg
-              blurRadius: 10,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => _navigateToContactForm(),
-            borderRadius: BorderRadius.circular(16),
-            child: const Center(
-              child: Icon(
-                Icons.add,
-                color: Colors.white,
-                size: 24, // HTML: text-3xl
-              ),
-            ),
-          ),
-        ),
+      // ✅ MEJORA 2: Usar AppFloatingActionButton del design system
+      floatingActionButton: AppFloatingActionButton(
+        onPressed: () => _navigateToContactForm(),
+        icon: Icons.add,
+        tooltip: 'Add new contact', // TODO: Usar t.contacts.addContact cuando esté disponible
+        backgroundColor: const Color(0xFF0c7ff2), // HTML: bg-[#0c7ff2]
       ),
     );
   }
 
   // ANÁLISIS: Método principal para construir la lista de contactos
-  // ⚠️ PROBLEMA PRINCIPAL: Lógica muy compleja y hard to maintain
-  // ✅ CORRECTO: Maneja todos los estados (loading, error, empty, success)
-  // ⚠️ MEJORA: El filtrado podría estar en el Provider
+
   Widget _buildContactsList(ContactProvider provider) {
     if (provider.isLoading) {
       return const Center(
@@ -292,7 +272,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
       return _buildErrorState(provider.error!);
     }
 
-    // Filtrar contactos según búsqueda
+    // ✅ CORREGIDO: Usar solo filtrado local en lugar de provider.filteredContacts inexistente
     final contacts = _searchQuery.isEmpty 
         ? provider.contacts 
         : provider.contacts.where((contact) =>
@@ -301,11 +281,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
             (contact.email?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false)
           ).toList();
 
-    // ✅ FASE 3: Estructura con ImportContactsButton + Lista de contactos
     return Column(
       children: [
-        // ✅ FASE 3: Usar ImportContactsButton del design system
-        // HTML match: "flex items-center gap-3 w-full px-4 py-3 hover:bg-slate-50 border-b border-slate-100"
+        // Import Contacts Button
         ImportContactsButton(
           onPressed: _handleImportContacts,
         ),
@@ -320,25 +298,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
     );
   }
 
-  // ✅ FASE 3: Método para manejar importación usando la molécula del core
-  void _handleImportContacts() {
-    // TODO: Implementar importación real de contactos del dispositivo
-    // HTML: onclick="window.location.href='contact_form.html'"
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Import contacts functionality coming soon'),
-        backgroundColor: AppColors.primaryBlue,
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  // ✅ REFACTORIZADO: Lista agrupada separada para mejor organización
   Widget _buildGroupedContactsList(List<Contact> contacts) {
     final groupedContacts = _groupContactsByLetter(contacts);
     
     return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 80), // Espacio para FAB
+      padding: EdgeInsets.only(bottom: AppDimensions.spacing64 + AppDimensions.spacing16), // ✅ CORREGIDO: 64 + 16 = 80px para FAB
       itemCount: _getTotalItemCount(groupedContacts),
       itemBuilder: (context, index) {
         return _buildGroupedContactItem(context, groupedContacts, index);
@@ -346,41 +310,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
     );
   }
 
-  // ✅ AGREGADO: Método para agrupar contactos por letra inicial (basado en contact_list.html)
-  // HTML: Grupos A, E, I, J, L, M, N, O, S como en la maqueta
-  Map<String, List<Contact>> _groupContactsByLetter(List<Contact> contacts) {
-    final Map<String, List<Contact>> grouped = {};
-    
-    for (final contact in contacts) {
-      final firstLetter = contact.name.isNotEmpty 
-          ? contact.name[0].toUpperCase() 
-          : '#'; // Para nombres vacíos
-      
-      if (!grouped.containsKey(firstLetter)) {
-        grouped[firstLetter] = [];
-      }
-      grouped[firstLetter]!.add(contact);
-    }
-    
-    // Ordenar cada grupo alfabéticamente
-    grouped.forEach((key, value) {
-      value.sort((a, b) => a.name.compareTo(b.name));
-    });
-    
-    return grouped;
-  }
-
-  // ✅ AGREGADO: Calcular total de items (headers + contactos)
-  int _getTotalItemCount(Map<String, List<Contact>> groupedContacts) {
-    int count = 0;
-    groupedContacts.forEach((letter, contacts) {
-      count += 1; // Header del grupo
-      count += contacts.length; // Contactos del grupo
-    });
-    return count;
-  }
-
-  // ✅ AGREGADO: Constructor de items individuales en la lista
+  // ✅ REFACTORIZADO: Lista agrupada separada para mejor organización
   Widget _buildGroupedContactItem(
     BuildContext context, 
     Map<String, List<Contact>> groupedContacts, 
@@ -429,45 +359,159 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   void _showContactOptions(Contact contact) {
-    // TODO: Implementar menú de opciones
-    // HTML: contact_dialog_options.html (Share, Edit, Delete)
+    ContactOptionsDialog.show(
+      context: context,
+      contact: contact,
+      onOptionSelected: (option) => _handleContactOption(contact, option),
+    );
+  }
+
+  /// Maneja las opciones seleccionadas del diálogo
+  void _handleContactOption(Contact contact, ContactOption option) {
+    switch (option) {
+      case ContactOption.call:
+        _callContact(contact);
+        break;
+      case ContactOption.message:
+        _messageContact(contact);
+        break;
+      case ContactOption.share:
+        _shareContact(contact);
+        break;
+      case ContactOption.edit:
+        // ✅ MEJORA 2: Habilitada navegación a edición de contacto
+        _navigateToContactForm(contact: contact);
+        break;
+      case ContactOption.delete:
+        _deleteContact(contact);
+        break;
+    }
+  }
+
+  /// Placeholder para llamar contacto
+  void _callContact(Contact contact) {
+    if (contact.phone?.isNotEmpty == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Calling ${contact.phone}'),
+          backgroundColor: AppColors.primaryBlue,
+        ),
+      );
+    }
+  }
+
+  /// Placeholder para enviar mensaje
+  void _messageContact(Contact contact) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Show options for ${contact.name}'),
+        content: Text('Messaging ${contact.name}'),
         backgroundColor: AppColors.primaryBlue,
       ),
     );
   }
 
-  // ANÁLISIS: Error state
-  // ✅ CORRECTO: Maneja errores del provider
-  // ⚠️ MEJORA: Podría usar componentes del design system
-  Widget _buildErrorState(String error) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 64, color: Colors.red),
-          const SizedBox(height: 16),
-          Text('Error: $error'),
-        ],
+  /// Placeholder para compartir contacto
+  void _shareContact(Contact contact) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Sharing ${contact.name}'),
+        backgroundColor: AppColors.primaryBlue,
       ),
     );
   }
 
-  // ANÁLISIS: Empty state
-  // ✅ CORRECTO: Maneja caso de lista vacía
-  // ⚠️ MEJORA: Podría usar componentes del design system
+  // ...existing code...
+
+  // ✅ MEJORA 1: Usar EmptyState del design system
   Widget _buildEmptyState() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.contacts_outlined, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text('No contacts found'),
-        ],
+    return EmptyState(
+      icon: Icons.contacts_outlined,
+      title: _searchQuery.isEmpty 
+          ? 'No contacts found' 
+          : 'No search results',
+      message: _searchQuery.isEmpty 
+          ? 'Add your first contact to get started managing your connections'
+          : 'No contacts match "$_searchQuery". Try a different search term.',
+      action: _searchQuery.isNotEmpty 
+          ? AppButton(
+              text: 'Clear search',
+              onPressed: () {
+                _searchController.clear();
+                _handleSearch('');
+                _toggleSearch(); // Cerrar búsqueda
+              },
+              type: AppButtonType.text,
+            )
+          : AppButton(
+              text: 'Add contact',
+              onPressed: () => _navigateToContactForm(),
+              type: AppButtonType.filled,
+            ),
+    );
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(AppDimensions.spacing16), // ✅ MEJORA 3: Usar AppDimensions
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: AppDimensions.spacing64, // ✅ MEJORA 3: Usar AppDimensions
+              color: Colors.red,
+            ),
+            SizedBox(height: AppDimensions.spacing16), // ✅ MEJORA 3: Usar AppDimensions
+            const Text(
+              'Error loading contacts',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: AppDimensions.spacing8), // ✅ MEJORA 3: Usar AppDimensions
+            Text(error),
+            SizedBox(height: AppDimensions.spacing16), // ✅ MEJORA 3: Usar AppDimensions
+            AppButton(
+              text: 'Retry',
+              onPressed: _loadContacts,
+              type: AppButtonType.filled,
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  // ✅ AGREGADO: Método para agrupar contactos por letra inicial (basado en contact_list.html)
+  // HTML: Grupos A, E, I, J, L, M, N, O, S como en la maqueta
+  Map<String, List<Contact>> _groupContactsByLetter(List<Contact> contacts) {
+    final Map<String, List<Contact>> grouped = {};
+    
+    for (final contact in contacts) {
+      final firstLetter = contact.name.isNotEmpty 
+          ? contact.name[0].toUpperCase() 
+          : '#'; // Para nombres vacíos
+      
+      if (!grouped.containsKey(firstLetter)) {
+        grouped[firstLetter] = [];
+      }
+      grouped[firstLetter]!.add(contact);
+    }
+    
+    // Ordenar cada grupo alfabéticamente
+    grouped.forEach((key, value) {
+      value.sort((a, b) => a.name.compareTo(b.name));
+    });
+    
+    return grouped;
+  }
+
+  // ✅ AGREGADO: Calcular total de items (headers + contactos)
+  int _getTotalItemCount(Map<String, List<Contact>> groupedContacts) {
+    int count = 0;
+    groupedContacts.forEach((letter, contacts) {
+      count += 1; // Header del grupo
+      count += contacts.length; // Contactos del grupo
+    });
+    return count;
   }
 }
