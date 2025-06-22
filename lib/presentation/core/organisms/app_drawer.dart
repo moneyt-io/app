@@ -1,225 +1,604 @@
 import 'package:flutter/material.dart';
-import '../../navigation/navigation_service.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import '../design_system/tokens/app_dimensions.dart';
+import '../design_system/tokens/app_colors.dart';
+import '../l10n/l10n_helper.dart';
 import '../../navigation/app_routes.dart';
-import '../design_system/theme/app_dimensions.dart';
 
-class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+/// AppDrawer que replica exactamente el diseño HTML
+/// 
+/// Estructura del HTML:
+/// - Header: User Profile con avatar y dropdown
+/// - Dashboard: Item individual
+/// - Operations: Transactions, Loans
+/// - Financial Tools: Wallets, Credit Cards
+/// - Management: Contacts, Categories
+/// - Advanced: Accounting (expandible) con Chart of Accounts, Journal Entries
+/// - Footer: Settings + App Info
+class AppDrawer extends StatefulWidget {
+  const AppDrawer({Key? key}) : super(key: key);
 
-  void _navigateToScreen(BuildContext context, String routeName) {
-    // Cerrar el drawer primero
-    Navigator.of(context).pop();
-    
-    // Navegar usando context en lugar de NavigationService
-    Navigator.of(context).pushNamed(routeName);
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
+  bool _isAccountingExpanded = false; // Por defecto minimizada
+  String _appVersion = ''; // ✅ AGREGADO: Variable para almacenar la versión
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAppVersion(); // ✅ AGREGADO: Cargar versión al inicializar
+  }
+
+  /// ✅ NUEVO: Método para cargar la versión real de la app
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      setState(() {
+        _appVersion = 'v${packageInfo.version}';
+      });
+    } catch (e) {
+      // En caso de error, usar versión por defecto
+      setState(() {
+        _appVersion = 'v1.0.0';
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
+    final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
+    
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      backgroundColor: Colors.white,
+      width: 320, // HTML: w-80 (320px)
+      child: Column(
         children: [
-          // Header del drawer
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: colorScheme.primary,
+          // ✅ Header Section - User Profile
+          _buildUserProfileHeader(context),
+          
+          // ✅ Navigation Section - Scrollable
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(AppDimensions.spacing16),
+              child: Column(
+                children: [
+                  // Dashboard (individual)
+                  _buildNavSection(context, currentRoute),
+                  
+                  SizedBox(height: AppDimensions.spacing24),
+                  
+                  // Operations Section
+                  _buildOperationsSection(context, currentRoute),
+                  
+                  SizedBox(height: AppDimensions.spacing24),
+                  
+                  // Financial Tools Section
+                  _buildFinancialToolsSection(context, currentRoute),
+                  
+                  SizedBox(height: AppDimensions.spacing24),
+                  
+                  // Management Section
+                  _buildManagementSection(context, currentRoute),
+                  
+                  SizedBox(height: AppDimensions.spacing24),
+                  
+                  // Advanced Section (con subnav expandible)
+                  _buildAdvancedSection(context, currentRoute),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.account_balance_wallet,
-                  size: 48,
-                  color: colorScheme.onPrimary,
-                ),
-                const SizedBox(height: AppDimensions.spacing16),
-                Text(
-                  'MoneyT',
-                  style: textTheme.headlineSmall?.copyWith(
-                    color: colorScheme.onPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  'Gestor Financiero',
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onPrimary.withOpacity(0.8),
-                  ),
-                ),
-              ],
-            ),
           ),
-
-          // Dashboard/Home
-          DrawerListTile(
-            icon: Icons.dashboard,
-            title: 'Dashboard',
-            onTap: () => _navigateToScreen(context, AppRoutes.home),
-          ),
-
-          const DrawerDivider(),
-
-          // Sección de Transacciones
-          DrawerSectionHeader(title: 'TRANSACCIONES'),
-
-          DrawerListTile(
-            icon: Icons.receipt_long,
-            title: 'Transacciones',
-            onTap: () => _navigateToScreen(context, AppRoutes.transactions),
-          ),
-
-          DrawerListTile(
-            icon: Icons.trending_up,
-            title: 'Préstamos',
-            onTap: () => _navigateToScreen(context, AppRoutes.loans),
-          ),
-
-          const DrawerDivider(),
-
-          // Sección de Cuentas
-          DrawerSectionHeader(title: 'CUENTAS'),
-
-          DrawerListTile(
-            icon: Icons.account_balance_wallet_outlined,
-            title: 'Billeteras',
-            onTap: () => _navigateToScreen(context, AppRoutes.wallets),
-          ),
-
-          DrawerListTile(
-            icon: Icons.credit_card,
-            title: 'Tarjetas de Crédito',
-            onTap: () => _navigateToScreen(context, AppRoutes.creditCards),
-          ),
-
-          const DrawerDivider(),
-
-          // Sección de Configuración
-          DrawerSectionHeader(title: 'CONFIGURACIÓN'),
-
-          DrawerListTile(
-            icon: Icons.category,
-            title: 'Categorías',
-            onTap: () => _navigateToScreen(context, AppRoutes.categories),
-          ),
-
-          DrawerListTile(
-            icon: Icons.people,
-            title: 'Contactos',
-            onTap: () => _navigateToScreen(context, AppRoutes.contacts),
-          ),
-
-          DrawerListTile(
-            icon: Icons.account_tree,
-            title: 'Plan de Cuentas',
-            onTap: () => _navigateToScreen(context, AppRoutes.chartAccounts),
-          ),
-
-          DrawerListTile(
-            icon: Icons.book,
-            title: 'Diarios Contables',
-            onTap: () => _navigateToScreen(context, AppRoutes.journals),
-          ),
-
-          const DrawerDivider(),
-
-          // Sección de Sistema
-          DrawerSectionHeader(title: 'SISTEMA'),
-
-          DrawerListTile(
-            icon: Icons.backup,
-            title: 'Respaldos',
-            onTap: () => _navigateToScreen(context, AppRoutes.backups),
-          ),
-
-          DrawerListTile(
-            icon: Icons.settings,
-            title: 'Configuración',
-            onTap: () => _navigateToScreen(context, AppRoutes.settings),
-          ),
+          
+          // ✅ Footer Section
+          _buildFooterSection(context, currentRoute),
         ],
       ),
     );
   }
-}
 
-class DrawerListTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-
-  const DrawerListTile({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(
-        icon,
-        size: AppDimensions.iconSizeMedium,
+  /// Header con perfil de usuario (replica HTML exactamente)
+  Widget _buildUserProfileHeader(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Color(0xFFF1F5F9), // border-slate-100
+            width: 1,
+          ),
+        ),
       ),
-      title: Text(title),
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.spacing24,
-        vertical: AppDimensions.spacing4,
-      ),
-    );
-  }
-}
-
-class DrawerSectionHeader extends StatelessWidget {
-  final String title;
-
-  const DrawerSectionHeader({
-    super.key,
-    required this.title,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppDimensions.spacing24,
-        AppDimensions.spacing16,
-        AppDimensions.spacing24,
-        AppDimensions.spacing8,
-      ),
-      child: Text(
-        title,
-        style: textTheme.labelSmall?.copyWith(
-          color: colorScheme.onSurfaceVariant,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 1.2,
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(AppDimensions.spacing24),
+          child: Material(
+            color: const Color(0xFFF8FAFC), // bg-slate-50
+            borderRadius: BorderRadius.circular(12), // rounded-xl
+            child: InkWell(
+              onTap: () {
+                // TODO: Implementar dropdown de usuario
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: EdgeInsets.all(AppDimensions.spacing12),
+                child: Row(
+                  children: [
+                    // Avatar del usuario
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x0F000000),
+                            blurRadius: 4,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
+                        child: Container(
+                          color: AppColors.primaryBlue,
+                          child: const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    SizedBox(width: AppDimensions.spacing12),
+                    
+                    // Información del usuario
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Sophia Carter', // ✅ MANTENER: Datos de ejemplo del HTML
+                            style: const TextStyle(
+                              color: Color(0xFF1E293B), // text-slate-800
+                              fontSize: 15, // ✅ AUMENTADO: de 14 a 15
+                              fontWeight: FontWeight.w600,
+                              height: 1.2,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            'sophia.carter@example.com', // ✅ MANTENER: Datos de ejemplo del HTML
+                            style: const TextStyle(
+                              color: Color(0xFF64748B), // text-slate-500
+                              fontSize: 13, // ✅ AUMENTADO: de 12 a 13
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Ícono de expansión
+                    const Icon(
+                      Icons.expand_more,
+                      color: Color(0xFF94A3B8), // text-slate-400
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
-}
 
-class DrawerDivider extends StatelessWidget {
-  const DrawerDivider({super.key});
+  /// Dashboard (item individual)
+  Widget _buildNavSection(BuildContext context, String currentRoute) {
+    return _buildNavItem(
+      context: context,
+      icon: Icons.dashboard_outlined,
+      activeIcon: Icons.dashboard,
+      title: t.navigation.home, // ✅ TRADUCIDO
+      route: AppRoutes.home,
+      currentRoute: currentRoute,
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  /// Operations Section
+  Widget _buildOperationsSection(BuildContext context, String currentRoute) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('OPERACIONES'), // ✅ TRADUCIDO
+        SizedBox(height: AppDimensions.spacing4),
+        _buildNavItem(
+          context: context,
+          icon: Icons.receipt_long_outlined,
+          activeIcon: Icons.receipt_long,
+          title: t.navigation.transactions, // ✅ TRADUCIDO
+          route: AppRoutes.transactions,
+          currentRoute: currentRoute,
+        ),
+        SizedBox(height: AppDimensions.spacing4),
+        _buildNavItem(
+          context: context,
+          icon: Icons.handshake_outlined,
+          activeIcon: Icons.handshake,
+          title: t.navigation.loans, // ✅ TRADUCIDO
+          route: AppRoutes.loans,
+          currentRoute: currentRoute,
+        ),
+      ],
+    );
+  }
+
+  /// Financial Tools Section
+  Widget _buildFinancialToolsSection(BuildContext context, String currentRoute) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('HERRAMIENTAS FINANCIERAS'), // ✅ TRADUCIDO
+        SizedBox(height: AppDimensions.spacing4),
+        _buildNavItem(
+          context: context,
+          icon: Icons.account_balance_wallet_outlined,
+          activeIcon: Icons.account_balance_wallet,
+          title: t.navigation.wallets, // ✅ TRADUCIDO
+          route: AppRoutes.wallets,
+          currentRoute: currentRoute,
+        ),
+        SizedBox(height: AppDimensions.spacing4),
+        _buildNavItem(
+          context: context,
+          icon: Icons.credit_card_outlined,
+          activeIcon: Icons.credit_card,
+          title: 'Tarjetas de Crédito', // ✅ TRADUCIDO (creditCards no existe en navegación)
+          route: AppRoutes.creditCards,
+          currentRoute: currentRoute,
+        ),
+      ],
+    );
+  }
+
+  /// Management Section
+  Widget _buildManagementSection(BuildContext context, String currentRoute) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('GESTIÓN'), // ✅ TRADUCIDO
+        SizedBox(height: AppDimensions.spacing4),
+        _buildNavItem(
+          context: context,
+          icon: Icons.contacts_outlined,
+          activeIcon: Icons.contacts,
+          title: t.navigation.contacts, // ✅ TRADUCIDO
+          route: AppRoutes.contacts,
+          currentRoute: currentRoute,
+        ),
+        SizedBox(height: AppDimensions.spacing4),
+        _buildNavItem(
+          context: context,
+          icon: Icons.category_outlined,
+          activeIcon: Icons.category,
+          title: t.navigation.categories, // ✅ TRADUCIDO
+          route: AppRoutes.categories,
+          currentRoute: currentRoute,
+        ),
+      ],
+    );
+  }
+
+  /// Advanced Section (con subnav expandible)
+  Widget _buildAdvancedSection(BuildContext context, String currentRoute) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('AVANZADO'), // ✅ TRADUCIDO
+        SizedBox(height: AppDimensions.spacing4),
+        
+        // Botón expandible de Accounting
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                _isAccountingExpanded = !_isAccountingExpanded;
+              });
+            },
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: AppDimensions.spacing12,
+                vertical: 10, // py-2.5 (10px)
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: _isAccountingExpanded 
+                  ? const Color(0xFFEFF6FF) // bg-blue-50
+                  : Colors.transparent,
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _isAccountingExpanded ? Icons.analytics : Icons.analytics_outlined,
+                    color: _isAccountingExpanded 
+                      ? const Color(0xFF1D4ED8) // text-blue-700
+                      : const Color(0xFF374151), // text-slate-700
+                    size: 20,
+                  ),
+                  SizedBox(width: AppDimensions.spacing12),
+                  Expanded(
+                    child: Text(
+                      'Contabilidad', // ✅ TRADUCIDO
+                      style: TextStyle(
+                        color: _isAccountingExpanded 
+                          ? const Color(0xFF1D4ED8)
+                          : const Color(0xFF374151),
+                        fontSize: 16, // ✅ AUMENTADO: de 15 a 16
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    _isAccountingExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: const Color(0xFF94A3B8), // text-slate-400
+                    size: 18,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        
+        // Subnav items (cuando está expandido)
+        if (_isAccountingExpanded) ...[
+          Container(
+            margin: EdgeInsets.only(left: AppDimensions.spacing24),
+            decoration: const BoxDecoration(
+              border: Border(
+                left: BorderSide(
+                  color: Color(0xFFF1F5F9), // border-slate-100
+                  width: 2,
+                ),
+              ),
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(left: AppDimensions.spacing16),
+              child: Column(
+                children: [
+                  SizedBox(height: AppDimensions.spacing4),
+                  _buildSubNavItem(
+                    context: context,
+                    icon: Icons.account_tree_outlined,
+                    activeIcon: Icons.account_tree,
+                    title: t.navigation.charts, // ✅ TRADUCIDO
+                    route: AppRoutes.chartAccounts,
+                    currentRoute: currentRoute,
+                  ),
+                  SizedBox(height: AppDimensions.spacing4),
+                  _buildSubNavItem(
+                    context: context,
+                    icon: Icons.book_outlined,
+                    activeIcon: Icons.book,
+                    title: 'Diarios Contables', // ✅ TRADUCIDO (journals no existe en navegación)
+                    route: AppRoutes.journals,
+                    currentRoute: currentRoute,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// Footer Section
+  Widget _buildFooterSection(BuildContext context, String currentRoute) {
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: Color(0xFFF1F5F9), // border-slate-100
+            width: 1,
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(AppDimensions.spacing16),
+        child: Column(
+          children: [
+            // Settings
+            _buildNavItem(
+              context: context,
+              icon: Icons.settings_outlined,
+              activeIcon: Icons.settings,
+              title: t.navigation.settings,
+              route: AppRoutes.settings,
+              currentRoute: currentRoute,
+            ),
+            
+            SizedBox(height: AppDimensions.spacing12),
+            
+            // App Info con versión real
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: AppDimensions.spacing12,
+                vertical: AppDimensions.spacing8,
+              ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC), // bg-slate-50
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.info_outline,
+                    color: Color(0xFF94A3B8), // text-slate-400
+                    size: 14,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    _appVersion.isEmpty ? 'v1.0.0' : _appVersion, // ✅ MODIFICADO: Usar versión real
+                    style: const TextStyle(
+                      color: Color(0xFF64748B), // text-slate-500
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Header de sección
+  Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.spacing16,
+      padding: EdgeInsets.symmetric(
+        horizontal: AppDimensions.spacing12,
         vertical: AppDimensions.spacing8,
       ),
-      child: Divider(
-        height: 1,
-        color: Theme.of(context).colorScheme.outlineVariant,
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Color(0xFF64748B), // text-slate-500
+          fontSize: 14, // ✅ AUMENTADO: de 13 a 14
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  /// Item de navegación principal
+  Widget _buildNavItem({
+    required BuildContext context,
+    required IconData icon,
+    required IconData activeIcon,
+    required String title,
+    required String route,
+    required String currentRoute,
+  }) {
+    final isActive = currentRoute == route || currentRoute.startsWith('$route/');
+    
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).pop();
+          if (currentRoute != route) {
+            Navigator.of(context).pushReplacementNamed(route);
+          }
+        },
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: AppDimensions.spacing12,
+            vertical: 10, // py-2.5 (10px)
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: isActive 
+              ? const Color(0xFFEFF6FF) // bg-blue-50
+              : Colors.transparent,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                isActive ? activeIcon : icon,
+                color: isActive 
+                  ? const Color(0xFF1D4ED8) // text-blue-700
+                  : const Color(0xFF374151), // text-slate-700
+                size: 20,
+              ),
+              SizedBox(width: AppDimensions.spacing12),
+              Text(
+                title,
+                style: TextStyle(
+                  color: isActive 
+                    ? const Color(0xFF1D4ED8)
+                    : const Color(0xFF374151),
+                  fontSize: 16, // ✅ AUMENTADO: de 15 a 16
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Item de sub-navegación
+  Widget _buildSubNavItem({
+    required BuildContext context,
+    required IconData icon,
+    required IconData activeIcon,
+    required String title,
+    required String route,
+    required String currentRoute,
+  }) {
+    final isActive = currentRoute == route || currentRoute.startsWith('$route/');
+    
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).pop();
+          if (currentRoute != route) {
+            Navigator.of(context).pushReplacementNamed(route);
+          }
+        },
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: AppDimensions.spacing12,
+            vertical: AppDimensions.spacing8,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(6),
+            color: isActive 
+              ? const Color(0xFFEFF6FF) // bg-blue-50
+              : Colors.transparent,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                isActive ? activeIcon : icon,
+                color: isActive 
+                  ? const Color(0xFF1D4ED8) // text-blue-700
+                  : const Color(0xFF64748B), // text-slate-600
+                size: 16,
+              ),
+              SizedBox(width: AppDimensions.spacing12),
+              Text(
+                title,
+                style: TextStyle(
+                  color: isActive 
+                    ? const Color(0xFF1D4ED8)
+                    : const Color(0xFF64748B),
+                  fontSize: 16, // ✅ AUMENTADO: de 15 a 16
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
