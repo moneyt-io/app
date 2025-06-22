@@ -121,6 +121,7 @@ class _AppStringsContactsEs extends AppStringsContactsEn {
 	@override String get title => 'Contactos';
 	@override String get addContact => 'Agregar Contacto';
 	@override String get editContact => 'Editar Contacto';
+	@override String get newContact => 'Nuevo contacto';
 	@override String get noContacts => 'No hay contactos';
 	@override String get noContactsMessage => 'Agrega tu primer contacto con el botón "+"';
 	@override String get searchContacts => 'Buscar contactos';
@@ -132,7 +133,10 @@ class _AppStringsContactsEs extends AppStringsContactsEn {
 	@override String get contactSaved => 'Contacto guardado exitosamente';
 	@override String get errorSaving => 'Error al guardar contacto';
 	@override String get noContactInfo => 'Sin información de contacto';
+	@override String get importContact => 'Importar contacto';
+	@override String get importContactSoon => 'Función de importar contacto próximamente';
 	@override late final _AppStringsContactsFieldsEs fields = _AppStringsContactsFieldsEs._(_root);
+	@override late final _AppStringsContactsPlaceholdersEs placeholders = _AppStringsContactsPlaceholdersEs._(_root);
 	@override late final _AppStringsContactsValidationEs validation = _AppStringsContactsValidationEs._(_root);
 }
 
@@ -180,10 +184,23 @@ class _AppStringsContactsFieldsEs extends AppStringsContactsFieldsEn {
 
 	// Translations
 	@override String get name => 'Nombre';
+	@override String get fullName => 'Nombre completo';
 	@override String get email => 'Email';
 	@override String get phone => 'Teléfono';
 	@override String get address => 'Dirección';
 	@override String get notes => 'Notas';
+}
+
+// Path: contacts.placeholders
+class _AppStringsContactsPlaceholdersEs extends AppStringsContactsPlaceholdersEn {
+	_AppStringsContactsPlaceholdersEs._(AppStringsEs root) : this._root = root, super.internal(root);
+
+	final AppStringsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get enterFullName => 'Ingrese el nombre completo';
+	@override String get enterPhone => 'Ingrese el número de teléfono';
+	@override String get enterEmail => 'Ingrese el email';
 }
 
 // Path: contacts.validation
@@ -236,6 +253,7 @@ extension on AppStringsEs {
 			case 'contacts.title': return 'Contactos';
 			case 'contacts.addContact': return 'Agregar Contacto';
 			case 'contacts.editContact': return 'Editar Contacto';
+			case 'contacts.newContact': return 'Nuevo contacto';
 			case 'contacts.noContacts': return 'No hay contactos';
 			case 'contacts.noContactsMessage': return 'Agrega tu primer contacto con el botón "+"';
 			case 'contacts.searchContacts': return 'Buscar contactos';
@@ -247,11 +265,17 @@ extension on AppStringsEs {
 			case 'contacts.contactSaved': return 'Contacto guardado exitosamente';
 			case 'contacts.errorSaving': return 'Error al guardar contacto';
 			case 'contacts.noContactInfo': return 'Sin información de contacto';
+			case 'contacts.importContact': return 'Importar contacto';
+			case 'contacts.importContactSoon': return 'Función de importar contacto próximamente';
 			case 'contacts.fields.name': return 'Nombre';
+			case 'contacts.fields.fullName': return 'Nombre completo';
 			case 'contacts.fields.email': return 'Email';
 			case 'contacts.fields.phone': return 'Teléfono';
 			case 'contacts.fields.address': return 'Dirección';
 			case 'contacts.fields.notes': return 'Notas';
+			case 'contacts.placeholders.enterFullName': return 'Ingrese el nombre completo';
+			case 'contacts.placeholders.enterPhone': return 'Ingrese el número de teléfono';
+			case 'contacts.placeholders.enterEmail': return 'Ingrese el email';
 			case 'contacts.validation.nameRequired': return 'El nombre es requerido';
 			case 'contacts.validation.invalidEmail': return 'Email no válido';
 			case 'contacts.validation.invalidPhone': return 'Teléfono no válido';

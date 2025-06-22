@@ -160,7 +160,8 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
         break;
       case AppAppBarLeading.drawer:
         iconData = Icons.arrow_back_ios_new; // HTML: arrow_back_ios_new (para drawer)
-        defaultCallback = () => Scaffold.of(context).openDrawer();
+        // ✅ CORREGIDO: No usar Scaffold.of aquí, usar onLeadingPressed directamente
+        defaultCallback = null; // El callback debe venir del padre
         break;
       case AppAppBarLeading.custom:
       case AppAppBarLeading.none:
@@ -173,7 +174,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onLeadingPressed ?? defaultCallback,
+          onTap: onLeadingPressed ?? defaultCallback, // ✅ CORREGIDO: Usar onLeadingPressed primero
           borderRadius: BorderRadius.circular(20),
           child: Center(
             child: Icon(

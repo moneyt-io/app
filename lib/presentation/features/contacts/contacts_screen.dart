@@ -29,6 +29,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
   bool _isSearchVisible = false;
   String _searchQuery = '';
   
+  // ✅ AGREGADO: GlobalKey para el Scaffold (solución estándar)
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  
   @override
   void initState() {
     super.initState();
@@ -58,13 +61,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
   // ANÁLISIS: Método para manejar importación de contactos
   void _handleImportContacts() {
-    // TODO: Implementar importación real de contactos del dispositivo
-    // HTML: onclick para "Import contact" button
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Import contacts functionality coming soon'),
+      SnackBar(
+        content: Text(t.contacts.importContactSoon), // ✅ CORREGIDO: Usar traducción consistente
         backgroundColor: AppColors.primaryBlue,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -183,17 +184,23 @@ class _ContactsScreenState extends State<ContactsScreen> {
     context.read<ContactProvider>().loadContacts();
   }
 
+  // ✅ AGREGADO: Método helper para abrir drawer
+  void _openDrawer() {
+    _scaffoldKey.currentState?.openDrawer();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey, // ✅ AGREGADO: Asignar GlobalKey al Scaffold
       backgroundColor: Colors.white,
       
       appBar: AppAppBar(
-        title: 'Contacts',
+        title: t.contacts.title,
         type: AppAppBarType.standard,
         leading: AppAppBarLeading.drawer,
         actions: [AppAppBarAction.search],
-        onLeadingPressed: () => Scaffold.of(context).openDrawer(),
+        onLeadingPressed: _openDrawer, // ✅ CORREGIDO: Usar método helper con GlobalKey
         onActionsPressed: [_toggleSearch],
       ),
       
@@ -251,8 +258,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
       floatingActionButton: AppFloatingActionButton(
         onPressed: () => _navigateToContactForm(),
         icon: Icons.add,
-        tooltip: 'Add new contact', // TODO: Usar t.contacts.addContact cuando esté disponible
-        backgroundColor: const Color(0xFF0c7ff2), // HTML: bg-[#0c7ff2]
+        tooltip: t.contacts.addContact, // ✅ CORREGIDO: Usar traducción
+        backgroundColor: const Color(0xFF0c7ff2),
       ),
     );
   }
@@ -420,8 +427,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
       ),
     );
   }
-
-  // ...existing code...
 
   // ✅ MEJORA 1: Usar EmptyState del design system
   Widget _buildEmptyState() {

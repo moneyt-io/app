@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/design_system/tokens/app_dimensions.dart';
 import '../../core/design_system/tokens/app_colors.dart';
+import '../../core/molecules/form_action_bar.dart';
+import '../../core/atoms/app_floating_label_field.dart';
+import '../../core/atoms/app_app_bar.dart'; // ✅ AGREGADO: Import del AppAppBar atomizado
 import '../../core/l10n/l10n_helper.dart';
 import '../../../domain/entities/contact.dart';
 import 'contact_provider.dart';
@@ -67,7 +70,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
 
   String? _validateName(String? value) {
     if (value?.trim().isEmpty == true) {
-      return 'El nombre es requerido';
+      return t.contacts.validation.nameRequired;
     }
     return null;
   }
@@ -76,7 +79,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
     if (value?.isNotEmpty == true) {
       final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
       if (!emailRegex.hasMatch(value!)) {
-        return 'Email no válido';
+        return t.contacts.validation.invalidEmail;
       }
     }
     return null;
@@ -86,7 +89,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
     if (value?.isNotEmpty == true) {
       final phoneRegex = RegExp(r'^\+?[\d\s\-\(\)]{7,}$');
       if (!phoneRegex.hasMatch(value!)) {
-        return 'Teléfono no válido';
+        return t.contacts.validation.invalidPhone;
       }
     }
     return null;
@@ -126,8 +129,8 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(provider.error ?? 'Error al guardar contacto'),
-            backgroundColor: AppColors.error,
+            content: Text(provider.error ?? t.contacts.errorSaving),
+            backgroundColor: Colors.red,
           ),
         );
         provider.clearError();
@@ -137,9 +140,9 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
 
   void _importContact() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Función de importar contacto próximamente'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(t.contacts.importContactSoon), // ✅ CORREGIDO: Usar traducción
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -148,66 +151,17 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.slate50,
+      
+      // ✅ REFACTORIZADO: Usar AppAppBar atomizado en lugar de header custom
+      appBar: AppAppBar(
+        title: _isEditing ? t.contacts.editContact : t.contacts.newContact, // ✅ CORREGIDO: Usar traducción específica
+        type: AppAppBarType.blur, // HTML: bg-slate-50/80 backdrop-blur-md
+        leading: AppAppBarLeading.close, // HTML: close button
+        onLeadingPressed: () => Navigator.of(context).pop(),
+      ),
+      
       body: Column(
         children: [
-          // Header con backdrop blur effect
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.slate50.withOpacity(0.8),
-              border: Border(
-                bottom: BorderSide(
-                  color: AppColors.slate200,
-                  width: 1,
-                ),
-              ),
-            ),
-            child: SafeArea(
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                child: Row(
-                  children: [
-                    // Close button
-                    SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => Navigator.of(context).pop(),
-                          borderRadius: BorderRadius.circular(20),
-                          child: Center(
-                            child: Icon(
-                              Icons.close,
-                              size: 24,
-                              color: AppColors.slate700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    
-                    // Title
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 32), // Compensar el botón close
-                        child: Text(
-                          _isEditing ? 'Edit contact' : 'New contact',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.slate900,
-                            letterSpacing: -0.3,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          
           // Form content
           Expanded(
             child: Form(
@@ -216,65 +170,69 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    SizedBox(height: AppDimensions.spacing8),
-                    
-                    // Full name field
-                    _buildFormField(
+                    // ✅ REFACTORIZADO: Usar traducciones
+                    AppFloatingLabelField(
                       controller: _nameController,
-                      label: 'Full name',
-                      placeholder: 'Enter full name',
+                      label: t.contacts.fields.fullName, // ✅ CORREGIDO: Usar traducción específica
+                      placeholder: t.contacts.placeholders.enterFullName, // ✅ CORREGIDO: Usar traducción
                       validator: _validateName,
                       textCapitalization: TextCapitalization.words,
                     ),
                     
-                    SizedBox(height: AppDimensions.spacing24),
+                    const SizedBox(height: 16),
                     
-                    // Phone field
-                    _buildFormField(
+                    // ✅ REFACTORIZADO: Usar traducciones
+                    AppFloatingLabelField(
                       controller: _phoneController,
-                      label: 'Phone',
-                      placeholder: 'Enter phone number',
+                      label: t.contacts.fields.phone,
+                      placeholder: t.contacts.placeholders.enterPhone, // ✅ CORREGIDO: Usar traducción
                       keyboardType: TextInputType.phone,
                       validator: _validatePhone,
                     ),
                     
-                    SizedBox(height: AppDimensions.spacing24),
+                    const SizedBox(height: 16),
                     
-                    // Email field
-                    _buildFormField(
+                    // ✅ REFACTORIZADO: Usar traducciones
+                    AppFloatingLabelField(
                       controller: _emailController,
-                      label: 'Email',
-                      placeholder: 'Enter email address',
+                      label: t.contacts.fields.email,
+                      placeholder: t.contacts.placeholders.enterEmail, // ✅ CORREGIDO: Usar traducción
                       keyboardType: TextInputType.emailAddress,
                       validator: _validateEmail,
                     ),
                     
-                    SizedBox(height: AppDimensions.spacing24),
+                    const SizedBox(height: 16),
                     
-                    // Import contact button
-                    Container(
+                    // ✅ CORREGIDO: Import contact button con traducción
+                    SizedBox(
                       width: double.infinity,
-                      height: 48,
+                      height: 56,
                       child: OutlinedButton.icon(
                         onPressed: _importContact,
                         style: OutlinedButton.styleFrom(
-                          backgroundColor: AppColors.slate50,
-                          side: BorderSide(color: AppColors.slate300),
+                          backgroundColor: const Color(0xFFF8FAFC),
+                          side: const BorderSide(
+                            color: Color(0xFFCBD5E1),
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                         ),
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.person_add,
                           size: 18,
-                          color: AppColors.slate700,
+                          color: Color(0xFF334155),
                         ),
                         label: Text(
-                          'Import contact',
-                          style: TextStyle(
+                          t.contacts.importContact, // ✅ CORREGIDO: Usar traducción
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.slate700,
+                            color: Color(0xFF334155),
                           ),
                         ),
                       ),
@@ -285,178 +243,12 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
             ),
           ),
           
-          // Footer buttons - PADDING ULTRA CORREGIDO
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.slate50.withOpacity(0.8),
-              border: Border(
-                top: BorderSide(
-                  color: AppColors.slate200,
-                  width: 1,
-                ),
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // CORREGIDO: Padding mínimo sin SafeArea adicional arriba
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0), // Solo 8px arriba
-                  child: Row(
-                    children: [
-                      // Cancel button
-                      Expanded(
-                        child: Container(
-                          height: 48,
-                          child: OutlinedButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: AppColors.slate200,
-                              side: BorderSide.none,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                            ),
-                            child: Text(
-                              'Cancel',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.slate700,
-                                letterSpacing: -0.2,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      
-                      SizedBox(width: AppDimensions.spacing12),
-                      
-                      // Save button
-                      Expanded(
-                        child: Container(
-                          height: 48,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _saveContact,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryBlue,
-                              foregroundColor: AppColors.slate50,
-                              elevation: 1,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                            ),
-                            child: _isLoading
-                                ? SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        AppColors.slate50,
-                                      ),
-                                    ),
-                                  )
-                                : Text(
-                                    'Save',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: -0.2,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // SafeArea solo para el bottom
-                SizedBox(height: MediaQuery.of(context).padding.bottom + 8),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFormField({
-    required TextEditingController controller,
-    required String label,
-    required String placeholder,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-    TextCapitalization textCapitalization = TextCapitalization.none,
-  }) {
-    return Container(
-      height: 68, // CORREGIDO: Aumentado de 56 a 68 para acomodar floating label
-      child: Stack(
-        children: [
-          // Text field - posicionado más abajo para espacio del label
-          Positioned(
-            top: 12, // CORREGIDO: Mover el TextFormField hacia abajo
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: TextFormField(
-              controller: controller,
-              keyboardType: keyboardType,
-              textCapitalization: textCapitalization,
-              validator: validator,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: AppColors.slate900,
-              ),
-              decoration: InputDecoration(
-                hintText: placeholder,
-                hintStyle: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.slate400,
-                ),
-                filled: true,
-                fillColor: AppColors.slate50,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.slate300),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.slate300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.error),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-              ),
-            ),
-          ),
-          
-          // Floating label - ahora con espacio suficiente
-          Positioned(
-            left: 12,
-            top: 4, // CORREGIDO: Ajustado para estar dentro del container
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              color: AppColors.slate50,
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.slate500,
-                ),
-              ),
-            ),
+          // Footer con FormActionBar reutilizable
+          FormActionBar(
+            onCancel: () => Navigator.of(context).pop(),
+            onSave: _saveContact,
+            isLoading: _isLoading,
+            enabled: !_isLoading,
           ),
         ],
       ),

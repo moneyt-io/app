@@ -122,6 +122,7 @@ class AppStringsContactsEn {
 	String get title => 'Contacts';
 	String get addContact => 'Add Contact';
 	String get editContact => 'Edit Contact';
+	String get newContact => 'New contact';
 	String get noContacts => 'No contacts';
 	String get noContactsMessage => 'Add your first contact with the "+" button';
 	String get searchContacts => 'Search contacts';
@@ -133,7 +134,10 @@ class AppStringsContactsEn {
 	String get contactSaved => 'Contact saved successfully';
 	String get errorSaving => 'Error saving contact';
 	String get noContactInfo => 'No contact information';
+	String get importContact => 'Import contact';
+	String get importContactSoon => 'Import contact functionality coming soon';
 	late final AppStringsContactsFieldsEn fields = AppStringsContactsFieldsEn.internal(_root);
+	late final AppStringsContactsPlaceholdersEn placeholders = AppStringsContactsPlaceholdersEn.internal(_root);
 	late final AppStringsContactsValidationEn validation = AppStringsContactsValidationEn.internal(_root);
 }
 
@@ -181,10 +185,23 @@ class AppStringsContactsFieldsEn {
 
 	// Translations
 	String get name => 'Name';
+	String get fullName => 'Full name';
 	String get email => 'Email';
 	String get phone => 'Phone';
 	String get address => 'Address';
 	String get notes => 'Notes';
+}
+
+// Path: contacts.placeholders
+class AppStringsContactsPlaceholdersEn {
+	AppStringsContactsPlaceholdersEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+	String get enterFullName => 'Enter full name';
+	String get enterPhone => 'Enter phone number';
+	String get enterEmail => 'Enter email address';
 }
 
 // Path: contacts.validation
@@ -196,7 +213,7 @@ class AppStringsContactsValidationEn {
 	// Translations
 	String get nameRequired => 'Name is required';
 	String get invalidEmail => 'Invalid email';
-	String get invalidPhone => 'Invalid phone';
+	String get invalidPhone => 'Invalid phone number';
 }
 
 /// Flat map(s) containing all translations.
@@ -237,6 +254,7 @@ extension on AppStrings {
 			case 'contacts.title': return 'Contacts';
 			case 'contacts.addContact': return 'Add Contact';
 			case 'contacts.editContact': return 'Edit Contact';
+			case 'contacts.newContact': return 'New contact';
 			case 'contacts.noContacts': return 'No contacts';
 			case 'contacts.noContactsMessage': return 'Add your first contact with the "+" button';
 			case 'contacts.searchContacts': return 'Search contacts';
@@ -248,14 +266,20 @@ extension on AppStrings {
 			case 'contacts.contactSaved': return 'Contact saved successfully';
 			case 'contacts.errorSaving': return 'Error saving contact';
 			case 'contacts.noContactInfo': return 'No contact information';
+			case 'contacts.importContact': return 'Import contact';
+			case 'contacts.importContactSoon': return 'Import contact functionality coming soon';
 			case 'contacts.fields.name': return 'Name';
+			case 'contacts.fields.fullName': return 'Full name';
 			case 'contacts.fields.email': return 'Email';
 			case 'contacts.fields.phone': return 'Phone';
 			case 'contacts.fields.address': return 'Address';
 			case 'contacts.fields.notes': return 'Notes';
+			case 'contacts.placeholders.enterFullName': return 'Enter full name';
+			case 'contacts.placeholders.enterPhone': return 'Enter phone number';
+			case 'contacts.placeholders.enterEmail': return 'Enter email address';
 			case 'contacts.validation.nameRequired': return 'Name is required';
 			case 'contacts.validation.invalidEmail': return 'Invalid email';
-			case 'contacts.validation.invalidPhone': return 'Invalid phone';
+			case 'contacts.validation.invalidPhone': return 'Invalid phone number';
 			case 'errors.loadingAccounts': return 'Error loading accounts: {error}';
 			case 'errors.unexpected': return 'Unexpected error';
 			case 'settings.appearance': return 'Appearance';

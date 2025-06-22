@@ -43,6 +43,7 @@
     "title": "Contacts",
     "addContact": "Add Contact",
     "editContact": "Edit Contact",
+    "newContact": "New contact",
     "noContacts": "No contacts",
     "noContactsMessage": "Add your first contact with the \"+\" button",
     "searchContacts": "Search contacts",
@@ -54,17 +55,25 @@
     "contactSaved": "Contact saved successfully",
     "errorSaving": "Error saving contact",
     "noContactInfo": "No contact information",
+    "importContact": "Import contact",
+    "importContactSoon": "Import contact functionality coming soon",
     "fields": {
       "name": "Name",
+      "fullName": "Full name",
       "email": "Email",
       "phone": "Phone",
       "address": "Address",
       "notes": "Notes"
     },
+    "placeholders": {
+      "enterFullName": "Enter full name",
+      "enterPhone": "Enter phone number",
+      "enterEmail": "Enter email address"
+    },
     "validation": {
       "nameRequired": "Name is required",
       "invalidEmail": "Invalid email",
-      "invalidPhone": "Invalid phone"
+      "invalidPhone": "Invalid phone number"
     }
   },
   "errors": {
