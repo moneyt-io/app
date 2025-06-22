@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../../../domain/entities/category.dart';
-import '../../../domain/entities/chart_account.dart';
 import '../../../domain/usecases/category_usecases.dart';
-import '../../core/atoms/app_button.dart';
-import '../../core/molecules/form_field_container.dart';
-import '../../core/molecules/icon_selector.dart';
-import '../../navigation/navigation_service.dart';
-import '../../core/design_system/theme/app_dimensions.dart';
+import '../../core/atoms/app_app_bar.dart';
+import '../../core/atoms/app_floating_label_field.dart';
+import '../../core/atoms/app_switch.dart';
+import '../../core/molecules/form_action_bar.dart';
+import '../../core/molecules/category_icon_picker.dart';
+import '../../core/molecules/category_color_picker.dart';
+import '../../core/molecules/category_type_filter.dart';
+import '../../core/molecules/category_parent_dialog.dart'; // ✅ AGREGADO: Import del diálogo
+import '../../core/design_system/tokens/app_dimensions.dart';
+import '../../core/l10n/l10n_helper.dart';
 
 class CategoryFormScreen extends StatefulWidget {
   final Category? category;
@@ -25,84 +29,118 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   
-  String _selectedIcon = 'e88a'; // Código para Icons.home (por defecto)
-  String _selectedType = 'I'; // I = Ingresos (por defecto), E = Gastos
-  int? _selectedParentId;
-  bool _isLoading = false;
-  bool _isLoadingData = true;
-  String? _error;
-  
-  List<Category> _parentCategories = [];
-  ChartAccount? _linkedChartAccount;
-  
   late final CategoryUseCases _categoryUseCases;
   
-  bool get isEditing => widget.category != null;
+  String _selectedType = 'I'; // 'I' para Income, 'E' para Expense
+  IconData _selectedIcon = Icons.category;
+  Color _selectedColor = const Color(0xFF3B82F6);
+  bool _isActive = true;
+  bool _isLoading = false;
+  
+  List<Category> _parentCategories = [];
+  Category? _selectedParent;
 
-  // El orden ya está correcto (primero Ingresos, luego Gastos)
-  final List<Map<String, dynamic>> _documentTypes = [
-    {'id': 'I', 'name': 'Ingreso', 'icon': Icons.arrow_upward},
-    {'id': 'E', 'name': 'Gasto', 'icon': Icons.arrow_downward},
-  ];
+  bool get _isEditing => widget.category != null;
 
   @override
   void initState() {
     super.initState();
     _categoryUseCases = GetIt.instance<CategoryUseCases>();
-    
-    if (isEditing) {
-      _nameController.text = widget.category!.name;
-      _selectedIcon = widget.category!.icon;
-      _selectedType = widget.category!.documentTypeId;
-      _selectedParentId = widget.category!.parentId;
-      _loadChartAccountInfo();
-    }
-    
     _loadParentCategories();
+    _loadCategoryData();
   }
-  
-  Future<void> _loadChartAccountInfo() async {
-    if (isEditing && widget.category!.chartAccountId > 0) {
-      try {
-        final chartAccount = await _categoryUseCases.getCategoryChartAccount(widget.category!.chartAccountId);
-        if (mounted) {
-          setState(() {
-            _linkedChartAccount = chartAccount;
-          });
-        }
-      } catch (e) {
-        // Silenciar errores al cargar la cuenta contable
-      }
+
+  void _loadCategoryData() {
+    if (_isEditing) {
+      final category = widget.category!;
+      _nameController.text = category.name;
+      _selectedType = category.documentTypeId;
+      _isActive = category.active;
+      // TODO: Cargar ícono y color desde category cuando se agreguen estos campos
     }
   }
-  
+
   Future<void> _loadParentCategories() async {
     try {
+      final categories = await _categoryUseCases.getAllCategories();
       setState(() {
-        _isLoadingData = true;
+        _parentCategories = categories.where((cat) => 
+          cat.parentId == null && cat.documentTypeId == _selectedType
+        ).toList();
       });
-      
-      // Obtener categorías del mismo tipo que podrían ser padres
-      final categories = await _categoryUseCases.getCategoriesByType(_selectedType);
-      
+    } catch (e) {
+      debugPrint('Error loading parent categories: $e');
+    }
+  }
+
+  // ✅ AGREGADO: Método para mostrar diálogo de selección de padre
+  Future<void> _showParentDialog() async {
+    final allCategories = await _categoryUseCases.getAllCategories();
+    
+    final selectedParent = await CategoryParentDialog.show(
+      context: context,
+      availableCategories: allCategories,
+      selectedParent: _selectedParent,
+      documentTypeId: _selectedType,
+    );
+    
+    if (selectedParent != _selectedParent) {
+      setState(() {
+        _selectedParent = selectedParent;
+      });
+    }
+  }
+
+  String? _validateName(String? value) {
+    if (value?.trim().isEmpty == true) {
+      return 'Category name is required';
+    }
+    return null;
+  }
+
+  Future<void> _saveCategory() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final category = Category(
+        id: _isEditing ? widget.category!.id : 0,
+        name: _nameController.text.trim(),
+        documentTypeId: _selectedType,
+        parentId: _selectedParent?.id,
+        chartAccountId: _isEditing ? widget.category!.chartAccountId : 0, // ✅ CORREGIDO: Usar 0 en lugar de null
+        icon: _selectedIcon.codePoint.toString(),
+        active: _isActive,
+        createdAt: _isEditing ? widget.category!.createdAt : DateTime.now(),
+        updatedAt: DateTime.now(),
+        deletedAt: null,
+      );
+
+      if (_isEditing) {
+        await _categoryUseCases.updateCategory(category);
+      } else {
+        await _categoryUseCases.createCategory(category);
+      }
+
       if (mounted) {
-        setState(() {
-          // Filtrar la categoría actual si estamos editando y también solo mostrar categorías principales
-          _parentCategories = isEditing
-              ? categories
-                  .where((cat) => cat.id != widget.category!.id)
-                  .where((cat) => cat.parentId == null) // Solo categorías principales
-                  .toList()
-              : categories.where((cat) => cat.parentId == null).toList(); // Solo categorías principales
-          _isLoadingData = false;
-        });
+        Navigator.of(context).pop(category);
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _isLoadingData = false;
-        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving category: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -112,335 +150,249 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
     super.dispose();
   }
 
-  Future<void> _saveCategory() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-    
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    try {
-      final now = DateTime.now();
-      
-      final category = Category(
-        id: isEditing ? widget.category!.id : 0, 
-        name: _nameController.text.trim(),
-        icon: _selectedIcon,
-        documentTypeId: _selectedType,
-        parentId: _selectedParentId, // Ahora asignamos el padre seleccionado
-        chartAccountId: isEditing ? widget.category!.chartAccountId : 0, 
-        active: true,
-        createdAt: isEditing ? widget.category!.createdAt : now,
-        updatedAt: now, 
-        deletedAt: null,
-      );
-
-      Category savedCategory;
-      if (isEditing) {
-        await _categoryUseCases.updateCategory(category);
-        savedCategory = category;
-      } else {
-        savedCategory = await _categoryUseCases.createCategory(category);
-      }
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isEditing ? 'Categoría actualizada con éxito' : 'Categoría creada con éxito'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
-        
-        NavigationService.goBack(savedCategory);
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _isLoading = false;
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? 'Editar categoría' : 'Nueva categoría'),
-        centerTitle: true,
+      backgroundColor: const Color(0xFFF8FAFC),
+      
+      appBar: AppAppBar(
+        title: _isEditing ? 'Edit Category' : 'New Category',
+        type: AppAppBarType.blur,
+        leading: AppAppBarLeading.close,
+        onLeadingPressed: () => Navigator.of(context).pop(),
       ),
-      body: _isLoadingData
-          ? const Center(child: CircularProgressIndicator())
-          : Form(
+      
+      body: Column(
+        children: [
+          // ✅ CORREGIDO: CategoryTypeFilter atomizado con consistencia visual
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: CategoryTypeFilter(
+              selectedType: _selectedType,
+              onTypeChanged: (type) {
+                setState(() {
+                  _selectedType = type;
+                  _selectedParent = null;
+                });
+                _loadParentCategories();
+              },
+            ),
+          ),
+          
+          Expanded(
+            child: Form(
               key: _formKey,
-              child: ListView(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
-                children: [
-                  // Error (si existe)
-                  if (_error != null) ...[
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: colorScheme.errorContainer,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Category Name
+                    AppFloatingLabelField(
+                      controller: _nameController,
+                      label: 'Category Name',
+                      placeholder: 'Enter category name',
+                      validator: _validateName,
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Parent Category Selector
+                    Text(
+                      'Parent Category (Optional)',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF374151),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _showParentDialog,
                         borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                          ),
+                          child: Row(
+                            children: [
+                              // Icon
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: _selectedParent != null
+                                      ? _getCategoryColor(_selectedParent!).withOpacity(0.1)
+                                      : const Color(0xFFF1F5F9),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  _selectedParent != null
+                                      ? _getCategoryIcon(_selectedParent!)
+                                      : Icons.folder_open,
+                                  color: _selectedParent != null
+                                      ? _getCategoryColor(_selectedParent!)
+                                      : const Color(0xFF64748B),
+                                  size: 20,
+                                ),
+                              ),
+                              
+                              const SizedBox(width: 12),
+                              
+                              // Content
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _selectedParent?.name ?? 'No parent category',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFF1E293B),
+                                      ),
+                                    ),
+                                    Text(
+                                      _selectedParent != null 
+                                          ? 'Will be created as subcategory'
+                                          : 'Will be created as root category',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Color(0xFF64748B),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              
+                              // Arrow
+                              const Icon(
+                                Icons.chevron_right,
+                                color: Color(0xFF9CA3AF),
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Icon Picker
+                    CategoryIconPicker(
+                      selectedIcon: _selectedIcon,
+                      selectedColor: _selectedColor,
+                      onIconSelected: (icon) {
+                        setState(() {
+                          _selectedIcon = icon;
+                        });
+                      },
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Color Picker
+                    CategoryColorPicker(
+                      selectedColor: _selectedColor,
+                      onColorSelected: (color) {
+                        setState(() {
+                          _selectedColor = color;
+                        });
+                      },
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Active Switch
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE5E7EB)),
                       ),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(
-                            Icons.error_outline,
-                            color: colorScheme.error,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _error!,
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.onErrorContainer,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.close,
-                              color: colorScheme.onErrorContainer,
-                            ),
-                            onPressed: () => setState(() => _error = null),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  
-                  // Tarjeta principal
-                  Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: colorScheme.outline.withOpacity(0.2),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Información de la categoría',
-                            style: textTheme.titleMedium?.copyWith(
-                              color: colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          
-                          // Nombre de categoría
-                          FormFieldContainer(
-                            child: TextFormField(
-                              controller: _nameController,
-                              decoration: FormFieldContainer.getOutlinedDecoration(
-                                context,
-                                labelText: 'Nombre de categoría',
-                                prefixIcon: Icon(Icons.label_outline),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Ingrese un nombre para la categoría';
-                                }
-                                return null;
-                              },
-                              textInputAction: TextInputAction.next,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          
-                          // Selector de tipo (gasto/ingreso)
-                          FormFieldContainer(
-                            child: DropdownButtonFormField<String>(
-                              value: _selectedType,
-                              decoration: FormFieldContainer.getOutlinedDecoration(
-                                context,
-                                labelText: 'Tipo',
-                                prefixIcon: Icon(Icons.category_outlined),
-                              ),
-                              items: _documentTypes.map((type) {
-                                return DropdownMenuItem<String>(
-                                  value: type['id'],
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        type['icon'],
-                                        color: type['id'] == 'E' ? Colors.red : Colors.green,
-                                        size: 24,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(type['name']),
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: isEditing ? null : (value) {
-                                if (value != null) {
-                                  setState(() {
-                                    _selectedType = value;
-                                    _selectedParentId = null; // Resetear parent al cambiar tipo
-                                  });
-                                  _loadParentCategories(); // Recargar categorías padre
-                                }
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          
-                          // Selector de categoría padre
-                          _buildParentCategorySelector(),
-                          const SizedBox(height: 16),
-                          
-                          // Mostrar cuenta contable vinculada (si existe)
-                          if (isEditing && _linkedChartAccount != null) ...[
-                            FormFieldContainer(
-                              child: TextFormField(
-                                initialValue: '${_linkedChartAccount!.code} - ${_linkedChartAccount!.name}',
-                                decoration: FormFieldContainer.getOutlinedDecoration(
-                                  context,
-                                  labelText: 'Cuenta Contable Vinculada',
-                                  prefixIcon: Icon(Icons.account_balance),
-                                ),
-                                enabled: false, // Campo de solo lectura
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                          ],
-                          
-                          // Selector de iconos (ahora usando el nuevo componente)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Selecciona un icono:',
-                                style: textTheme.titleSmall?.copyWith(
-                                  color: colorScheme.onSurface,
+                                'Active Category',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF111827),
                                 ),
                               ),
-                              const SizedBox(height: 16),
-                              
-                              // Eliminamos cualquier contenedor adicional que pueda agregar padding
-                              IconSelector(
-                                selectedIconCode: _selectedIcon,
-                                categoryType: _selectedType,
-                                onIconSelected: (iconCode) {
-                                  setState(() {
-                                    _selectedIcon = iconCode;
-                                  });
-                                },
+                              Text(
+                                'Enable this category for new transactions',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF6B7280),
+                                ),
                               ),
                             ],
+                          ),
+                          AppSwitch(
+                            value: _isActive,
+                            onChanged: (value) {
+                              setState(() {
+                                _isActive = value;
+                              });
+                            },
+                            // ✅ MANTENIDO: Color fijo del sistema (corrección anterior)
+                            activeColor: const Color(0xFF0c7ff2),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          bottom: MediaQuery.of(context).padding.bottom + 16,
-          top: 16,
-        ),
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withOpacity(0.1),
-              blurRadius: 4,
-              offset: const Offset(0, -1),
-            ),
-          ],
-        ),
-        child: AppButton(
-          text: 'Guardar',
-          onPressed: _isLoadingData || _isLoading ? null : _saveCategory,
-          isLoading: _isLoading,
-          type: AppButtonType.filled,
-          isFullWidth: true,
-        ),
+          ),
+          
+          // Footer con FormActionBar
+          FormActionBar(
+            onCancel: () => Navigator.of(context).pop(),
+            onSave: _saveCategory,
+            isLoading: _isLoading,
+            enabled: !_isLoading,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildParentCategorySelector() {
-    return FormFieldContainer(
-      child: DropdownButtonFormField<int?>(
-        value: _selectedParentId,
-        decoration: FormFieldContainer.getOutlinedDecoration(
-          context,
-          labelText: 'Categoría Padre (Opcional)',
-          prefixIcon: Icon(
-            Icons.account_tree_outlined,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        items: [
-          const DropdownMenuItem<int?>(
-            value: null,
-            child: Text('Ninguna (Categoría Principal)'),
-          ),
-          ..._parentCategories.map((category) {
-            // Buscar el icono para esta categoría
-            IconData iconData;
-            try {
-              iconData = IconData(
-                int.parse(category.icon, radix: 16),
-                fontFamily: 'MaterialIcons',
-              );
-            } catch (e) {
-              iconData = Icons.category;
-            }
-            
-            return DropdownMenuItem<int?>(
-              value: category.id,
-              child: Row(
-                children: [
-                  Icon(
-                    iconData,
-                    size: AppDimensions.iconSizeSmall,
-                    color: category.documentTypeId == 'E' ? Colors.red : Colors.green,
-                  ),
-                  SizedBox(width: AppDimensions.spacing8),
-                  Text(category.name),
-                ],
-              ),
-            );
-          }).toList(),
-        ],
-        onChanged: (value) {
-          setState(() {
-            _selectedParentId = value;
-          });
-        },
-      ),
-    );
+  // ✅ AGREGADO: Métodos helper para íconos y colores
+  IconData _getCategoryIcon(Category category) {
+    switch (category.name.toLowerCase()) {
+      case 'salary':
+        return Icons.work;
+      case 'business':
+        return Icons.business;
+      case 'investment':
+        return Icons.trending_up;
+      default:
+        return Icons.category;
+    }
+  }
+
+  Color _getCategoryColor(Category category) {
+    if (category.documentTypeId == 'I') {
+      return const Color(0xFF22C55E); // green para income
+    } else {
+      return const Color(0xFFEF4444); // red para expense
+    }
   }
 }
+
