@@ -281,31 +281,32 @@ class _ContactsScreenState extends State<ContactsScreen> {
             (contact.email?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false)
           ).toList();
 
-    return Column(
-      children: [
-        // Import Contacts Button
-        ImportContactsButton(
-          onPressed: _handleImportContacts,
-        ),
-        
-        // Lista de contactos expandida
-        Expanded(
-          child: contacts.isEmpty 
-              ? _buildEmptyState()
-              : _buildGroupedContactsList(contacts),
-        ),
-      ],
-    );
+    // ✅ SOLUCIONADO: Integrar botón de importar dentro del ListView para que scrollee
+    if (contacts.isEmpty) {
+      return _buildEmptyState();
+    }
+    
+    return _buildScrollableContactsList(contacts);
   }
 
-  Widget _buildGroupedContactsList(List<Contact> contacts) {
+  /// ✅ NUEVO: Lista scrolleable que incluye el botón de importar como primer elemento
+  Widget _buildScrollableContactsList(List<Contact> contacts) {
     final groupedContacts = _groupContactsByLetter(contacts);
+    final totalContactItems = _getTotalItemCount(groupedContacts);
     
     return ListView.builder(
-      padding: EdgeInsets.only(bottom: AppDimensions.spacing64 + AppDimensions.spacing16), // ✅ CORREGIDO: 64 + 16 = 80px para FAB
-      itemCount: _getTotalItemCount(groupedContacts),
+      padding: EdgeInsets.only(bottom: AppDimensions.spacing64 + AppDimensions.spacing16),
+      itemCount: totalContactItems + 1, // +1 para el botón de importar
       itemBuilder: (context, index) {
-        return _buildGroupedContactItem(context, groupedContacts, index);
+        // Primer item: Botón de importar
+        if (index == 0) {
+          return ImportContactsButton(
+            onPressed: _handleImportContacts,
+          );
+        }
+        
+        // Resto de items: contactos agrupados (ajustar index -1)
+        return _buildGroupedContactItem(context, groupedContacts, index - 1);
       },
     );
   }
@@ -497,12 +498,34 @@ class _ContactsScreenState extends State<ContactsScreen> {
       grouped[firstLetter]!.add(contact);
     }
     
-    // Ordenar cada grupo alfabéticamente
+    // ✅ CORREGIDO: Ordenar cada grupo alfabéticamente por nombre completo
     grouped.forEach((key, value) {
-      value.sort((a, b) => a.name.compareTo(b.name));
+      value.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     });
     
-    return grouped;
+    // ✅ AGREGADO: Crear mapa ordenado por las llaves (letras) alfabéticamente
+    final sortedGrouped = <String, List<Contact>>{};
+    
+    // Separar letras normales de caracteres especiales
+    final normalLetters = grouped.keys.where((key) => key.length == 1 && key.codeUnitAt(0) >= 65 && key.codeUnitAt(0) <= 90).toList();
+    final specialChars = grouped.keys.where((key) => !(key.length == 1 && key.codeUnitAt(0) >= 65 && key.codeUnitAt(0) <= 90)).toList();
+    
+    // Ordenar letras normales alfabéticamente
+    normalLetters.sort();
+    
+    // Ordenar caracteres especiales
+    specialChars.sort();
+    
+    // Agregar al mapa ordenado: primero letras, luego caracteres especiales
+    for (final letter in normalLetters) {
+      sortedGrouped[letter] = grouped[letter]!;
+    }
+    
+    for (final char in specialChars) {
+      sortedGrouped[char] = grouped[char]!;
+    }
+    
+    return sortedGrouped;
   }
 
   // ✅ AGREGADO: Calcular total de items (headers + contactos)
