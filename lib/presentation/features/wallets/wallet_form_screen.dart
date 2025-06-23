@@ -4,10 +4,14 @@ import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/chart_account.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/usecases/chart_account_usecases.dart';
-import '../../core/atoms/app_button.dart';
-import '../../core/design_system/theme/app_dimensions.dart';
+import '../../core/atoms/app_app_bar.dart'; // ✅ REFACTORIZADO: Usar AppAppBar atomizado
+import '../../core/atoms/app_floating_label_field.dart'; // ✅ REUTILIZADO: Para name y description
+import '../../core/atoms/currency_selector_button.dart'; // ✅ NUEVO: Para currency selection
+import '../../core/atoms/parent_wallet_selector_button.dart'; // ✅ NUEVO: Para parent wallet
+import '../../core/molecules/form_action_bar.dart'; // ✅ REUTILIZADO: Footer buttons
 import '../../core/molecules/error_message_card.dart';
-import '../../core/molecules/form_field_container.dart';
+import '../../core/molecules/currency_selection_dialog.dart'; // ✅ AGREGADO: Import del diálogo de currency
+import '../../core/molecules/parent_wallet_selection_dialog.dart'; // ✅ AGREGADO: Import del diálogo de parent wallet
 import '../../navigation/navigation_service.dart';
 
 class WalletFormScreen extends StatefulWidget {
@@ -23,8 +27,10 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  
   String _selectedCurrency = 'USD';
   int? _selectedParentId;
+  String? _selectedParentName; // ✅ NUEVO: Para mostrar nombre del parent
   List<Wallet> _parentWallets = [];
 
   bool _isLoading = false;
@@ -38,12 +44,12 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
   late final WalletUseCases _walletUseCases;
   late final ChartAccountUseCases _chartAccountUseCases;
 
-  // Lista simulada de divisas (esto debería venir de una API o BD)
+  // ✅ REFACTORIZADO: Lista de currencies mejorada con nombres completos
   final List<Map<String, String>> _currencies = [
-    {'id': 'USD', 'name': 'Dólar estadounidense'},
-    {'id': 'EUR', 'name': 'Euro'},
-    {'id': 'COP', 'name': 'Peso colombiano'},
-    {'id': 'MXN', 'name': 'Peso mexicano'},
+    {'id': 'USD', 'name': 'US Dollar', 'symbol': '\$'},
+    {'id': 'EUR', 'name': 'Euro', 'symbol': '€'},
+    {'id': 'COP', 'name': 'Colombian Peso', 'symbol': '\$'},
+    {'id': 'MXN', 'name': 'Mexican Peso', 'symbol': '\$'},
   ];
 
   @override
@@ -107,11 +113,22 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
       final allWallets = await _walletUseCases.getAllWallets();
       final potentialParents = allWallets
           .where((w) => !isEditing || w.id != widget.wallet!.id)
+          .where((w) => w.parentId == null) // Solo wallets padre
           .toList();
 
       if (mounted) {
         setState(() {
           _parentWallets = potentialParents;
+          
+          // ✅ NUEVO: Buscar nombre del parent seleccionado
+          if (_selectedParentId != null) {
+            final parentWallet = potentialParents.firstWhere(
+              (w) => w.id == _selectedParentId,
+              orElse: () => potentialParents.first,
+            );
+            _selectedParentName = parentWallet.name;
+          }
+          
           _isParentWalletsLoading = false;
         });
       }
@@ -130,6 +147,52 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
     _nameController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  // ✅ ACTUALIZADO: Método para mostrar currency selector
+  void _showCurrencySelector() async {
+    final result = await CurrencySelectionDialog.show(
+      context: context,
+      selectedCurrency: _selectedCurrency,
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedCurrency = result.id;
+      });
+    }
+  }
+
+  // ✅ ACTUALIZADO: Método para mostrar parent wallet selector
+  void _showParentWalletSelector() async {
+    if (_parentWallets.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No hay billeteras disponibles como padre'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final result = await ParentWalletSelectionDialog.show(
+      context: context,
+      availableWallets: _parentWallets,
+      selectedWalletId: _selectedParentId,
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedParentId = result.id;
+        _selectedParentName = result.name;
+      });
+    } else {
+      // Si se retorna null explícitamente, significa "No parent"
+      setState(() {
+        _selectedParentId = null;
+        _selectedParentName = null;
+      });
+    }
   }
 
   Future<void> _saveWallet() async {
@@ -168,11 +231,10 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
             ),
           );
           
-          // Devolver la billetera a la pantalla anterior
           NavigationService.goBack(wallet);
         }
       } else {
-        // Creación de nueva wallet con generación automática de cuenta contable
+        // ✅ SIMPLIFICADO: Creación de nueva wallet sin initial balance
         final wallet = await _walletUseCases.createWalletWithAccount(
           parentId: _selectedParentId,
           name: _nameController.text.trim(),
@@ -188,7 +250,6 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
             ),
           );
           
-          // Devolver la billetera a la pantalla anterior
           NavigationService.goBack(wallet);
         }
       }
@@ -208,243 +269,143 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    // ✅ NUEVO: Obtener nombre de currency seleccionada
+    final selectedCurrencyData = _currencies.firstWhere(
+      (currency) => currency['id'] == _selectedCurrency,
+      orElse: () => _currencies.first,
+    );
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? 'Editar billetera' : 'Nueva billetera'),
-        centerTitle: true,
-        elevation: 0,
+      backgroundColor: const Color(0xFFF8FAFC), // HTML: bg-slate-50
+      
+      // ✅ REFACTORIZADO: Usar AppAppBar atomizado exacto del HTML
+      appBar: AppAppBar(
+        title: isEditing ? 'Edit wallet' : 'New wallet', // HTML: exacto del wallet_form.html
+        type: AppAppBarType.blur, // HTML: bg-slate-50/80 backdrop-blur-md
+        leading: AppAppBarLeading.close, // HTML: close button exacto
+        onLeadingPressed: () => Navigator.of(context).pop(),
       ),
+      
       body: _isChartAccountsLoading || _isParentWalletsLoading
           ? const Center(child: CircularProgressIndicator())
-          : Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(AppDimensions.spacing16),
-                children: [
-                  // Error (si existe)
-                  if (_error != null)
-                    ErrorMessageCard(
-                      message: _error!,
-                      onClose: () => setState(() => _error = null),
-                    ),
-                  
-                  // Nombre (requerido)
-                  FormFieldContainer(
-                    child: TextFormField(
-                      controller: _nameController,
-                      decoration: FormFieldContainer.getOutlinedDecoration(
-                        context,
-                        labelText: 'Nombre',
-                        prefixIcon: Icon(
-                          Icons.text_fields,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'El nombre es requerido';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: AppDimensions.spacing16),
-                  
-                  // Descripción (opcional)
-                  FormFieldContainer(
-                    isOptional: true,
-                    child: TextFormField(
-                      controller: _descriptionController,
-                      decoration: FormFieldContainer.getOutlinedDecoration(
-                        context,
-                        labelText: 'Descripción',
-                        prefixIcon: Icon(
-                          Icons.description_outlined,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      maxLines: 3,
-                    ),
-                  ),
-                  const SizedBox(height: AppDimensions.spacing16),
-                  
-                  // Divisa
-                  FormFieldContainer(
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedCurrency,
-                      isExpanded: true,
-                      alignment: AlignmentDirectional.centerStart,
-                      itemHeight: 60,
-                      decoration: FormFieldContainer.getOutlinedDecoration(
-                        context,
-                        labelText: 'Divisa',
-                        prefixIcon: Icon(
-                          Icons.currency_exchange,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      items: _currencies.map((currency) {
-                        return DropdownMenuItem(
-                          value: currency['id'],
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            '${currency['id']} - ${currency['name']}',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            _selectedCurrency = value;
-                          });
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: AppDimensions.spacing16),
-
-                  // Billetera Padre (opcional)
-                  FormFieldContainer(
-                    isOptional: true,
-                    child: DropdownButtonFormField<int?>(
-                      value: _selectedParentId,
-                      isExpanded: true,
-                      alignment: AlignmentDirectional.centerStart,
-                      itemHeight: 60,
-                      decoration: FormFieldContainer.getOutlinedDecoration(
-                        context,
-                        labelText: 'Billetera Padre',
-                        prefixIcon: Icon(
-                          Icons.account_tree_outlined,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      items: [
-                        const DropdownMenuItem<int?>(
-                          value: null,
-                          child: Text('Ninguna (Billetera Raíz)'),
-                        ),
-                        ..._parentWallets
-                            .where((wallet) => wallet.parentId == null) // Solo billeteras raíz
-                            .where((wallet) => !isEditing || wallet.id != widget.wallet!.id) // Excluir billetera actual si se edita
-                            .map((wallet) {
-                          return DropdownMenuItem<int?>(
-                            value: wallet.id,
-                            child: Text(wallet.name),
-                          );
-                        }).toList(),
-                      ],
-                      onChanged: isEditing ? null : (value) {
-                        setState(() {
-                          _selectedParentId = value;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: AppDimensions.spacing16),
-                          
-                  // Mostrar la cuenta contable asociada (solo en modo edición)
-                  if (isEditing && _associatedChartAccount != null) ...[
-                    FormFieldContainer(
-                      child: InputDecorator(
-                        decoration: FormFieldContainer.getOutlinedDecoration(
-                          context,
-                          labelText: 'Cuenta contable asociada',
-                          prefixIcon: Icon(
-                            Icons.account_tree_outlined,
-                            color: colorScheme.primary,
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: AppDimensions.spacing8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${_associatedChartAccount!.code} - ${_associatedChartAccount!.name}',
-                                style: textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: AppDimensions.spacing4),
-                              Text(
-                                'La cuenta contable no puede ser modificada',
-                                style: textTheme.bodySmall?.copyWith(
-                                  color: colorScheme.onSurfaceVariant,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                          
-                  // En modo creación, mostrar mensaje informativo
-                  if (!isEditing) ...[
-                    const SizedBox(height: AppDimensions.spacing16),
-                    Container(
-                      padding: const EdgeInsets.all(AppDimensions.spacing12),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-                        border: Border.all(
-                          color: colorScheme.outline.withOpacity(0.2),
-                        ),
-                      ),
-                      child: Row(
+          : Column(
+              children: [
+                // ✅ REFACTORIZADO: Form content como main del HTML
+                Expanded(
+                  child: Form(
+                    key: _formKey,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16), // HTML: px-4 py-4
+                      child: Column(
                         children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: colorScheme.primary,
-                            size: AppDimensions.iconSizeMedium,
+                          // Error (si existe)
+                          if (_error != null)
+                            ErrorMessageCard(
+                              message: _error!,
+                              onClose: () => setState(() => _error = null),
+                            ),
+                          
+                          // ✅ REFACTORIZADO: Wallet name con floating label exacto del HTML
+                          AppFloatingLabelField(
+                            controller: _nameController,
+                            label: 'Wallet name', // HTML: exacto
+                            placeholder: 'Enter wallet name', // HTML: exacto
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'El nombre es requerido';
+                              }
+                              return null;
+                            },
+                            textCapitalization: TextCapitalization.words,
                           ),
-                          const SizedBox(width: AppDimensions.spacing8),
-                          Expanded(
-                            child: Text(
-                              'Se creará automáticamente una cuenta contable asociada a esta billetera',
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colorScheme.primary,
+                          
+                          const SizedBox(height: 24), // HTML: space-y-6
+                          
+                          // ✅ REFACTORIZADO: Description con floating label exacto del HTML
+                          AppFloatingLabelField(
+                            controller: _descriptionController,
+                            label: 'Description', // HTML: exacto
+                            placeholder: 'Optional description for this wallet', // HTML: exacto
+                            maxLines: 3, // HTML: textarea con rows="3"
+                            textInputAction: TextInputAction.newline,
+                          ),
+                          
+                          const SizedBox(height: 24), // HTML: space-y-6
+                          
+                          // ✅ NUEVO: Currency selector exacto del HTML
+                          CurrencySelectorButton(
+                            label: 'Currency', // HTML: exacto
+                            selectedCurrency: _selectedCurrency,
+                            selectedCurrencyName: selectedCurrencyData['name']!,
+                            onPressed: _showCurrencySelector,
+                          ),
+                          
+                          const SizedBox(height: 24), // HTML: space-y-6
+                          
+                          // ✅ NUEVO: Parent wallet selector exacto del HTML
+                          ParentWalletSelectorButton(
+                            label: 'Parent wallet (optional)', // HTML: exacto
+                            selectedWalletName: _selectedParentName,
+                            onPressed: _showParentWalletSelector,
+                          ),
+                          
+                          // Mostrar la cuenta contable asociada (solo en modo edición)
+                          if (isEditing && _associatedChartAccount != null) ...[
+                            const SizedBox(height: 24),
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: const Color(0xFFCBD5E1)),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Cuenta contable asociada',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${_associatedChartAccount!.code} - ${_associatedChartAccount!.name}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF0F172A),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'La cuenta contable no puede ser modificada',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF64748B),
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
-                  ],
-                ],
-              ),
+                  ),
+                ),
+                
+                // ✅ REFACTORIZADO: Footer exacto del HTML con FormActionBar
+                FormActionBar(
+                  onCancel: () => Navigator.of(context).pop(),
+                  onSave: _saveWallet,
+                  isLoading: _isLoading,
+                  enabled: !_isLoading,
+                ),
+              ],
             ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.only(
-          left: AppDimensions.spacing16,
-          right: AppDimensions.spacing16,
-          bottom: MediaQuery.of(context).padding.bottom + AppDimensions.spacing16,
-          top: AppDimensions.spacing16,
-        ),
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withOpacity(0.1),
-              blurRadius: 4,
-              offset: const Offset(0, -1),
-            ),
-          ],
-        ),
-        child: AppButton(
-          text: 'Guardar',
-          onPressed: _saveWallet,
-          type: AppButtonType.filled,
-          isLoading: _isLoading,
-          isFullWidth: true,
-        ),
-      ),
     );
   }
 }
