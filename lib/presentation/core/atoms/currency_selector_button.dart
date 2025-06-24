@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
 
 /// Botón selector de currency con ícono circular basado en wallet_form.html
+/// ✅ VERSIÓN PRINCIPAL - Eliminar currency_selection_button.dart duplicado
 /// 
 /// HTML Reference:
 /// ```html
 /// <button onclick="window.location.href='../components/currency_dialog.html'" class="form-input w-full rounded-lg border-slate-300 bg-slate-50 text-slate-900 h-14 px-4 text-base font-normal leading-normal flex items-center justify-between">
-///   <div class="flex items-center gap-3">
-///     <div class="flex items-center justify-center h-8 w-8 rounded-full bg-green-100 text-green-600">
-///       <span class="text-sm font-bold">$</span>
-///     </div>
-///     <span class="text-slate-900 font-medium">USD - US Dollar</span>
-///   </div>
-///   <span class="material-symbols-outlined text-slate-400">expand_more</span>
-/// </button>
 /// ```
 class CurrencySelectorButton extends StatelessWidget {
   const CurrencySelectorButton({
@@ -35,9 +28,9 @@ class CurrencySelectorButton extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Container with floating label exactly like HTML
+        // ✅ CORREGIDO: Container con altura fija para consistencia
         Stack(
-          clipBehavior: Clip.none, // ✅ AGREGADO: Permitir que el label sobresalga
+          clipBehavior: Clip.none,
           children: [
             // Button content
             Material(
@@ -47,7 +40,7 @@ class CurrencySelectorButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8), // HTML: rounded-lg
                 child: Container(
                   width: double.infinity,
-                  height: 56, // HTML: h-14
+                  height: 56, // HTML: h-14 - altura fija sin margin top
                   padding: const EdgeInsets.symmetric(horizontal: 16), // HTML: px-4
                   decoration: BoxDecoration(
                     color: const Color(0xFFF8FAFC), // HTML: bg-slate-50
@@ -113,22 +106,22 @@ class CurrencySelectorButton extends StatelessWidget {
               ),
             ),
             
-            // ✅ CORREGIDO: Floating label con color consistente al text field
+            // ✅ CORREGIDO: Floating label posicionado correctamente
             Positioned(
               left: 12, // HTML: left-3
-              top: -10, // ✅ CORREGIDO: Subido más para mejor visibilidad
+              top: -10, // ✅ CORREGIDO: Posición negativa para que sobresalga
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 4), // HTML: px-1
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8FAFC), // HTML: bg-slate-50
-                  borderRadius: BorderRadius.circular(2), // ✅ AGREGADO: Bordes redondeados
+                  borderRadius: BorderRadius.circular(2),
                 ),
                 child: Text(
                   label,
                   style: const TextStyle(
                     fontSize: 12, // HTML: text-xs
                     color: Color(0xFF64748B), // HTML: text-slate-500
-                    fontWeight: FontWeight.normal, // ✅ CORREGIDO: Peso normal igual que AppFloatingLabelField
+                    fontWeight: FontWeight.normal,
                   ),
                 ),
               ),
