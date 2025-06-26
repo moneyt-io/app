@@ -241,16 +241,6 @@ class RouteGenerator {
           settings: settings,
         );
         
-      case AppRoutes.loanTest:
-        return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            body: Center(
-              child: Text('Loan Test Screen - Coming Soon'),
-            ),
-          ),
-          settings: settings,
-        );
-
       default:
         return _errorRoute('Route not found: ${settings.name}');
     }

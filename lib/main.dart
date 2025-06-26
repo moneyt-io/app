@@ -8,8 +8,7 @@ import 'presentation/core/providers/language_provider.dart';
 import 'presentation/core/l10n/generated/strings.g.dart';
 import 'presentation/features/backup/backup_provider.dart';
 import 'presentation/features/loans/loan_provider.dart';
-import 'presentation/features/contacts/contact_provider.dart';
-import 'presentation/features/credit_cards/credit_card_provider.dart'; // ✅ AGREGADO
+import 'presentation/features/contacts/contact_provider.dart'; // AGREGADO
 import 'app.dart';
 import 'core/di/injection_container.dart';
 
@@ -46,9 +45,6 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => ContactProvider(GetIt.instance()),
-        ),
-        ChangeNotifierProvider( // ✅ AGREGADO
-          create: (_) => CreditCardProvider(),
         ),
       ],
       child: const MoneyTApp(),

@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart'; // Añadir esta importación
-import '../../core/molecules/account_balance_card.dart';
-import '../../core/molecules/stats_card.dart';
-import '../../core/molecules/transaction_list_item.dart';
+import 'package:get_it/get_it.dart';
+import '../../../domain/entities/transaction_entry.dart';
+import '../../../domain/entities/wallet.dart';
+import '../../../domain/usecases/transaction_usecases.dart';
+import '../../../domain/usecases/wallet_usecases.dart';
+import '../../core/atoms/greeting_header.dart';
+import '../../core/atoms/expandable_fab.dart';
+import '../../core/molecules/balance_summary_widget.dart';
+import '../../core/molecules/quick_actions_grid.dart';
+import '../../core/molecules/wallets_dashboard_widget.dart';
+import '../../core/molecules/loans_dashboard_widget.dart';
 import '../../core/organisms/app_drawer.dart';
 import '../../navigation/navigation_service.dart';
 import '../../navigation/app_routes.dart';
-import '../../../domain/entities/transaction_entry.dart';
-import '../../../domain/entities/wallet.dart'; // Importar entidad Wallet
-import '../../../domain/usecases/transaction_usecases.dart'; // Añadir esta importación
+import 'dashboard_widgets_screen.dart'; // ✅ AGREGADO: Import de la pantalla de widgets
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -18,62 +23,92 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Añadir esta propiedad para acceder a transactionUseCases
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _transactionUseCases = GetIt.instance<TransactionUseCases>();
+  final _walletUseCases = GetIt.instance<WalletUseCases>();
   
-  // Datos de ejemplo para la pantalla principal
-  final _mockTotalBalance = 2500.0;
-  final _mockIncomeMonth = 1500.0;
-  final _mockExpensesMonth = 850.0;
-  final _mockSavingsMonth = 650.0;
+  // Dashboard data
+  double _totalBalance = 24567.80;
+  double _income = 8420.00;
+  double _expenses = 3890.50;
+  bool _isBalanceVisible = true;
   
-  // Lista de transacciones recientes para mostrar
+  // Wallets data
+  List<WalletDisplayItem> _walletItems = [];
+  int _totalWalletsCount = 5;
+  
+  // Loans data
+  double _youLent = 2300.00;
+  double _youBorrowed = 1200.00;
+  int _activeLoansCount = 3;
+  
   List<TransactionEntry> _recentTransactions = [];
-  
-  // Simulación de cuentas - ACTUALIZADO para usar Wallet entities
-  final List<Wallet> _mockWallets = [
-    Wallet(
-      id: 1,
-      parentId: null,
-      currencyId: 'COP',
-      chartAccountId: 1,
-      name: 'Cuenta Principal',
-      description: 'Cuenta bancaria principal',
-      active: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      deletedAt: null,
-    ),
-    Wallet(
-      id: 2,
-      parentId: null,
-      currencyId: 'COP',
-      chartAccountId: 2,
-      name: 'Ahorros',
-      description: 'Cuenta de ahorros',
-      active: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      deletedAt: null,
-    ),
-    Wallet(
-      id: 3,
-      parentId: null,
-      currencyId: 'COP',
-      chartAccountId: 3,
-      name: 'Efectivo',
-      description: 'Dinero en efectivo',
-      active: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      deletedAt: null,
-    ),
-  ];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadRecentTransactions(); // Cargar transacciones al iniciar
+    _loadDashboardData();
+  }
+
+  Future<void> _loadDashboardData() async {
+    setState(() => _isLoading = true);
+    
+    try {
+      // Load wallets and their balances
+      await _loadWalletsData();
+      
+      // Load recent transactions
+      await _loadRecentTransactions();
+      
+      // TODO: Load real balance data from services
+      // TODO: Load real loans data from services
+      
+    } catch (e) {
+      print('Error loading dashboard data: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _loadWalletsData() async {
+    try {
+      final wallets = await _walletUseCases.getAllWallets();
+      final activeWallets = wallets.where((w) => w.active).toList();
+      
+      // Create wallet display items with mock balances
+      final walletItems = <WalletDisplayItem>[];
+      final mockBalances = [12340.50, 8920.30, 1450.00]; // From HTML
+      
+      for (int i = 0; i < activeWallets.length && i < 3; i++) {
+        final balance = i < mockBalances.length ? mockBalances[i] : 0.0;
+        walletItems.add(WalletDisplayItem.fromWallet(activeWallets[i], balance));
+      }
+      
+      if (mounted) {
+        setState(() {
+          _walletItems = walletItems;
+          _totalWalletsCount = activeWallets.length;
+        });
+      }
+    } catch (e) {
+      print('Error loading wallets: $e');
+    }
+  }
+
+  Future<void> _loadRecentTransactions() async {
+    try {
+      final transactions = await _transactionUseCases.getAllTransactions();
+      if (mounted) {
+        setState(() {
+          _recentTransactions = transactions.take(5).toList();
+        });
+      }
+    } catch (e) {
+      print('Error loading transactions: $e');
+    }
   }
 
   void _navigateToTransactionForm({String type = 'all'}) {
@@ -82,202 +117,154 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _loadRecentTransactions() async {
-    try {
-      final transactions = await _transactionUseCases.getAllTransactions();
-      setState(() {
-        _recentTransactions = transactions.take(5).toList();
-      });
-    } catch (e) {
-      // Manejo de errores
-    }
+  void _openDrawer() {
+    _scaffoldKey.currentState?.openDrawer();
   }
 
-  // Método para recargar todos los datos del dashboard
-  Future<void> _loadDashboardData() async {
-    await _loadRecentTransactions();
-    // Agregar aquí otras cargas de datos cuando se implementen
-  }
-
-  void _navigateToTransactionDetail(TransactionEntry transaction) async {
-    final result = await NavigationService.navigateTo(
-      AppRoutes.transactionDetail,
-      arguments: transaction,
+  void _navigateToDashboardWidgets() {
+    // ✅ SOLUCION SIMPLE: Usar Navigator directo sin cambiar el sistema de rutas
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const DashboardWidgetsScreen(),
+      ),
     );
-
-    if (result != null) {
-      _loadDashboardData();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('MoneyT'),
-        centerTitle: true,
-        elevation: 0,
-      ),
+      key: _scaffoldKey,
+      backgroundColor: const Color(0xFFF8FAFC), // HTML: bg-slate-50
       drawer: const AppDrawer(),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          // Aquí iría la lógica para refrescar los datos
-          await Future.delayed(const Duration(seconds: 1));
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Balance total
-              Column(
-                children: _mockWallets.map((wallet) => AccountBalanceCard(
-                  wallet: wallet,
-                  onTap: () => NavigationService.navigateTo(AppRoutes.wallets),
-                )).toList(),
+      body: Column(
+        children: [
+          // Header with blur effect
+          Container(
+            color: const Color(0xFFF8FAFC).withOpacity(0.8), // HTML: bg-slate-50/80
+            child: SafeArea(
+              bottom: false,
+              child: GreetingHeader(
+                userName: 'Alex', // TODO: Get from user service
+                onMenuPressed: _openDrawer,
+                onEditPressed: _navigateToDashboardWidgets, // ✅ CORREGIDO: Navegar a widgets config
+                onProfilePressed: () {
+                  NavigationService.navigateTo(AppRoutes.settings);
+                },
               ),
-              
-              const SizedBox(height: 20),
-              
-              // Estadísticas mensuales
-              Row(
+            ),
+          ),
+          
+          // Main content
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 100), // Space for FAB
+              child: Column(
                 children: [
-                  Expanded(
-                    child: StatsCard(
-                      title: 'Ingresos',
-                      value: '\$${_mockIncomeMonth.toStringAsFixed(0)}', // CORREGIDO: agregar value
-                      icon: Icons.arrow_upward, // CORREGIDO: cambiar iconData por icon
-                      color: colorScheme.primary, // CORREGIDO: usar color en lugar de múltiples propiedades
-                    ),
+                  const SizedBox(height: 16), // HTML: mt-4
+                  
+                  // Balance Summary Widget
+                  BalanceSummaryWidget(
+                    totalBalance: _totalBalance,
+                    income: _income,
+                    expenses: _expenses,
+                    isBalanceVisible: _isBalanceVisible,
+                    onVisibilityToggle: () {
+                      setState(() {
+                        _isBalanceVisible = !_isBalanceVisible;
+                      });
+                    },
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: StatsCard(
-                      title: 'Gastos',
-                      value: '\$${_mockExpensesMonth.toStringAsFixed(0)}', // CORREGIDO: agregar value
-                      icon: Icons.arrow_downward, // CORREGIDO: cambiar iconData por icon
-                      color: colorScheme.error, // CORREGIDO: usar color en lugar de múltiples propiedades
-                    ),
+                  
+                  const SizedBox(height: 24), // HTML: space-y-6
+                  
+                  // Quick Actions
+                  QuickActionsGrid(
+                    onExpensePressed: () => _navigateToTransactionForm(type: 'expense'),
+                    onIncomePressed: () => _navigateToTransactionForm(type: 'income'),
+                    onTransferPressed: () => _navigateToTransactionForm(type: 'transfer'),
+                    onAllPressed: () => NavigationService.navigateTo(AppRoutes.transactions),
                   ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Wallets Widget
+                  WalletsDashboardWidget(
+                    wallets: _walletItems,
+                    totalCount: _totalWalletsCount,
+                    onHeaderTap: () => NavigationService.navigateTo(AppRoutes.wallets),
+                    onWalletTap: (wallet) {
+                      // TODO: Navigate to wallet detail
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('View ${wallet.name} details'),
+                          backgroundColor: const Color(0xFF0c7ff2),
+                        ),
+                      );
+                    },
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Loans Widget
+                  LoansDashboardWidget(
+                    youLent: _youLent,
+                    youBorrowed: _youBorrowed,
+                    activeLoansCount: _activeLoansCount,
+                    onHeaderTap: () {
+                      // TODO: Navigate to loans screen
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Loans module coming soon'),
+                          backgroundColor: Color(0xFF0c7ff2),
+                        ),
+                      );
+                    },
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // TODO: Add Recent Transactions Widget
+                  // TODO: Add Chart of Accounts Widget
                 ],
               ),
-              
-              const SizedBox(height: 16),
-              
-              StatsCard(
-                title: 'Ahorros',
-                value: '\$${_mockSavingsMonth.toStringAsFixed(0)}', // CORREGIDO: agregar value
-                icon: Icons.savings, // CORREGIDO: cambiar iconData por icon
-                color: colorScheme.tertiary, // CORREGIDO: usar color en lugar de múltiples propiedades
-              ),
-              
-              const SizedBox(height: 20),
-              
-              // Mis cuentas
-              _buildSection(
-                title: 'Mis Cuentas', 
-                onViewAll: () => NavigationService.navigateTo(AppRoutes.wallets)
-              ),
-              
-              _buildAccountsList(),
-              
-              const SizedBox(height: 20),
-              
-              // Transacciones recientes
-              _buildSection(
-                title: 'Transacciones Recientes', 
-                onViewAll: () => NavigationService.navigateTo(AppRoutes.transactions)
-              ),
-              
-              _buildRecentTransactions(),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToTransactionForm(),
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-        child: const Icon(Icons.add),
+      floatingActionButton: _buildExpandableFAB(),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return const Center(
+      child: CircularProgressIndicator(
+        color: Color(0xFF0c7ff2),
       ),
     );
   }
-  
-  Widget _buildSection({required String title, required VoidCallback onViewAll}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+
+  Widget _buildExpandableFAB() {
+    return ExpandableFab(
+      actions: [
+        FabAction(
+          icon: Icons.trending_up,
+          label: 'Add Income',
+          onPressed: () => _navigateToTransactionForm(type: 'income'),
+          backgroundColor: const Color(0xFF16A34A), // green-500
         ),
-        TextButton(
-          onPressed: onViewAll,
-          child: const Text('Ver todo'),
+        FabAction(
+          icon: Icons.trending_down,
+          label: 'Add Expense',
+          onPressed: () => _navigateToTransactionForm(type: 'expense'),
+          backgroundColor: const Color(0xFFDC2626), // red-500
+        ),
+        FabAction(
+          icon: Icons.swap_horiz,
+          label: 'Transfer Money',
+          onPressed: () => _navigateToTransactionForm(type: 'transfer'),
+          backgroundColor: const Color(0xFF2563EB), // blue-500
         ),
       ],
-    );
-  }
-  
-  Widget _buildAccountsList() {
-    return Column(
-      children: _mockWallets.map((wallet) {
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-            ),
-          ),
-          child: ListTile(
-            title: Text(wallet.name),
-            subtitle: Text('Balance'),
-            trailing: Text(
-              'Balance calculado', // CORREGIDO: remover referencia a wallet.balance
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            onTap: () {}, // Aquí iría la navegación al detalle de la cuenta
-          ),
-        );
-      }).toList(),
-    );
-  }
-  
-  Widget _buildRecentTransactions() {
-    if (_recentTransactions.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Center(
-          child: Text('No hay transacciones recientes'),
-        ),
-      );
-    }
-
-    // Simulación de categorías para mostrar
-    final mockCategories = {1: 'Alimentación', 2: 'Transporte', 5: 'Salario'};
-    
-    return Column(
-      children: _recentTransactions.map((transaction) {
-        return TransactionListItem(
-          transaction: transaction,
-          categoryName: transaction.mainCategoryId != null ? 
-            mockCategories[transaction.mainCategoryId] : null,
-          onTap: () => _navigateToTransactionDetail(transaction),
-          onDelete: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Función de eliminar aún no implementada')),
-            );
-          },
-        );
-      }).toList(),
     );
   }
 }

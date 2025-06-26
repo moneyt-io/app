@@ -50,5 +50,7 @@ class AppRoutes {
   static const String loans = '/loans';
   static const String loanForm = '/loans/form';
   static const String loanDetail = '/loans/detail';
-  static const String loanTest = '/loans/test'; // AGREGADO
+  
+  // ✅ AGREGADO: Ruta para configuración de widgets
+  static const String dashboardWidgets = '/dashboard/widgets';
 }
