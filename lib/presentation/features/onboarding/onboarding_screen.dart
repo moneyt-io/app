@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../navigation/navigation_service.dart';
 import '../../navigation/app_routes.dart';
-import '../../core/services/onboarding_service.dart'; // ✅ AGREGADO
+import '../../core/services/onboarding_service.dart';
+import 'theme/onboarding_theme.dart';
+import 'widgets/animated_page_indicator.dart';
 import 'pages/welcome_page.dart';
-import 'pages/values_page.dart';
-import 'pages/feature_tour_page.dart';
+import 'pages/problem_statement_page.dart';
+import 'pages/solution_preview_page.dart';
+import 'pages/feature_showcase_page.dart';
 import 'pages/complete_page.dart';
 
+/// Onboarding rediseñado con mejor UX/UI y storytelling
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
 
@@ -14,69 +19,193 @@ class OnboardingScreen extends StatefulWidget {
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  final PageController _pageController = PageController();
-  int _currentIndex = 0;
+class _OnboardingScreenState extends State<OnboardingScreen>
+    with TickerProviderStateMixin {
+  late PageController _pageController;
+  late AnimationController _skipButtonController;
+  
+  int _currentPage = 0;
+  bool _showSkipButton = true;
 
-  final List<Widget> _pages = [
-    const WelcomePage(),
-    const ValuesPage(),
-    const FeatureTourPage(),
-    const CompletePage(),
-  ];
-
+  // Lista de páginas del onboarding
+  late final List<Widget> _pages;
+  
   @override
   void initState() {
     super.initState();
-    print('🎬 OnboardingScreen: Initialized'); // Debug
+    print('🎬 Enhanced OnboardingScreen: Initialized');
+    
+    _pageController = PageController();
+    _skipButtonController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    // Construir lista de páginas con features individuales
+    _pages = [
+      WelcomePage(onNext: _nextPage),
+      ProblemStatementPage(onNext: _nextPage),
+      SolutionPreviewPage(onNext: _nextPage),
+      // Features individuales
+      ...FeatureInfo.allFeatures.map((feature) => 
+        FeatureShowcasePage(
+          feature: feature,
+          onNext: _nextPage,
+        ),
+      ),
+      CompletePage(onComplete: _completeOnboarding),
+    ];
+
+    // Iniciar animación del botón skip
+    _skipButtonController.forward();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _skipButtonController.dispose();
+    super.dispose();
   }
 
   void _nextPage() {
-    if (_currentIndex < _pages.length - 1) {
+    if (_currentPage < _pages.length - 1) {
+      // Haptic feedback
+      HapticFeedback.lightImpact();
+      
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+        duration: OnboardingTheme.pageTransition,
+        curve: OnboardingTheme.defaultCurve,
       );
     }
   }
 
-  void _onPageChanged(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+  void _previousPage() {
+    if (_currentPage > 0) {
+      HapticFeedback.lightImpact();
+      
+      _pageController.previousPage(
+        duration: OnboardingTheme.pageTransition,
+        curve: OnboardingTheme.defaultCurve,
+      );
+    }
+  }
+
+  void _goToPage(int page) {
+    HapticFeedback.selectionClick();
+    
+    _pageController.animateToPage(
+      page,
+      duration: OnboardingTheme.pageTransition,
+      curve: OnboardingTheme.defaultCurve,
+    );
+  }
+
+  void _skipOnboarding() {
+    HapticFeedback.mediumImpact();
+    _completeOnboarding();
   }
 
   void _completeOnboarding() async {
-    print('✅ OnboardingScreen: Completing onboarding...'); // Debug
+    print('✅ Enhanced OnboardingScreen: Completing onboarding...');
     
-    // ✅ CORREGIDO: Marcar onboarding como completado
+    // ✅ CORREGIDO: Usar el método correcto para haptic feedback de éxito
+    HapticFeedback.heavyImpact(); // En lugar de notificationFeedback
+    
+    // Marcar onboarding como completado
     await OnboardingService.markOnboardingCompleted();
     
-    print('🏠 OnboardingScreen: Navigating to home...'); // Debug
+    print('🏠 Enhanced OnboardingScreen: Navigating to home...');
     // Navegar al home
     NavigationService.navigateToAndClearStack(AppRoutes.home);
   }
 
+  void _onPageChanged(int page) {
+    setState(() {
+      _currentPage = page;
+      // Ocultar skip button en la última página
+      _showSkipButton = page < _pages.length - 1;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    print('🎨 OnboardingScreen: Building with page $_currentIndex'); // Debug
+    print('🎨 Enhanced OnboardingScreen: Building with page $_currentPage');
     
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
-        children: _pages.map((page) {
-          if (page is WelcomePage) {
-            return WelcomePage(onNext: _nextPage);
-          } else if (page is ValuesPage) {
-            return ValuesPage(onNext: _nextPage);
-          } else if (page is FeatureTourPage) {
-            return FeatureTourPage(onNext: _nextPage, onSkip: _completeOnboarding);
-          } else if (page is CompletePage) {
-            return CompletePage(onComplete: _completeOnboarding);
-          }
-          return page;
-        }).toList(),
+      body: Stack(
+        children: [
+          // Main PageView
+          PageView(
+            controller: _pageController,
+            onPageChanged: _onPageChanged,
+            children: _pages,
+          ),
+          
+          // Top overlay with progress and skip
+          if (_showSkipButton)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                bottom: false,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: OnboardingTheme.spacing16,
+                    vertical: OnboardingTheme.spacing8,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Back button (solo si no es la primera página)
+                      if (_currentPage > 0)
+                        AnimatedOpacity(
+                          opacity: _currentPage > 0 ? 1.0 : 0.0,
+                          duration: OnboardingTheme.elementEntrance,
+                          child: IconButton(
+                            onPressed: _previousPage,
+                            icon: const Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        )
+                      else
+                        const SizedBox(width: 48),
+                      
+                      // Progress indicator
+                      Expanded(
+                        child: Center(
+                          child: AnimatedPageIndicator(
+                            currentPage: _currentPage,
+                            totalPages: _pages.length,
+                            onPageTap: _goToPage,
+                          ),
+                        ),
+                      ),
+                      
+                      // Skip button
+                      FadeTransition(
+                        opacity: _skipButtonController,
+                        child: TextButton(
+                          onPressed: _skipOnboarding,
+                          child: const Text(
+                            'Saltar',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

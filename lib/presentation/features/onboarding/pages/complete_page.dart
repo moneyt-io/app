@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:confetti/confetti.dart';
 
-class CompletePage extends StatelessWidget {
+import '../theme/onboarding_theme.dart';
+import '../widgets/animated_feature_icon.dart';
+import '../widgets/staggered_text_animation.dart';
+
+class CompletePage extends StatefulWidget {
   const CompletePage({
     Key? key,
     this.onComplete,
@@ -9,90 +14,187 @@ class CompletePage extends StatelessWidget {
   final VoidCallback? onComplete;
 
   @override
+  State<CompletePage> createState() => _CompletePageState();
+}
+
+class _CompletePageState extends State<CompletePage>
+    with TickerProviderStateMixin {
+  late ConfettiController _confettiController;
+  late AnimationController _buttonController;
+  late Animation<double> _buttonScale;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 3),
+    );
+
+    _buttonController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _buttonScale = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(
+      parent: _buttonController,
+      curve: Curves.easeInOut,
+    ));
+
+    // Iniciar confetti después de un delay
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (mounted) {
+        _confettiController.play();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    _buttonController.dispose();
+    super.dispose();
+  }
+
+  void _handleButtonTap() {
+    _buttonController.forward().then((_) {
+      _buttonController.reverse();
+      widget.onComplete?.call();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.bottomRight,
-          end: Alignment.topLeft,
-          colors: [
-            Color(0xFFF8FAFC),
-            Color(0x264AE3B5),
-          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: OnboardingTheme.gradients['completion']!,
         ),
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Icon
-              Container(
-                width: 96,
-                height: 96,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFCCF7ED),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.rocket_launch,
-                  size: 60,
-                  color: Color(0xFF14B8A6),
-                ),
+        child: Stack(
+          children: [
+            // Confetti
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirection: 1.57, // radians - 90 degrees
+                emissionFrequency: 0.05,
+                numberOfParticles: 50,
+                gravity: 0.05,
+                shouldLoop: false,
+                colors: const [
+                  Colors.white,
+                  Color(0xFF14B8A6),
+                  Color(0xFF3B82F6),
+                  Color(0xFF8B5CF6),
+                  Color(0xFF10B981),
+                ],
               ),
-              
-              const SizedBox(height: 24),
-              
-              // Title
-              const Text(
-                '¡Estás listo para despegar!',
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              
-              const SizedBox(height: 8),
-              
-              // Subtitle
-              const Text(
-                'Tu viaje hacia el control financiero comienza ahora.',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Color(0xFF475569),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    print('🚀 CompletePage: Complete button pressed'); // Debug
-                    onComplete?.call();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF14B8A6),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
+            ),
+
+            // Main content
+            Padding(
+              padding: const EdgeInsets.all(OnboardingTheme.spacing32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+
+                  // Animated Rocket Icon
+                  AnimatedFeatureIcon(
+                    icon: Icons.rocket_launch,
+                    backgroundColor: Colors.white.withOpacity(0.2),
+                    iconColor: Colors.white,
+                    size: 120,
+                    animationDelay: const Duration(milliseconds: 300),
                   ),
-                  child: const Text('Comenzar'),
-                ),
+
+                  const SizedBox(height: OnboardingTheme.spacing48),
+
+                  // Success Title
+                  StaggeredTextAnimation(
+                    text: '¡Estás listo para\ndespegar! 🚀',
+                    style: const TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.2,
+                    ),
+                    delay: const Duration(milliseconds: 600),
+                  ),
+
+                  const SizedBox(height: OnboardingTheme.spacing24),
+
+                  // Motivational Message
+                  StaggeredTextAnimation(
+                    text:
+                        'Tu viaje hacia el control financiero\ncomienza ahora. ¡Vamos a conquistar\ntus metas juntos!',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white.withOpacity(0.9),
+                      height: 1.5,
+                    ),
+                    delay: const Duration(milliseconds: 800),
+                  ),
+
+                  const Spacer(),
+
+                  // Call-to-Action Button
+                  AnimatedBuilder(
+                    animation: _buttonScale,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: _buttonScale.value,
+                        child: Container(
+                          width: double.infinity,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(28),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: _handleButtonTap,
+                              borderRadius: BorderRadius.circular(28),
+                              child: const Center(
+                                child: Text(
+                                  '¡Comenzar mi aventura!',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: OnboardingTheme.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: OnboardingTheme.spacing24),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
- 

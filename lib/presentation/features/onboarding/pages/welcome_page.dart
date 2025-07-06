@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import '../theme/onboarding_theme.dart';
+import '../widgets/animated_feature_icon.dart';
+import '../widgets/staggered_text_animation.dart';
 
-class WelcomePage extends StatelessWidget {
+class WelcomePage extends StatefulWidget {
   const WelcomePage({
     Key? key,
     this.onNext,
@@ -9,88 +12,144 @@ class WelcomePage extends StatelessWidget {
   final VoidCallback? onNext;
 
   @override
-  Widget build(BuildContext context) {
-    print('🎯 WelcomePage: Building'); // Debug
+  State<WelcomePage> createState() => _WelcomePageState();
+}
+
+class _WelcomePageState extends State<WelcomePage>
+    with TickerProviderStateMixin {
+  late AnimationController _buttonController;
+  late Animation<double> _buttonScale;
+
+  @override
+  void initState() {
+    super.initState();
     
+    _buttonController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _buttonScale = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(
+      parent: _buttonController,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _buttonController.dispose();
+    super.dispose();
+  }
+
+  void _handleButtonTap() {
+    _buttonController.forward().then((_) {
+      _buttonController.reverse();
+      widget.onNext?.call();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.bottomRight,
-          end: Alignment.topLeft,
-          colors: [
-            Color(0xFFF8FAFC),
-            Color(0x264AE3B5),
-          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: OnboardingTheme.gradients['welcome']!,
         ),
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: const EdgeInsets.all(OnboardingTheme.spacing32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 96,
-                height: 96,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFCCF7ED),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.account_balance_wallet,
-                  size: 60,
-                  color: Color(0xFF14B8A6),
-                ),
+              const Spacer(),
+              
+              // Animated Logo
+              AnimatedFeatureIcon(
+                icon: Icons.account_balance_wallet,
+                backgroundColor: Colors.white.withOpacity(0.2),
+                iconColor: Colors.white,
+                size: 120,
+                animationDelay: const Duration(milliseconds: 300),
               ),
               
-              const SizedBox(height: 24),
+              const SizedBox(height: OnboardingTheme.spacing48),
               
-              const Text(
-                '¡Bienvenido a MoneyT!',
-                style: TextStyle(
+              // Animated Title
+              StaggeredTextAnimation(
+                text: '¡Bienvenido a MoneyT!',
+                style: const TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A),
+                  color: Colors.white,
+                  height: 1.2,
                 ),
-                textAlign: TextAlign.center,
+                delay: const Duration(milliseconds: 600),
               ),
               
-              const SizedBox(height: 8),
+              const SizedBox(height: OnboardingTheme.spacing16),
               
-              const Text(
-                'Tus finanzas, siempre a la vista',
+              // Animated Subtitle
+              StaggeredTextAnimation(
+                text: 'Tu viaje hacia el control financiero\ncomienza aquí',
                 style: TextStyle(
                   fontSize: 18,
-                  color: Color(0xFF475569),
+                  color: Colors.white.withOpacity(0.9),
+                  height: 1.5,
                 ),
-                textAlign: TextAlign.center,
+                delay: const Duration(milliseconds: 800),
               ),
               
-              const SizedBox(height: 32),
+              const Spacer(),
               
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    print('👆 WelcomePage: Next button pressed'); // Debug
-                    onNext?.call();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF14B8A6),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+              // Animated Button
+              AnimatedBuilder(
+                animation: _buttonScale,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _buttonScale.value,
+                    child: Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: _handleButtonTap,
+                          borderRadius: BorderRadius.circular(28),
+                          child: const Center(
+                            child: Text(
+                              'Empezar mi viaje',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: OnboardingTheme.textPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Empecemos',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
+                  );
+                },
               ),
+              
+              const SizedBox(height: OnboardingTheme.spacing24),
             ],
           ),
         ),
@@ -98,4 +157,3 @@ class WelcomePage extends StatelessWidget {
     );
   }
 }
- 
