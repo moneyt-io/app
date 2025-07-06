@@ -4,16 +4,18 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'presentation/core/providers/theme_provider.dart';
 import 'presentation/core/providers/language_provider.dart'; // AGREGADO: import faltante
 import 'presentation/navigation/navigation_service.dart'; // AGREGADO
-import 'presentation/navigation/route_generator.dart';
+import 'presentation/navigation/app_router.dart'; // ✅ AGREGADO: Import de AppRouter
 import 'presentation/navigation/app_routes.dart';
 import 'presentation/core/l10n/generated/strings.g.dart';
+import 'presentation/features/splash/splash_screen.dart'; // ✅ AGREGADO
+import 'presentation/navigation/route_generator.dart'; // ✅ CAMBIAR: Volver al original temporalmente
 
 class MoneyTApp extends StatelessWidget {
   const MoneyTApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>( // SIMPLIFICADO: solo ThemeProvider por ahora
+    return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -22,9 +24,9 @@ class MoneyTApp extends StatelessWidget {
           // AGREGADO: Configurar navigatorKey
           navigatorKey: NavigationService.navigatorKey,
           
-          // Configuración de rutas
-          initialRoute: AppRoutes.home,
-          onGenerateRoute: RouteGenerator.generateRoute,
+          // ✅ CORREGIDO: Configuración de rutas
+          initialRoute: AppRoutes.splash, // Empezar en splash
+          onGenerateRoute: AppRouter.generateRoute, // Usar AppRouter
           
           // Configuración de localización básica
           locale: const Locale('es', 'ES'), // SIMPLIFICADO: español por defecto
