@@ -108,15 +108,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   void _completeOnboarding() async {
     print('✅ Enhanced OnboardingScreen: Completing onboarding...');
     
-    // ✅ CORREGIDO: Usar el método correcto para haptic feedback de éxito
-    HapticFeedback.heavyImpact(); // En lugar de notificationFeedback
+    // Haptic feedback de éxito
+    HapticFeedback.heavyImpact();
     
     // Marcar onboarding como completado
     await OnboardingService.markOnboardingCompleted();
     
-    print('🏠 Enhanced OnboardingScreen: Navigating to home...');
-    // Navegar al home
-    NavigationService.navigateToAndClearStack(AppRoutes.home);
+    print('🔐 Enhanced OnboardingScreen: Navigating to login...');
+    // ✅ CAMBIADO: Navegar al login en lugar del home
+    NavigationService.navigateToAndClearStack(AppRoutes.login);
   }
 
   void _onPageChanged(int page) {

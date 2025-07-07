@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/onboarding_theme.dart';
 import '../widgets/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
+import '../../../navigation/app_routes.dart';
+import '../../../navigation/navigation_service.dart';
+import '../../../core/services/onboarding_service.dart';
 
 class CompletePage extends StatefulWidget {
   const CompletePage({
@@ -59,11 +63,24 @@ class _CompletePageState extends State<CompletePage>
     super.dispose();
   }
 
-  void _handleButtonTap() {
-    _buttonController.forward().then((_) {
-      _buttonController.reverse();
-      widget.onComplete?.call();
-    });
+  void _handleButtonTap() async {
+    print('🎉 Enhanced CompletePage: Button tapped');
+
+    // Animar el botón
+    await _buttonController.forward();
+    await _buttonController.reverse();
+
+    // Haptic feedback de éxito
+    HapticFeedback.heavyImpact();
+
+    // ✅ CAMBIADO: Navegar al login en lugar del home directamente
+    print('🔐 Enhanced CompletePage: Navigating to login...');
+
+    // Marcar onboarding como completado
+    await OnboardingService.markOnboardingCompleted();
+
+    // Navegar al login
+    NavigationService.navigateToAndClearStack(AppRoutes.login);
   }
 
   @override
