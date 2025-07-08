@@ -86,11 +86,11 @@ class NavigationService {
 
   // Métodos de conveniencia para las rutas más comunes
   static Future<void> goToHome() {
-    return navigateToAndClearStack('/');
+    return navigateToAndClearStack(AppRoutes.home); // CORREGIDO: usar AppRoutes.home
   }
 
   static Future<void> goToDashboard() {
-    return navigateToAndClearStack('/dashboard');
+    return navigateToAndClearStack(AppRoutes.home); // CORREGIDO: usar AppRoutes.home
   }
 
   static Future<void> goToLoans() {

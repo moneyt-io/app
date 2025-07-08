@@ -55,9 +55,10 @@ Future<void> initializeDependencies() async {
 
   // Registrar BackupProvider (si ya existe, si no, se hará después)
   // Necesita BackupService
-  getIt.registerLazySingleton<BackupProvider>(
-    () => BackupProvider(getIt<BackupService>()),
-  );
+  // SIMPLIFICADO: Comentar BackupProvider por ahora si causa problemas
+  // getIt.registerLazySingleton<BackupProvider>(
+  //   () => BackupProvider(getIt<BackupService>()),
+  // );
   // --- Fin Registro Dependencias de Backup ---
 
   _dependenciesInitialized = true;

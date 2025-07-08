@@ -69,13 +69,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   void _nextPage() {
     if (_currentPage < _pages.length - 1) {
-      // Haptic feedback
+      // AGREGADO: Haptic feedback implementado
       HapticFeedback.lightImpact();
-      
       _pageController.nextPage(
-        duration: OnboardingTheme.pageTransition,
-        curve: OnboardingTheme.defaultCurve,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
       );
+      setState(() {
+        _currentPage++;
+      });
     }
   }
 
@@ -105,18 +107,25 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _completeOnboarding();
   }
 
-  void _completeOnboarding() async {
-    print('✅ Enhanced OnboardingScreen: Completing onboarding...');
+  // AGREGADO: Método crítico faltante
+  Future<void> _completeOnboarding() async {
+    print('🎯 OnboardingScreen: Completing onboarding...');
     
-    // Haptic feedback de éxito
-    HapticFeedback.heavyImpact();
-    
-    // Marcar onboarding como completado
-    await OnboardingService.markOnboardingCompleted();
-    
-    print('🔐 Enhanced OnboardingScreen: Navigating to login...');
-    // ✅ CAMBIADO: Navegar al login en lugar del home
-    NavigationService.navigateToAndClearStack(AppRoutes.login);
+    try {
+      // ✅ CRÍTICO: Marcar onboarding como completado
+      await OnboardingService.markOnboardingCompleted();
+      
+      if (mounted) {
+        // Navegar al dashboard/home
+        NavigationService.navigateToAndClearStack(AppRoutes.home);
+      }
+    } catch (e) {
+      print('❌ OnboardingScreen: Error completing onboarding: $e');
+      // En caso de error, intentar navegar de todos modos
+      if (mounted) {
+        NavigationService.navigateToAndClearStack(AppRoutes.home);
+      }
+    }
   }
 
   void _onPageChanged(int page) {

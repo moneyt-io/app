@@ -5,15 +5,15 @@ import 'package:get_it/get_it.dart';
 final getIt = GetIt.instance;
 
 void registerAppDependencies() {
-  // Servicios de aplicación
-  // Por ahora vacío, se pueden agregar servicios como:
-  // - NavigationService
-  // - AnalyticsService
-  // - CrashReportingService
-  // - etc.
+  // SIMPLIFICADO: Por ahora solo comentarios
+  // TODO: Agregar servicios cuando sean necesarios:
+  // - NavigationService (ya existe como static)
+  // - AnalyticsService (futuro)
+  // - CrashReportingService (futuro)
+  // - AuthService (cuando implementemos Google Sign-In)
   
-  // Ejemplo para futuro:
-  // getIt.registerLazySingleton<NavigationService>(
+  print('📱 App dependencies registered (minimal setup)');
+}
   //   () => NavigationService(),
   // );
-}
+

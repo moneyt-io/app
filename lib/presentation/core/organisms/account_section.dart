@@ -47,7 +47,7 @@ class AccountSection extends StatelessWidget {
                 subtitle: Text(userEmail),
               ),
             ] else ...[
-              // Usuario no autenticado
+              // Usuario no autenticado - SIMPLIFICADO
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
@@ -61,7 +61,10 @@ class AccountSection extends StatelessWidget {
                 subtitle: const Text('Inicia sesión para sincronizar tus datos'),
                 trailing: TextButton(
                   onPressed: () {
-                    // Aquí va la lógica para iniciar sesión
+                    // SIMPLIFICADO: Solo mostrar mensaje por ahora
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Login coming soon')),
+                    );
                   },
                   child: const Text('Iniciar sesión'),
                 ),

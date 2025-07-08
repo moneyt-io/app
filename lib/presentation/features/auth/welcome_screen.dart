@@ -3,6 +3,7 @@ import '../../core/atoms/app_button.dart';
 import '../../core/molecules/language_selector.dart';
 import '../../core/molecules/terms_checkbox.dart';
 import '../../core/organisms/welcome_header.dart';
+import '../../navigation/app_routes.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -73,14 +74,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
     setState(() => _isLoading = true);
 
-    // Simulación de inicio de sesión
+    // SIMPLIFICADO: Simulación básica
     await Future.delayed(const Duration(seconds: 1));
     
     if (mounted) {
       setState(() => _isLoading = false);
       
-      // En el futuro, este código navegaría a la pantalla principal
-      Navigator.pushReplacementNamed(context, '/home');
+      // SIMPLIFICADO: Ir directamente al home
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
     }
   }
 
@@ -95,8 +96,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       return;
     }
 
-    // Esta función navegará a la pantalla de login
-    Navigator.pushNamed(context, '/login');
+    // SIMPLIFICADO: Mostrar mensaje por ahora
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Email login coming soon')),
+    );
   }
 
   Future<void> _continueAsGuest() async {
@@ -112,14 +115,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
     setState(() => _isLoading = true);
 
-    // Simulación de inicialización
+    // SIMPLIFICADO: Simulación
     await Future.delayed(const Duration(seconds: 1));
     
     if (mounted) {
       setState(() => _isLoading = false);
-      
-      // En el futuro, este código navegaría a la pantalla principal
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
     }
   }
 

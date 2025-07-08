@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/services/onboarding_service.dart';
+// ✅ ACTUALIZADO: Imports para nuevo sistema de inicialización
+import '../../../core/services/app_initialization_service.dart';
+import '../../../core/enums/initialization_state.dart';
 import '../../navigation/navigation_service.dart';
 import '../../navigation/app_routes.dart';
 import 'widgets/animated_moneyt_logo.dart';
@@ -23,11 +25,12 @@ class _SplashScreenState extends State<SplashScreen>
 
   bool _showProgressIndicator = false;
 
-  // Estados contextuales de carga
+  // ✅ ACTUALIZADO: Estados contextuales más específicos
   final List<String> _loadingStates = [
     "Starting MoneyT...",
-    "Checking your profile...",
-    "Preparing your dashboard...",
+    "Initializing services...",
+    "Checking data integrity...",
+    "Preparing your experience...",
     "Almost ready!"
   ];
 
@@ -90,25 +93,63 @@ class _SplashScreenState extends State<SplashScreen>
     print('🎯 Enhanced SplashScreen: Completing initialization...');
     
     try {
-      // Determinar ruta inicial
-      final initialRoute = await OnboardingService.getInitialRoute();
-      print('🎯 Enhanced SplashScreen: Initial route determined: $initialRoute');
+      // ✅ ACTUALIZADO: Usar el nuevo servicio de inicialización
+      final initState = await AppInitializationService.checkInitializationState();
       
-      if (mounted) {
-        if (initialRoute == '/onboarding') {
-          print('📱 Enhanced SplashScreen: Navigating to onboarding...');
-          NavigationService.navigateToAndClearStack(AppRoutes.onboarding);
-        } else {
-          print('🏠 Enhanced SplashScreen: Navigating to home...');
-          NavigationService.navigateToAndClearStack(AppRoutes.home);
+      print('🔍 Enhanced SplashScreen: Initialization state: ${initState.name}');
+      
+      // Ejecutar pasos de inicialización si es necesario
+      if (initState.requiresSeeds) {
+        final success = await AppInitializationService.runInitializationSteps(initState);
+        if (!success) {
+          print('❌ Enhanced SplashScreen: Initialization steps failed');
+          // Continuar de todos modos, mostrar error en UI si es necesario
         }
       }
+      
+      // Navegar según el estado
+      if (mounted) {
+        _navigateBasedOnState(initState);
+      }
+      
     } catch (e) {
       print('❌ Enhanced SplashScreen error: $e');
       // En caso de error, ir al home por defecto
       if (mounted) {
         NavigationService.navigateToAndClearStack(AppRoutes.home);
       }
+    }
+  }
+  
+  /// ✅ NUEVO: Navegación basada en el estado de inicialización
+  void _navigateBasedOnState(InitializationState state) {
+    final route = state.suggestedRoute;
+    print('🎯 Enhanced SplashScreen: Navigating to: $route');
+    
+    switch (state) {
+      case InitializationState.firstLaunch:
+      case InitializationState.needsOnboarding:
+        NavigationService.navigateToAndClearStack(AppRoutes.onboarding);
+        break;
+        
+      case InitializationState.needsAuth:
+        // TODO: Implementar cuando tengamos AuthWelcomeScreen
+        print('🔐 Auth required, navigating to home for now');
+        NavigationService.navigateToAndClearStack(AppRoutes.home);
+        break;
+        
+      case InitializationState.completed:
+        NavigationService.navigateToAndClearStack(AppRoutes.home);
+        break;
+        
+      case InitializationState.error:
+        print('❌ Initialization error, navigating to home with error handling');
+        NavigationService.navigateToAndClearStack(AppRoutes.home);
+        break;
+        
+      default:
+        print('⚠️ Unknown state, navigating to home');
+        NavigationService.navigateToAndClearStack(AppRoutes.home);
     }
   }
 

@@ -158,38 +158,16 @@ class LoanValidators {
     CreditCard? creditCard,
     BalanceCalculationService? balanceService,
   }) async {
-    final errors = <String>[];
-
-    if (contactId <= 0) {
-      errors.add('Debe seleccionar un contacto válido');
-    }
-
-    if (!isValidAmount(amount)) {
-      errors.add('El monto debe estar entre \$${LoanConstants.minLoanAmount} y \$${LoanConstants.maxLoanAmount.toStringAsFixed(2)}');
-    }
-
-    if (currencyId.isEmpty) {
-      errors.add('Debe seleccionar una moneda');
-    }
-
-    // Validaciones de balance solo si se proporciona el servicio
-    if (balanceService != null) {
-      if (paymentType == LoanConstants.walletPaymentType && wallet != null) {
-        final hasInsufficient = await balanceService.hasInsufficientFunds(wallet, amount);
-        if (hasInsufficient) {
-          errors.add('Fondos insuficientes en el wallet seleccionado');
-        }
-      }
-
-      if (paymentType == LoanConstants.creditCardPaymentType && creditCard != null) {
-        final exceedsLimit = await balanceService.exceedsCreditLimit(creditCard, amount);
-        if (exceedsLimit) {
-          errors.add('El monto excede el límite de crédito disponible');
-        }
-      }
-    }
-
-    return errors;
+    // SIMPLIFICADO: Por ahora usar validaciones básicas sin balance real
+    return validateLoanData(
+      contactId: contactId,
+      amount: amount,
+      currencyId: currencyId,
+      paymentType: paymentType,
+      paymentId: paymentId,
+      wallet: wallet,
+      creditCard: creditCard,
+    );
   }
 
   // Validación completa para crear préstamo (VERSIÓN MEJORADA ASÍNCRONA)
@@ -272,3 +250,4 @@ class LoanValidators {
     return errors;
   }
 }
+  

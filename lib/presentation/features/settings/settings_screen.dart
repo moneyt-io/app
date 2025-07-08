@@ -30,7 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _navigateToProfile() async {
-    // TODO: Implementar navegación al perfil
+    // SIMPLIFICADO: Implementación básica sin autenticación
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Profile screen coming soon'),
@@ -43,7 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const LanguageScreen(), // ✅ AGREGADO: Navegar a LanguageScreen
+        builder: (context) => const LanguageScreen(),
       ),
     );
   }
@@ -56,7 +56,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const SocialScreen(), // ✅ AGREGADO: Importar SocialScreen
+        builder: (context) => const SocialScreen(),
       ),
     );
   }
