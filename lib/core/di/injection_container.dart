@@ -5,7 +5,6 @@ import '../../data/datasources/local/database.dart';
 import '../services/backup_service.dart';
 import '../../domain/repositories/backup_repository.dart';
 import '../../data/repositories/backup_repository_impl.dart';
-import '../../presentation/features/backup/backup_provider.dart'; // Asegúrate de que esto exista o coméntalo si aún no
 import 'app_di_module.dart';
 import 'data_di_module.dart';
 import 'domain_di_module.dart';

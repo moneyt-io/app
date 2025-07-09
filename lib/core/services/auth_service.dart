@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get_it/get_it.dart';
 import '../constants/app_storage_keys.dart';
+import '../../domain/repositories/auth_repository.dart';
 
 /// Estados de autenticación de la aplicación
 enum AuthState {
@@ -50,45 +52,60 @@ enum AuthState {
 
 /// Servicio para gestionar el estado de autenticación de la aplicación
 /// 
-/// Se encarga de:
-/// - Determinar si se requiere autenticación
-/// - Gestionar estados de autenticación
-/// - Coordinar con AuthRepository para operaciones reales
-/// - Manejar modo invitado
+/// REFACTORIZADO: Ahora integra con Firebase AuthRepository
+/// - Mantiene compatibilidad con sistema de inicialización
+/// - Sincroniza estado local con Firebase
+/// - Coordina entre auth local y remoto
 class AuthService {
   static const String _logTag = 'AuthService';
   
-  /// Obtiene el estado actual de autenticación
+  /// Obtiene el estado actual de autenticación (REFACTORIZADO)
   static Future<AuthState> getAuthState() async {
     try {
+      // ✅ CAMBIO PRINCIPAL: Verificar Firebase primero
+      try {
+        final authRepo = GetIt.instance<AuthRepository>();
+        final firebaseUser = await authRepo.getCurrentUser();
+        
+        if (firebaseUser != null) {
+          // Usuario autenticado en Firebase
+          await _syncLocalState(authenticated: true);
+          print('✅ $_logTag: User authenticated via Firebase');
+          return AuthState.authenticated;
+        }
+      } catch (e) {
+        print('⚠️ $_logTag: Firebase check failed, falling back to local: $e');
+      }
+      
+      // Fallback a verificación local
       final prefs = await SharedPreferences.getInstance();
       
-      // Verificar si el usuario está autenticado
+      // Verificar si el usuario está autenticado localmente
       final isLoggedIn = prefs.getBool(AppStorageKeys.userLoggedIn) ?? false;
       final authCompleted = prefs.getBool(AppStorageKeys.authCompleted) ?? false;
       
       if (isLoggedIn && authCompleted) {
-        print('✅ $_logTag: User is authenticated');
+        print('✅ $_logTag: User authenticated via local state');
         return AuthState.authenticated;
       }
       
-      // Verificar si eligió modo invitado
+      // Verificar modo invitado
       final isGuest = prefs.getBool(AppStorageKeys.authSkipped) ?? false;
       
       if (isGuest) {
-        print('👤 $_logTag: User is in guest mode');
+        print('👤 $_logTag: User in guest mode');
         return AuthState.guest;
       }
       
-      // Verificar si la autenticación es requerida
+      // Verificar si auth es requerido
       final isAuthRequired = prefs.getBool(AppStorageKeys.authRequired) ?? false;
       
       if (isAuthRequired) {
-        print('🔐 $_logTag: Authentication is required');
+        print('🔐 $_logTag: Authentication required');
         return AuthState.required;
       }
       
-      // Por defecto, no se requiere autenticación
+      // Por defecto, no requerido
       print('🔓 $_logTag: Authentication not required');
       return AuthState.notRequired;
       
@@ -98,19 +115,7 @@ class AuthService {
     }
   }
   
-  /// Configura si la autenticación es requerida
-  static Future<void> setAuthRequired(bool required) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(AppStorageKeys.authRequired, required);
-      
-      print('🔧 $_logTag: Auth required set to: $required');
-    } catch (e) {
-      print('❌ $_logTag: Error setting auth required: $e');
-    }
-  }
-  
-  /// Marca al usuario como autenticado
+  /// Marca al usuario como autenticado (MEJORADO)
   static Future<void> markUserAuthenticated() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -138,17 +143,46 @@ class AuthService {
     }
   }
   
-  /// Cierra sesión del usuario
+  /// Cierra sesión del usuario (MEJORADO)
   static Future<void> signOut() async {
     try {
+      // ✅ AGREGADO: Cerrar sesión en Firebase también
+      try {
+        final authRepo = GetIt.instance<AuthRepository>();
+        await authRepo.signOut();
+        print('✅ $_logTag: Firebase sign out completed');
+      } catch (e) {
+        print('⚠️ $_logTag: Firebase sign out failed: $e');
+      }
+      
+      // Limpiar estado local
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(AppStorageKeys.userLoggedIn);
       await prefs.remove(AppStorageKeys.authCompleted);
       await prefs.remove(AppStorageKeys.authSkipped);
       
-      print('🔓 $_logTag: User signed out');
+      print('✅ $_logTag: Local sign out completed');
     } catch (e) {
       print('❌ $_logTag: Error signing out user: $e');
+    }
+  }
+
+  // ✅ AGREGADO: Sincronizar estado local con Firebase
+  static Future<void> _syncLocalState({required bool authenticated}) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      if (authenticated) {
+        await prefs.setBool(AppStorageKeys.userLoggedIn, true);
+        await prefs.setBool(AppStorageKeys.authCompleted, true);
+        await prefs.remove(AppStorageKeys.authSkipped);
+      } else {
+        await prefs.remove(AppStorageKeys.userLoggedIn);
+        await prefs.remove(AppStorageKeys.authCompleted);
+      }
+      
+    } catch (e) {
+      print('❌ $_logTag: Error syncing local state: $e');
     }
   }
   

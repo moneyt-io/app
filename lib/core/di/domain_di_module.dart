@@ -1,4 +1,13 @@
 import 'package:get_it/get_it.dart';
+// ✅ AGREGADO: Firebase imports con alias para evitar conflictos
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+// ✅ CORREGIDO: Auth imports con alias para evitar conflicto de nombres
+import '../../domain/repositories/auth_repository.dart';
+import '../../domain/usecases/auth_usecases.dart';
+import '../../data/repositories/auth_repository_impl.dart';
+import '../../presentation/features/auth/auth_provider.dart' as app_auth;
 import '../../domain/usecases/chart_account_usecases.dart';
 import '../../domain/usecases/contact_usecases.dart';
 import '../../domain/usecases/category_usecases.dart';
@@ -14,6 +23,31 @@ import '../../domain/services/balance_calculation_service.dart'; // AGREGADO: Im
 final getIt = GetIt.instance;
 
 void registerDomainDependencies() {
+  
+  // ✅ AGREGADO: Firebase services
+  getIt.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
+  getIt.registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
+  getIt.registerLazySingleton<GoogleSignIn>(() => GoogleSignIn());
+  
+  // ✅ AGREGADO: Auth Repository
+  getIt.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(
+      auth: getIt<FirebaseAuth>(),
+      firestore: getIt<FirebaseFirestore>(),
+      googleSignIn: getIt<GoogleSignIn>(),
+    ),
+  );
+  
+  // ✅ AGREGADO: Auth Use Cases
+  getIt.registerLazySingleton<AuthUseCases>(
+    () => AuthUseCases(getIt<AuthRepository>()),
+  );
+  
+  // ✅ CORREGIDO: Auth Provider usando alias
+  getIt.registerLazySingleton<app_auth.AuthProvider>(
+    () => app_auth.AuthProvider(getIt<AuthUseCases>()),
+  );
+  
   // PRIMERO: Registrar el servicio de cálculo de balances
   getIt.registerLazySingleton<BalanceCalculationService>(
     () => BalanceCalculationService(getIt<TransactionRepository>()),
@@ -81,4 +115,5 @@ void registerDomainDependencies() {
   getIt.registerLazySingleton<SharedExpenseUseCases>(
     () => SharedExpenseUseCases(getIt()),
   );
+  
 }

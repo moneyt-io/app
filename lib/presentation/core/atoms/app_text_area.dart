@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../design_system/tokens/app_colors.dart';
 
 /// Campo de texto de múltiples líneas (TextArea)
 /// 

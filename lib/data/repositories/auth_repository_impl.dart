@@ -139,48 +139,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> updateUserPreferences({required bool acceptedMarketing}) async {
-    final user = auth.currentUser;
-    if (user == null) {
-      throw Exception('No authenticated user');
-    }
-
-    await firestore.collection('users').doc(user.uid).update({
-      'preferences': {
-        'acceptedMarketing': acceptedMarketing,
-        'updatedAt': FieldValue.serverTimestamp(),
-      },
-    });
-  }
-
-  Future<void> enableSync() async {
-    final user = auth.currentUser;
-    if (user == null) return;
-
-    await firestore.collection('users').doc(user.uid).update({
-      'syncEnabled': true,
-    });
-
-    //await syncService.syncData();
-    //syncService.setupRemoteChangeListeners();
-  }
-
-  Future<void> disableSync() async {
-    final user = auth.currentUser;
-    if (user == null) return;
-
-    await firestore.collection('users').doc(user.uid).update({
-      'syncEnabled': false,
-    });
-
-    //syncService.removeRemoteChangeListeners();
-  }
-
-  Future<bool> isSyncEnabled() async {
-    final user = auth.currentUser;
-    if (user == null) return false;
-
-    final doc = await firestore.collection('users').doc(user.uid).get();
-    return doc.data()?['syncEnabled'] ?? false;
+    // ✅ ELIMINADO: No enviar preferences a Firebase
+    print('📝 User preferences handled locally (not stored in Firebase)');
+    // No hacer nada - las preferencias se manejan solo en la UI
   }
 
   Future<void> _createUserDocument(User user) async {
@@ -188,39 +149,38 @@ class AuthRepositoryImpl implements AuthRepository {
       final userDoc = firestore.collection('users').doc(user.uid);
       final docSnapshot = await userDoc.get();
 
+      // ✅ SIMPLIFICADO: Solo campos básicos para Firebase
       final userData = {
         'email': user.email,
         'displayName': user.displayName ?? '',
         'photoUrl': user.photoURL ?? '',
         'lastLogin': FieldValue.serverTimestamp(),
-        'syncEnabled': false, // Por defecto, la sincronización está desactivada
+        // ❌ ELIMINADO: syncEnabled
+        // ❌ ELIMINADO: preferences
+        // ❌ ELIMINADO: acceptedMarketing
       };
 
       if (!docSnapshot.exists) {
-        print('Creating new user document for ${user.uid}'); // Debug log
+        print('Creating new user document for ${user.uid}');
         await userDoc.set({
           ...userData,
           'createdAt': FieldValue.serverTimestamp(),
-          'preferences': {
-            'acceptedMarketing': false,
-            'createdAt': FieldValue.serverTimestamp(),
-          },
+          // ❌ ELIMINADO: preferences object completamente
         });
       } else {
-        print('Updating existing user document for ${user.uid}'); // Debug log
+        print('Updating existing user document for ${user.uid}');
         await userDoc.update(userData);
       }
 
-      // Verificar que el documento se creó/actualizó correctamente
       final updatedDoc = await userDoc.get();
       if (!updatedDoc.exists) {
         throw Exception('User document not found after creation');
       }
       
-      print('User document data:'); // Debug log
-      print(updatedDoc.data()); // Debug log
+      print('User document data:');
+      print(updatedDoc.data());
     } catch (e) {
-      print('Error in _createUserDocument: $e'); // Debug log
+      print('Error in _createUserDocument: $e');
       throw Exception('Failed to create/update user document: $e');
     }
   }

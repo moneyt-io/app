@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../design_system/tokens/app_dimensions.dart';
-import '../design_system/tokens/app_colors.dart';
 
 /// Tamaños disponibles para el avatar
 enum AppAvatarSize {

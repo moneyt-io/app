@@ -3,22 +3,36 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:get_it/get_it.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'presentation/core/providers/theme_provider.dart';
 import 'presentation/core/providers/language_provider.dart';
 import 'presentation/core/l10n/generated/strings.g.dart';
 import 'presentation/features/backup/backup_provider.dart';
 import 'presentation/features/loans/loan_provider.dart';
 import 'presentation/features/contacts/contact_provider.dart';
-// ✅ AGREGADO: Imports para nuevo sistema de inicialización
+import 'presentation/features/auth/auth_provider.dart' as app_auth;
 import 'core/services/data_seed_service.dart';
 import 'core/constants/app_storage_keys.dart';
 import 'app.dart';
 import 'core/di/injection_container.dart';
 
 void main() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
   
   print('🚀 MoneyT App: Starting initialization...');
+  
+  // ✅ AGREGADO: Inicializar Firebase PRIMERO
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('✅ Firebase initialized successfully');
+  } catch (e) {
+    print('❌ Firebase initialization failed: $e');
+    // Continuar sin Firebase para desarrollo local
+  }
   
   // Inicializar formateo de fechas
   await initializeDateFormatting('es_ES', null);
@@ -26,7 +40,7 @@ void main() async {
   // Inicializar slang con idioma por defecto (español)
   LocaleSettings.setLocale(AppLocale.es);
 
-  // Inicializar dependencias
+  // Inicializar dependencias (ahora incluye Firebase)
   await initializeDependencies();
 
   // ✅ AGREGADO: Inicialización temprana de datos críticos
@@ -38,7 +52,7 @@ void main() async {
   print('✅ MoneyT App: Initialization completed, starting app...');
   
   runApp(
-    // SIN TranslationProvider - configuramos slang manualmente
+    // ✅ CORREGIDO: AuthProvider agregado con alias
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -46,6 +60,10 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => LanguageProvider(prefs),
+        ),
+        // ✅ CORREGIDO: AuthProvider usando alias
+        ChangeNotifierProvider(
+          create: (_) => GetIt.instance<app_auth.AuthProvider>(),
         ),
         ChangeNotifierProvider(
           create: (_) => GetIt.instance<BackupProvider>(),

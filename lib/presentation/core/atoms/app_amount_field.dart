@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'app_floating_label_field.dart';
 
 /// Campo especializado para montos monetarios

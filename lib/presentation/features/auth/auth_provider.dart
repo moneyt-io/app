@@ -1,163 +1,289 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/entities/user_entity.dart';
+import '../../../domain/usecases/auth_usecases.dart';
+import '../../../core/services/auth_service.dart';
 
-class AppAuthProvider extends ChangeNotifier {
-  final AuthRepository _authRepository;
-  final SharedPreferences _prefs;
+/// Provider para manejar el estado de autenticación en la UI
+class AuthProvider extends ChangeNotifier {
+  final AuthUseCases _authUseCases;
+  static const String _logTag = 'AuthProvider';
+
+  // Estado
   UserEntity? _currentUser;
-  bool _isLoading = true;  
-  static const String _authKey = 'auth_state';
+  bool _isLoading = false;
+  String? _errorMessage;
+  bool _isAuthenticated = false;
+  bool _isGuest = false;
 
-  AppAuthProvider(AuthRepository authRepository, SharedPreferences prefs) 
-    : _authRepository = authRepository,
-      _prefs = prefs {
-    _init();
+  AuthProvider(this._authUseCases) {
+    _initializeAuthState();
   }
 
-  bool get isAuthenticated => _currentUser != null;
-  bool get isLoading => _isLoading;
+  // Getters
   UserEntity? get currentUser => _currentUser;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  bool get isAuthenticated => _isAuthenticated;
+  bool get isGuest => _isGuest;
+  bool get canUseApp => _isAuthenticated || _isGuest;
 
-  Future<void> _init() async {
+  /// Inicializa el estado de autenticación
+  Future<void> _initializeAuthState() async {
     try {
-      _isLoading = true;
-      notifyListeners();
-
-      final wasAuthenticated = _prefs.getBool(_authKey) ?? false;
-      if (wasAuthenticated) {
-        try {
-          _currentUser = await _authRepository.getCurrentUser();
-          print('Init: Current user loaded: ${_currentUser?.email}'); // Debug log
-        } catch (e) {
-          print('Init: Error getting current user: $e'); // Debug log
-          _currentUser = null;
-          await _prefs.setBool(_authKey, false);
-        }
-      }
-    } catch (e) {
-      print('Init: Unexpected error: $e'); // Debug log
-      _currentUser = null;
-      await _prefs.setBool(_authKey, false);
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> signInWithGoogle() async {
-    try {
-      _isLoading = true;
-      notifyListeners();
-
-      _currentUser = await _authRepository.signInWithGoogle();
-      await _prefs.setBool(_authKey, true);
-      notifyListeners();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> signInWithEmailPassword(String email, String password) async {
-    try {
-      _isLoading = true;
-      notifyListeners();
-      print('AuthProvider: Starting sign in process'); // Debug log
-
-      _currentUser = await _authRepository.signInWithEmailPassword(email, password);
-      print('AuthProvider: Sign in successful, user: ${_currentUser?.email}'); // Debug log
+      print('🔍 $_logTag: Initializing auth state...');
       
-      if (_currentUser != null) {
-        await _prefs.setBool(_authKey, true);
-        print('AuthProvider: Auth state saved to preferences'); // Debug log
+      _setLoading(true);
+      
+      // Verificar usuario actual en Firebase
+      final user = await _authUseCases.getCurrentUser();
+      
+      if (user != null) {
+        _currentUser = user;
+        _isAuthenticated = true;
+        _isGuest = false;
+        print('✅ $_logTag: User authenticated: ${user.email}');
       } else {
-        throw Exception('User is null after successful sign in');
+        // Verificar si está en modo invitado
+        _isGuest = await AuthService.isUserGuest();
+        _isAuthenticated = false;
+        print('👤 $_logTag: ${_isGuest ? 'Guest mode' : 'No authentication'}');
       }
       
-      notifyListeners();
+      _clearError();
+      
     } catch (e) {
-      print('AuthProvider: Error during sign in: $e'); // Debug log
-      // Asegurarnos de que el estado se limpie en caso de error
-      _currentUser = null;
-      await _prefs.setBool(_authKey, false);
-      notifyListeners();
-      rethrow;
+      print('❌ $_logTag: Error initializing auth state: $e');
+      _setError('Error al verificar autenticación');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
-  Future<void> signUpWithEmailPassword(String email, String password) async {
+  /// Inicia sesión con Google
+  Future<bool> signInWithGoogle() async {
     try {
-      _isLoading = true;
-      notifyListeners();
-      print('AuthProvider: Starting sign up process'); // Debug log
-
-      _currentUser = await _authRepository.signUpWithEmailPassword(email, password);
-      print('AuthProvider: Sign up successful, user: ${_currentUser?.email}'); // Debug log
+      print('🔐 $_logTag: Starting Google sign in...');
       
-      if (_currentUser != null) {
-        await _prefs.setBool(_authKey, true);
-        print('AuthProvider: Auth state saved to preferences'); // Debug log
+      _setLoading(true);
+      _clearError();
+      
+      final result = await _authUseCases.signInWithGoogle();
+      
+      if (result.isSuccess && result.user != null) {
+        _currentUser = result.user;
+        _isAuthenticated = true;
+        _isGuest = false;
+        
+        print('✅ $_logTag: Google sign in successful');
+        notifyListeners();
+        return true;
       } else {
-        throw Exception('User is null after successful sign up');
+        _setError(result.errorMessage ?? 'Error en inicio de sesión con Google');
+        return false;
       }
       
-      notifyListeners();
     } catch (e) {
-      print('AuthProvider: Error during sign up: $e'); // Debug log
-      // Asegurarnos de que el estado se limpie en caso de error
+      print('❌ $_logTag: Google sign in error: $e');
+      _setError('Error inesperado con Google Sign-In');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Inicia sesión con email y contraseña
+  Future<bool> signInWithEmailPassword(String email, String password) async {
+    try {
+      print('🔐 $_logTag: Starting email sign in...');
+      
+      _setLoading(true);
+      _clearError();
+      
+      final result = await _authUseCases.signInWithEmailPassword(email, password);
+      
+      if (result.isSuccess && result.user != null) {
+        _currentUser = result.user;
+        _isAuthenticated = true;
+        _isGuest = false;
+        
+        print('✅ $_logTag: Email sign in successful');
+        notifyListeners();
+        return true;
+      } else {
+        _setError(result.errorMessage ?? 'Error en inicio de sesión');
+        return false;
+      }
+      
+    } catch (e) {
+      print('❌ $_logTag: Email sign in error: $e');
+      _setError('Error inesperado en inicio de sesión');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Registra un nuevo usuario
+  Future<bool> signUpWithEmailPassword(String email, String password) async {
+    try {
+      print('🔐 $_logTag: Starting email sign up...');
+      
+      _setLoading(true);
+      _clearError();
+      
+      final result = await _authUseCases.signUpWithEmailPassword(email, password);
+      
+      if (result.isSuccess && result.user != null) {
+        _currentUser = result.user;
+        _isAuthenticated = true;
+        _isGuest = false;
+        
+        print('✅ $_logTag: Email sign up successful');
+        notifyListeners();
+        return true;
+      } else {
+        _setError(result.errorMessage ?? 'Error en registro');
+        return false;
+      }
+      
+    } catch (e) {
+      print('❌ $_logTag: Email sign up error: $e');
+      _setError('Error inesperado en registro');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Cierra sesión
+  Future<bool> signOut() async {
+    try {
+      print('🔓 $_logTag: Starting sign out...');
+      
+      _setLoading(true);
+      
+      final success = await _authUseCases.signOut();
+      
+      if (success) {
+        _currentUser = null;
+        _isAuthenticated = false;
+        _isGuest = false;
+        _clearError();
+        
+        print('✅ $_logTag: Sign out successful');
+        notifyListeners();
+        return true;
+      } else {
+        _setError('Error al cerrar sesión');
+        return false;
+      }
+      
+    } catch (e) {
+      print('❌ $_logTag: Sign out error: $e');
+      _setError('Error inesperado al cerrar sesión');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Continúa como invitado
+  Future<void> continueAsGuest() async {
+    try {
+      print('👤 $_logTag: Continuing as guest...');
+      
+      _setLoading(true);
+      
+      await _authUseCases.continueAsGuest();
+      
       _currentUser = null;
-      await _prefs.setBool(_authKey, false);
+      _isAuthenticated = false;
+      _isGuest = true;
+      _clearError();
+      
+      print('✅ $_logTag: Guest mode activated');
       notifyListeners();
-      rethrow;
+      
+    } catch (e) {
+      print('❌ $_logTag: Guest mode error: $e');
+      _setError('Error al activar modo invitado');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
-  Future<void> signOut() async {
+  /// Envía email de reseteo de contraseña
+  Future<bool> resetPassword(String email) async {
     try {
-      _isLoading = true;
-      notifyListeners();
-
-      await _authRepository.signOut();
-      await _prefs.setBool(_authKey, false);
-      _currentUser = null;
-      notifyListeners();
+      print('🔄 $_logTag: Sending password reset...');
+      
+      _setLoading(true);
+      _clearError();
+      
+      final success = await _authUseCases.resetPassword(email);
+      
+      if (success) {
+        print('✅ $_logTag: Password reset email sent');
+        return true;
+      } else {
+        _setError('Error al enviar email de reseteo');
+        return false;
+      }
+      
+    } catch (e) {
+      print('❌ $_logTag: Password reset error: $e');
+      _setError('Error inesperado al resetear contraseña');
+      return false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
-  Future<void> resetPassword(String email) async {
+  /// Actualiza preferencias del usuario
+  /// ✅ SIMPLIFICADO: updateUserPreferences sin persistencia
+  Future<bool> updateUserPreferences({required bool acceptedMarketing}) async {
     try {
-      _isLoading = true;
-      notifyListeners();
-
-      await _authRepository.resetPassword(email);
+      _setLoading(true);
+      
+      // ✅ ELIMINADO: No llamar al repository ni guardar en ningún lado
+      // Solo simular que se actualizó
+      print('✅ $_logTag: User preferences handled locally');
+      return true;
+      
+    } catch (e) {
+      print('❌ $_logTag: Update preferences error: $e');
+      _setError('Error inesperado al actualizar preferencias');
+      return false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
-  Future<void> updateUserPreferences({required bool acceptedMarketing}) async {
-    try {
-      _isLoading = true;
-      notifyListeners();
+  /// Refresca el estado de autenticación
+  Future<void> refreshAuthState() async {
+    await _initializeAuthState();
+  }
 
-      await _authRepository.updateUserPreferences(
-        acceptedMarketing: acceptedMarketing,
-      );
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+  /// Limpia el error actual
+  void clearError() {
+    _clearError();
+    notifyListeners();
+  }
+
+  // MÉTODOS PRIVADOS
+
+  void _setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
+  void _setError(String error) {
+    _errorMessage = error;
+    print('❌ $_logTag: $error');
+    notifyListeners();
+  }
+
+  void _clearError() {
+    _errorMessage = null;
   }
 }

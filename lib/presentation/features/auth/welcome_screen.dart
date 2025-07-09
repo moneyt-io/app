@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/atoms/app_button.dart';
 import '../../core/molecules/language_selector.dart';
 import '../../core/molecules/terms_checkbox.dart';
 import '../../core/organisms/welcome_header.dart';
 import '../../navigation/app_routes.dart';
+import 'auth_provider.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -13,158 +15,160 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  bool _isLoading = false;
   bool _acceptedTerms = false;
-  bool _acceptedMarketing = true; // Marketing marcado por defecto
-  String _selectedLanguage = 'es'; // Idioma por defecto
+  bool _acceptedMarketing = true;
+  String _selectedLanguage = 'es';
 
   void _showTermsDialog() {
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Términos y Condiciones'),
-          content: const SingleChildScrollView(
-            child: Text(
-              'Aquí irían los términos y condiciones de la aplicación. '
-              'Este es un texto de ejemplo que será reemplazado en el futuro '
-              'por los términos y condiciones reales de MoneyT.'
-            ),
+      builder: (context) => AlertDialog(
+        title: const Text('Términos y Condiciones'),
+        content: const Text('Términos y condiciones de MoneyT...'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Continuar'),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Continuar'),
-            ),
-          ],
-        );
-      },
+        ],
+      ),
     );
   }
 
   void _onLanguageChanged(String? languageCode) {
-    if (languageCode == null) return;
-    
-    // Esta función se implementará cuando se conecte con el sistema de idiomas
-    setState(() {
-      _isLoading = true;
-      _selectedLanguage = languageCode;
-    });
-
-    // Simular cambio de idioma
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
+    if (languageCode != null) {
+      setState(() {
+        _selectedLanguage = languageCode;
+      });
+    }
   }
 
   Future<void> _signInWithGoogle() async {
     if (!_acceptedTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Debes aceptar los términos y condiciones'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showError('Debes aceptar los términos y condiciones');
       return;
     }
 
-    setState(() => _isLoading = true);
-
-    // SIMPLIFICADO: Simulación básica
-    await Future.delayed(const Duration(seconds: 1));
+    final authProvider = context.read<AuthProvider>(); // ✅ CORREGIDO: Usar alias correcto
     
-    if (mounted) {
-      setState(() => _isLoading = false);
-      
-      // SIMPLIFICADO: Ir directamente al home
+    // ✅ SIMPLIFICADO: Solo hacer sign in, no enviar preferences a Firebase
+    final success = await authProvider.signInWithGoogle();
+    
+    // ✅ ELIMINADO: No guardar _acceptedMarketing en ningún lado
+    // Las preferencias solo existen durante esta sesión
+    
+    if (success && mounted) {
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     }
   }
 
   Future<void> _signInWithEmail() async {
     if (!_acceptedTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Debes aceptar los términos y condiciones'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showError('Debes aceptar los términos y condiciones');
       return;
     }
 
-    // SIMPLIFICADO: Mostrar mensaje por ahora
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Email login coming soon')),
-    );
+    Navigator.pushNamed(context, AppRoutes.login);
   }
 
   Future<void> _continueAsGuest() async {
     if (!_acceptedTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Debes aceptar los términos y condiciones'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showError('Debes aceptar los términos y condiciones');
       return;
     }
 
-    setState(() => _isLoading = true);
-
-    // SIMPLIFICADO: Simulación
-    await Future.delayed(const Duration(seconds: 1));
+    final authProvider = context.read<AuthProvider>();
+    await authProvider.continueAsGuest();
     
     if (mounted) {
-      setState(() => _isLoading = false);
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     
-    // Lista de idiomas disponibles (mock)
-    final languages = [
-      LanguageItem(code: 'es', name: 'Español', flag: '🇪🇸'),
-      LanguageItem(code: 'en', name: 'English', flag: '🇺🇸'),
-      LanguageItem(code: 'fr', name: 'Français', flag: '🇫🇷'),
-    ];
-
     return Scaffold(
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator())
-        : SafeArea(
+      body: Consumer<AuthProvider>(
+        builder: (context, authProvider, child) {
+          if (authProvider.isLoading) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Iniciando sesión...'),
+                ],
+              ),
+            );
+          }
+
+          return SafeArea(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                padding: const EdgeInsets.all(24.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 48),
                     
-                    // Logo y título
                     const WelcomeHeader(
                       title: 'Bienvenido a MoneyT',
                       subtitle: 'Tu app de finanzas personales',
                     ),
+                    
                     const SizedBox(height: 48),
                     
-                    // Selector de idioma
                     LanguageSelector(
-                      languages: languages,
+                      languages: const [
+                        LanguageItem(code: 'es', name: 'Español', flag: '🇪🇸'),
+                        LanguageItem(code: 'en', name: 'English', flag: '🇺🇸'),
+                        LanguageItem(code: 'fr', name: 'Français', flag: '🇫🇷'),
+                      ],
                       value: _selectedLanguage,
                       onChanged: _onLanguageChanged, 
                       showAsDropDown: true,
                     ),
+                    
                     const SizedBox(height: 32),
                     
-                    // Términos y condiciones
+                    if (authProvider.errorMessage != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: colorScheme.errorContainer,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error, color: colorScheme.error),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                authProvider.errorMessage!,
+                                style: TextStyle(color: colorScheme.error),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => authProvider.clearError(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    
                     Card(
                       elevation: 0,
                       color: colorScheme.surfaceVariant,
@@ -195,17 +199,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ),
                       ),
                     ),
+                    
                     const SizedBox(height: 32),
                     
-                    // Botones de inicio de sesión
                     AppButton(
                       text: 'Continuar con Google',
                       onPressed: _signInWithGoogle,
-                      type: AppButtonType.outlined, // Cambiado de outlined a secondary
+                      type: AppButtonType.outlined,
                       isFullWidth: true,
                       icon: Icons.g_mobiledata,
                     ),
+                    
                     const SizedBox(height: 16),
+                    
                     AppButton(
                       text: 'Continuar con Email',
                       onPressed: _signInWithEmail,
@@ -213,7 +219,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       isFullWidth: true,
                       icon: Icons.email,
                     ),
+                    
                     const SizedBox(height: 24),
+                    
                     AppButton(
                       text: 'Continuar sin registrarme',
                       onPressed: _acceptedTerms ? _continueAsGuest : null,
@@ -224,7 +232,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
             ),
-          ),
+          );
+        },
+      ),
     );
   }
 }

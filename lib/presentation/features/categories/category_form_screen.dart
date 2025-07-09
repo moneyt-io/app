@@ -10,8 +10,6 @@ import '../../core/molecules/category_icon_picker.dart';
 import '../../core/molecules/category_color_picker.dart';
 import '../../core/molecules/category_type_filter.dart';
 import '../../core/molecules/category_parent_dialog.dart'; // ✅ AGREGADO: Import del diálogo
-import '../../core/design_system/tokens/app_dimensions.dart';
-import '../../core/l10n/l10n_helper.dart';
 
 class CategoryFormScreen extends StatefulWidget {
   final Category? category;

@@ -2,13 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'presentation/core/providers/theme_provider.dart';
-import 'presentation/core/providers/language_provider.dart'; // AGREGADO: import faltante
-import 'presentation/navigation/navigation_service.dart'; // AGREGADO
-import 'presentation/navigation/app_router.dart'; // ✅ AGREGADO: Import de AppRouter
+import 'presentation/navigation/navigation_service.dart';
+import 'presentation/navigation/app_router.dart';
 import 'presentation/navigation/app_routes.dart';
-import 'presentation/core/l10n/generated/strings.g.dart';
-import 'presentation/features/splash/splash_screen.dart'; // ✅ AGREGADO
-import 'presentation/navigation/route_generator.dart'; // ✅ CAMBIAR: Volver al original temporalmente
 
 class MoneyTApp extends StatelessWidget {
   const MoneyTApp({Key? key}) : super(key: key);

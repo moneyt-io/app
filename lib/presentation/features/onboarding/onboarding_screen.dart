@@ -104,7 +104,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   void _skipOnboarding() {
     HapticFeedback.mediumImpact();
-    _completeOnboarding();
+    // ✅ CORREGIDO: Navegar a la última página en lugar de completar directamente
+    _goToPage(_pages.length - 1); // Ir a la CompletePage
   }
 
   // AGREGADO: Método crítico faltante

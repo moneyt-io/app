@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../design_system/tokens/app_dimensions.dart';
-import '../design_system/tokens/app_colors.dart';
 
 /// Campo de texto con label flotante que replica exactamente el diseño HTML
 /// 

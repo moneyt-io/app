@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/category.dart';
-import '../design_system/tokens/app_colors.dart';
 import '../molecules/category_options_dialog.dart';
 
 /// Tarjeta de categoría expandible basada en category_list.html
