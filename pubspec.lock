@@ -1119,6 +1119,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  superwallkit_flutter:
+    dependency: "direct main"
+    description:
+      name: superwallkit_flutter
+      sha256: f5db89e5676463bf7ebaeca404ecad03552dd8e863924f3936537d8ba7743019
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.8"
   term_glyph:
     dependency: transitive
     description:
