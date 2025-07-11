@@ -16,6 +16,7 @@ import 'core/services/data_seed_service.dart';
 import 'core/constants/app_storage_keys.dart';
 import 'app.dart';
 import 'core/di/injection_container.dart';
+import 'core/services/paywall_service.dart';
 
 void main() async {
   
@@ -42,6 +43,13 @@ void main() async {
 
   // Inicializar dependencias (ahora incluye Firebase)
   await initializeDependencies();
+
+  // ✅ AÑADIDO: Inicializar PaywallService
+  try {
+    await GetIt.instance<PaywallService>().init();
+  } catch (e) {
+    print('❌ PaywallService initialization failed: $e');
+  }
 
   // ✅ AGREGADO: Inicialización temprana de datos críticos
   await _initializeCriticalData();

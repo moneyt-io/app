@@ -8,6 +8,10 @@ import '../../data/repositories/backup_repository_impl.dart';
 import 'app_di_module.dart';
 import 'data_di_module.dart';
 import 'domain_di_module.dart';
+import '../services/data_seed_service.dart';
+import '../services/auth_service.dart';
+import '../services/paywall_service.dart'; // ✅ AÑADIDO
+import '../../presentation/features/auth/auth_provider.dart' as app_auth;
 
 final getIt = GetIt.instance;
 
@@ -59,6 +63,14 @@ Future<void> initializeDependencies() async {
   //   () => BackupProvider(getIt<BackupService>()),
   // );
   // --- Fin Registro Dependencias de Backup ---
+
+  // Services
+  getIt.registerLazySingleton<DataSeedService>(() => DataSeedService()); // ✅ CORREGIDO
+  getIt.registerLazySingleton<AuthService>(() => AuthService());
+  getIt.registerLazySingleton<PaywallService>(() => PaywallService()); // ✅ AÑADIDO
+
+  // Providers
+  getIt.registerLazySingleton<app_auth.AuthProvider>(() => app_auth.AuthProvider(getIt())); // ✅ CORREGIDO
 
   _dependenciesInitialized = true;
 }

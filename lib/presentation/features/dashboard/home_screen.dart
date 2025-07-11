@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/services/paywall_service.dart';
 import '../../../domain/entities/transaction_entry.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/usecases/transaction_usecases.dart';
@@ -49,6 +51,34 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadDashboardData();
+    _showPaywallIfNeeded(); // ✅ AÑADIDO: Llamada para mostrar la paywall.
+  }
+
+  // ✅ AÑADIDO: Método para mostrar la paywall si es la primera vez.
+  Future<void> _showPaywallIfNeeded() async {
+    // Se espera un momento para no interferir con la animación de entrada.
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      const paywallShownKey = 'paywall_shown_on_home';
+      final bool hasBeenShown = prefs.getBool(paywallShownKey) ?? false;
+
+      if (!hasBeenShown && mounted) {
+        print('🔥 HomeScreen: Paywall not shown yet. Triggering event...');
+        final paywallService = GetIt.instance<PaywallService>();
+        
+        // Disparar el evento de Superwall.
+        paywallService.registerEvent('campaign_trigger');
+        
+        // Marcar que la paywall ya se intentó mostrar.
+        await prefs.setBool(paywallShownKey, true);
+      } else {
+        print('✅ HomeScreen: Paywall already shown or widget not mounted. Skipping.');
+      }
+    } catch (e) {
+      print('❌ HomeScreen: Error trying to show paywall: $e');
+    }
   }
 
   Future<void> _loadDashboardData() async {
