@@ -30,15 +30,15 @@ class Wallet extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    parentId, // Added parentId
-    currencyId,
-    chartAccountId,
-    name,
-    description,
-    active,
-    createdAt,
-    updatedAt,
-    deletedAt,
-  ];
+        id,
+        parentId, // Added parentId
+        currencyId,
+        chartAccountId,
+        name,
+        description,
+        active,
+        createdAt,
+        updatedAt,
+        deletedAt,
+      ];
 }

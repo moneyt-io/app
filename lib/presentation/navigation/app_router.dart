@@ -3,6 +3,7 @@ import '../../domain/entities/category.dart';
 import '../../domain/entities/chart_account.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/entities/credit_card.dart';
+import '../../domain/entities/transaction_entry.dart';
 import '../../domain/entities/wallet.dart';
 import 'app_routes.dart';
 import '../features/dashboard/home_screen.dart';
@@ -15,6 +16,7 @@ import '../features/wallets/wallets_screen.dart';
 import '../features/wallets/wallet_form_screen.dart';
 import '../features/transactions/transactions_screen.dart';
 import '../features/transactions/transaction_form_screen.dart';
+import '../features/transactions/transaction_detail_screen.dart';
 import '../features/categories/categories_screen.dart';
 import '../features/categories/category_form_screen.dart';
 import '../features/contacts/contacts_screen.dart';
@@ -93,8 +95,15 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => TransactionFormScreen(
             transaction: args?['transaction'],
-            initialType: args?['type'],
+            initialType: args?['initialType'],
           ),
+          settings: settings,
+        );
+
+      case AppRoutes.transactionDetail:
+        final transaction = settings.arguments as TransactionEntry?;
+        return MaterialPageRoute(
+          builder: (_) => TransactionDetailScreen(transaction: transaction!),
           settings: settings,
         );
 

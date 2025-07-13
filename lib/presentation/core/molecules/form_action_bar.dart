@@ -64,7 +64,7 @@ class FormActionBar extends StatelessWidget {
                         color: AppColors.slate200, // bg-slate-200
                         borderRadius: BorderRadius.circular(24), // rounded-full
                         child: InkWell(
-                          onTap: enabled ? onCancel : null,
+                          onTap: onCancel,
                           borderRadius: BorderRadius.circular(24),
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 20), // px-5

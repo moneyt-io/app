@@ -36,6 +36,7 @@ class AppFloatingLabelField extends StatefulWidget {
     this.inputFormatters,
     this.autofocus = false,
     this.maxLines = 1,
+    this.prefixIcon,
   }) : super(key: key);
 
   final TextEditingController? controller;
@@ -52,6 +53,7 @@ class AppFloatingLabelField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   final bool autofocus;
   final int maxLines;
+  final IconData? prefixIcon;
 
   @override
   State<AppFloatingLabelField> createState() => _AppFloatingLabelFieldState();
@@ -130,16 +132,11 @@ class _AppFloatingLabelFieldState extends State<AppFloatingLabelField> {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(
-                    color: Color(0xFFCBD5E1), // HTML: border-slate-300
-                  ),
+                  borderSide: const BorderSide(color: Color(0xFFCBD5E1), width: 1.0),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF3B82F6), // HTML: focus:border-blue-500
-                    width: 2,
-                  ),
+                  borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 2.0), // focus:border-blue-500
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),

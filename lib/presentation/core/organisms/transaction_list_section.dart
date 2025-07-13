@@ -66,10 +66,6 @@ class TransactionListSection extends StatelessWidget {
                 ? contactsMap![transaction.contactId]
                 : null,
             onTap: () => onTransactionTap(transaction),
-            onDelete: () => onTransactionDelete(transaction),
-            onEdit: onTransactionEdit != null 
-                ? () => onTransactionEdit!(transaction)
-                : null,
           ),
         )),
       ],

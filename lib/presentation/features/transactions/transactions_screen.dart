@@ -1,18 +1,29 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import '../../../domain/entities/transaction_entry.dart';
 import '../../../domain/usecases/transaction_usecases.dart';
 import '../../../domain/usecases/category_usecases.dart';
 import '../../../domain/usecases/contact_usecases.dart';
+import '../../../domain/usecases/wallet_usecases.dart';
 import '../../core/atoms/app_button.dart';
 import '../../core/molecules/empty_state.dart';
-import '../../core/molecules/search_field.dart';
+import '../../core/atoms/app_search_field.dart';
 import '../../core/molecules/confirm_delete_dialog.dart';
 import '../../core/organisms/app_drawer.dart';
-import '../../core/organisms/transaction_list_view.dart';
+import '../../core/molecules/transaction_list_item.dart';
 import '../../navigation/navigation_service.dart';
 import '../../navigation/app_routes.dart';
 import '../../core/design_system/theme/app_dimensions.dart';
+import '../../core/atoms/app_app_bar.dart';
+import '../../core/atoms/expandable_fab.dart';
+import '../../core/molecules/filter_chip_group.dart';
+import '../../core/organisms/transactions_summary.dart';
+import '../../core/molecules/active_filters_bar.dart';
+
+enum TransactionTypeFilter { all, expense, income, transfer }
+enum TransactionDateFilter { all, week, month, custom }
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({Key? key}) : super(key: key);
@@ -21,21 +32,25 @@ class TransactionsScreen extends StatefulWidget {
   State<TransactionsScreen> createState() => _TransactionsScreenState();
 }
 
-class _TransactionsScreenState extends State<TransactionsScreen> with SingleTickerProviderStateMixin {
+class _TransactionsScreenState extends State<TransactionsScreen> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _searchController = TextEditingController();
   final _transactionUseCases = GetIt.instance<TransactionUseCases>();
   final _categoryUseCases = GetIt.instance<CategoryUseCases>();
   final _contactUseCases = GetIt.instance<ContactUseCases>();
+  final _walletUseCases = GetIt.instance<WalletUseCases>();
   
-  late TabController _tabController;
   String _searchQuery = '';
   List<TransactionEntry> _transactions = [];
   Map<int, String> _categoriesMap = {};
   Map<int, String> _contactsMap = {};
+  Map<int, String> _walletsMap = {};
   
   DateTime? _startDate;
   DateTime? _endDate;
-  String _selectedFilter = 'all'; // all, month, week, custom
+  
+  TransactionTypeFilter _selectedTypeFilter = TransactionTypeFilter.all;
+  TransactionDateFilter _selectedDateFilter = TransactionDateFilter.all;
   
   bool _isLoading = true;
   String? _error;
@@ -43,20 +58,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        _loadTransactions();
-      }
-    });
-    _loadCategoriesAndContacts();
-    _loadTransactions();
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    await _loadCategoriesAndContacts();
+    await _loadTransactions();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _tabController.dispose();
     super.dispose();
   }
 
@@ -69,10 +81,15 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
       // Cargar contactos
       final contacts = await _contactUseCases.getAllContacts();
       final contactsMap = {for (var c in contacts) c.id: c.name};
+
+      // Cargar wallets
+      final wallets = await _walletUseCases.getAllWallets();
+      final walletsMap = {for (var w in wallets) w.id: w.name};
       
       setState(() {
         _categoriesMap = categoriesMap;
         _contactsMap = contactsMap;
+        _walletsMap = walletsMap;
       });
     } catch (e) {
       // Mostrar error si es necesario
@@ -88,18 +105,18 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
       
       List<TransactionEntry> transactions;
       
-      // Filtrar por tipo según la pestaña
-      switch (_tabController.index) {
-        case 1: // Gastos
+      // Filtrar por tipo según el segmented control
+      switch (_selectedTypeFilter) {
+        case TransactionTypeFilter.expense:
           transactions = await _transactionUseCases.getTransactionsByType('E');
           break;
-        case 2: // Ingresos
+        case TransactionTypeFilter.income:
           transactions = await _transactionUseCases.getTransactionsByType('I');
           break;
-        case 3: // Transferencias
+        case TransactionTypeFilter.transfer:
           transactions = await _transactionUseCases.getTransactionsByType('T');
           break;
-        default: // Todas
+        default: // all
           transactions = await _transactionUseCases.getAllTransactions();
       }
       
@@ -115,32 +132,34 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
     }
   }
 
-  void _applyDateFilter(String filter) {
+  void _applyDateFilter(TransactionDateFilter filter) {
     setState(() {
-      _selectedFilter = filter;
+      _selectedDateFilter = filter;
       final now = DateTime.now();
       
       switch (filter) {
-        case 'all':
+        case TransactionDateFilter.all:
           _startDate = null;
           _endDate = null;
           break;
-        case 'month':
+        case TransactionDateFilter.month:
           _startDate = DateTime(now.year, now.month, 1);
           _endDate = DateTime(now.year, now.month + 1, 0);
           break;
-        case 'week':
+        case TransactionDateFilter.week:
           // Calcular el inicio de la semana (lunes)
           final weekDay = now.weekday;
           _startDate = now.subtract(Duration(days: weekDay - 1));
           _endDate = now.add(Duration(days: 7 - weekDay));
           break;
-        case 'custom':
-          // No hacer nada, el calendario se mostrará para selección personalizada
+        case TransactionDateFilter.custom:
+          // No hacer nada aquí, se llama a _selectCustomDateRange
           break;
       }
       
-      _loadTransactions();
+      if (filter != TransactionDateFilter.custom) {
+        _loadTransactions();
+      }
     });
   }
 
@@ -159,33 +178,21 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
       setState(() {
         _startDate = picked.start;
         _endDate = picked.end;
-        _selectedFilter = 'custom';
+        _selectedDateFilter = TransactionDateFilter.custom;
         _loadTransactions();
       });
     }
   }
 
-  void _navigateToTransactionForm({TransactionEntry? transaction}) async {
-    String type = 'all';
-    if (transaction != null) {
-      type = transaction.documentTypeId;
-    } else if (_tabController.index > 0) {
-      switch (_tabController.index) {
-        case 1: type = 'E'; break;
-        case 2: type = 'I'; break;
-        case 3: type = 'T'; break;
-      }
-    }
-    
+  void _navigateToTransactionForm({String type = 'E'}) async {
     final result = await NavigationService.navigateTo(
       AppRoutes.transactionForm,
       arguments: {
-        'transaction': transaction,
-        'type': type,
+        'initialType': type,
       }
     );
 
-    if (result != null) {
+    if (result == true) {
       _loadTransactions();
     }
   }
@@ -197,7 +204,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
       arguments: transaction
     );
 
-    if (result != null) {
+    if (result == true) {
       _loadTransactions();
     }
   }
@@ -252,55 +259,117 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
       ..sort((a, b) => b.date.compareTo(a.date)); // Ordenar por fecha descendente
   }
 
+  Map<String, List<TransactionEntry>> _groupTransactionsByDate(List<TransactionEntry> transactions) {
+    final Map<String, List<TransactionEntry>> grouped = {};
+    for (var transaction in transactions) {
+      final dateKey = DateFormat('yyyy-MM-dd').format(transaction.date);
+      if (grouped[dateKey] == null) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey]!.add(transaction);
+    }
+    return grouped;
+  }
+
+  String? _getAccountName(TransactionEntry transaction) {
+    try {
+      final detail = transaction.details.firstWhere(
+        (d) => d.isWalletPayment && (d.isOutflow || d.isFrom),
+      );
+      return _walletsMap[detail.paymentId];
+    } catch (e) {
+      // Fallback for simple income transactions or if no specific flow matches
+      try {
+        final detail = transaction.details.firstWhere((d) => d.isWalletPayment);
+        return _walletsMap[detail.paymentId];
+      } catch (e) {
+        return null;
+      }
+    }
+  }
+
+  String? _getTargetAccountName(TransactionEntry transaction) {
+    if (transaction.documentTypeId != 'T') return null;
+    try {
+      final detail = transaction.details.firstWhere((d) => d.isWalletPayment && d.isTo);
+      return _walletsMap[detail.paymentId];
+    } catch (e) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final filteredTransactions = _getFilteredTransactions();
+    final groupedTransactions = _groupTransactionsByDate(filteredTransactions);
+    final dateKeys = groupedTransactions.keys.toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Transacciones'),
-        centerTitle: true,
-        elevation: 0,
-        actions: [
-          // Agregamos un IconButton para el filtro de fechas que abrirá un diálogo
-          IconButton(
-            icon: Icon(
-              Icons.filter_list,
-              color: colorScheme.primary,
-            ),
-            onPressed: () => _showFilterDialog(context),
-            tooltip: 'Filtrar por fecha',
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Todas'),
-            Tab(text: 'Gastos'),
-            Tab(text: 'Ingresos'),
-            Tab(text: 'Transferencias'),
-          ],
-          labelColor: colorScheme.primary,
-          indicatorColor: colorScheme.primary,
-          dividerColor: Colors.transparent,
-          isScrollable: true,
-        ),
+      key: _scaffoldKey,
+      backgroundColor: const Color(0xFFF8FAFC), // HTML: bg-slate-50
+      appBar: AppAppBar(
+        title: 'Transactions',
+        type: AppAppBarType.blur,
+        leading: AppAppBarLeading.drawer,
+        onLeadingPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        actions: const [AppAppBarAction.search],
+        onActionsPressed: [() {}], // Placeholder
       ),
       drawer: const AppDrawer(),
       body: Column(
         children: [
-          // Barra de búsqueda
-          Padding(
-            padding: EdgeInsets.all(AppDimensions.spacing16),
-            child: SearchField(
-              controller: _searchController,
-              hintText: 'Buscar transacciones',
-              onChanged: (value) => setState(() => _searchQuery = value),
+          // Filters
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              children: [
+                FilterChipGroup<TransactionTypeFilter>(
+                  selectedValue: _selectedTypeFilter,
+                  filters: const {
+                    TransactionTypeFilter.all: 'All',
+                    TransactionTypeFilter.income: 'Income',
+                    TransactionTypeFilter.expense: 'Expense',
+                    TransactionTypeFilter.transfer: 'Transfer',
+                  },
+                  icons: const {
+                    TransactionTypeFilter.all: Icons.receipt_long,
+                    TransactionTypeFilter.income: Icons.trending_up,
+                    TransactionTypeFilter.expense: Icons.trending_down,
+                    TransactionTypeFilter.transfer: Icons.swap_horiz,
+                  },
+                  onFilterChanged: (value) {
+                    setState(() {
+                      _selectedTypeFilter = value;
+                      _loadTransactions();
+                    });
+                  },
+                ),
+                const SizedBox(height: 8),
+                ActiveFiltersBar(
+                  activeFilters: [
+                    ActiveFilter(
+                      key: 'month',
+                      label: 'This Month',
+                      icon: Icons.calendar_today,
+                      color: const Color(0xFF3B82F6),
+                    ),
+                  ],
+                  onAddFilter: () {},
+                  onRemoveFilter: (key) {},
+                ),
+              ],
             ),
           ),
-          
-          // Contenido principal
+          // Summary
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+            child: TransactionsSummary(
+              totalIncome: 3250.00, // Mock data
+              totalExpense: 1847.50, // Mock data
+              totalTransfer: 500.00, // Mock data
+            ),
+          ),
+          // List
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -310,96 +379,83 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
                         onRefresh: _loadTransactions,
                         child: filteredTransactions.isEmpty
                             ? _buildEmptyState()
-                            : TransactionListView(
-                                transactions: filteredTransactions,
-                                categoriesMap: _categoriesMap,
-                                contactsMap: _contactsMap,
-                                onTransactionTap: _navigateToTransactionDetail,
-                                onTransactionDelete: _deleteTransaction,
-                                onTransactionEdit: (transaction) => 
-                                  _navigateToTransactionForm(transaction: transaction),
+                            : ListView.builder(
+                                padding: const EdgeInsets.only(top: 16, bottom: 80),
+                                itemCount: dateKeys.length,
+                                itemBuilder: (context, index) {
+                                  final dateKey = dateKeys[index];
+                                  final transactionsForDate = groupedTransactions[dateKey]!;
+                                  final displayDate = DateFormat('EEEE, d MMMM yyyy', 'es_ES').format(DateTime.parse(dateKey));
+
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              displayDate,
+                                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                            ),
+                                            Text(
+                                              '${transactionsForDate.length} transactions',
+                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      ...transactionsForDate.map((transaction) => TransactionListItem(
+                                        transaction: transaction,
+                                        categoryName: transaction.mainCategoryId != null
+                                            ? _categoriesMap[transaction.mainCategoryId]
+                                            : null,
+                                        contactName: transaction.contactId != null
+                                            ? _contactsMap[transaction.contactId]
+                                            : null,
+                                        accountName: _getAccountName(transaction),
+                                        targetAccountName: _getTargetAccountName(transaction),
+                                        onTap: () => _navigateToTransactionDetail(transaction),
+                                      )),
+                                      const SizedBox(height: 16),
+                                    ],
+                                  );
+                                },
                               ),
                       ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToTransactionForm(),
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-        elevation: 2,
-        child: Icon(Icons.add, size: AppDimensions.iconSizeMedium),
-      ),
-    );
-  }
-  
-  // Método para mostrar diálogo de filtro
-  Future<void> _showFilterDialog(BuildContext context) async {
-    final colorScheme = Theme.of(context).colorScheme;
-    
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Filtrar por fecha'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: Text('Todas'),
-              leading: Radio<String>(
-                value: 'all',
-                groupValue: _selectedFilter,
-                onChanged: (value) {
-                  Navigator.pop(context);
-                  _applyDateFilter(value!);
-                },
-              ),
-            ),
-            ListTile(
-              title: Text('Este mes'),
-              leading: Radio<String>(
-                value: 'month',
-                groupValue: _selectedFilter,
-                onChanged: (value) {
-                  Navigator.pop(context);
-                  _applyDateFilter(value!);
-                },
-              ),
-            ),
-            ListTile(
-              title: Text('Esta semana'),
-              leading: Radio<String>(
-                value: 'week',
-                groupValue: _selectedFilter,
-                onChanged: (value) {
-                  Navigator.pop(context);
-                  _applyDateFilter(value!);
-                },
-              ),
-            ),
-            ListTile(
-              title: Text('Rango personalizado'),
-              leading: Radio<String>(
-                value: 'custom',
-                groupValue: _selectedFilter,
-                onChanged: (value) {
-                  Navigator.pop(context);
-                  _selectCustomDateRange();
-                },
-              ),
-            ),
-          ],
-        ),
+      floatingActionButton: ExpandableFab(
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancelar'),
+          FabAction(
+            label: 'Income',
+            icon: Icons.trending_up,
+            backgroundColor: const Color(0xFF22C55E),
+            onPressed: () => _navigateToTransactionForm(type: 'I'),
+          ),
+          FabAction(
+            label: 'Expense',
+            icon: Icons.trending_down,
+            backgroundColor: const Color(0xFFEF4444),
+            onPressed: () => _navigateToTransactionForm(type: 'E'),
+          ),
+          FabAction(
+            label: 'Transfer',
+            icon: Icons.swap_horiz,
+            backgroundColor: const Color(0xFF3B82F6),
+            onPressed: () => _navigateToTransactionForm(type: 'T'),
           ),
         ],
       ),
     );
   }
-
+  
   Widget _buildErrorState() {
     return Center(
       child: Padding(
@@ -437,16 +493,16 @@ class _TransactionsScreenState extends State<TransactionsScreen> with SingleTick
     return EmptyState(
       icon: Icons.receipt_long_outlined,
       title: 'No hay transacciones',
-      message: _searchQuery.isEmpty && _selectedFilter == 'all'
+      message: _searchQuery.isEmpty && _selectedDateFilter == TransactionDateFilter.all
         ? 'Crea una nueva transacción utilizando el botón "+"'
         : 'No se encontraron transacciones con los filtros aplicados',
-      action: _searchQuery.isNotEmpty || _selectedFilter != 'all' ? AppButton(
+      action: _searchQuery.isNotEmpty || _selectedDateFilter != TransactionDateFilter.all ? AppButton(
         text: 'Limpiar filtros',
         onPressed: () {
           _searchController.clear();
           setState(() {
             _searchQuery = '';
-            _applyDateFilter('all');
+            _applyDateFilter(TransactionDateFilter.all);
           });
         },
         type: AppButtonType.text,

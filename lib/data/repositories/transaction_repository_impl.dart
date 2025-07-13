@@ -60,12 +60,12 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   Stream<List<TransactionEntry>> watchAllTransactions() {
-    return _transactionDao.watchAllTransactions().asyncMap((results) async {
-      final transactions = <TransactionEntry>[];
-      for (final result in results) {
-        transactions.add(await _convertToTransactionEntry(result));
+    return _transactionDao.watchAllTransactions().asyncMap((entries) async {
+      final transactionsWithDetails = <TransactionEntry>[];
+      for (final entry in entries) {
+        transactionsWithDetails.add(await _convertToTransactionEntry(entry));
       }
-      return transactions;
+      return transactionsWithDetails;
     });
   }
 

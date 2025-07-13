@@ -14,7 +14,10 @@ class SelectableAccount {
   final String currencyId;
   final bool isCreditCard;
   final double? balance;
-  
+  final String last4Digits;
+  final double? availableCredit;
+  final int? parentAccountId;
+
   const SelectableAccount({
     required this.id,
     required this.name,
@@ -22,9 +25,16 @@ class SelectableAccount {
     required this.currencyId,
     required this.isCreditCard,
     this.balance,
+    required this.last4Digits,
+    this.availableCredit,
+    this.parentAccountId,
   });
-  
-  factory SelectableAccount.fromWallet(Wallet wallet, {double? balance}) {
+
+  factory SelectableAccount.fromWallet(
+    Wallet wallet, {
+    double? balance,
+    String? accountNumber,
+  }) {
     return SelectableAccount(
       id: wallet.id,
       name: wallet.name,
@@ -32,10 +42,18 @@ class SelectableAccount {
       currencyId: wallet.currencyId,
       isCreditCard: false,
       balance: balance,
+      last4Digits: (accountNumber?.length ?? 0) >= 4
+          ? accountNumber!.substring(accountNumber.length - 4)
+          : '',
+      parentAccountId: wallet.parentId,
     );
   }
-  
-  factory SelectableAccount.fromCreditCard(CreditCard creditCard, {double? balance}) {
+
+  factory SelectableAccount.fromCreditCard(CreditCard creditCard, {
+    double? balance,
+    double? availableCredit,
+    String? cardNumber,
+  }) {
     return SelectableAccount(
       id: creditCard.id,
       name: creditCard.name,
@@ -43,6 +61,10 @@ class SelectableAccount {
       currencyId: creditCard.currencyId,
       isCreditCard: true,
       balance: balance,
+      last4Digits: (cardNumber?.length ?? 0) >= 4
+          ? cardNumber!.substring(cardNumber.length - 4)
+          : '',
+      availableCredit: availableCredit,
     );
   }
 }

@@ -6,7 +6,6 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import '../../../domain/entities/transaction.dart';
 import '../../../domain/entities/category.dart';
-import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/contact.dart';
 import '../../../domain/entities/credit_card.dart';
 
@@ -16,12 +15,19 @@ import '../../../domain/usecases/contact_usecases.dart';
 import '../../../domain/usecases/transaction_usecases.dart';
 import '../../../domain/usecases/credit_card_usecases.dart';
 
-import '../../core/atoms/app_button.dart';
-import '../../core/molecules/form_field_container.dart';
-import '../../core/molecules/error_message_card.dart';
-import '../../core/organisms/account_selector_modal.dart';
+import '../../core/atoms/app_app_bar.dart';
 
-import '../../core/design_system/theme/app_dimensions.dart';
+import '../../core/atoms/app_floating_label_field.dart';
+import '../../core/molecules/date_selection_dialog.dart';
+import '../../core/organisms/account_selector_modal.dart'
+    show SelectableAccount;
+import '../../core/molecules/form_action_bar.dart';
+import '../../core/atoms/app_floating_label_selector.dart';
+import 'widgets/transaction_type_toggle.dart';
+import 'widgets/account_selection_dialog.dart';
+import 'package:collection/collection.dart';
+import '../categories/widgets/category_selection_dialog.dart' as cat_dialog;
+import '../contacts/widgets/contact_selection_dialog.dart' as contact_dialog;
 
 class TransactionFormScreen extends StatefulWidget {
   final TransactionEntity? transaction;
@@ -37,39 +43,39 @@ class TransactionFormScreen extends StatefulWidget {
   State<TransactionFormScreen> createState() => _TransactionFormScreenState();
 }
 
-class _TransactionFormScreenState extends State<TransactionFormScreen> with SingleTickerProviderStateMixin {
+class _TransactionFormScreenState extends State<TransactionFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
-  late TabController _typeTabController;
-  
-  // Estados de la pantalla
+  final _amountFocusNode = FocusNode();
+  final _descriptionFocusNode = FocusNode();
+
+  // Screen state
+  late TransactionToggleType _selectedToggleType;
   late String _selectedType;
-  late String _flow;
   late DateTime _selectedDate;
-  
+
   int? _selectedCategoryId;
   int? _selectedContactId;
-  
+
   bool _isLoading = true;
   String? _error;
-  
-  // Datos reales
-  List<Wallet> _wallets = [];
+
+  // Data
   List<Category> _categories = [];
   List<Contact> _contacts = [];
   List<CreditCard> _creditCards = [];
-  Map<int, SelectableAccount> _accountsMap = {}; // Para mapear IDs a cuentas seleccionables
+  Map<int, SelectableAccount> _accountsMap = {};
   SelectableAccount? _selectedAccount;
-  SelectableAccount? _selectedToAccount; // Para transferencias
-  
-  // Obtener casos de uso usando GetIt
+  SelectableAccount? _selectedToAccount;
+
+  // Use cases
   final _walletUseCases = GetIt.instance<WalletUseCases>();
   final _categoryUseCases = GetIt.instance<CategoryUseCases>();
   final _contactUseCases = GetIt.instance<ContactUseCases>();
   final _transactionUseCases = GetIt.instance<TransactionUseCases>();
-  
-  // Getters para UI
+
+  // UI Getters
   bool get isTransfer => _selectedType == 'T';
   bool get isExpense => _selectedType == 'E';
   bool get isIncome => _selectedType == 'I';
@@ -78,25 +84,40 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
   @override
   void initState() {
     super.initState();
-    
-    // Inicializar formateo de fechas si aún no se ha hecho
     initializeDateFormatting('es_ES', null);
-    
-    // Inicializar tipo de transacción
-    _selectedType = widget.transaction?.type ?? 
-                   (widget.initialType == 'all' ? 'E' : widget.initialType);
-    _flow = _selectedType == 'I' ? 'I' : _selectedType == 'T' ? 'T' : 'O';
-    
-    // Inicializar TabController
-    _typeTabController = TabController(
-      length: 3, 
-      vsync: this,
-      initialIndex: _selectedType == 'E' ? 0 : _selectedType == 'I' ? 1 : 2,
-    );
-    _typeTabController.addListener(_handleTabChange);
-    
-    // Cargar datos y luego inicializar el formulario
+
+    _selectedType = widget.transaction?.type ??
+        (widget.initialType == 'all' ? 'E' : widget.initialType);
+    _updateFlowAndToggleType();
+
+    _amountFocusNode.addListener(() => setState(() {}));
+    _descriptionFocusNode.addListener(() => setState(() {}));
+
     _loadData().then((_) => _initializeFormData());
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _descriptionController.dispose();
+    _amountFocusNode.dispose();
+    _descriptionFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _updateFlowAndToggleType() {
+    switch (_selectedType) {
+      case 'I':
+        _selectedToggleType = TransactionToggleType.income;
+        break;
+      case 'T':
+        _selectedToggleType = TransactionToggleType.transfer;
+        break;
+      case 'E':
+      default:
+        _selectedToggleType = TransactionToggleType.expense;
+        break;
+    }
   }
 
   Future<void> _loadData() async {
@@ -104,61 +125,61 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
       _isLoading = true;
       _error = null;
     });
-
     try {
-      // Cargar los datos reales de los repositorios
       final walletsResult = await _walletUseCases.getAllWallets();
       final categoriesResult = await _categoryUseCases.getAllCategories();
       final contactsResult = await _contactUseCases.getAllContacts();
-      final creditCardResult = await GetIt.instance<CreditCardUseCases>().getAllCreditCards();
+      final creditCardResult =
+          await GetIt.instance<CreditCardUseCases>().getAllCreditCards();
 
-      // Crear el mapa de cuentas seleccionables
       final Map<int, SelectableAccount> accountsMap = {};
-      
-      // Agregar wallets al mapa
+      // TODO: Fetch real balance and account numbers from use cases
       for (final wallet in walletsResult) {
-        accountsMap[wallet.id] = SelectableAccount.fromWallet(wallet);
+        accountsMap[wallet.id] = SelectableAccount.fromWallet(wallet,
+            balance: 0, accountNumber: '1234');
       }
-      
-      // Agregar tarjetas de crédito al mapa
       for (final card in creditCardResult) {
-        accountsMap[-card.id] = SelectableAccount.fromCreditCard(card); // Usamos ID negativo para distinguir
+        // The key for credit cards should be unique and not overlap with wallets.
+        // Using a negative ID is a common pattern if wallet IDs are always positive.
+        accountsMap[-card.id] = SelectableAccount.fromCreditCard(card,
+            balance: 0, availableCredit: 0, cardNumber: '5678');
       }
 
-      setState(() {
-        _wallets = walletsResult;
-        _categories = categoriesResult;
-        _contacts = contactsResult;
-        _creditCards = creditCardResult;
-        _accountsMap = accountsMap;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _categories = categoriesResult;
+          _contacts = contactsResult;
+          _creditCards = creditCardResult;
+          _accountsMap = accountsMap;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _error = "Error al cargar los datos: ${e.toString()}";
-        _isLoading = false;
-      });
+      if (mounted) {
+        print('Error loading transaction form data: $e');
+        setState(() {
+          _error = "Error: ${e.toString()}";
+          _isLoading = false;
+        });
+      }
     }
   }
 
-  void _handleTabChange() {
+  void _handleTypeChange(TransactionToggleType newType) {
     setState(() {
-      switch (_typeTabController.index) {
-        case 0:
-          _selectedType = 'E'; // Gasto
-          _flow = 'O';
+      _selectedToggleType = newType;
+      switch (newType) {
+        case TransactionToggleType.income:
+          _selectedType = 'I';
           break;
-        case 1:
-          _selectedType = 'I'; // Ingreso
-          _flow = 'I';
+        case TransactionToggleType.expense:
+          _selectedType = 'E';
           break;
-        case 2:
-          _selectedType = 'T'; // Transferencia
-          _flow = 'T';
+        case TransactionToggleType.transfer:
+          _selectedType = 'T';
           break;
       }
-      
-      // Resetear categoría si cambiamos a transferencia
+      _updateFlowAndToggleType();
       if (isTransfer) {
         _selectedCategoryId = null;
       }
@@ -167,112 +188,154 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
 
   void _initializeFormData() {
     if (isEditing) {
-      final transaction = widget.transaction!;
-      _amountController.text = transaction.amount.toString();
-      _descriptionController.text = transaction.description ?? '';
-      _selectedDate = transaction.transactionDate;
-      
-      // Asignar la cuenta seleccionada según el tipo y ID
-      if (transaction.accountId != null) {
-        if (_accountsMap.containsKey(transaction.accountId)) {
-          // Es una wallet
-          _selectedAccount = _accountsMap[transaction.accountId];
-        } else if (_accountsMap.containsKey(-transaction.accountId!)) {
-          // Es una tarjeta de crédito
-          _selectedAccount = _accountsMap[-transaction.accountId!];
-        }
-      }
-      
-      _selectedCategoryId = transaction.categoryId;
-      _selectedContactId = transaction.contactId;
-      
-      // Para transferencias, buscar la cuenta destino usando la referencia
-      if (isTransfer && transaction.reference != null) {
-        for (final wallet in _wallets) {
-          if (wallet.name == transaction.reference) {
-            _selectedToAccount = SelectableAccount.fromWallet(wallet);
-            break;
-          }
+      final t = widget.transaction!;
+      _amountController.text = t.amount.toString();
+      _descriptionController.text = t.description ?? '';
+      _selectedDate = t.transactionDate;
+      _selectedCategoryId = t.categoryId;
+      _selectedContactId = t.contactId;
+
+      // For expenses, the account could be a wallet or a credit card.
+      // We try to find it first as a wallet (positive key) and then as a card (negative key).
+      _selectedAccount =
+          _accountsMap[t.accountId] ?? _accountsMap[-t.accountId];
+
+      // For transfers, the target account is found by its name in the reference field.
+      if (isTransfer && t.reference != null) {
+        // Find the wallet ID from the name, then get the SelectableAccount from the map.
+        final targetEntry = _accountsMap.entries.firstWhere(
+          (entry) =>
+              entry.value.name == t.reference && !entry.value.isCreditCard,
+          orElse: () => const MapEntry(
+              0,
+              SelectableAccount(
+                  id: 0,
+                  name: '',
+                  currencyId: '',
+                  isCreditCard: false,
+                  last4Digits: '')), // Return a dummy entry to avoid null
+        );
+        if (targetEntry.key != 0) {
+          _selectedToAccount = targetEntry.value;
         }
       }
     } else {
       _selectedDate = DateTime.now();
-      _selectedContactId = null; // Asegurar que el contacto sea nulo por defecto
     }
   }
 
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _descriptionController.dispose();
-    _typeTabController.removeListener(_handleTabChange);
-    _typeTabController.dispose();
-    super.dispose();
-  }
-
   Future<void> _selectDate() async {
-    final DateTime now = DateTime.now();
-    
-    final pickedDate = await showDatePicker(
+    final picked = await DateSelectionDialog.show(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(now.year + 1, 12, 31),
     );
-    
-    if (pickedDate != null && pickedDate != _selectedDate) {
-      setState(() {
-        _selectedDate = pickedDate;
-      });
+    if (picked != null && picked != _selectedDate) {
+      setState(() => _selectedDate = picked);
     }
   }
 
   Future<void> _showAccountSelector({bool isSource = true}) async {
-    // Recopilar todas las cuentas disponibles
-    List<SelectableAccount> availableAccounts = [];
-    
-    // Agregar wallets
-    for (final wallet in _wallets) {
-      availableAccounts.add(SelectableAccount.fromWallet(wallet));
-    }
-    
-    // Agregar tarjetas de crédito solo para gastos (no para ingresos ni transferencias)
-    if (isExpense && isSource) {
-      for (final card in _creditCards) {
-        availableAccounts.add(SelectableAccount.fromCreditCard(card));
-      }
-    }
-    
-    // En transferencias, no mostrar la cuenta origen como destino
+    List<SelectableAccount> accounts = _accountsMap.values.toList();
     if (isTransfer && !isSource && _selectedAccount != null) {
-      availableAccounts = availableAccounts.where((acc) => 
-        acc.id != _selectedAccount!.id || acc.isCreditCard != _selectedAccount!.isCreditCard
-      ).toList();
+      accounts = accounts
+          .where((acc) =>
+              acc.id != _selectedAccount!.id ||
+              (acc.isCreditCard != _selectedAccount!.isCreditCard))
+          .toList();
     }
-    
-    final result = await AccountSelectorModal.show(
-      context: context,
-      accounts: availableAccounts,
-      title: isSource ? 'Seleccionar cuenta' : 'Seleccionar cuenta destino',
-      confirmButtonText: 'Seleccionar',
+    final result = await AccountSelectionDialog.show(
+      context,
+      accounts: accounts,
       initialSelection: isSource ? _selectedAccount : _selectedToAccount,
     );
-    
+    if (result != null) {
+      setState(() =>
+          isSource ? _selectedAccount = result : _selectedToAccount = result);
+    }
+  }
+
+  Future<void> _selectContact() async {
+    final selectableContacts = _contacts.map((c) {
+      return contact_dialog.SelectableContact(
+        id: c.id.toString(),
+        name: c.name,
+        avatarUrl: null, // Contact entity doesn't have avatar
+      );
+    }).toList();
+
+    final currentSelection = _selectedContactId != null
+        ? selectableContacts.firstWhereOrNull(
+            (sc) => sc.id == _selectedContactId.toString(),
+          )
+        : null;
+
+    final result = await contact_dialog.ContactSelectionDialog.show(
+      context,
+      contacts: selectableContacts,
+      initialSelection: currentSelection,
+    );
+
     if (result != null) {
       setState(() {
-        if (isSource) {
-          _selectedAccount = result;
-        } else {
-          _selectedToAccount = result;
-        }
+        _selectedContactId = int.tryParse(result.id);
+      });
+    }
+  }
+
+  Future<void> _selectCategory() async {
+    if (_categories.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No categories loaded. Please check for errors.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    // 1. Filter and map domain categories to selectable categories for the dialog
+    final selectableCategories = _categories
+        .where((c) =>
+            (isIncome && c.documentTypeId == 'I') ||
+            (!isIncome && c.documentTypeId == 'E'))
+        .map((c) {
+      final isIncomeCategory = c.documentTypeId == 'I';
+      return cat_dialog.SelectableCategory(
+        id: c.id.toString(),
+        name: c.name,
+        parentId: c.parentId?.toString(),
+        isIncome: isIncomeCategory,
+        icon: isIncomeCategory ? Icons.arrow_upward : Icons.arrow_downward,
+        iconColor:
+            isIncomeCategory ? Colors.green.shade600 : Colors.red.shade600,
+        iconBgColor:
+            isIncomeCategory ? Colors.green.shade100 : Colors.red.shade100,
+      );
+    }).toList();
+
+    final currentSelection = _selectedCategoryId != null
+        ? selectableCategories.firstWhere(
+            (sc) => sc.id == _selectedCategoryId.toString(),
+            orElse: () => selectableCategories.first)
+        : null;
+
+    // 2. Show the dialog
+    final result = await cat_dialog.CategorySelectionDialog.show(
+      context,
+      categories: selectableCategories,
+      initialSelection: currentSelection,
+    );
+
+    // 3. Update state with the result
+    if (result != null) {
+      setState(() {
+        _selectedCategoryId = int.parse(result.id);
       });
     }
   }
 
   void _saveTransaction() async {
     if (!_formKey.currentState!.validate()) return;
-    
-    // Validaciones adicionales
+
     if (_selectedAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor seleccione una cuenta')),
@@ -289,7 +352,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
 
     if (isTransfer && _selectedToAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor seleccione una cuenta destino')),
+        const SnackBar(
+            content: Text('Por favor seleccione una cuenta destino')),
       );
       return;
     }
@@ -299,35 +363,31 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
     });
 
     try {
-      // Crear objeto de transacción
-      double amount = double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
-      
-      // En una transferencia, asegurar que el monto sea positivo
+      double amount =
+          double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
+
       if (isTransfer) {
         amount = amount.abs();
       }
-      
-      // Para gastos, el monto debe ser negativo en la UI
+
       if (isExpense && amount > 0) {
         amount = -amount;
       }
 
-      // Obtener el ID real de la cuenta y el tipo (wallet o tarjeta)
       int paymentId;
       String paymentTypeId;
-      
+
       if (_selectedAccount!.isCreditCard) {
         paymentId = _selectedAccount!.id;
-        paymentTypeId = 'C'; // Tarjeta de crédito
+        paymentTypeId = 'C';
       } else {
         paymentId = _selectedAccount!.id;
-        paymentTypeId = 'W'; // Wallet normal
+        paymentTypeId = 'W';
       }
 
       if (isEditing) {
-        // Implementar edición si es necesario
+        // TODO: Implementar edición
       } else {
-        // Crear nueva transacción
         if (isExpense) {
           await _transactionUseCases.createExpense(
             date: _selectedDate,
@@ -345,7 +405,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
             description: _descriptionController.text,
             amount: amount,
             currencyId: _selectedAccount!.currencyId,
-            walletId: paymentId, // Asumimos que ingresos solo con wallets
+            walletId: paymentId,
             categoryId: _selectedCategoryId!,
             contactId: _selectedContactId,
           );
@@ -355,22 +415,21 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
             description: _descriptionController.text,
             amount: amount,
             currencyId: _selectedAccount!.currencyId,
-            sourcePaymentId: paymentId, // ← CORREGIDO: Parámetro faltante
-            targetPaymentId: _selectedToAccount!.id, // ← CORREGIDO: Parámetro faltante
-            targetPaymentTypeId: 'W', // ← NUEVO: Tipo de pago destino (Wallet)
+            sourcePaymentId: paymentId,
+            targetPaymentId: _selectedToAccount!.id,
+            targetPaymentTypeId: 'W',
             targetCurrencyId: _selectedToAccount!.currencyId,
-            targetAmount: amount, // Simplificado
+            targetAmount: amount,
             contactId: _selectedContactId,
           );
         }
       }
 
-      // Mostrar mensaje de éxito y volver
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Transacción guardada con éxito')),
         );
-        Navigator.of(context).pop(true); // Devuelve true para indicar éxito
+        Navigator.of(context).pop(true);
       }
     } catch (e) {
       if (mounted) {
@@ -378,9 +437,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
           _isLoading = false;
           _error = e.toString();
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al guardar: ${e.toString()}')),
-        );
       }
     } finally {
       if (mounted) {
@@ -393,62 +449,13 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    // Determinar el título según el tipo de transacción
-    String title;
-    switch (_selectedType) {
-      case 'E':
-        title = isEditing ? 'Editar Gasto' : 'Nuevo Gasto';
-        break;
-      case 'I':
-        title = isEditing ? 'Editar Ingreso' : 'Nuevo Ingreso';
-        break;
-      case 'T':
-        title = isEditing ? 'Editar Transferencia' : 'Nueva Transferencia';
-        break;
-      default:
-        title = isEditing ? 'Editar Transacción' : 'Nueva Transacción';
-    }
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        centerTitle: true,
-        bottom: !isEditing ? TabBar(
-          controller: _typeTabController,
-          tabs: [
-            Tab(
-              icon: Icon(
-                Icons.arrow_downward, 
-                color: _selectedType == 'E' ? colorScheme.error : null,
-                size: AppDimensions.iconSizeMedium,
-              ),
-              text: 'GASTO',
-            ),
-            Tab(
-              icon: Icon(
-                Icons.arrow_upward, 
-                color: _selectedType == 'I' ? colorScheme.primary : null,
-                size: AppDimensions.iconSizeMedium,
-              ),
-              text: 'INGRESO',
-            ),
-            Tab(
-              icon: Icon(
-                Icons.swap_horiz, 
-                color: _selectedType == 'T' ? colorScheme.tertiary : null,
-                size: AppDimensions.iconSizeMedium,
-              ),
-              text: 'TRANSFERENCIA',
-            ),
-          ],
-          labelColor: _getTabColor(colorScheme),
-          indicatorColor: _getTabColor(colorScheme),
-          unselectedLabelColor: colorScheme.onSurfaceVariant,
-          labelStyle: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
-        ) : null,
+      backgroundColor: const Color(0xFFF8FAFC), // slate-50
+      appBar: AppAppBar(
+        title: isEditing ? 'Edit Transaction' : 'New Transaction',
+        type: AppAppBarType.blur,
+        leading: AppAppBarLeading.close,
+        onLeadingPressed: () => Navigator.of(context).pop(),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -456,259 +463,118 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> with Sing
               ? Center(child: Text(_error!))
               : Form(
                   key: _formKey,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: TabBarView(
-                          controller: _typeTabController,
-                          physics: isEditing ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
-                          children: List.generate(3, (_) => _buildFormContent(context, colorScheme, textTheme)),
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: _buildFormContent(),
                 ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.only(
-          left: AppDimensions.spacing16,
-          right: AppDimensions.spacing16,
-          bottom: MediaQuery.of(context).padding.bottom + AppDimensions.spacing16,
-          top: AppDimensions.spacing16,
-        ),
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withOpacity(0.1),
-              blurRadius: 4,
-              offset: const Offset(0, -1),
-            ),
-          ],
-        ),
-        child: AppButton(
-          text: 'Guardar',
-          onPressed: _saveTransaction,
-          type: AppButtonType.filled,
-          isFullWidth: true,
-        ),
+      bottomNavigationBar: FormActionBar(
+        onCancel: () => Navigator.of(context).pop(),
+        onSave: _saveTransaction,
+        isLoading: _isLoading,
       ),
     );
   }
-  
-  Color _getTabColor(ColorScheme colorScheme) {
-    switch (_selectedType) {
-      case 'E': return colorScheme.error;
-      case 'I': return colorScheme.primary;
-      case 'T': return colorScheme.tertiary;
-      default: return colorScheme.primary;
-    }
-  }
-  
-  Widget _buildFormContent(BuildContext context, ColorScheme colorScheme, TextTheme textTheme) {
+
+  Widget _buildFormContent() {
     return ListView(
-      padding: EdgeInsets.all(AppDimensions.spacing16),
+      padding: const EdgeInsets.all(16),
       children: [
-        FormFieldContainer(
-          child: TextFormField(
-            controller: _amountController,
-            decoration: FormFieldContainer.getOutlinedDecoration(
-              context,
-              labelText: 'Monto',
-              prefixIcon: Icon(
-                Icons.attach_money,
-                color: colorScheme.primary,
-              ),
-            ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-            ],
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor ingrese un monto';
-              }
-              final amount = double.tryParse(value.replaceAll(',', '.'));
-              if (amount == null || amount <= 0) {
-                return 'Ingrese un monto válido';
-              }
-              return null;
-            },
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-          ),
+        // Transaction Type
+        const Text('Transaction type',
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF334155))),
+        const SizedBox(height: 8),
+        TransactionTypeToggle(
+            selectedType: _selectedToggleType,
+            onTypeChanged: _handleTypeChange),
+        const SizedBox(height: 24),
+
+        // Amount
+        AppFloatingLabelField(
+          controller: _amountController,
+          label: 'Amount',
+          placeholder: '0.00',
+          prefixIcon: Icons.attach_money,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'Amount is required' : null,
         ),
-        SizedBox(height: AppDimensions.spacing16),
-        
-        FormFieldContainer(
-          child: InkWell(
+        const SizedBox(height: 24),
+
+        // Date
+        AppFloatingLabelSelector(
+            label: 'Date',
+            icon: Icons.calendar_today_outlined,
+            value: DateFormat.yMMMMd('es_ES').format(_selectedDate),
             onTap: _selectDate,
-            child: InputDecorator(
-              decoration: FormFieldContainer.getOutlinedDecoration(
-                context,
-                labelText: 'Fecha',
-                prefixIcon: Icon(
-                  Icons.calendar_today,
-                  color: colorScheme.primary,
-                ),
-              ),
-              child: Text(
-                DateFormat('dd/MM/yyyy').format(_selectedDate),
-                style: textTheme.bodyLarge,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: AppDimensions.spacing16),
+            iconColor: const Color(0xFF2563EB), // blue-600
+            iconBackgroundColor: const Color(0xFFDBEAFE)), // blue-100
+        const SizedBox(height: 24),
 
-        FormFieldContainer(
-          child: InkWell(
-            onTap: () => _showAccountSelector(isSource: true),
-            child: InputDecorator(
-              decoration: FormFieldContainer.getOutlinedDecoration(
-                context,
-                labelText: 'Cuenta',
-                prefixIcon: Icon(
-                  _selectedAccount?.isCreditCard ?? false 
-                    ? Icons.credit_card
-                    : Icons.account_balance_wallet,
-                  color: colorScheme.primary,
-                ),
-                suffixIcon: Icon(Icons.arrow_drop_down, color: colorScheme.primary),
-              ),
-              child: _selectedAccount == null 
-                ? Text('Seleccione una cuenta', style: textTheme.bodyLarge)
-                : Text(
-                    _selectedAccount?.name ?? '',
-                    style: textTheme.bodyLarge,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-            ),
-          ),
-        ),
+        // Account
+        AppFloatingLabelSelector(
+            label: 'Account',
+            icon: Icons.account_balance_wallet_outlined,
+            value: _selectedAccount?.name ?? 'Select account',
+            onTap: () => _showAccountSelector(),
+            hasValue: _selectedAccount != null,
+            iconColor: const Color(0xFF2563EB), // blue-600
+            iconBackgroundColor: const Color(0xFFDBEAFE)), // blue-100
 
+        // To Account (for transfers)
         if (isTransfer) ...[
-          SizedBox(height: AppDimensions.spacing16),
-          FormFieldContainer(
-            child: InkWell(
+          const SizedBox(height: 24),
+          AppFloatingLabelSelector(
+              label: 'To Account',
+              icon: Icons.account_balance_wallet_outlined,
+              value: _selectedToAccount?.name ?? 'Select destination',
               onTap: () => _showAccountSelector(isSource: false),
-              child: InputDecorator(
-                decoration: FormFieldContainer.getOutlinedDecoration(
-                  context,
-                  labelText: 'Cuenta destino',
-                  prefixIcon: Icon(
-                    Icons.account_balance_wallet,
-                    color: colorScheme.primary,
-                  ),
-                  suffixIcon: Icon(Icons.arrow_drop_down, color: colorScheme.primary),
-                ),
-                child: _selectedToAccount == null 
-                  ? Text('Seleccione cuenta destino', style: textTheme.bodyLarge)
-                  : Text(
-                      _selectedToAccount?.name ?? '',
-                      style: textTheme.bodyLarge,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-              ),
-            ),
-          ),
+              hasValue: _selectedToAccount != null,
+              iconColor: const Color(0xFF2563EB), // blue-600
+              iconBackgroundColor: const Color(0xFFDBEAFE)), // blue-100
         ],
 
+        // Category (for income/expense)
         if (!isTransfer) ...[
-          SizedBox(height: AppDimensions.spacing16),
-          FormFieldContainer(
-            child: DropdownButtonFormField<int>(
-              value: _selectedCategoryId,
-              isExpanded: true,
-              alignment: AlignmentDirectional.centerStart,
-              hint: Text('Seleccione una categoría'),
-              itemHeight: 60,
-              decoration: FormFieldContainer.getOutlinedDecoration(
-                context,
-                labelText: 'Categoría',
-                prefixIcon: Icon(
-                  Icons.category,
-                  color: colorScheme.primary,
-                ),
-              ),
-              items: _categories
-                  .where((cat) => cat.documentTypeId == _selectedType)
-                  .map((category) {
-                return DropdownMenuItem<int>(
-                  value: category.id,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    category.name,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedCategoryId = value;
-                });
-              },
-              validator: (value) {
-                if (!isTransfer && value == null) {
-                  return 'Por favor seleccione una categoría';
-                }
-                return null;
-              },
-            ),
-          ),
+          const SizedBox(height: 24),
+          AppFloatingLabelSelector(
+              label: 'Category',
+              icon: isIncome ? Icons.trending_up : Icons.trending_down,
+              value: _selectedCategoryId != null
+                  ? _categories
+                      .firstWhere((c) => c.id == _selectedCategoryId)
+                      .name
+                  : 'Select category',
+              onTap: _selectCategory,
+              hasValue: _selectedCategoryId != null,
+              iconColor: isIncome ? const Color(0xFF16A34A) : const Color(0xFFDC2626), // green-600 or red-600
+              iconBackgroundColor: isIncome ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2)), // green-100 or red-100
         ],
 
-        if (!isTransfer) ...[
-          SizedBox(height: AppDimensions.spacing16),
-          FormFieldContainer(
-            child: DropdownButtonFormField<int?>(
-              value: _selectedContactId,
-              isExpanded: true,
-              alignment: AlignmentDirectional.centerStart,
-              hint: Text('Seleccione un contacto (opcional)'),
-              itemHeight: 60,
-              decoration: FormFieldContainer.getOutlinedDecoration(
-                context,
-                labelText: 'Contacto (opcional)',
-                prefixIcon: Icon(
-                  Icons.person,
-                  color: colorScheme.primary,
-                ),
-              ),
-              items: _contacts.map((contact) {
-                return DropdownMenuItem<int?>(
-                  value: contact.id,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    contact.name,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedContactId = value;
-                });
-              },
-            ),
-          ),
-        ],
+        const SizedBox(height: 24),
 
-        SizedBox(height: AppDimensions.spacing16),
-        FormFieldContainer(
-          child: TextFormField(
-            controller: _descriptionController,
-            decoration: FormFieldContainer.getOutlinedDecoration(
-              context,
-              labelText: 'Descripción (opcional)',
-              prefixIcon: Icon(
-                Icons.description,
-                color: colorScheme.primary,
-              ),
-            ),
-            maxLines: 3,
-          ),
+        // Contact
+        AppFloatingLabelSelector(
+            label: 'Contact (optional)',
+            icon: Icons.person_outline,
+            value: _selectedContactId != null
+                ? _contacts.firstWhereOrNull((c) => c.id == _selectedContactId)?.name ?? 'Select contact'
+                : 'Select contact',
+            onTap: _selectContact,
+            hasValue: _selectedContactId != null,
+            iconColor: const Color(0xFF64748B), // slate-500
+            iconBackgroundColor: const Color(0xFFF1F5F9)), // slate-100
+
+        const SizedBox(height: 24),
+
+        // Description
+        AppFloatingLabelField(
+          controller: _descriptionController,
+          label: 'Description',
+          placeholder: 'Optional description',
+          maxLines: 3,
+          textInputAction: TextInputAction.newline,
         ),
-        
-        SizedBox(height: AppDimensions.spacing32),
       ],
     );
   }

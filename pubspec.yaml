@@ -38,6 +38,7 @@ dependencies:
   intl: ^0.20.2
   confetti: ^0.7.0  # Para efectos de confetti en completion page
   superwallkit_flutter: ^2.3.5
+  table_calendar: ^3.2.0
   
 dev_dependencies:
   flutter_test:
