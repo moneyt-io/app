@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Header estándar para widgets del dashboard basado en dashboard_main.html
-/// 
+///
 /// HTML Reference:
 /// ```html
 /// <div class="flex items-center justify-between p-4 border-b border-slate-100">
@@ -73,9 +73,9 @@ class WidgetCardHeader extends StatelessWidget {
                         size: 24,
                       ),
                     ),
-                    
+
                     const SizedBox(width: 12), // HTML: gap-3
-                    
+
                     // Text section
                     Expanded(
                       child: Column(
@@ -85,7 +85,8 @@ class WidgetCardHeader extends StatelessWidget {
                             title,
                             style: const TextStyle(
                               fontSize: 16, // HTML: text-base
-                              fontWeight: FontWeight.w600, // HTML: font-semibold
+                              fontWeight:
+                                  FontWeight.w600, // HTML: font-semibold
                               color: Color(0xFF1E293B), // HTML: text-slate-800
                             ),
                           ),
@@ -102,7 +103,7 @@ class WidgetCardHeader extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Chevron icon
               if (showChevron)
                 const Icon(

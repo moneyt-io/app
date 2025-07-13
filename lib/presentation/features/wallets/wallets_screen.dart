@@ -40,6 +40,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
   final Map<int, bool> _expandedWallets = {}; // ✅ NUEVO: Track expansion state
   final BalanceCalculationService _balanceService = GetIt.instance<BalanceCalculationService>(); // ✅ AGREGADO: Servicio de balance
   Map<int, double> _walletBalances = {}; // ✅ AGREGADO: Cache de balances por wallet
+  double _monthlyIncome = 0.0; // ✅ AGREGADO: Para guardar los ingresos del mes
 
   @override
   void initState() {
@@ -75,10 +76,14 @@ class _WalletsScreenState extends State<WalletsScreen> {
       // ✅ AGREGADO: Cargar balances para todas las wallets
       await _loadWalletBalances(wallets);
 
+      // ✅ AGREGADO: Cargar ingresos del mes
+      final monthlyIncome = await _balanceService.calculateMonthlyIncome();
+
       if (mounted) {
         setState(() {
           _wallets = wallets;
           _chartAccountsMap = chartAccountsMap;
+          _monthlyIncome = monthlyIncome; // ✅ AGREGADO: Guardar ingresos
           _isLoading = false;
         });
       }
@@ -92,24 +97,36 @@ class _WalletsScreenState extends State<WalletsScreen> {
     }
   }
 
-  /// ✅ AGREGADO: Cargar balances para todas las wallets
+  /// ✅ CORREGIDO: Cargar y consolidar balances para wallets padre e hijas.
   Future<void> _loadWalletBalances(List<Wallet> wallets) async {
     try {
-      final Map<int, double> balances = {};
-      
-      // Cargar balance para cada wallet usando el servicio
+      final Map<int, double> individualBalances = {};
+      // 1. Calcular el balance individual de CADA wallet (padres y hijas).
       for (final wallet in wallets) {
         final balance = await _balanceService.calculateWalletBalance(wallet.id);
-        balances[wallet.id] = balance;
+        individualBalances[wallet.id] = balance;
+      }
+
+      final Map<int, double> consolidatedBalances = Map.from(individualBalances);
+
+      // 2. Consolidar balances para las wallets padre.
+      for (final parentWallet in wallets) {
+        final children = wallets.where((w) => w.parentId == parentWallet.id).toList();
+        if (children.isNotEmpty) {
+          double parentTotal = 0.0;
+          for (final child in children) {
+            parentTotal += individualBalances[child.id] ?? 0.0;
+          }
+          consolidatedBalances[parentWallet.id] = parentTotal;
+        }
       }
       
       if (mounted) {
         setState(() {
-          _walletBalances = balances;
+          _walletBalances = consolidatedBalances;
         });
       }
     } catch (e) {
-      // Si hay error calculando balances, usar valores por defecto
       print('Error loading wallet balances: $e');
       if (mounted) {
         setState(() {
@@ -227,13 +244,15 @@ class _WalletsScreenState extends State<WalletsScreen> {
 
   // ✅ CORREGIDO: Usar balance calculado en lugar de propiedad inexistente
   double get _totalBalance {
+    // Para evitar duplicar saldos, solo sumar las wallets que no tienen padre (top-level).
+    // Sus saldos ya están consolidados (si son padres) o son individuales (si no tienen hijos).
     return _wallets
-        .where((wallet) => _shouldShowWallet(wallet))
+        .where((wallet) => wallet.parentId == null && _shouldShowWallet(wallet))
         .fold(0.0, (sum, wallet) => sum + (_walletBalances[wallet.id] ?? 0.0));
   }
 
-  // ✅ NUEVO: Calcular growth mensual (placeholder)
-  double get _monthlyGrowth => 245.30; // TODO: Implement real calculation
+  // ✅ CORREGIDO: Usar el valor real de ingresos mensuales
+  double get _monthlyGrowth => _monthlyIncome;
 
   // ✅ NUEVO: Filtrar wallets según tipo
   bool _shouldShowWallet(Wallet wallet) {

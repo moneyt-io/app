@@ -3,7 +3,7 @@ import '../../../domain/entities/wallet.dart';
 import '../atoms/widget_card_header.dart';
 
 /// Widget de wallets para dashboard basado en dashboard_main.html
-/// 
+///
 /// HTML Reference:
 /// ```html
 /// <div class="bg-white rounded-2xl shadow-sm border border-slate-200 widget-card">
@@ -56,7 +56,7 @@ class WalletsDashboardWidget extends StatelessWidget {
             iconColor: const Color(0xFF2563EB), // HTML: text-blue-600
             iconBackgroundColor: const Color(0xFFDBEAFE), // HTML: bg-blue-100
           ),
-          
+
           // Wallets list
           Container(
             padding: const EdgeInsets.all(16), // HTML: p-4
@@ -64,7 +64,7 @@ class WalletsDashboardWidget extends StatelessWidget {
               children: [
                 // First 3 wallets
                 ...wallets.take(3).map((wallet) => _buildWalletItem(wallet)),
-                
+
                 // More accounts indicator
                 if (totalCount > 3) ...[
                   const SizedBox(height: 8), // HTML: pt-2
@@ -112,9 +112,9 @@ class WalletsDashboardWidget extends StatelessWidget {
                     color: wallet.iconColor,
                   ),
                 ),
-                
+
                 const SizedBox(width: 12), // HTML: gap-3
-                
+
                 // Wallet name
                 Expanded(
                   child: Text(
@@ -126,7 +126,7 @@ class WalletsDashboardWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
                 // Balance
                 Text(
                   '\$${_formatAmount(wallet.balance)}',
@@ -147,9 +147,9 @@ class WalletsDashboardWidget extends StatelessWidget {
   /// Formatea montos con comas
   String _formatAmount(double amount) {
     return amount.toStringAsFixed(2).replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
   }
 }
 
@@ -173,12 +173,13 @@ class WalletDisplayItem {
 
   /// Factory para crear desde Wallet entity
   factory WalletDisplayItem.fromWallet(Wallet wallet, double balance) {
-    final nameAndDesc = '${wallet.name} ${wallet.description ?? ''}'.toLowerCase();
-    
+    final nameAndDesc =
+        '${wallet.name} ${wallet.description ?? ''}'.toLowerCase();
+
     IconData icon;
     Color iconColor;
     Color iconBackgroundColor;
-    
+
     if (nameAndDesc.contains('checking') || nameAndDesc.contains('chase')) {
       icon = Icons.account_balance;
       iconColor = const Color(0xFF16A34A); // text-green-600
@@ -196,7 +197,7 @@ class WalletDisplayItem {
       iconColor = const Color(0xFF2563EB); // Default blue
       iconBackgroundColor = const Color(0xFFDBEAFE);
     }
-    
+
     return WalletDisplayItem(
       id: wallet.id,
       name: wallet.name,

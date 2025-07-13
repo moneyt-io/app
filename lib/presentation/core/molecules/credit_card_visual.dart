@@ -56,7 +56,7 @@ class CreditCardVisual extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        _formatCardNumber(),
+                        _getCardIdentifier(),
                         style: TextStyle(
                           fontSize: 14, // HTML: text-sm
                           color: _getSecondaryTextColor(),
@@ -177,39 +177,19 @@ class CreditCardVisual extends StatelessWidget {
     }
   }
 
-  /// Formatea el número de tarjeta usando propiedades disponibles
-  String _formatCardNumber() {
-    // Usar propiedades existentes de CreditCard o valores por defecto
-    final cardName = creditCard.name.toLowerCase();
-    String lastFour = '0000'; // Valor por defecto
-    
-    // Asignar últimos dígitos basados en el nombre (valores del HTML)
-    if (cardName.contains('chase')) {
-      lastFour = '4567';
-    } else if (cardName.contains('american express') || cardName.contains('amex')) {
-      lastFour = '8901';
-    } else if (cardName.contains('visa')) {
-      lastFour = '2345';
+  /// ✅ CORREGIDO: Obtiene el identificador de la tarjeta (descripción o nombre).
+  String _getCardIdentifier() {
+    if (creditCard.description != null && creditCard.description!.isNotEmpty) {
+      return creditCard.description!;
     }
-    
-    return '**** **** **** $lastFour';
+    return creditCard.name; // Fallback al nombre si no hay descripción
   }
 
-  /// Obtiene el texto del footer usando información disponible
+  /// ✅ CORREGIDO: Obtiene el texto del footer con fechas reales.
   String _getCardFooterText() {
-    // Usar información del HTML como referencia hasta que las propiedades estén disponibles
-    final cardName = creditCard.name.toLowerCase();
-    
-    if (cardName.contains('chase')) {
-      return 'Cut-off: 15th • Payment: 10th';
-    } else if (cardName.contains('american express') || cardName.contains('amex')) {
-      return 'Cut-off: 25th • Payment: 20th';
-    } else if (cardName.contains('visa')) {
-      return 'Cut-off: 5th • Payment: 30th';
-    }
-    
-    // Información genérica por defecto
-    return 'Cut-off: 15th • Payment: 10th';
+    final closing = 'Closes: Day ${creditCard.closingDay}';
+    final payment = 'Due: Day ${creditCard.paymentDueDay}';
+    return '$closing  •  $payment';
   }
 
   /// Formatea montos con comas
@@ -220,14 +200,5 @@ class CreditCardVisual extends StatelessWidget {
     );
   }
 
-  /// Obtiene el sufijo ordinal para días (método auxiliar para futuro uso)
-  String _getDaySuffix(int day) {
-    if (day >= 11 && day <= 13) return 'th';
-    switch (day % 10) {
-      case 1: return 'st';
-      case 2: return 'nd';
-      case 3: return 'rd';
-      default: return 'th';
-    }
-  }
+
 }

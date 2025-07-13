@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
+
 import '../../../domain/entities/credit_card.dart';
 import '../../../domain/entities/chart_account.dart';
 import '../../../domain/usecases/credit_card_usecases.dart';
 import '../../../domain/usecases/chart_account_usecases.dart';
+import '../../../domain/services/balance_calculation_service.dart'; // ✅ AGREGADO: Import del servicio
 import '../../core/atoms/app_app_bar.dart';
 import '../../core/atoms/app_floating_action_button.dart'; // ✅ AGREGADO: Import del FAB del core
-import '../../core/atoms/dashed_border_button.dart';
+
 import '../../core/molecules/credit_summary_card.dart';
 import '../../core/molecules/upcoming_payments_list.dart';
 import '../../core/molecules/credit_card_visual.dart';
@@ -31,9 +32,11 @@ class _CreditCardsScreenState extends State<CreditCardsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // ✅ AGREGADO: Key para Scaffold
   final CreditCardUseCases _creditCardUseCases = GetIt.instance<CreditCardUseCases>();
   final ChartAccountUseCases _chartAccountUseCases = GetIt.instance<ChartAccountUseCases>();
+  final BalanceCalculationService _balanceService = GetIt.instance<BalanceCalculationService>(); // ✅ AGREGADO: Servicio de cálculo
 
   List<CreditCard> _creditCards = [];
   Map<int, ChartAccount> _chartAccountsMap = {};
+  Map<int, double> _usedBalances = {}; // ✅ AGREGADO: Mapa para saldos consumidos
   CreditCardFilter _selectedFilter = CreditCardFilter.all;
   bool _isLoading = true;
   bool _isSummaryVisible = true;
@@ -76,15 +79,22 @@ class _CreditCardsScreenState extends State<CreditCardsScreen> {
         }
       }
 
-      // Calcular estadísticas
-      _calculateStatistics(creditCards);
-      _generateUpcomingPayments(creditCards);
+      // ✅ AGREGADO: Calcular saldos reales para cada tarjeta
+      final usedBalances = <int, double>{};
+      for (final card in creditCards) {
+        usedBalances[card.id] = await _balanceService.calculateCreditCardUsedBalance(card.id);
+      }
 
       if (mounted) {
         setState(() {
           _creditCards = creditCards;
           _chartAccountsMap = chartAccountsMap;
+          _usedBalances = usedBalances; // Guardar los saldos calculados
           _isLoading = false;
+
+          // Calcular estadísticas y pagos con los datos actualizados
+          _calculateStatistics(creditCards);
+          _generateUpcomingPayments(creditCards);
         });
       }
     } catch (e) {
@@ -98,13 +108,10 @@ class _CreditCardsScreenState extends State<CreditCardsScreen> {
   }
 
   void _calculateStatistics(List<CreditCard> cards) {
-    // ✅ CORREGIDO: Usar valores exactos del HTML
-    _totalLimit = 9500.00;    // $5,000 + $3,500 + $1,000
-    _totalUsed = 2145.75;     // HTML: Used $2,145.75
-    _totalAvailable = 6354.25; // HTML: Available calculation (Total - Used)
-    
-    // Nota: El HTML muestra $8,500 en el título pero $6,354.25 en el subtítulo
-    // Usando el cálculo matemáticamente correcto
+    // ✅ CORREGIDO: Calcular estadísticas dinámicamente
+    _totalLimit = cards.fold(0.0, (sum, card) => sum + card.quota);
+    _totalUsed = _usedBalances.values.fold(0.0, (sum, balance) => sum + balance);
+    _totalAvailable = _totalLimit - _totalUsed;
   }
 
   void _generateUpcomingPayments(List<CreditCard> cards) {
@@ -294,31 +301,14 @@ class _CreditCardsScreenState extends State<CreditCardsScreen> {
   }
 
   CreditCardStatus _getStatusForCard(CreditCard card) {
-    // Verificar si existe la propiedad isBlocked, si no usar lógica alternativa
-    try {
-      if (card.name.toLowerCase().contains('visa')) {
-        return CreditCardStatus.blocked; // Según el HTML, Visa está bloqueada
-      }
-      return CreditCardStatus.active;
-    } catch (e) {
-      // Si no existe la propiedad, usar lógica basada en el nombre
-      if (card.name.toLowerCase().contains('visa')) {
-        return CreditCardStatus.blocked;
-      }
-      return CreditCardStatus.active;
-    }
+    // ✅ CORREGIDO: Usar la propiedad 'active' del modelo de datos
+    return card.active ? CreditCardStatus.active : CreditCardStatus.blocked;
   }
 
   double _getAvailableCreditForCard(CreditCard card) {
-    // TODO: Calcular crédito disponible real desde transacciones
-    if (card.name.contains('Chase')) {
-      return 3854.25;
-    } else if (card.name.contains('American Express')) {
-      return 2500.00;
-    } else if (card.name.contains('Visa')) {
-      return 0.00;
-    }
-    return card.quota;
+    // ✅ CORREGIDO: Calcular crédito disponible real
+    final usedBalance = _usedBalances[card.id] ?? 0.0;
+    return card.quota - usedBalance;
   }
 
   void _openDrawer() {
@@ -366,18 +356,13 @@ class _CreditCardsScreenState extends State<CreditCardsScreen> {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16), // HTML: px-4 py-4 similar a wallets
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // ✅ CORREGIDO: Alinear a la izquierda
-            children: [
-              CreditCardFilters(
-                selectedFilter: _selectedFilter,
-                onFilterChanged: (filter) {
-                  setState(() {
-                    _selectedFilter = filter;
-                  });
-                },
-              ),
-            ],
+          child: CreditCardFilters(
+            selectedFilter: _selectedFilter,
+            onFilterChanged: (filter) {
+              setState(() {
+                _selectedFilter = filter;
+              });
+            },
           ),
         ),
         

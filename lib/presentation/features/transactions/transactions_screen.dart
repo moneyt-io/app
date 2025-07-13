@@ -20,9 +20,11 @@ import '../../core/atoms/app_app_bar.dart';
 import '../../core/atoms/expandable_fab.dart';
 import '../../core/molecules/filter_chip_group.dart';
 import '../../core/organisms/transactions_summary.dart';
+import '../../../domain/services/balance_calculation_service.dart';
 import '../../core/molecules/active_filters_bar.dart';
 
 enum TransactionTypeFilter { all, expense, income, transfer }
+
 enum TransactionDateFilter { all, week, month, custom }
 
 class TransactionsScreen extends StatefulWidget {
@@ -39,21 +41,27 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   final _categoryUseCases = GetIt.instance<CategoryUseCases>();
   final _contactUseCases = GetIt.instance<ContactUseCases>();
   final _walletUseCases = GetIt.instance<WalletUseCases>();
-  
+  final _balanceCalculationService =
+      GetIt.instance<BalanceCalculationService>();
+
   String _searchQuery = '';
   List<TransactionEntry> _transactions = [];
   Map<int, String> _categoriesMap = {};
   Map<int, String> _contactsMap = {};
   Map<int, String> _walletsMap = {};
-  
+
   DateTime? _startDate;
   DateTime? _endDate;
-  
+
   TransactionTypeFilter _selectedTypeFilter = TransactionTypeFilter.all;
   TransactionDateFilter _selectedDateFilter = TransactionDateFilter.all;
-  
+
   bool _isLoading = true;
   String? _error;
+
+  double _totalIncome = 0.0;
+  double _totalExpense = 0.0;
+  double _totalTransfer = 0.0;
 
   @override
   void initState() {
@@ -77,7 +85,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       // Cargar categorías
       final categories = await _categoryUseCases.getAllCategories();
       final categoriesMap = {for (var c in categories) c.id: c.name};
-      
+
       // Cargar contactos
       final contacts = await _contactUseCases.getAllContacts();
       final contactsMap = {for (var c in contacts) c.id: c.name};
@@ -85,7 +93,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       // Cargar wallets
       final wallets = await _walletUseCases.getAllWallets();
       final walletsMap = {for (var w in wallets) w.id: w.name};
-      
+
       setState(() {
         _categoriesMap = categoriesMap;
         _contactsMap = contactsMap;
@@ -102,9 +110,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         _isLoading = true;
         _error = null;
       });
-      
+
       List<TransactionEntry> transactions;
-      
+
       // Filtrar por tipo según el segmented control
       switch (_selectedTypeFilter) {
         case TransactionTypeFilter.expense:
@@ -119,7 +127,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         default: // all
           transactions = await _transactionUseCases.getAllTransactions();
       }
-      
+
       setState(() {
         _transactions = transactions;
         _isLoading = false;
@@ -136,7 +144,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     setState(() {
       _selectedDateFilter = filter;
       final now = DateTime.now();
-      
+
       switch (filter) {
         case TransactionDateFilter.all:
           _startDate = null;
@@ -156,7 +164,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           // No hacer nada aquí, se llama a _selectCustomDateRange
           break;
       }
-      
+
       if (filter != TransactionDateFilter.custom) {
         _loadTransactions();
       }
@@ -185,12 +193,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   }
 
   void _navigateToTransactionForm({String type = 'E'}) async {
-    final result = await NavigationService.navigateTo(
-      AppRoutes.transactionForm,
-      arguments: {
-        'initialType': type,
-      }
-    );
+    final result = await NavigationService.navigateTo(AppRoutes.transactionForm,
+        arguments: {
+          'initialType': type,
+        });
 
     if (result == true) {
       _loadTransactions();
@@ -200,9 +206,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   void _navigateToTransactionDetail(TransactionEntry transaction) async {
     // Corregir la navegación asegurándose de usar la constante correcta de la ruta
     final result = await NavigationService.navigateTo(
-      AppRoutes.transactionDetail, // Usar la constante de ruta correcta
-      arguments: transaction
-    );
+        AppRoutes.transactionDetail, // Usar la constante de ruta correcta
+        arguments: transaction);
 
     if (result == true) {
       _loadTransactions();
@@ -224,7 +229,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       try {
         await _transactionUseCases.deleteTransaction(transaction.id);
         _loadTransactions();
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Transacción eliminada con éxito')),
@@ -246,20 +251,32 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   List<TransactionEntry> _getFilteredTransactions() {
     return _transactions.where((transaction) {
       // Filtrar por búsqueda de texto
-      final matchesSearch = _searchQuery.isEmpty || 
-                          transaction.description?.toLowerCase().contains(_searchQuery.toLowerCase()) == true ||
-                          (_categoriesMap[transaction.mainCategoryId]?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
-      
+      final matchesSearch = _searchQuery.isEmpty ||
+          transaction.description
+                  ?.toLowerCase()
+                  .contains(_searchQuery.toLowerCase()) ==
+              true ||
+          (_categoriesMap[transaction.mainCategoryId]
+                  ?.toLowerCase()
+                  .contains(_searchQuery.toLowerCase()) ??
+              false);
+
       // Filtrar por fecha
-      final matchesDate = (_startDate == null || transaction.date.isAfter(_startDate!) || transaction.date.isAtSameMomentAs(_startDate!)) && 
-                         (_endDate == null || transaction.date.isBefore(_endDate!.add(const Duration(days: 1))));
-      
+      final matchesDate = (_startDate == null ||
+              transaction.date.isAfter(_startDate!) ||
+              transaction.date.isAtSameMomentAs(_startDate!)) &&
+          (_endDate == null ||
+              transaction.date
+                  .isBefore(_endDate!.add(const Duration(days: 1))));
+
       return matchesSearch && matchesDate;
     }).toList()
-      ..sort((a, b) => b.date.compareTo(a.date)); // Ordenar por fecha descendente
+      ..sort(
+          (a, b) => b.date.compareTo(a.date)); // Ordenar por fecha descendente
   }
 
-  Map<String, List<TransactionEntry>> _groupTransactionsByDate(List<TransactionEntry> transactions) {
+  Map<String, List<TransactionEntry>> _groupTransactionsByDate(
+      List<TransactionEntry> transactions) {
     final Map<String, List<TransactionEntry>> grouped = {};
     for (var transaction in transactions) {
       final dateKey = DateFormat('yyyy-MM-dd').format(transaction.date);
@@ -288,10 +305,32 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     }
   }
 
+  void _calculateTotals(List<TransactionEntry> transactions) {
+    // ✅ CORREGIDO: Usar los nuevos métodos del servicio
+    final income =
+        _balanceCalculationService.calculateTotalIncome(transactions);
+    final expense =
+        _balanceCalculationService.calculateTotalExpense(transactions);
+    final transfer =
+        _balanceCalculationService.calculateTotalTransfer(transactions);
+
+    // Actualizar el estado de forma segura después del build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _totalIncome = income;
+          _totalExpense = expense;
+          _totalTransfer = transfer;
+        });
+      }
+    });
+  }
+
   String? _getTargetAccountName(TransactionEntry transaction) {
     if (transaction.documentTypeId != 'T') return null;
     try {
-      final detail = transaction.details.firstWhere((d) => d.isWalletPayment && d.isTo);
+      final detail =
+          transaction.details.firstWhere((d) => d.isWalletPayment && d.isTo);
       return _walletsMap[detail.paymentId];
     } catch (e) {
       return null;
@@ -301,6 +340,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   @override
   Widget build(BuildContext context) {
     final filteredTransactions = _getFilteredTransactions();
+    _calculateTotals(filteredTransactions);
     final groupedTransactions = _groupTransactionsByDate(filteredTransactions);
     final dateKeys = groupedTransactions.keys.toList();
 
@@ -316,119 +356,151 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         onActionsPressed: [() {}], // Placeholder
       ),
       drawer: const AppDrawer(),
-      body: Column(
-        children: [
+      body: CustomScrollView(
+        slivers: [
           // Filters
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              children: [
-                FilterChipGroup<TransactionTypeFilter>(
-                  selectedValue: _selectedTypeFilter,
-                  filters: const {
-                    TransactionTypeFilter.all: 'All',
-                    TransactionTypeFilter.income: 'Income',
-                    TransactionTypeFilter.expense: 'Expense',
-                    TransactionTypeFilter.transfer: 'Transfer',
-                  },
-                  icons: const {
-                    TransactionTypeFilter.all: Icons.receipt_long,
-                    TransactionTypeFilter.income: Icons.trending_up,
-                    TransactionTypeFilter.expense: Icons.trending_down,
-                    TransactionTypeFilter.transfer: Icons.swap_horiz,
-                  },
-                  onFilterChanged: (value) {
-                    setState(() {
-                      _selectedTypeFilter = value;
-                      _loadTransactions();
-                    });
-                  },
-                ),
-                const SizedBox(height: 8),
-                ActiveFiltersBar(
-                  activeFilters: [
-                    ActiveFilter(
-                      key: 'month',
-                      label: 'This Month',
-                      icon: Icons.calendar_today,
-                      color: const Color(0xFF3B82F6),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _SliverFilterHeaderDelegate(
+              height: 110, // Altura ajustada para los filtros
+              child: Container(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  children: [
+                    FilterChipGroup<TransactionTypeFilter>(
+                      selectedValue: _selectedTypeFilter,
+                      filters: const {
+                        TransactionTypeFilter.all: 'All',
+                        TransactionTypeFilter.income: 'Income',
+                        TransactionTypeFilter.expense: 'Expense',
+                        TransactionTypeFilter.transfer: 'Transfer',
+                      },
+                      icons: const {
+                        TransactionTypeFilter.all: Icons.receipt_long,
+                        TransactionTypeFilter.income: Icons.trending_up,
+                        TransactionTypeFilter.expense: Icons.trending_down,
+                        TransactionTypeFilter.transfer: Icons.swap_horiz,
+                      },
+                      onFilterChanged: (value) {
+                        setState(() {
+                          _selectedTypeFilter = value;
+                          _loadTransactions();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    ActiveFiltersBar(
+                      activeFilters: [
+                        ActiveFilter(
+                          key: 'month',
+                          label: 'This Month',
+                          icon: Icons.calendar_today,
+                          color: const Color(0xFF3B82F6),
+                        ),
+                      ],
+                      onAddFilter: () {},
+                      onRemoveFilter: (key) {},
                     ),
                   ],
-                  onAddFilter: () {},
-                  onRemoveFilter: (key) {},
                 ),
-              ],
+              ),
             ),
           ),
           // Summary
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-            child: TransactionsSummary(
-              totalIncome: 3250.00, // Mock data
-              totalExpense: 1847.50, // Mock data
-              totalTransfer: 500.00, // Mock data
+          SliverToBoxAdapter(
+            child: Padding(
+              padding:
+                  const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0), // Padding ajustado
+              child: TransactionsSummary(
+                totalIncome: _totalIncome,
+                totalExpense: _totalExpense,
+                totalTransfer: _totalTransfer,
+              ),
             ),
           ),
           // List
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? _buildErrorState()
-                    : RefreshIndicator(
-                        onRefresh: _loadTransactions,
-                        child: filteredTransactions.isEmpty
-                            ? _buildEmptyState()
-                            : ListView.builder(
-                                padding: const EdgeInsets.only(top: 16, bottom: 80),
-                                itemCount: dateKeys.length,
-                                itemBuilder: (context, index) {
-                                  final dateKey = dateKeys[index];
-                                  final transactionsForDate = groupedTransactions[dateKey]!;
-                                  final displayDate = DateFormat('EEEE, d MMMM yyyy', 'es_ES').format(DateTime.parse(dateKey));
+          _isLoading
+              ? const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
+              : _error != null
+                  ? SliverFillRemaining(child: _buildErrorState())
+                  : filteredTransactions.isEmpty
+                      ? SliverFillRemaining(child: _buildEmptyState())
+                      : SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final dateKey = dateKeys[index];
+                              final transactionsForDate =
+                                  groupedTransactions[dateKey]!;
+                              final displayDate =
+                                  DateFormat('EEEE, d MMMM yyyy', 'es_ES')
+                                      .format(DateTime.parse(dateKey));
 
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              displayDate,
-                                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                            ),
-                                            Text(
-                                              '${transactionsForDate.length} transactions',
-                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                                  ),
-                                            ),
-                                          ],
+                              return Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        16, 16, 16, 8),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          displayDate,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                         ),
-                                      ),
-                                      ...transactionsForDate.map((transaction) => TransactionListItem(
-                                        transaction: transaction,
-                                        categoryName: transaction.mainCategoryId != null
-                                            ? _categoriesMap[transaction.mainCategoryId]
-                                            : null,
-                                        contactName: transaction.contactId != null
-                                            ? _contactsMap[transaction.contactId]
-                                            : null,
-                                        accountName: _getAccountName(transaction),
-                                        targetAccountName: _getTargetAccountName(transaction),
-                                        onTap: () => _navigateToTransactionDetail(transaction),
-                                      )),
-                                      const SizedBox(height: 16),
-                                    ],
-                                  );
-                                },
-                              ),
-                      ),
-          ),
+                                        Text(
+                                          '${transactionsForDate.length} transactions',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  ...transactionsForDate.map(
+                                      (transaction) => TransactionListItem(
+                                            transaction: transaction,
+                                            categoryName: transaction
+                                                        .mainCategoryId !=
+                                                    null
+                                                ? _categoriesMap[transaction
+                                                    .mainCategoryId]
+                                                : null,
+                                            contactName: transaction
+                                                        .contactId !=
+                                                    null
+                                                ? _contactsMap[
+                                                    transaction.contactId]
+                                                : null,
+                                            accountName: _getAccountName(
+                                                transaction),
+                                            targetAccountName:
+                                                _getTargetAccountName(
+                                                    transaction),
+                                            onTap: () =>
+                                                _navigateToTransactionDetail(
+                                                    transaction),
+                                          )),
+                                  const SizedBox(height: 16),
+                                ],
+                              );
+                            },
+                            childCount: dateKeys.length,
+                          ),
+                        ),
         ],
       ),
       floatingActionButton: ExpandableFab(
@@ -455,7 +527,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       ),
     );
   }
-  
+
   Widget _buildErrorState() {
     return Center(
       child: Padding(
@@ -493,20 +565,48 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     return EmptyState(
       icon: Icons.receipt_long_outlined,
       title: 'No hay transacciones',
-      message: _searchQuery.isEmpty && _selectedDateFilter == TransactionDateFilter.all
-        ? 'Crea una nueva transacción utilizando el botón "+"'
-        : 'No se encontraron transacciones con los filtros aplicados',
-      action: _searchQuery.isNotEmpty || _selectedDateFilter != TransactionDateFilter.all ? AppButton(
-        text: 'Limpiar filtros',
-        onPressed: () {
-          _searchController.clear();
-          setState(() {
-            _searchQuery = '';
-            _applyDateFilter(TransactionDateFilter.all);
-          });
-        },
-        type: AppButtonType.text,
-      ) : null,
+      message: _searchQuery.isEmpty &&
+              _selectedDateFilter == TransactionDateFilter.all
+          ? 'Crea una nueva transacción utilizando el botón "+"'
+          : 'No se encontraron transacciones con los filtros aplicados',
+      action: _searchQuery.isNotEmpty ||
+              _selectedDateFilter != TransactionDateFilter.all
+          ? AppButton(
+              text: 'Limpiar filtros',
+              onPressed: () {
+                _searchController.clear();
+                setState(() {
+                  _searchQuery = '';
+                  _applyDateFilter(TransactionDateFilter.all);
+                });
+              },
+              type: AppButtonType.text,
+            )
+          : null,
     );
+  }
+}
+
+class _SliverFilterHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final double height;
+
+  _SliverFilterHeaderDelegate({required this.child, required this.height});
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return child;
+  }
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  bool shouldRebuild(covariant _SliverFilterHeaderDelegate oldDelegate) {
+    return oldDelegate.child != child || oldDelegate.height != height;
   }
 }

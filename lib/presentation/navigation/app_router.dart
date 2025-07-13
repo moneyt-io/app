@@ -41,13 +41,13 @@ class AppRouter {
           builder: (_) => const SplashScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.onboarding:
         return MaterialPageRoute(
           builder: (_) => const OnboardingScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.login:
         return MaterialPageRoute(
           builder: (_) => const LoginScreen(),
@@ -77,7 +77,8 @@ class AppRouter {
         );
 
       case AppRoutes.walletForm:
-        final wallet = settings.arguments as Wallet?; // ✅ CORREGIDO: Cast explícito
+        final wallet =
+            settings.arguments as Wallet?; // ✅ CORREGIDO: Cast explícito
         return MaterialPageRoute(
           builder: (_) => WalletFormScreen(wallet: wallet),
           settings: settings,
@@ -115,7 +116,8 @@ class AppRouter {
         );
 
       case AppRoutes.categoryForm:
-        final category = settings.arguments as Category?; // ✅ CORREGIDO: Cast explícito
+        final category =
+            settings.arguments as Category?; // ✅ CORREGIDO: Cast explícito
         return MaterialPageRoute(
           builder: (_) => CategoryFormScreen(category: category),
           settings: settings,
@@ -129,7 +131,8 @@ class AppRouter {
         );
 
       case AppRoutes.contactForm:
-        final contact = settings.arguments as Contact?; // ✅ CORREGIDO: Cast explícito
+        final contact =
+            settings.arguments as Contact?; // ✅ CORREGIDO: Cast explícito
         return MaterialPageRoute(
           builder: (_) => ContactFormScreen(contact: contact),
           settings: settings,
@@ -143,7 +146,8 @@ class AppRouter {
         );
 
       case AppRoutes.creditCardForm:
-        final creditCard = settings.arguments as CreditCard?; // ✅ CORREGIDO: Cast explícito
+        final creditCard =
+            settings.arguments as CreditCard?; // ✅ CORREGIDO: Cast explícito
         return MaterialPageRoute(
           builder: (_) => CreditCardFormScreen(creditCard: creditCard),
           settings: settings,
@@ -159,7 +163,8 @@ class AppRouter {
       case AppRoutes.chartAccountForm:
         final chartAccount = settings.arguments as ChartAccount?;
         return MaterialPageRoute(
-          builder: (_) => ChartAccountFormScreen(account: chartAccount), // ✅ CORREGIDO: Cambiar a 'account'
+          builder: (_) => ChartAccountFormScreen(
+              account: chartAccount), // ✅ CORREGIDO: Cambiar a 'account'
           settings: settings,
         );
 
@@ -203,7 +208,8 @@ class AppRouter {
         final args = settings.arguments as Map<String, dynamic>?;
         final journalId = args?['journalId'] as int?;
         return MaterialPageRoute(
-          builder: (_) => const JournalDetailScreen(), // ✅ CORREGIDO: Constructor sin parámetros
+          builder: (_) =>
+              const JournalDetailScreen(), // ✅ CORREGIDO: Constructor sin parámetros
           settings: settings,
         );
 
@@ -224,7 +230,8 @@ class AppRouter {
       // ✅ MEJORADO: Default case más informativo
       default:
         return MaterialPageRoute(
-          builder: (context) => Scaffold( // ✅ CORREGIDO: Usar 'context' en lugar de '_'
+          builder: (context) => Scaffold(
+            // ✅ CORREGIDO: Usar 'context' en lugar de '_'
             appBar: AppBar(
               title: const Text('Página no encontrada'),
               backgroundColor: const Color(0xFFEF4444),
@@ -244,27 +251,30 @@ class AppRouter {
                     const SizedBox(height: 16),
                     Text(
                       'Ruta no encontrada',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'La ruta "${settings.name}" no existe.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: const Color(0xFF64748B),
-                      ),
+                            color: const Color(0xFF64748B),
+                          ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
-                      onPressed: () => Navigator.of(context).pushReplacementNamed(AppRoutes.home),
+                      onPressed: () => Navigator.of(context)
+                          .pushReplacementNamed(AppRoutes.home),
                       icon: const Icon(Icons.home),
                       label: const Text('Ir al Inicio'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0c7ff2),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
                       ),
                     ),
                   ],

@@ -8,6 +8,7 @@ abstract class TransactionRepository {
   Future<TransactionEntry?> getTransactionById(int id);
   Future<List<TransactionEntry>> getTransactionsByType(String documentTypeId);
   Stream<List<TransactionEntry>> watchAllTransactions();
+  Future<List<TransactionEntry>> getTransactionsByDateRange(DateTime startDate, DateTime endDate);
   
   // CRUD Operations
   Future<TransactionEntry> createTransaction(TransactionEntry transaction, List<TransactionDetail> details);

@@ -28,17 +28,7 @@ class QuickActionsGrid extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16), // HTML: px-4
       child: Row(
         children: [
-          // Expense
-          Expanded(
-            child: QuickActionButton(
-              type: QuickActionType.expense,
-              onPressed: onExpensePressed,
-            ),
-          ),
-          
-          const SizedBox(width: 12), // HTML: gap-3
-          
-          // Income
+          // Income - Movido a la primera posición
           Expanded(
             child: QuickActionButton(
               type: QuickActionType.income,
@@ -48,7 +38,17 @@ class QuickActionsGrid extends StatelessWidget {
           
           const SizedBox(width: 12), // HTML: gap-3
           
-          // Transfer
+          // Expense - Movido a la segunda posición
+          Expanded(
+            child: QuickActionButton(
+              type: QuickActionType.expense,
+              onPressed: onExpensePressed,
+            ),
+          ),
+          
+          const SizedBox(width: 12), // HTML: gap-3
+          
+          // Transfer - Se mantiene en tercera posición
           Expanded(
             child: QuickActionButton(
               type: QuickActionType.transfer,
@@ -58,7 +58,7 @@ class QuickActionsGrid extends StatelessWidget {
           
           const SizedBox(width: 12), // HTML: gap-3
           
-          // All
+          // All - Se mantiene en cuarta posición
           Expanded(
             child: QuickActionButton(
               type: QuickActionType.all,

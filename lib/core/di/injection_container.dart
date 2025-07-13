@@ -12,6 +12,7 @@ import '../services/data_seed_service.dart';
 import '../services/auth_service.dart';
 import '../services/paywall_service.dart'; // ✅ AÑADIDO
 import '../../presentation/features/auth/auth_provider.dart' as app_auth;
+import '../../presentation/features/backup/backup_provider.dart';
 
 final getIt = GetIt.instance;
 
@@ -58,10 +59,9 @@ Future<void> initializeDependencies() async {
 
   // Registrar BackupProvider (si ya existe, si no, se hará después)
   // Necesita BackupService
-  // SIMPLIFICADO: Comentar BackupProvider por ahora si causa problemas
-  // getIt.registerLazySingleton<BackupProvider>(
-  //   () => BackupProvider(getIt<BackupService>()),
-  // );
+  getIt.registerLazySingleton<BackupProvider>(
+    () => BackupProvider(getIt<BackupService>()),
+  );
   // --- Fin Registro Dependencias de Backup ---
 
   // Services

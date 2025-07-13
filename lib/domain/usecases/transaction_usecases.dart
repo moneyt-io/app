@@ -13,7 +13,7 @@ class TransactionUseCases {
   final WalletRepository _walletRepository;
   final CategoryRepository _categoryRepository;
   final CreditCardRepository _creditCardRepository;
-  
+
   TransactionUseCases(
     this._transactionRepository,
     this._journalRepository,
@@ -21,20 +21,20 @@ class TransactionUseCases {
     this._categoryRepository,
     this._creditCardRepository,
   );
-  
+
   // Consultas básicas
-  Future<List<TransactionEntry>> getAllTransactions() => 
+  Future<List<TransactionEntry>> getAllTransactions() =>
       _transactionRepository.getAllTransactions();
-  
-  Future<TransactionEntry?> getTransactionById(int id) => 
+
+  Future<TransactionEntry?> getTransactionById(int id) =>
       _transactionRepository.getTransactionById(id);
-      
+
   Future<List<TransactionEntry>> getTransactionsByType(String documentTypeId) =>
       _transactionRepository.getTransactionsByType(documentTypeId);
-  
-  Stream<List<TransactionEntry>> watchAllTransactions() => 
+
+  Stream<List<TransactionEntry>> watchAllTransactions() =>
       _transactionRepository.watchAllTransactions();
-  
+
   // Operaciones CRUD coordinadas con diarios contables
   Future<TransactionEntry> createIncome({
     required DateTime date,
@@ -49,11 +49,11 @@ class TransactionUseCases {
     // 1. Obtener información de la wallet y categoría para los asientos contables
     final wallet = await _walletRepository.getWalletById(walletId);
     final category = await _categoryRepository.getCategoryById(categoryId);
-    
+
     if (wallet == null || category == null) {
       throw Exception('Wallet o categoría no encontrada');
     }
-    
+
     // 2. Crear el diario contable usando directamente el repositorio
     final journalEntry = await _journalRepository.createIncomeJournal(
       date: date,
@@ -64,7 +64,7 @@ class TransactionUseCases {
       categoryChartAccountId: category.chartAccountId,
       rateExchange: rateExchange,
     );
-    
+
     // 3. Crear la transacción vinculada al diario contable
     return _transactionRepository.createIncomeTransaction(
       journalId: journalEntry.id, // <-- Pasar journalId
@@ -78,7 +78,7 @@ class TransactionUseCases {
       rateExchange: rateExchange,
     );
   }
-  
+
   Future<TransactionEntry> createExpense({
     required DateTime date,
     required String description,
@@ -95,7 +95,7 @@ class TransactionUseCases {
     if (category == null) {
       throw Exception('Categoría no encontrada');
     }
-    
+
     // 2. Obtener información del método de pago (wallet o credit card)
     int chartAccountId;
     if (paymentTypeId == 'W') {
@@ -105,7 +105,8 @@ class TransactionUseCases {
       }
       chartAccountId = wallet.chartAccountId;
     } else if (paymentTypeId == 'C') {
-      final creditCard = await _creditCardRepository.getCreditCardById(paymentId);
+      final creditCard =
+          await _creditCardRepository.getCreditCardById(paymentId);
       if (creditCard == null) {
         throw Exception('Tarjeta de crédito no encontrada');
       }
@@ -113,7 +114,7 @@ class TransactionUseCases {
     } else {
       throw Exception('Tipo de pago no soportado');
     }
-    
+
     // 3. Crear el diario contable
     final journalEntry = await _journalRepository.createExpenseJournal(
       date: date,
@@ -124,7 +125,7 @@ class TransactionUseCases {
       categoryChartAccountId: category.chartAccountId,
       rateExchange: rateExchange,
     );
-    
+
     // 4. Crear la transacción vinculada al diario
     return _transactionRepository.createExpenseTransaction(
       journalId: journalEntry.id,
@@ -139,7 +140,7 @@ class TransactionUseCases {
       rateExchange: rateExchange,
     );
   }
-  
+
   Future<TransactionEntry> createTransfer({
     required DateTime date,
     required String description,
@@ -156,11 +157,11 @@ class TransactionUseCases {
     // 1. Obtener información de las wallets
     final sourceWallet = await _walletRepository.getWalletById(sourcePaymentId);
     final targetWallet = await _walletRepository.getWalletById(targetPaymentId);
-    
+
     if (sourceWallet == null || targetWallet == null) {
       throw Exception('Wallet origen o destino no encontrada');
     }
-    
+
     // 2. Crear diario contable
     final journalEntry = await _journalRepository.createTransferJournal(
       date: date,
@@ -173,7 +174,7 @@ class TransactionUseCases {
       targetAmount: targetAmount,
       rateExchange: rateExchange,
     );
-    
+
     // 3. Crear transacción vinculada al diario
     return _transactionRepository.createTransferTransaction(
       journalId: journalEntry.id,
@@ -205,17 +206,19 @@ class TransactionUseCases {
   }) async {
     // 1. Obtener información de la wallet origen y la tarjeta destino
     final sourceWallet = await _walletRepository.getWalletById(sourceWalletId);
-    final targetCreditCard = await _creditCardRepository.getCreditCardById(targetCreditCardId);
-    
+    final targetCreditCard =
+        await _creditCardRepository.getCreditCardById(targetCreditCardId);
+
     if (sourceWallet == null || targetCreditCard == null) {
       throw Exception('Wallet origen o tarjeta de crédito no encontrada');
     }
-    
+
     // 2. Calcular targetAmount si no se proporciona (para misma moneda)
     final finalTargetAmount = targetAmount ?? amount;
-    
+
     // 3. Crear diario contable
-    final journalEntry = await _journalRepository.createCreditCardPaymentJournal(
+    final journalEntry =
+        await _journalRepository.createCreditCardPaymentJournal(
       date: date,
       description: description ?? 'Pago tarjeta ${targetCreditCard.name}',
       amount: amount,
@@ -226,7 +229,7 @@ class TransactionUseCases {
       targetAmount: finalTargetAmount,
       rateExchange: rateExchange,
     );
-    
+
     // 4. Crear transacción
     return _transactionRepository.createCreditCardPaymentTransaction(
       journalId: journalEntry.id,
@@ -243,20 +246,21 @@ class TransactionUseCases {
   }
 
   // CRUD Operations para transacciones existentes
-  Future<void> updateTransaction(TransactionEntry transaction) => 
+  Future<void> updateTransaction(TransactionEntry transaction) =>
       _transactionRepository.updateTransaction(transaction);
-  
-  Future<void> deleteTransaction(int id) => 
+
+  Future<void> deleteTransaction(int id) =>
       _transactionRepository.deleteTransaction(id);
-  
+
   // Métodos de utilidad
   Future<double> getWalletBalance(int walletId) async {
     // Implementación pendiente
     // Calcular el balance sumando los ingresos y restando los egresos
     return 0.0;
   }
-  
-  Future<Map<String, double>> getCategoryStatistics(int categoryId, {
+
+  Future<Map<String, double>> getCategoryStatistics(
+    int categoryId, {
     DateTime? startDate,
     DateTime? endDate,
   }) async {

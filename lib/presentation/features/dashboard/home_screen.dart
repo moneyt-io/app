@@ -2,20 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/services/paywall_service.dart';
+
 import '../../../domain/entities/transaction_entry.dart';
-import '../../../domain/entities/wallet.dart';
 import '../../../domain/usecases/transaction_usecases.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
+import '../../../domain/usecases/journal_usecases.dart';
+import '../../../domain/services/balance_calculation_service.dart';
 import '../../core/atoms/greeting_header.dart';
 import '../../core/atoms/expandable_fab.dart';
 import '../../core/molecules/balance_summary_widget.dart';
 import '../../core/molecules/quick_actions_grid.dart';
 import '../../core/molecules/wallets_dashboard_widget.dart';
-import '../../core/molecules/loans_dashboard_widget.dart';
+
 import '../../core/organisms/app_drawer.dart';
 import '../../navigation/navigation_service.dart';
 import '../../navigation/app_routes.dart';
-import 'dashboard_widgets_screen.dart'; // ✅ AGREGADO: Import de la pantalla de widgets
+import 'dashboard_widgets_screen.dart'; // AGREGADO: Import de la pantalla de widgets
+import 'widgets/recent_transactions_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -26,23 +29,21 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _transactionUseCases = GetIt.instance<TransactionUseCases>();
-  final _walletUseCases = GetIt.instance<WalletUseCases>();
+  late final WalletUseCases _walletUseCases;
+  late final TransactionUseCases _transactionUseCases;
+  late final JournalUseCases _journalUseCases;
+  final _balanceCalculationService =
+      GetIt.instance<BalanceCalculationService>();
 
   // Dashboard data
-  double _totalBalance = 24567.80;
-  double _income = 8420.00;
-  double _expenses = 3890.50;
+  double _totalBalance = 0.0;
+  double _income = 0.0;
+  double _expenses = 0.0;
   bool _isBalanceVisible = true;
 
   // Wallets data
   List<WalletDisplayItem> _walletItems = [];
   int _totalWalletsCount = 5;
-
-  // Loans data
-  double _youLent = 2300.00;
-  double _youBorrowed = 1200.00;
-  int _activeLoansCount = 3;
 
   List<TransactionEntry> _recentTransactions = [];
   bool _isLoading = true;
@@ -50,11 +51,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _walletUseCases = GetIt.instance<WalletUseCases>();
+    _transactionUseCases = GetIt.instance<TransactionUseCases>();
+    _journalUseCases = GetIt.instance<JournalUseCases>();
     _loadDashboardData();
-    _showPaywallIfNeeded(); // ✅ AÑADIDO: Llamada para mostrar la paywall.
+    _showPaywallIfNeeded(); // AÑADIDO: Llamada para mostrar la paywall.
   }
 
-  // ✅ AÑADIDO: Método para mostrar la paywall si es la primera vez.
+  // AÑADIDO: Método para mostrar la paywall si es la primera vez.
   Future<void> _showPaywallIfNeeded() async {
     // Se espera un momento para no interferir con la animación de entrada.
     await Future.delayed(const Duration(milliseconds: 500));
@@ -65,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final bool hasBeenShown = prefs.getBool(paywallShownKey) ?? false;
 
       if (!hasBeenShown && mounted) {
-        print('🔥 HomeScreen: Paywall not shown yet. Triggering event...');
+        print(' HomeScreen: Paywall not shown yet. Triggering event...');
         final paywallService = GetIt.instance<PaywallService>();
 
         // Disparar el evento de Superwall.
@@ -75,27 +79,46 @@ class _HomeScreenState extends State<HomeScreen> {
         await prefs.setBool(paywallShownKey, true);
       } else {
         print(
-            '✅ HomeScreen: Paywall already shown or widget not mounted. Skipping.');
+            ' HomeScreen: Paywall already shown or widget not mounted. Skipping.');
       }
     } catch (e) {
-      print('❌ HomeScreen: Error trying to show paywall: $e');
+      print(' HomeScreen: Error trying to show paywall: $e');
     }
   }
 
   Future<void> _loadDashboardData() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
-      // Load wallets and their balances
-      await _loadWalletsData();
+      // Load wallets and calculate total balance
+      final totalBalance = await _loadWalletsData();
 
-      // Load recent transactions
+      // Calculate income and expenses for the current month
+      final now = DateTime.now();
+
+      final allTransactions = await _transactionUseCases.getAllTransactions();
+      final transactions = allTransactions
+          .where((t) => t.date.year == now.year && t.date.month == now.month)
+          .toList();
+      final income =
+          _balanceCalculationService.calculateTotalIncome(transactions);
+      final expenses =
+          _balanceCalculationService.calculateTotalExpense(transactions);
+
+      // Load recent transactions for the list
       await _loadRecentTransactions();
 
-      // TODO: Load real balance data from services
-      // TODO: Load real loans data from services
+      if (mounted) {
+        setState(() {
+          _totalBalance = totalBalance;
+          _income = income;
+          _expenses = expenses;
+        });
+      }
     } catch (e) {
       print('Error loading dashboard data: $e');
+      // Optionally, show an error message to the user
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -103,29 +126,47 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _loadWalletsData() async {
+  Future<double> _loadWalletsData() async {
     try {
       final wallets = await _walletUseCases.getAllWallets();
-      final activeWallets = wallets.where((w) => w.active).toList();
+      // Filter for active wallets that are children (have a parentId)
+      final activeWallets =
+          wallets.where((w) => w.active && w.parentId != null).toList();
 
-      // Create wallet display items with mock balances
-      final walletItems = <WalletDisplayItem>[];
-      final mockBalances = [12340.50, 8920.30, 1450.00]; // From HTML
+      final List<WalletDisplayItem> walletItems = [];
+      double totalBalance = 0.0;
 
-      for (int i = 0; i < activeWallets.length && i < 3; i++) {
-        final balance = i < mockBalances.length ? mockBalances[i] : 0.0;
-        walletItems
-            .add(WalletDisplayItem.fromWallet(activeWallets[i], balance));
+      for (var wallet in activeWallets) {
+        final balanceData =
+            await _journalUseCases.getAccountBalance(wallet.chartAccountId);
+        final balance = balanceData['balance'] ?? 0.0;
+        totalBalance += balance;
+        walletItems.add(WalletDisplayItem(
+          id: wallet.id,
+          name: wallet.name,
+          balance: balance,
+          icon: Icons.account_balance_wallet,
+          iconColor: Colors.white,
+          iconBackgroundColor: Colors.blue,
+        ));
       }
 
       if (mounted) {
         setState(() {
-          _walletItems = walletItems;
-          _totalWalletsCount = activeWallets.length;
+          // Show only the first 3 wallets in the dashboard carousel
+          _walletItems = walletItems.take(3).toList();
         });
       }
+
+      return totalBalance;
     } catch (e) {
-      print('Error loading wallets: $e');
+      print('❌ HomeScreen: Error loading wallets data: $e');
+      if (mounted) {
+        setState(() {
+          _walletItems = [];
+        });
+      }
+      return 0.0;
     }
   }
 
@@ -142,10 +183,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _navigateToTransactionForm({String type = 'all'}) {
-    NavigationService.navigateTo(AppRoutes.transactionForm, arguments: {
-      'type': type,
-    });
+  void _navigateToTransactionForm({String type = 'E'}) async {
+    final result = await NavigationService.navigateTo(AppRoutes.transactionForm,
+        arguments: {
+          'initialType': type,
+        });
+
+    if (result == true) {
+      _loadDashboardData();
+    }
   }
 
   void _openDrawer() {
@@ -177,90 +223,77 @@ class _HomeScreenState extends State<HomeScreen> {
               bottom: false,
               child: GreetingHeader(
                 onMenuPressed: _openDrawer,
-                onEditPressed: _navigateToDashboardWidgets, // ✅ CORREGIDO: Navegar a widgets config
+                onEditPressed:
+                    _navigateToDashboardWidgets, // ✅ CORREGIDO: Navegar a widgets config
               ),
             ),
           ),
 
           // Main content
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 100), // Space for FAB
-              child: Column(
-                children: [
-                  const SizedBox(height: 16), // HTML: mt-4
+            child: _isLoading
+                ? _buildLoadingState()
+                : SingleChildScrollView(
+                    padding:
+                        const EdgeInsets.only(bottom: 100), // Space for FAB
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 16), // HTML: mt-4
 
-                  // Balance Summary Widget
-                  BalanceSummaryWidget(
-                    totalBalance: _totalBalance,
-                    income: _income,
-                    expenses: _expenses,
-                    isBalanceVisible: _isBalanceVisible,
-                    onVisibilityToggle: () {
-                      setState(() {
-                        _isBalanceVisible = !_isBalanceVisible;
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: 24), // HTML: space-y-6
-
-                  // Quick Actions
-                  QuickActionsGrid(
-                    onExpensePressed: () =>
-                        _navigateToTransactionForm(type: 'expense'),
-                    onIncomePressed: () =>
-                        _navigateToTransactionForm(type: 'income'),
-                    onTransferPressed: () =>
-                        _navigateToTransactionForm(type: 'transfer'),
-                    onAllPressed: () =>
-                        NavigationService.navigateTo(AppRoutes.transactions),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Wallets Widget
-                  WalletsDashboardWidget(
-                    wallets: _walletItems,
-                    totalCount: _totalWalletsCount,
-                    onHeaderTap: () =>
-                        NavigationService.navigateTo(AppRoutes.wallets),
-                    onWalletTap: (wallet) {
-                      // TODO: Navigate to wallet detail
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('View ${wallet.name} details'),
-                          backgroundColor: const Color(0xFF0c7ff2),
+                        // Balance Summary Widget
+                        BalanceSummaryWidget(
+                          totalBalance: _totalBalance,
+                          income: _income,
+                          expenses: _expenses,
+                          isBalanceVisible: _isBalanceVisible,
+                          onVisibilityToggle: () {
+                            setState(() {
+                              _isBalanceVisible = !_isBalanceVisible;
+                            });
+                          },
                         ),
-                      );
-                    },
-                  ),
 
-                  const SizedBox(height: 24),
+                        const SizedBox(height: 24), // HTML: space-y-6
 
-                  // Loans Widget
-                  LoansDashboardWidget(
-                    youLent: _youLent,
-                    youBorrowed: _youBorrowed,
-                    activeLoansCount: _activeLoansCount,
-                    onHeaderTap: () {
-                      // TODO: Navigate to loans screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Loans module coming soon'),
-                          backgroundColor: Color(0xFF0c7ff2),
+                        // Quick Actions
+                        QuickActionsGrid(
+                          onExpensePressed: () =>
+                              _navigateToTransactionForm(type: 'E'),
+                          onIncomePressed: () =>
+                              _navigateToTransactionForm(type: 'I'),
+                          onTransferPressed: () =>
+                              _navigateToTransactionForm(type: 'T'),
+                          onAllPressed: () => NavigationService.navigateTo(
+                              AppRoutes.transactions),
                         ),
-                      );
-                    },
+
+                        const SizedBox(height: 24),
+
+                        // Wallets Widget
+                        WalletsDashboardWidget(
+                          wallets: _walletItems,
+                          totalCount: _totalWalletsCount,
+                          onHeaderTap: () =>
+                              NavigationService.navigateTo(AppRoutes.wallets),
+                          onWalletTap: (wallet) {
+                            // TODO: Navigate to wallet detail
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('View ${wallet.name} details'),
+                                backgroundColor: const Color(0xFF0c7ff2),
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        RecentTransactionsWidget(
+                            transactions: _recentTransactions),
+                        // TODO: Add Chart of Accounts Widget
+                      ],
+                    ),
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // TODO: Add Recent Transactions Widget
-                  // TODO: Add Chart of Accounts Widget
-                ],
-              ),
-            ),
           ),
         ],
       ),
@@ -281,23 +314,24 @@ class _HomeScreenState extends State<HomeScreen> {
       actions: [
         FabAction(
           icon: Icons.trending_up,
-          label: 'Add Income',
-          onPressed: () => _navigateToTransactionForm(type: 'income'),
+          label: 'Income',
+          onPressed: () => _navigateToTransactionForm(type: 'I'),
           backgroundColor: const Color(0xFF16A34A), // green-500
         ),
         FabAction(
           icon: Icons.trending_down,
-          label: 'Add Expense',
-          onPressed: () => _navigateToTransactionForm(type: 'expense'),
+          label: 'Expense',
+          onPressed: () => _navigateToTransactionForm(type: 'E'),
           backgroundColor: const Color(0xFFDC2626), // red-500
         ),
         FabAction(
           icon: Icons.swap_horiz,
-          label: 'Transfer Money',
-          onPressed: () => _navigateToTransactionForm(type: 'transfer'),
+          label: 'Transfer',
+          onPressed: () => _navigateToTransactionForm(type: 'T'),
           backgroundColor: const Color(0xFF2563EB), // blue-500
         ),
       ],
     );
   }
 }
+
