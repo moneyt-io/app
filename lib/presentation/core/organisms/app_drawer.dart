@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
+import '../../../domain/entities/user_entity.dart';
+import '../../features/auth/auth_provider.dart';
 import '../design_system/tokens/app_dimensions.dart';
 import '../design_system/tokens/app_colors.dart';
 import '../l10n/l10n_helper.dart';
 import '../../navigation/app_routes.dart';
 
 /// AppDrawer que replica exactamente el diseño HTML
-/// 
+///
 /// Estructura del HTML:
 /// - Header: User Profile con avatar y dropdown
 /// - Dashboard: Item individual
@@ -50,15 +53,19 @@ class _AppDrawerState extends State<AppDrawer> {
   @override
   Widget build(BuildContext context) {
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
-    
+
     return Drawer(
       backgroundColor: Colors.white,
       width: 320, // HTML: w-80 (320px)
       child: Column(
         children: [
           // ✅ Header Section - User Profile
-          _buildUserProfileHeader(context),
-          
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, child) {
+              return _buildUserProfileHeader(context, authProvider);
+            },
+          ),
+
           // ✅ Navigation Section - Scrollable
           Expanded(
             child: SingleChildScrollView(
@@ -67,31 +74,31 @@ class _AppDrawerState extends State<AppDrawer> {
                 children: [
                   // Dashboard (individual)
                   _buildNavSection(context, currentRoute),
-                  
+
                   SizedBox(height: AppDimensions.spacing24),
-                  
+
                   // Operations Section
                   _buildOperationsSection(context, currentRoute),
-                  
+
                   SizedBox(height: AppDimensions.spacing24),
-                  
+
                   // Financial Tools Section
                   _buildFinancialToolsSection(context, currentRoute),
-                  
+
                   SizedBox(height: AppDimensions.spacing24),
-                  
+
                   // Management Section
                   _buildManagementSection(context, currentRoute),
-                  
+
                   SizedBox(height: AppDimensions.spacing24),
-                  
+
                   // Advanced Section (con subnav expandible)
                   _buildAdvancedSection(context, currentRoute),
                 ],
               ),
             ),
           ),
-          
+
           // ✅ Footer Section
           _buildFooterSection(context, currentRoute),
         ],
@@ -100,7 +107,8 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   /// Header con perfil de usuario (replica HTML exactamente)
-  Widget _buildUserProfileHeader(BuildContext context) {
+  Widget _buildUserProfileHeader(
+      BuildContext context, AuthProvider authProvider) {
     return Container(
       decoration: const BoxDecoration(
         border: Border(
@@ -126,48 +134,23 @@ class _AppDrawerState extends State<AppDrawer> {
                 child: Row(
                   children: [
                     // Avatar del usuario
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 2,
-                        ),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x0F000000),
-                            blurRadius: 4,
-                            offset: Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(18),
-                        child: Container(
-                          color: AppColors.primaryBlue,
-                          child: const Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                    ),
-                    
+                    _buildAvatar(authProvider.currentUser),
+
                     SizedBox(width: AppDimensions.spacing12),
-                    
+
                     // Información del usuario
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Sophia Carter', // ✅ MANTENER: Datos de ejemplo del HTML
+                            authProvider.isGuest
+                                ? 'Invitado'
+                                : authProvider.currentUser?.displayName ??
+                                    'Usuario',
                             style: const TextStyle(
                               color: Color(0xFF1E293B), // text-slate-800
-                              fontSize: 15, // ✅ AUMENTADO: de 14 a 15
+                              fontSize: 15,
                               fontWeight: FontWeight.w600,
                               height: 1.2,
                             ),
@@ -175,10 +158,12 @@ class _AppDrawerState extends State<AppDrawer> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            'sophia.carter@example.com', // ✅ MANTENER: Datos de ejemplo del HTML
+                            authProvider.isGuest
+                                ? 'Iniciar sesión'
+                                : authProvider.currentUser?.email ?? '',
                             style: const TextStyle(
                               color: Color(0xFF64748B), // text-slate-500
-                              fontSize: 13, // ✅ AUMENTADO: de 12 a 13
+                              fontSize: 13,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -186,7 +171,7 @@ class _AppDrawerState extends State<AppDrawer> {
                         ],
                       ),
                     ),
-                    
+
                     // Ícono de expansión
                     const Icon(
                       Icons.expand_more,
@@ -199,6 +184,60 @@ class _AppDrawerState extends State<AppDrawer> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// Construye el avatar del usuario, mostrando su foto o un ícono por defecto.
+  Widget _buildAvatar(UserEntity? user) {
+    final photoUrl = user?.photoUrl;
+
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white,
+          width: 2,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0F000000),
+            blurRadius: 4,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: photoUrl != null && photoUrl.isNotEmpty
+            ? Image.network(
+                photoUrl,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, progress) {
+                  return progress == null
+                      ? child
+                      : const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2));
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return _defaultAvatarIcon(); // Fallback en caso de error
+                },
+              )
+            : _defaultAvatarIcon(), // Ícono por defecto si no hay foto
+      ),
+    );
+  }
+
+  /// Ícono de avatar por defecto
+  Widget _defaultAvatarIcon() {
+    return Container(
+      color: AppColors.primaryBlue,
+      child: const Icon(
+        Icons.person,
+        color: Colors.white,
+        size: 24,
       ),
     );
   }
@@ -244,7 +283,8 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   /// Financial Tools Section
-  Widget _buildFinancialToolsSection(BuildContext context, String currentRoute) {
+  Widget _buildFinancialToolsSection(
+      BuildContext context, String currentRoute) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -263,7 +303,8 @@ class _AppDrawerState extends State<AppDrawer> {
           context: context,
           icon: Icons.credit_card_outlined,
           activeIcon: Icons.credit_card,
-          title: 'Tarjetas de Crédito', // ✅ TRADUCIDO (creditCards no existe en navegación)
+          title:
+              'Tarjetas de Crédito', // ✅ TRADUCIDO (creditCards no existe en navegación)
           route: AppRoutes.creditCards,
           currentRoute: currentRoute,
         ),
@@ -306,7 +347,7 @@ class _AppDrawerState extends State<AppDrawer> {
       children: [
         _buildSectionHeader('AVANZADO'), // ✅ TRADUCIDO
         SizedBox(height: AppDimensions.spacing4),
-        
+
         // Botón expandible de Accounting
         Material(
           color: Colors.transparent,
@@ -324,17 +365,19 @@ class _AppDrawerState extends State<AppDrawer> {
               ),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: _isAccountingExpanded 
-                  ? const Color(0xFFEFF6FF) // bg-blue-50
-                  : Colors.transparent,
+                color: _isAccountingExpanded
+                    ? const Color(0xFFEFF6FF) // bg-blue-50
+                    : Colors.transparent,
               ),
               child: Row(
                 children: [
                   Icon(
-                    _isAccountingExpanded ? Icons.analytics : Icons.analytics_outlined,
-                    color: _isAccountingExpanded 
-                      ? const Color(0xFF1D4ED8) // text-blue-700
-                      : const Color(0xFF374151), // text-slate-700
+                    _isAccountingExpanded
+                        ? Icons.analytics
+                        : Icons.analytics_outlined,
+                    color: _isAccountingExpanded
+                        ? const Color(0xFF1D4ED8) // text-blue-700
+                        : const Color(0xFF374151), // text-slate-700
                     size: 20,
                   ),
                   SizedBox(width: AppDimensions.spacing12),
@@ -342,16 +385,18 @@ class _AppDrawerState extends State<AppDrawer> {
                     child: Text(
                       'Contabilidad', // ✅ TRADUCIDO
                       style: TextStyle(
-                        color: _isAccountingExpanded 
-                          ? const Color(0xFF1D4ED8)
-                          : const Color(0xFF374151),
+                        color: _isAccountingExpanded
+                            ? const Color(0xFF1D4ED8)
+                            : const Color(0xFF374151),
                         fontSize: 16, // ✅ AUMENTADO: de 15 a 16
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
                   Icon(
-                    _isAccountingExpanded ? Icons.expand_less : Icons.expand_more,
+                    _isAccountingExpanded
+                        ? Icons.expand_less
+                        : Icons.expand_more,
                     color: const Color(0xFF94A3B8), // text-slate-400
                     size: 18,
                   ),
@@ -360,7 +405,7 @@ class _AppDrawerState extends State<AppDrawer> {
             ),
           ),
         ),
-        
+
         // Subnav items (cuando está expandido)
         if (_isAccountingExpanded) ...[
           Container(
@@ -391,7 +436,8 @@ class _AppDrawerState extends State<AppDrawer> {
                     context: context,
                     icon: Icons.book_outlined,
                     activeIcon: Icons.book,
-                    title: 'Diarios Contables', // ✅ TRADUCIDO (journals no existe en navegación)
+                    title:
+                        'Diarios Contables', // ✅ TRADUCIDO (journals no existe en navegación)
                     route: AppRoutes.journals,
                     currentRoute: currentRoute,
                   ),
@@ -428,9 +474,9 @@ class _AppDrawerState extends State<AppDrawer> {
               route: AppRoutes.settings,
               currentRoute: currentRoute,
             ),
-            
+
             SizedBox(height: AppDimensions.spacing12),
-            
+
             // App Info con versión real
             Container(
               padding: EdgeInsets.symmetric(
@@ -451,7 +497,9 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    _appVersion.isEmpty ? 'v1.0.0' : _appVersion, // ✅ MODIFICADO: Usar versión real
+                    _appVersion.isEmpty
+                        ? 'v1.0.0'
+                        : _appVersion, // ✅ MODIFICADO: Usar versión real
                     style: const TextStyle(
                       color: Color(0xFF64748B), // text-slate-500
                       fontSize: 13,
@@ -494,8 +542,9 @@ class _AppDrawerState extends State<AppDrawer> {
     required String route,
     required String currentRoute,
   }) {
-    final isActive = currentRoute == route || currentRoute.startsWith('$route/');
-    
+    final isActive =
+        currentRoute == route || currentRoute.startsWith('$route/');
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -513,26 +562,26 @@ class _AppDrawerState extends State<AppDrawer> {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: isActive 
-              ? const Color(0xFFEFF6FF) // bg-blue-50
-              : Colors.transparent,
+            color: isActive
+                ? const Color(0xFFEFF6FF) // bg-blue-50
+                : Colors.transparent,
           ),
           child: Row(
             children: [
               Icon(
                 isActive ? activeIcon : icon,
-                color: isActive 
-                  ? const Color(0xFF1D4ED8) // text-blue-700
-                  : const Color(0xFF374151), // text-slate-700
+                color: isActive
+                    ? const Color(0xFF1D4ED8) // text-blue-700
+                    : const Color(0xFF374151), // text-slate-700
                 size: 20,
               ),
               SizedBox(width: AppDimensions.spacing12),
               Text(
                 title,
                 style: TextStyle(
-                  color: isActive 
-                    ? const Color(0xFF1D4ED8)
-                    : const Color(0xFF374151),
+                  color: isActive
+                      ? const Color(0xFF1D4ED8)
+                      : const Color(0xFF374151),
                   fontSize: 16, // ✅ AUMENTADO: de 15 a 16
                   fontWeight: FontWeight.w500,
                 ),
@@ -553,8 +602,9 @@ class _AppDrawerState extends State<AppDrawer> {
     required String route,
     required String currentRoute,
   }) {
-    final isActive = currentRoute == route || currentRoute.startsWith('$route/');
-    
+    final isActive =
+        currentRoute == route || currentRoute.startsWith('$route/');
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -572,26 +622,26 @@ class _AppDrawerState extends State<AppDrawer> {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6),
-            color: isActive 
-              ? const Color(0xFFEFF6FF) // bg-blue-50
-              : Colors.transparent,
+            color: isActive
+                ? const Color(0xFFEFF6FF) // bg-blue-50
+                : Colors.transparent,
           ),
           child: Row(
             children: [
               Icon(
                 isActive ? activeIcon : icon,
-                color: isActive 
-                  ? const Color(0xFF1D4ED8) // text-blue-700
-                  : const Color(0xFF64748B), // text-slate-600
+                color: isActive
+                    ? const Color(0xFF1D4ED8) // text-blue-700
+                    : const Color(0xFF64748B), // text-slate-600
                 size: 16,
               ),
               SizedBox(width: AppDimensions.spacing12),
               Text(
                 title,
                 style: TextStyle(
-                  color: isActive 
-                    ? const Color(0xFF1D4ED8)
-                    : const Color(0xFF64748B),
+                  color: isActive
+                      ? const Color(0xFF1D4ED8)
+                      : const Color(0xFF64748B),
                   fontSize: 16, // ✅ AUMENTADO: de 15 a 16
                   fontWeight: FontWeight.normal,
                 ),

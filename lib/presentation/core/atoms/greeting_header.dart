@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 /// Header de saludo personalizado basado en dashboard_main.html
-/// 
+///
 /// HTML Reference:
 /// ```html
 /// <div class="flex items-center gap-3">
@@ -18,16 +18,12 @@ import 'package:intl/intl.dart';
 class GreetingHeader extends StatelessWidget {
   const GreetingHeader({
     Key? key,
-    required this.userName,
     required this.onMenuPressed,
     required this.onEditPressed,
-    required this.onProfilePressed,
   }) : super(key: key);
 
-  final String userName;
   final VoidCallback onMenuPressed;
   final VoidCallback onEditPressed;
-  final VoidCallback onProfilePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -57,17 +53,17 @@ class GreetingHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(width: 12), // HTML: gap-3
-                
+
                 // Greeting text
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        _getGreeting(userName),
-                        style: const TextStyle(
+                      const Text(
+                        'Bienvenido a MoneyT',
+                        style: TextStyle(
                           fontSize: 18, // HTML: text-lg
                           fontWeight: FontWeight.w600, // HTML: font-semibold
                           color: Color(0xFF0F172A), // HTML: text-slate-900
@@ -86,7 +82,7 @@ class GreetingHeader extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Action buttons
           Row(
             children: [
@@ -108,53 +104,11 @@ class GreetingHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              
-              const SizedBox(width: 8), // HTML: gap-2
-              
-              // Profile button
-              Material(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-                child: InkWell(
-                  onTap: onProfilePressed,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    width: 40, // HTML: w-10 h-10
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0xFFBFDBFE), // HTML: border-blue-200
-                        width: 2,
-                      ),
-                      image: const DecorationImage(
-                        image: NetworkImage(
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuBsQJ3sGZpJ3q69isqWPZ2PG3Z7ZK4fUlPLXSHh5KNSwjsn9DAaq6ujCXCl1zDsx2pQA5gPbPuHp2YAZmJXzZ89ZHGGCKDGSRWfetVNp2WrJY8E96LF44DLyevbiIlKQDFfn3Lg-DGC_MYR3GTnDzOUEtfPLGwDgHTY2czlIEF_brjjlnj4tuYQ_vyRuRh2KuvbT-gWvNbffV7EKW-hhC2uRwhVFQ6sne_qU5A8L4QM23oyYTonJSom0TtnwEEx6J5r2fUG6Io0zGSR',
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         ],
       ),
     );
-  }
-
-  /// Obtiene el saludo según la hora del día
-  String _getGreeting(String name) {
-    final hour = DateTime.now().hour;
-    
-    if (hour < 12) {
-      return 'Good morning, $name';
-    } else if (hour < 18) {
-      return 'Good afternoon, $name';
-    } else {
-      return 'Good evening, $name';
-    }
   }
 
   /// Obtiene la fecha actual formateada
