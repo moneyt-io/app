@@ -8,11 +8,9 @@ class FeatureShowcasePage extends StatelessWidget {
   const FeatureShowcasePage({
     Key? key,
     required this.feature,
-    this.onNext,
   }) : super(key: key);
 
   final FeatureInfo feature;
-  final VoidCallback? onNext;
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +24,12 @@ class FeatureShowcasePage extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(OnboardingTheme.spacing32),
+          padding: const EdgeInsets.symmetric(horizontal: OnboardingTheme.spacing32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              
+
               // Badge si es "Coming Soon"
               if (!feature.isAvailable) ...[
                 Container(
@@ -55,51 +53,58 @@ class FeatureShowcasePage extends StatelessWidget {
                 ),
                 const SizedBox(height: OnboardingTheme.spacing24),
               ],
-              
+
               // Animated Feature Icon
               AnimatedFeatureIcon(
                 icon: feature.icon,
-                backgroundColor: feature.isAvailable 
+                backgroundColor: feature.isAvailable
                     ? Colors.white.withOpacity(0.2)
                     : Colors.white.withOpacity(0.1),
-                iconColor: feature.isAvailable 
+                iconColor: feature.isAvailable
                     ? Colors.white
                     : Colors.white.withOpacity(0.6),
                 size: 100,
                 animationDelay: const Duration(milliseconds: 200),
               ),
-              
+
               const SizedBox(height: OnboardingTheme.spacing48),
-              
+
               // Feature Title
               StaggeredTextAnimation(
                 text: feature.title,
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: feature.isAvailable 
-                      ? Colors.white 
+                  color: feature.isAvailable
+                      ? Colors.white
                       : Colors.white.withOpacity(0.7),
                   height: 1.3,
                 ),
                 delay: const Duration(milliseconds: 400),
               ),
-              
+
               const SizedBox(height: OnboardingTheme.spacing24),
-              
+
               // Feature Description
               StaggeredTextAnimation(
                 text: feature.description,
                 style: TextStyle(
                   fontSize: 18,
-                  color: feature.isAvailable 
-                      ? Colors.white.withOpacity(0.9)
-                      : Colors.white.withOpacity(0.6),
-                  height: 1.5,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0.3,
+                  color: Colors.white,
+                  height: 1.4,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
                 ),
                 delay: const Duration(milliseconds: 600),
               ),
-              
+
               // Feature Benefits
               if (feature.benefits.isNotEmpty) ...[
                 const SizedBox(height: OnboardingTheme.spacing32),
@@ -115,50 +120,12 @@ class FeatureShowcasePage extends StatelessWidget {
                   }).toList(),
                 ),
               ],
-              
+
               const Spacer(),
-              
-              // Continue Button
-              Container(
-                width: double.infinity,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: feature.isAvailable 
-                      ? Colors.white 
-                      : Colors.white.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: onNext,
-                    borderRadius: BorderRadius.circular(28),
-                    child: Center(
-                      child: Text(
-                        feature.isAvailable 
-                            ? '¡Me encanta!'
-                            : 'Genial, lo esperaré',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: feature.isAvailable 
-                              ? OnboardingTheme.textPrimary
-                              : OnboardingTheme.textPrimary.withOpacity(0.7),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: OnboardingTheme.spacing24),
+
+              // El botón es manejado por OnboardingScreen.
+              // Este SizedBox asegura que el contenido tenga espacio suficiente en la parte inferior.
+              const SizedBox(height: 96),
             ],
           ),
         ),

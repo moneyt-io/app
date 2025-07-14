@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ValuesPage extends StatelessWidget {
-  const ValuesPage({
-    Key? key,
-    this.onNext,
-  }) : super(key: key);
-
-  final VoidCallback? onNext;
+  const ValuesPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +18,11 @@ class ValuesPage extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const Spacer(),
               const Text(
                 'Nuestros valores',
                 style: TextStyle(
@@ -36,10 +32,7 @@ class ValuesPage extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
               const SizedBox(height: 48),
-              
-              // Valores simplificados
               const Column(
                 children: [
                   Text('🔧 Transparencia', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
@@ -49,24 +42,8 @@ class ValuesPage extends StatelessWidget {
                   Text('💰 Accesibilidad', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                 ],
               ),
-              
-              const SizedBox(height: 64),
-              
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: onNext,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF14B8A6),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
-                  child: const Text('Continuar'),
-                ),
-              ),
+              const Spacer(),
+              const SizedBox(height: 96),
             ],
           ),
         ),
@@ -74,4 +51,3 @@ class ValuesPage extends StatelessWidget {
     );
   }
 }
-  

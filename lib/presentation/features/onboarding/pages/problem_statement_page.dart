@@ -4,12 +4,7 @@ import '../widgets/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
 
 class ProblemStatementPage extends StatelessWidget {
-  const ProblemStatementPage({
-    Key? key,
-    this.onNext,
-  }) : super(key: key);
-
-  final VoidCallback? onNext;
+  const ProblemStatementPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +18,13 @@ class ProblemStatementPage extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(OnboardingTheme.spacing32),
+          padding:
+              const EdgeInsets.symmetric(horizontal: OnboardingTheme.spacing32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              
+
               // Animated Icon
               AnimatedFeatureIcon(
                 icon: Icons.sentiment_dissatisfied,
@@ -37,12 +33,12 @@ class ProblemStatementPage extends StatelessWidget {
                 size: 100,
                 animationDelay: const Duration(milliseconds: 200),
               ),
-              
+
               const SizedBox(height: OnboardingTheme.spacing48),
-              
+
               // Problem Statement
               StaggeredTextAnimation(
-                text: '¿Te preocupa no saber\ndónde va tu dinero?',
+                text: '¿Te preocupa no saber\na dónde va tu dinero? 💭',
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -51,84 +47,37 @@ class ProblemStatementPage extends StatelessWidget {
                 ),
                 delay: const Duration(milliseconds: 400),
               ),
-              
+
               const SizedBox(height: OnboardingTheme.spacing24),
-              
-              // Problem List
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center, // ✅ CAMBIADO: De start a center
-                children: [
-                  _buildProblemItem(
-                    '😰 Gastos impulsivos que no recuerdas',
-                    const Duration(milliseconds: 600),
-                  ),
-                  _buildProblemItem(
-                    '📊 Falta de visión general de tus finanzas',
-                    const Duration(milliseconds: 800),
-                  ),
-                  _buildProblemItem(
-                    '💸 Dificultad para ahorrar dinero',
-                    const Duration(milliseconds: 1000),
-                  ),
-                ],
-              ),
-              
-              const Spacer(),
-              
-              // Continue Button
-              Container(
-                width: double.infinity,
-                height: 56,
-                decoration: BoxDecoration(
+
+              // Empathetic message
+              StaggeredTextAnimation(
+                text: 'Tranquilo, no eres el único, y hay solución.',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0.3,
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
+                  height: 1.4,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
                     ),
                   ],
                 ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: onNext,
-                    borderRadius: BorderRadius.circular(28),
-                    child: const Center(
-                      child: Text(
-                        'Tengo estos problemas',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: OnboardingTheme.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                delay: const Duration(milliseconds: 600),
               ),
-              
-              const SizedBox(height: OnboardingTheme.spacing24),
+
+              const Spacer(),
+
+              // El botón es manejado por OnboardingScreen.
+              // Este SizedBox asegura que el contenido tenga espacio suficiente en la parte inferior.
+              const SizedBox(height: 96),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildProblemItem(String text, Duration delay) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: StaggeredTextAnimation(
-        text: text,
-        style: TextStyle(
-          fontSize: 16,
-          color: Colors.white.withOpacity(0.95),
-          height: 1.5,
-        ),
-        delay: delay,
-        textAlign: TextAlign.center, // ✅ CAMBIADO: De TextAlign.left a TextAlign.center
       ),
     );
   }

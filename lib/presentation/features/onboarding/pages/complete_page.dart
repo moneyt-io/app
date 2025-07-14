@@ -1,86 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:confetti/confetti.dart';
-import 'package:flutter/services.dart';
+import 'dart:async';
 
 import '../theme/onboarding_theme.dart';
-import '../widgets/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
-import '../../../navigation/app_routes.dart';
-import '../../../navigation/navigation_service.dart';
-import '../../../core/services/onboarding_service.dart';
 
 class CompletePage extends StatefulWidget {
-  const CompletePage({
-    Key? key,
-    this.onComplete,
-  }) : super(key: key);
-
-  final VoidCallback? onComplete;
+  const CompletePage({Key? key}) : super(key: key);
 
   @override
   State<CompletePage> createState() => _CompletePageState();
 }
 
-class _CompletePageState extends State<CompletePage>
-    with TickerProviderStateMixin {
-  late ConfettiController _confettiController;
-  late AnimationController _buttonController;
-  late Animation<double> _buttonScale;
+class _CompletePageState extends State<CompletePage> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _beforeAnimation;
+  late Animation<double> _afterAnimation;
 
   @override
   void initState() {
     super.initState();
-
-    _confettiController = ConfettiController(
-      duration: const Duration(seconds: 3),
-    );
-
-    _buttonController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
 
-    _buttonScale = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _buttonController,
-      curve: Curves.easeInOut,
-    ));
+    final curvedAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOutCubic,
+    );
 
-    // Iniciar confetti después de un delay
-    Future.delayed(const Duration(milliseconds: 1000), () {
+    _beforeAnimation = Tween<double>(begin: 0, end: 0.3).animate(curvedAnimation);
+    _afterAnimation = Tween<double>(begin: 0, end: 0.7).animate(curvedAnimation);
+
+    // Iniciar la animación después de un breve retraso para que coincida con la entrada de la página
+    Timer(const Duration(milliseconds: 500), () {
       if (mounted) {
-        _confettiController.play();
+        _controller.forward();
       }
     });
   }
 
   @override
   void dispose() {
-    _confettiController.dispose();
-    _buttonController.dispose();
+    _controller.dispose();
     super.dispose();
-  }
-
-  void _handleButtonTap() async {
-    print('🎉 Enhanced CompletePage: Button tapped');
-
-    // Animar el botón
-    await _buttonController.forward();
-    await _buttonController.reverse();
-
-    // Haptic feedback de éxito
-    HapticFeedback.heavyImpact();
-
-    // ✅ CAMBIADO: Navegar al login en lugar del home directamente
-    print('🔐 Enhanced CompletePage: Navigating to login...');
-
-    // Marcar onboarding como completado
-    await OnboardingService.markOnboardingCompleted();
-
-    // Navegar al login
-    NavigationService.navigateToAndClearStack(AppRoutes.login);
   }
 
   @override
@@ -94,124 +57,161 @@ class _CompletePageState extends State<CompletePage>
         ),
       ),
       child: SafeArea(
-        child: Stack(
-          children: [
-            // Confetti
-            Align(
-              alignment: Alignment.topCenter,
-              child: ConfettiWidget(
-                confettiController: _confettiController,
-                blastDirection: 1.57, // radians - 90 degrees
-                emissionFrequency: 0.05,
-                numberOfParticles: 50,
-                gravity: 0.05,
-                shouldLoop: false,
-                colors: const [
-                  Colors.white,
-                  Color(0xFF14B8A6),
-                  Color(0xFF3B82F6),
-                  Color(0xFF8B5CF6),
-                  Color(0xFF10B981),
-                ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: OnboardingTheme.spacing32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(),
+
+              // Título
+              StaggeredTextAnimation(
+                text: '¡Estás listo para despegar! 🚀',
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  height: 1.3,
+                ),
+                delay: const Duration(milliseconds: 200),
               ),
+
+              const SizedBox(height: OnboardingTheme.spacing24),
+
+              // Descripción
+              StaggeredTextAnimation(
+                text: 'Registra tu primera transacción y mira cómo sube tu probabilidad de éxito 📈',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0.3,
+                  color: Colors.white,
+                  height: 1.4,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                delay: const Duration(milliseconds: 400),
+              ),
+
+              const SizedBox(height: OnboardingTheme.spacing48),
+
+              // Infografía animada
+              AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  return _buildProbabilityInfographic();
+                },
+              ),
+
+              const Spacer(),
+
+              // Espacio para el botón centralizado
+              const SizedBox(height: 96),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProbabilityInfographic() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.25), width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Probabilidad de lograr tu meta',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
+          ),
+          const SizedBox(height: 24),
+          _buildProbabilityBar(
+            label: 'Antes de MoneyT',
+            value: _beforeAnimation.value,
+            color: Colors.grey[400]!,
+            backgroundColor: Colors.black.withOpacity(0.2),
+          ),
+          const SizedBox(height: 20),
+          _buildProbabilityBar(
+            label: 'Con MoneyT',
+            value: _afterAnimation.value,
+            color: const Color(0xFF34D399), // emerald-400
+            backgroundColor: Colors.black.withOpacity(0.2),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // Main content
-            Padding(
-              padding: const EdgeInsets.all(OnboardingTheme.spacing32),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Spacer(),
-
-                  // Animated Rocket Icon
-                  AnimatedFeatureIcon(
-                    icon: Icons.rocket_launch,
-                    backgroundColor: Colors.white.withOpacity(0.2),
-                    iconColor: Colors.white,
-                    size: 120,
-                    animationDelay: const Duration(milliseconds: 300),
-                  ),
-
-                  const SizedBox(height: OnboardingTheme.spacing48),
-
-                  // Success Title
-                  StaggeredTextAnimation(
-                    text: '¡Estás listo para\ndespegar! 🚀',
-                    style: const TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.2,
-                    ),
-                    delay: const Duration(milliseconds: 600),
-                  ),
-
-                  const SizedBox(height: OnboardingTheme.spacing24),
-
-                  // Motivational Message
-                  StaggeredTextAnimation(
-                    text:
-                        'Tu viaje hacia el control financiero\ncomienza ahora. ¡Vamos a conquistar\ntus metas juntos!',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white.withOpacity(0.9),
-                      height: 1.5,
-                    ),
-                    delay: const Duration(milliseconds: 800),
-                  ),
-
-                  const Spacer(),
-
-                  // Call-to-Action Button
-                  AnimatedBuilder(
-                    animation: _buttonScale,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _buttonScale.value,
-                        child: Container(
-                          width: double.infinity,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(28),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: _handleButtonTap,
-                              borderRadius: BorderRadius.circular(28),
-                              child: const Center(
-                                child: Text(
-                                  '¡Comenzar mi aventura!',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: OnboardingTheme.textPrimary,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: OnboardingTheme.spacing24),
-                ],
+  Widget _buildProbabilityBar({
+    required String label,
+    required double value,
+    required Color color,
+    required Color backgroundColor,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14)),
+            Text(
+              '${(value * 100).toInt()}%',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontSize: 14,
               ),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 8),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Container(
+              width: constraints.maxWidth,
+              height: 10,
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  width: constraints.maxWidth * value,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withOpacity(0.5),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      )
+                    ]
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }

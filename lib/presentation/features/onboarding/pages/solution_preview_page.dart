@@ -4,12 +4,7 @@ import '../widgets/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
 
 class SolutionPreviewPage extends StatelessWidget {
-  const SolutionPreviewPage({
-    Key? key,
-    this.onNext,
-  }) : super(key: key);
-
-  final VoidCallback? onNext;
+  const SolutionPreviewPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +18,13 @@ class SolutionPreviewPage extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(OnboardingTheme.spacing32),
+          padding:
+              const EdgeInsets.symmetric(horizontal: OnboardingTheme.spacing32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              
+
               // Animated Icon
               AnimatedFeatureIcon(
                 icon: Icons.lightbulb,
@@ -37,12 +33,12 @@ class SolutionPreviewPage extends StatelessWidget {
                 size: 100,
                 animationDelay: const Duration(milliseconds: 200),
               ),
-              
+
               const SizedBox(height: OnboardingTheme.spacing48),
-              
+
               // Solution Statement
               StaggeredTextAnimation(
-                text: 'MoneyT te da control\ntotal de tus finanzas',
+                text: 'MoneyT te da control\ntotal de tus finanzas 💡',
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -51,14 +47,15 @@ class SolutionPreviewPage extends StatelessWidget {
                 ),
                 delay: const Duration(milliseconds: 400),
               ),
-              
-              const SizedBox(height: OnboardingTheme.spacing24),
-              
-              // Solution Benefits
+
+              const SizedBox(height: OnboardingTheme.spacing48),
+
+              // Benefits List
               Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _buildBenefitItem(
-                    '✨ Visualiza todos tus gastos en tiempo real',
+                    '📊 Visualiza todos tus gastos en tiempo real',
                     const Duration(milliseconds: 600),
                   ),
                   _buildBenefitItem(
@@ -66,49 +63,17 @@ class SolutionPreviewPage extends StatelessWidget {
                     const Duration(milliseconds: 800),
                   ),
                   _buildBenefitItem(
-                    '🏆 Toma decisiones financieras inteligentes',
+                    '💡 Toma decisiones financieras inteligentes',
                     const Duration(milliseconds: 1000),
                   ),
                 ],
               ),
-              
+
               const Spacer(),
-              
-              // Continue Button
-              Container(
-                width: double.infinity,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: onNext,
-                    borderRadius: BorderRadius.circular(28),
-                    child: const Center(
-                      child: Text(
-                        '¡Quiero este control!',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: OnboardingTheme.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: OnboardingTheme.spacing24),
+
+              // El botón es manejado por OnboardingScreen.
+              // Este SizedBox asegura que el contenido tenga espacio suficiente en la parte inferior.
+              const SizedBox(height: 96),
             ],
           ),
         ),
@@ -122,9 +87,19 @@ class SolutionPreviewPage extends StatelessWidget {
       child: StaggeredTextAnimation(
         text: text,
         style: TextStyle(
-          fontSize: 16,
-          color: Colors.white.withOpacity(0.95),
-          height: 1.5,
+          fontSize: 18, // ✅ MEJORADO: Tamaño consistente con otras pantallas
+          fontWeight: FontWeight.w400, // ✅ AGREGADO: Peso visual mejorado
+          letterSpacing: 0.3, // ✅ AGREGADO: Espaciado entre letras
+          color: Colors.white, // ✅ MEJORADO: Máximo contraste
+          height: 1.4, // ✅ MEJORADO: Espaciado compacto
+          shadows: [
+            // ✅ AGREGADO: Sombra sutil para profundidad
+            Shadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+            ),
+          ],
         ),
         delay: delay,
         textAlign: TextAlign.center,
