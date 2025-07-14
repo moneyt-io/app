@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/services/paywall_service.dart';
+import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 
 import '../../../domain/entities/transaction_entry.dart';
 import '../../../domain/usecases/transaction_usecases.dart';
@@ -58,28 +58,23 @@ class _HomeScreenState extends State<HomeScreen> {
     _showPaywallIfNeeded(); // AÑADIDO: Llamada para mostrar la paywall.
   }
 
-  // AÑADIDO: Método para mostrar la paywall si es la primera vez.
+  // AÑADIDO: Método para mostrar la paywall si el usuario no está suscrito.
   Future<void> _showPaywallIfNeeded() async {
     // Se espera un momento para no interferir con la animación de entrada.
     await Future.delayed(const Duration(milliseconds: 500));
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      const paywallShownKey = 'paywall_shown_on_home';
-      final bool hasBeenShown = prefs.getBool(paywallShownKey) ?? false;
+      final paywallService = GetIt.instance<PaywallService>();
 
-      if (!hasBeenShown && mounted) {
-        print(' HomeScreen: Paywall not shown yet. Triggering event...');
-        final paywallService = GetIt.instance<PaywallService>();
+      // 1. Verificar si el usuario ya tiene una suscripción activa usando el SDK de Superwall.
+      final isSubscribed = Superwall.shared.subscriptionStatus is SubscriptionStatusActive;
 
-        // Disparar el evento de Superwall.
+      // 2. Si no está suscrito y el widget está montado, mostrar el paywall.
+      if (!isSubscribed && mounted) {
+        print(' HomeScreen: User is not subscribed. Triggering paywall...');
         paywallService.registerEvent('campaign_trigger');
-
-        // Marcar que la paywall ya se intentó mostrar.
-        await prefs.setBool(paywallShownKey, true);
       } else {
-        print(
-            ' HomeScreen: Paywall already shown or widget not mounted. Skipping.');
+        print(' HomeScreen: User is subscribed or widget not mounted. Skipping paywall.');
       }
     } catch (e) {
       print(' HomeScreen: Error trying to show paywall: $e');

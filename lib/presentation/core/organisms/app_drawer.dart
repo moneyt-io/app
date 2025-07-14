@@ -93,7 +93,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   SizedBox(height: AppDimensions.spacing24),
 
                   // Advanced Section (con subnav expandible)
-                  _buildAdvancedSection(context, currentRoute),
+                  // _buildAdvancedSection(context, currentRoute),
                 ],
               ),
             ),
@@ -269,15 +269,15 @@ class _AppDrawerState extends State<AppDrawer> {
           route: AppRoutes.transactions,
           currentRoute: currentRoute,
         ),
-        SizedBox(height: AppDimensions.spacing4),
-        _buildNavItem(
-          context: context,
-          icon: Icons.handshake_outlined,
-          activeIcon: Icons.handshake,
-          title: t.navigation.loans, // ✅ TRADUCIDO
-          route: AppRoutes.loans,
-          currentRoute: currentRoute,
-        ),
+        // SizedBox(height: AppDimensions.spacing4),
+        // _buildNavItem(
+        //   context: context,
+        //   icon: Icons.handshake_outlined,
+        //   activeIcon: Icons.handshake,
+        //   title: t.navigation.loans, // ✅ TRADUCIDO
+        //   route: AppRoutes.loans,
+        //   currentRoute: currentRoute,
+        // ),
       ],
     );
   }
