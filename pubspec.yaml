@@ -1,7 +1,7 @@
 name: moneyt_pfm
 description: "Personal Finance Manager"
 publish_to: 'none'
-version: 0.2.0+6
+version: 0.2.0+7
 
 environment:
   sdk: ^3.5.4
@@ -36,8 +36,8 @@ dependencies:
   slang: ^4.7.2
   slang_flutter: ^4.7.0
   intl: ^0.20.2
-  confetti: ^0.7.0  # Para efectos de confetti en completion page
-  superwallkit_flutter: ^2.3.5
+  confetti: ^0.7.0 
+  superwallkit_flutter: ^2.4.0
   table_calendar: ^3.2.0
   
 dev_dependencies:
@@ -50,3 +50,11 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+flutter_launcher_icons:
+  image_path: assets/logo/app_icon.png          # PNG transparente, sin fondo
+  background_color: "#FFFFFF"                   # Solo Android legacy
+  adaptive_icon_background: "#FFFFFF"           # Android capa bg
+  remove_alpha_ios: true                        # iOS: aplana a fondo sólido
+  ios: true
+  android: true
