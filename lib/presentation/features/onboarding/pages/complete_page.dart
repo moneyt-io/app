@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import '../theme/onboarding_theme.dart';
+import '../../../widgets/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
 
 class CompletePage extends StatefulWidget {
@@ -64,16 +65,27 @@ class _CompletePageState extends State<CompletePage> with SingleTickerProviderSt
             children: [
               const Spacer(),
 
+              // Icono animado y coloreado
+              AnimatedFeatureIcon(
+                icon: Icons.rocket_launch,
+                backgroundColor: Colors.white, // Fondo opaco para resaltar
+                iconColor: const Color(0xFFD97706), // Naranja del gradiente de la página
+                size: 100,
+                animationDelay: const Duration(milliseconds: 200),
+              ),
+
+              const SizedBox(height: OnboardingTheme.spacing32),
+
               // Título
               StaggeredTextAnimation(
-                text: '¡Estás listo para despegar! 🚀',
+                text: '¡Estás listo para despegar!', // Emoji eliminado
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                   height: 1.3,
                 ),
-                delay: const Duration(milliseconds: 200),
+                delay: const Duration(milliseconds: 400), // Retraso ajustado
               ),
 
               const SizedBox(height: OnboardingTheme.spacing24),

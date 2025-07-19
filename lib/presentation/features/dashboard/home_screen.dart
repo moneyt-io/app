@@ -21,7 +21,9 @@ import 'dashboard_widgets_screen.dart'; // AGREGADO: Import de la pantalla de wi
 import 'widgets/recent_transactions_widget.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final bool hasJustSeenPaywall;
+
+  const HomeScreen({Key? key, this.hasJustSeenPaywall = false}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -69,7 +71,13 @@ class _HomeScreenState extends State<HomeScreen> {
       // 1. Verificar si el usuario ya tiene una suscripción activa usando el SDK de Superwall.
       final isSubscribed = Superwall.shared.subscriptionStatus is SubscriptionStatusActive;
 
-      // 2. Si no está suscrito y el widget está montado, mostrar el paywall.
+      // 2. Si el usuario acaba de ver la paywall (desde el onboarding), no la mostramos de nuevo.
+      if (widget.hasJustSeenPaywall) {
+        print(' HomeScreen: User has just seen paywall. Skipping trigger for this session.');
+        return;
+      }
+
+      // 3. Si no está suscrito y el widget está montado, mostrar el paywall.
       if (!isSubscribed && mounted) {
         print(' HomeScreen: User is not subscribed. Triggering paywall...');
         paywallService.registerEvent('campaign_trigger');

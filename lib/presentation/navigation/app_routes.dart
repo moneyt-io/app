@@ -7,6 +7,8 @@ class AppRoutes {
   static const String splash = '/splash';
   static const String welcome = '/welcome';
   static const String onboarding = '/onboarding';
+  static const String paywall = '/paywall'; // Legacy, for UI prototype
+  static const String paywallLauncher = '/paywall-launcher';
   static const String login = '/login'; // ✅ VERIFICADO: Debe existir esta línea
   static const String home = '/home';
   static const String dashboard = '/dashboard';

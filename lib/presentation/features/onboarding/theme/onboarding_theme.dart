@@ -5,8 +5,8 @@ class OnboardingTheme {
   /// Gradientes por pantalla para mejor experiencia visual
   static const Map<String, List<Color>> gradients = {
     'welcome': [
-      Color(0xFF4AE3B5), // Teal brillante
-      Color(0xFF2DD4BF), // Teal
+      Color(0xFF2DD4BF), // Turquesa brillante
+      Color(0xFF047857), // Verde bosque oscuro
     ],
     'problem': [
       Color(0xFFFF6B6B), // Coral suave

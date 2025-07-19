@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/onboarding_theme.dart';
-import '../widgets/animated_feature_icon.dart';
+import '../../../widgets/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -28,9 +28,9 @@ class WelcomePage extends StatelessWidget {
               // Animated Logo
               AnimatedFeatureIcon(
                 icon: Icons.account_balance_wallet,
-                backgroundColor: Colors.white.withOpacity(0.2),
-                iconColor: Colors.white,
-                size: 120,
+                backgroundColor: Colors.white,
+                iconColor: const Color(0xFF047857), // Verde oscuro del gradiente
+                size: 100,
                 animationDelay: const Duration(milliseconds: 300),
               ),
 

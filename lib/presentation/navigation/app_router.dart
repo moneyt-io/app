@@ -31,6 +31,7 @@ import '../features/loans/loan_form_screen.dart';
 import '../features/loans/loan_detail_screen.dart';
 import '../features/journals/journals_screen.dart';
 import '../features/journals/journal_detail_screen.dart';
+import '../features/paywall/paywall_launcher_screen.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -48,20 +49,33 @@ class AppRouter {
           settings: settings,
         );
 
-      case AppRoutes.login:
+      case AppRoutes.paywallLauncher:
         return MaterialPageRoute(
-          builder: (_) => const LoginScreen(),
-          fullscreenDialog: true,
+          builder: (_) => const PaywallLauncherScreen(),
           settings: settings,
         );
 
-      // ✅ AGREGADAS: Rutas principales que faltaban
-      case AppRoutes.home:
-      case AppRoutes.dashboard:
+      case AppRoutes.login: {
+        final args = settings.arguments as Map<String, dynamic>?;
+        final hasJustSeenPaywall =
+            args?['hasJustSeenPaywall'] as bool? ?? false;
         return MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
+          builder: (_) => LoginScreen(hasJustSeenPaywall: hasJustSeenPaywall),
+          fullscreenDialog: true,
           settings: settings,
         );
+      }
+
+      case AppRoutes.home:
+      case AppRoutes.dashboard: {
+        final args = settings.arguments as Map<String, dynamic>?;
+        final hasJustSeenPaywall =
+            args?['hasJustSeenPaywall'] as bool? ?? false;
+        return MaterialPageRoute(
+          builder: (_) => HomeScreen(hasJustSeenPaywall: hasJustSeenPaywall),
+          settings: settings,
+        );
+      }
 
       case AppRoutes.settings:
         return MaterialPageRoute(

@@ -59,7 +59,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     ];
 
     _buttonLabels = [
-      'Comenzar ahora',
+      'Comenzar ahora 🚀',
       'Solucionalo hoy ⚡',
       'Continuar',
       'Fijar mi meta 🎯',
@@ -131,8 +131,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       await OnboardingService.markOnboardingCompleted();
 
       if (mounted) {
-        // Navegar a la pantalla de login
-        NavigationService.navigateToAndClearStack(AppRoutes.login);
+        // Navegar a la pantalla que lanza la paywall de Superwall
+        NavigationService.navigateToAndClearStack(AppRoutes.paywallLauncher);
       }
     } catch (e) {
       print('❌ OnboardingScreen: Error completing onboarding: $e');

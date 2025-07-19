@@ -6,7 +6,9 @@ import '../../navigation/app_routes.dart';
 import 'auth_provider.dart' as app_auth; // ✅ AGREGADO: Alias para consistencia
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  final bool hasJustSeenPaywall;
+
+  const LoginScreen({Key? key, this.hasJustSeenPaywall = false}) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -20,7 +22,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final success = await authProvider.signInWithGoogle();
     
     if (success && mounted) {
-      NavigationService.navigateToAndClearStack(AppRoutes.home);
+      NavigationService.navigateToAndClearStack(
+        AppRoutes.home,
+        arguments: {'hasJustSeenPaywall': widget.hasJustSeenPaywall},
+      );
     }
   }
 
@@ -30,7 +35,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = context.read<app_auth.AuthProvider>(); // ✅ CORREGIDO: Usar alias
     authProvider.continueAsGuest().then((_) {
       if (mounted) {
-        NavigationService.navigateToAndClearStack(AppRoutes.home);
+        NavigationService.navigateToAndClearStack(
+          AppRoutes.home,
+          arguments: {'hasJustSeenPaywall': widget.hasJustSeenPaywall},
+        );
       }
     });
   }
