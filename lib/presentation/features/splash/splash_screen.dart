@@ -68,25 +68,17 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-  Future<void> _startInitializationSequence() async {
+  void _startInitializationSequence() {
     print('🚀 Enhanced SplashScreen: Starting initialization sequence...');
-    
-    // Fase 1: Mostrar logo (300ms delay)
-    await Future.delayed(const Duration(milliseconds: 300));
-    
-    // Fase 2: Mostrar título (600ms después del logo)
-    await Future.delayed(const Duration(milliseconds: 600));
-    if (mounted) {
-      _titleController.forward();
-    }
-    
-    // Fase 3: Mostrar indicador de progreso (900ms después del título)
-    await Future.delayed(const Duration(milliseconds: 900));
-    if (mounted) {
-      setState(() {
-        _showProgressIndicator = true;
-      });
-    }
+
+    // Iniciar animaciones de UI inmediatamente
+    _titleController.forward();
+
+    // Mostrar el indicador de progreso y comenzar la inicialización real
+    // sin delays artificiales.
+    setState(() {
+      _showProgressIndicator = true;
+    });
   }
 
   Future<void> _completeInitialization() async {
@@ -155,7 +147,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
       body: AnimatedGradientBackground(
         duration: const Duration(seconds: 3),
         child: Stack(
@@ -237,6 +231,7 @@ class _SplashScreenState extends State<SplashScreen>
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }

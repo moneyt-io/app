@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart'; // Necesario para TimeOfDay
+import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../../core/services/backup_service.dart';
 import '../../../domain/repositories/backup_repository.dart'; // Para BackupMetadata y BackupSettings
+import '../../../core/di/injection_container.dart';
 
 /// Provider para gestionar el estado relacionado con las copias de seguridad.
 ///
@@ -148,6 +150,70 @@ class BackupProvider extends ChangeNotifier {
       _clearError();
     } catch (e) {
       _setError('Error al compartir la copia de seguridad: ${e.toString()}');
+    }
+  }
+
+    /// Permite al usuario seleccionar un archivo de backup externo y restaurarlo.
+  Future<void> restoreBackupFromFile(BuildContext context) async {
+    if (_isLoading) return;
+
+    try {
+      // 1. Abrir el selector de archivos
+      final result = await FilePicker.platform.pickFiles();
+      if (result == null || result.files.single.path == null) {
+        // Usuario canceló la selección
+        return;
+      }
+
+      final filePath = result.files.single.path!;
+      final fileName = result.files.single.name;
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+      // 2. Pedir confirmación al usuario
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Restaurar desde archivo externo'),
+          content: Text('¿Estás seguro de que deseas restaurar desde "$fileName"? La base de datos actual será reemplazada.'),
+          actions: [
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+            ),
+            TextButton(
+              child: Text('Restaurar', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmed != true) return;
+
+      // 3. Ejecutar la restauración
+      _setLoading(true);
+      await _backupService.restoreBackupFromExternalFile(filePath);
+      _clearError();
+
+      // Reiniciar todas las dependencias para recargar el estado de la app
+      await resetDependencies();
+
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Restauración completada y datos actualizados.')),
+      );
+
+    } catch (e) {
+      _setError('Error durante la restauración: ${e.toString()}');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al restaurar: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      _setLoading(false);
     }
   }
 

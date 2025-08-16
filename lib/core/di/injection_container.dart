@@ -74,3 +74,9 @@ Future<void> initializeDependencies() async {
 
   _dependenciesInitialized = true;
 }
+
+Future<void> resetDependencies() async {
+  await getIt.reset(dispose: true);
+  _dependenciesInitialized = false;
+  await initializeDependencies();
+}

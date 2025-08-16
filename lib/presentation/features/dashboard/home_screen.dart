@@ -1,7 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../../../core/services/paywall_service.dart';
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../domain/entities/transaction_entry.dart';
 import '../../../domain/usecases/transaction_usecases.dart';
@@ -23,7 +26,8 @@ import 'widgets/recent_transactions_widget.dart';
 class HomeScreen extends StatefulWidget {
   final bool hasJustSeenPaywall;
 
-  const HomeScreen({Key? key, this.hasJustSeenPaywall = false}) : super(key: key);
+  const HomeScreen({Key? key, this.hasJustSeenPaywall = false})
+      : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -66,27 +70,50 @@ class _HomeScreenState extends State<HomeScreen> {
     await Future.delayed(const Duration(milliseconds: 500));
 
     try {
-      final paywallService = GetIt.instance<PaywallService>();
+      final prefs = await SharedPreferences.getInstance();
+      final hasShownPaywall =
+          prefs.getBool('hasShownPostOnboardingPaywall') ?? false;
 
-      // 1. Verificar si el usuario ya tiene una suscripción activa usando el SDK de Superwall.
-      final isSubscribed = Superwall.shared.subscriptionStatus is SubscriptionStatusActive;
-
-      // 2. Si el usuario acaba de ver la paywall (desde el onboarding), no la mostramos de nuevo.
-      if (widget.hasJustSeenPaywall) {
-        print(' HomeScreen: User has just seen paywall. Skipping trigger for this session.');
+      // 1. Si ya se mostró la paywall post-onboarding, no hacer nada.
+      if (hasShownPaywall) {
+        print(' HomeScreen: Post-onboarding paywall already shown. Skipping.');
         return;
       }
 
-      // 3. Si no está suscrito y el widget está montado, mostrar el paywall.
-      if (!isSubscribed && mounted) {
-        print(' HomeScreen: User is not subscribed. Triggering paywall...');
-        paywallService.registerEvent('campaign_trigger');
-      } else {
-        print(' HomeScreen: User is subscribed or widget not mounted. Skipping paywall.');
+      // 2. Verificar si el usuario ya tiene una suscripción activa.
+      final isSubscribed =
+          Superwall.shared.subscriptionStatus is SubscriptionStatusActive;
+      if (isSubscribed) {
+        print(' HomeScreen: User is already subscribed. Skipping paywall.');
+        // Marcar como mostrada para no volver a verificar
+        await prefs.setBool('hasShownPostOnboardingPaywall', true);
+        return;
+      }
+
+      // 3. Si el usuario acaba de ver la paywall (desde el onboarding), no la mostramos de nuevo en esta sesión.
+      if (widget.hasJustSeenPaywall) {
+        print(
+            ' HomeScreen: User has just seen paywall. Skipping trigger for this session.');
+        return;
+      }
+
+      // 4. Si no está suscrito, no se ha mostrado antes y el widget está montado, mostrar el paywall.
+      if (mounted) {
+        print(
+            ' HomeScreen: User is not subscribed. Triggering paywall for the first time...');
+        _triggerPaywall();
+        // Marcar como mostrada para que no vuelva a aparecer automáticamente.
+        await prefs.setBool('hasShownPostOnboardingPaywall', true);
       }
     } catch (e) {
       print(' HomeScreen: Error trying to show paywall: $e');
     }
+  }
+
+  void _triggerPaywall() {
+    final paywallService = GetIt.instance<PaywallService>();
+    paywallService.registerEvent('moneyt_pro');
+    print('Paywall event registered');
   }
 
   Future<void> _loadDashboardData() async {
@@ -216,87 +243,96 @@ class _HomeScreenState extends State<HomeScreen> {
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF8FAFC), // HTML: bg-slate-50
       drawer: const AppDrawer(),
-      body: Column(
+      body: Stack(
         children: [
-          // Header with blur effect
-          Container(
-            color: const Color(0xFFF8FAFC)
-                .withOpacity(0.8), // HTML: bg-slate-50/80
-            child: SafeArea(
-              bottom: false,
-              child: GreetingHeader(
-                onMenuPressed: _openDrawer,
-                onEditPressed:
-                    _navigateToDashboardWidgets, // ✅ CORREGIDO: Navegar a widgets config
-              ),
-            ),
-          ),
-
           // Main content
-          Expanded(
-            child: _isLoading
-                ? _buildLoadingState()
-                : SingleChildScrollView(
-                    padding:
-                        const EdgeInsets.only(bottom: 100), // Space for FAB
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 16), // HTML: mt-4
+          _isLoading
+              ? _buildLoadingState()
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.only(
+                    top: 100, // Space for header
+                    bottom: 100, // Space for FAB
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 16), // HTML: mt-4
 
-                        // Balance Summary Widget
-                        BalanceSummaryWidget(
-                          totalBalance: _totalBalance,
-                          income: _income,
-                          expenses: _expenses,
-                          isBalanceVisible: _isBalanceVisible,
-                          onVisibilityToggle: () {
-                            setState(() {
-                              _isBalanceVisible = !_isBalanceVisible;
-                            });
-                          },
-                        ),
+                      // Balance Summary Widget
+                      BalanceSummaryWidget(
+                        totalBalance: _totalBalance,
+                        income: _income,
+                        expenses: _expenses,
+                        isBalanceVisible: _isBalanceVisible,
+                        onVisibilityToggle: () {
+                          setState(() {
+                            _isBalanceVisible = !_isBalanceVisible;
+                          });
+                        },
+                      ),
 
-                        const SizedBox(height: 24), // HTML: space-y-6
+                      const SizedBox(height: 24), // HTML: space-y-6
 
-                        // Quick Actions
-                        QuickActionsGrid(
-                          onExpensePressed: () =>
-                              _navigateToTransactionForm(type: 'E'),
-                          onIncomePressed: () =>
-                              _navigateToTransactionForm(type: 'I'),
-                          onTransferPressed: () =>
-                              _navigateToTransactionForm(type: 'T'),
-                          onAllPressed: () => NavigationService.navigateTo(
-                              AppRoutes.transactions),
-                        ),
+                      // Quick Actions
+                      QuickActionsGrid(
+                        onExpensePressed: () =>
+                            _navigateToTransactionForm(type: 'E'),
+                        onIncomePressed: () =>
+                            _navigateToTransactionForm(type: 'I'),
+                        onTransferPressed: () =>
+                            _navigateToTransactionForm(type: 'T'),
+                        onAllPressed: () => NavigationService.navigateTo(
+                            AppRoutes.transactions),
+                      ),
 
-                        const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                        // Wallets Widget
-                        WalletsDashboardWidget(
-                          wallets: _walletItems,
-                          totalCount: _totalWalletsCount,
-                          onHeaderTap: () =>
-                              NavigationService.navigateTo(AppRoutes.wallets),
-                          onWalletTap: (wallet) {
-                            // TODO: Navigate to wallet detail
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('View ${wallet.name} details'),
-                                backgroundColor: const Color(0xFF0c7ff2),
-                              ),
-                            );
-                          },
-                        ),
+                      // Wallets Widget
+                      WalletsDashboardWidget(
+                        wallets: _walletItems,
+                        totalCount: _totalWalletsCount,
+                        onHeaderTap: () =>
+                            NavigationService.navigateTo(AppRoutes.wallets),
+                        onWalletTap: (wallet) {
+                          // TODO: Navigate to wallet detail
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('View ${wallet.name} details'),
+                              backgroundColor: const Color(0xFF0c7ff2),
+                            ),
+                          );
+                        },
+                      ),
 
-                        const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                        RecentTransactionsWidget(
-                            transactions: _recentTransactions),
-                        // TODO: Add Chart of Accounts Widget
-                      ],
+                      RecentTransactionsWidget(
+                          transactions: _recentTransactions),
+                      const SizedBox(height: 24),
+                      _buildCustomizeButton(),
+                      // TODO: Add Chart of Accounts Widget
+                    ],
+                  ),
+                ),
+          // Header with blur effect
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
+                child: Container(
+                  color: const Color(0xFFF8FAFC).withOpacity(0.8),
+                  child: SafeArea(
+                    bottom: false,
+                    child: GreetingHeader(
+                      onMenuPressed: _openDrawer,
+                      onStarPressed: _triggerPaywall,
                     ),
                   ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -336,5 +372,25 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
-}
 
+  Widget _buildCustomizeButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: OutlinedButton.icon(
+        onPressed: _navigateToDashboardWidgets,
+        icon: const Icon(Icons.edit, color: Color(0xFF64748B), size: 20), // text-slate-500
+        label: const Text(
+          'Personalizar',
+          style: TextStyle(color: Color(0xFF64748B)), // text-slate-500
+        ),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 50), // Full width
+          side: const BorderSide(color: Color(0xFFE2E8F0)), // border-slate-200
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -72,19 +72,20 @@ class _SplashProgressIndicatorState extends State<SplashProgressIndicator>
       // Animar entrada del texto
       _textController.forward();
       
-      // Esperar duración del estado
-      await Future.delayed(widget.stateDuration);
+      // Se elimina el Future.delayed para no introducir esperas artificiales.
+      // La duración de la animación del texto ahora controla el ritmo.
       
       // Animar salida del texto
       await _textController.reverse();
     }
 
-    // Completar progreso
-    await _progressController.forward();
-    
-    if (mounted) {
-      widget.onComplete();
-    }
+    // Una vez que todos los estados de texto se han mostrado, 
+    // se completa la barra de progreso y se llama a onComplete.
+    _progressController.forward().whenComplete(() {
+      if (mounted) {
+        widget.onComplete();
+      }
+    });
   }
 
   @override

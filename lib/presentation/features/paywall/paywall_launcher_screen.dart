@@ -27,7 +27,7 @@ class _PaywallLauncherScreenState extends State<PaywallLauncherScreen> {
       final paywallService = GetIt.instance<PaywallService>();
       // Registramos el evento que dispara la paywall de Superwall.
       // El método de Superwall maneja la presentación de la UI.
-      await paywallService.registerEvent('campaign_trigger');
+      await paywallService.registerEvent('moneyt_pro');
     } catch (e) {
       print('PaywallLauncherScreen: Error triggering paywall: $e');
       // Si hay un error, continuamos al login para no bloquear al usuario.

@@ -58,17 +58,17 @@ class _BackupScreenState extends State<BackupScreen> {
         children: [
           // ✅ AGREGADO: Filter Section basado en backup_list.html
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8), // HTML: px-4 pb-4
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(
               children: [
                 // Quick Filter Tabs
                 BackupFilterTabs(
-                  selectedFilter: _selectedFilter,
-                  onFilterChanged: (filter) {
-                    setState(() {
-                      _selectedFilter = filter;
-                    });
-                  },
+                    selectedFilter: _selectedFilter,
+                    onFilterChanged: (filter) {
+                      setState(() {
+                        _selectedFilter = filter;
+                      });
+                    },
                 ),
                 
                 const SizedBox(height: 12), // HTML: space-y-3
@@ -129,11 +129,23 @@ class _BackupScreenState extends State<BackupScreen> {
         ],
       ),
       
-      // ✅ AGREGADO: FAB para crear backup
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _createNewBackup(context),
-        backgroundColor: AppColors.primaryBlue,
-        child: const Icon(Icons.backup, size: 32),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () => _importBackupFromFile(context),
+            heroTag: 'import_backup_fab',
+            backgroundColor: AppColors.success,
+            child: const Icon(Icons.upload_file, size: 32),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            onPressed: () => _createNewBackup(context),
+            heroTag: 'create_backup_fab',
+            backgroundColor: AppColors.primaryBlue,
+            child: const Icon(Icons.backup, size: 32),
+          ),
+        ],
       ),
     );
   }
@@ -323,6 +335,11 @@ class _BackupScreenState extends State<BackupScreen> {
         backgroundColor: AppColors.primaryBlue,
       ),
     );
+  }
+
+  Future<void> _importBackupFromFile(BuildContext context) async {
+    final backupProvider = Provider.of<BackupProvider>(context, listen: false);
+    await backupProvider.restoreBackupFromFile(context);
   }
 
   // --- Métodos de Acción ---

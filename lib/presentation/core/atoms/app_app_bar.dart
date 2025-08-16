@@ -3,35 +3,35 @@ import 'dart:ui';
 
 /// Tipos de AppBar basados en las maquetas HTML
 enum AppAppBarType {
-  standard,  // contact_list.html: bg-white shadow-sm
-  blur,      // contact_form.html, contact_detail.html: bg-slate-50/80 backdrop-blur-md
+  standard, // contact_list.html: bg-white shadow-sm
+  blur, // contact_form.html, contact_detail.html: bg-slate-50/80 backdrop-blur-md
 }
 
 /// Tipos de botón leading basados en las maquetas HTML
 enum AppAppBarLeading {
   none,
-  back,      // arrow_back_ios_new - contact_detail.html
-  close,     // close - contact_form.html
-  drawer,    // arrow_back_ios_new (pero para drawer) - contact_list.html
+  back, // arrow_back_ios_new - contact_detail.html
+  close, // close - contact_form.html
+  drawer, // arrow_back_ios_new (pero para drawer) - contact_list.html
   custom,
 }
 
 /// Tipos de acciones basados en las maquetas HTML
 enum AppAppBarAction {
   none,
-  search,    // search - contact_list.html
-  edit,      // edit - contact_detail.html
-  menu,      // more_vert
+  search, // search - contact_list.html
+  edit, // edit - contact_detail.html
+  menu, // more_vert
   custom,
 }
 
 /// AppBar reutilizable que sigue exactamente el diseño de las maquetas HTML
-/// 
+///
 /// Basado en:
 /// - contact_list.html: AppBar standard con shadow y search
 /// - contact_form.html: AppBar blur con close button
 /// - contact_detail.html: AppBar blur con back y edit buttons
-/// 
+///
 /// Ejemplo de uso:
 /// ```dart
 /// AppAppBar(
@@ -77,7 +77,8 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: type == AppAppBarType.blur
           ? ClipRect(
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12), // HTML: backdrop-blur-md
+                filter: ImageFilter.blur(
+                    sigmaX: 12, sigmaY: 12), // HTML: backdrop-blur-md
                 child: _buildAppBarContent(context),
               ),
             )
@@ -118,12 +119,12 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
           children: [
             // Botón leading
             _buildLeadingButton(context),
-            
+
             // Título (con flex para centrado)
             Expanded(
               child: _buildTitle(),
             ),
-            
+
             // Botones de acción
             ..._buildActionButtons(),
           ],
@@ -159,7 +160,8 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
         defaultCallback = () => Navigator.of(context).pop();
         break;
       case AppAppBarLeading.drawer:
-        iconData = Icons.arrow_back_ios_new; // HTML: arrow_back_ios_new (para drawer)
+        iconData =
+            Icons.arrow_back_ios_new; // HTML: arrow_back_ios_new (para drawer)
         // ✅ CORREGIDO: No usar Scaffold.of aquí, usar onLeadingPressed directamente
         defaultCallback = null; // El callback debe venir del padre
         break;
@@ -174,13 +176,16 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onLeadingPressed ?? defaultCallback, // ✅ CORREGIDO: Usar onLeadingPressed primero
+          onTap: onLeadingPressed ??
+              defaultCallback, // ✅ CORREGIDO: Usar onLeadingPressed primero
           borderRadius: BorderRadius.circular(20),
           child: Center(
             child: Icon(
               iconData,
               color: const Color(0xFF475569), // HTML: text-slate-600
-              size: leading == AppAppBarLeading.close ? 24 : 20, // HTML: text-2xl para close
+              size: leading == AppAppBarLeading.close
+                  ? 24
+                  : 20, // HTML: text-2xl para close
             ),
           ),
         ),

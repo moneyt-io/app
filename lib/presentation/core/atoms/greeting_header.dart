@@ -19,11 +19,11 @@ class GreetingHeader extends StatelessWidget {
   const GreetingHeader({
     Key? key,
     required this.onMenuPressed,
-    required this.onEditPressed,
+    required this.onStarPressed,
   }) : super(key: key);
 
   final VoidCallback onMenuPressed;
-  final VoidCallback onEditPressed;
+  final VoidCallback onStarPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -86,24 +86,25 @@ class GreetingHeader extends StatelessWidget {
           // Action buttons
           Row(
             children: [
-              // Edit button
+              // Star button
               Material(
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
                 child: InkWell(
-                  onTap: onEditPressed,
+                  onTap: onStarPressed,
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
-                    width: 40, // HTML: h-10 w-10
+                    width: 40,
                     height: 40,
                     child: const Icon(
-                      Icons.edit,
-                      color: Color(0xFF475569), // HTML: text-slate-600
-                      size: 24,
+                      Icons.star,
+                      color: Color(0xFFEAB308), // amber-500
+                      size: 28,
                     ),
                   ),
                 ),
               ),
+
             ],
           ),
         ],

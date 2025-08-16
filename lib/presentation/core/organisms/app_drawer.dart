@@ -126,7 +126,13 @@ class _AppDrawerState extends State<AppDrawer> {
             borderRadius: BorderRadius.circular(12), // rounded-xl
             child: InkWell(
               onTap: () {
-                // TODO: Implementar dropdown de usuario
+                if (authProvider.isGuest) {
+                  // Si es invitado, cerrar drawer y navegar a la pantalla de login/auth
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushNamed(AppRoutes.login);
+                } else {
+                  // TODO: Implementar dropdown para usuario logueado (ej: ver perfil, cerrar sesión)
+                }
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(

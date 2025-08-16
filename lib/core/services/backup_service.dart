@@ -35,6 +35,20 @@ class BackupService {
     }
   }
 
+  /// Restaura la base de datos desde un archivo externo especificado por su ruta.
+  Future<void> restoreBackupFromExternalFile(String path) async {
+    try {
+      final externalFile = File(path);
+      if (!await externalFile.exists()) {
+        throw Exception('El archivo seleccionado no existe.');
+      }
+      // Llama al método de restauración del repositorio con el objeto File.
+      await _repository.restoreBackup(externalFile);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// Obtiene la lista de archivos de backup disponibles.
   Future<List<File>> listBackups() async {
     try {
