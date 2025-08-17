@@ -1,36 +1,27 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../design_system/tokens/app_dimensions.dart';
 import '../design_system/tokens/app_colors.dart';
 
-/// Acción del FAB expandible
+/// Data class for an action in the ExpandableFab.
 class FabAction {
   const FabAction({
     required this.icon,
     required this.label,
     required this.onPressed,
-    required this.backgroundColor,
+    this.backgroundColor,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onPressed;
-  final Color backgroundColor;
+  final Color? backgroundColor;
 }
 
-/// FAB expandible que usa el mismo estilo visual que AppFloatingActionButton
-/// Solo se diferencia en que puede expandir múltiples acciones
-/// 
-/// HTML Reference:
-/// ```html
-/// <div class="fixed bottom-6 right-6 z-50">
-///   <div id="fab-actions" class="hidden flex flex-col items-end gap-3 mb-3">
-///     <!-- Action buttons with labels -->
-///   </div>
-///   <button id="main-fab" class="flex items-center justify-center rounded-2xl h-16 w-16 bg-[#0c7ff2]">
-///     <span id="fab-icon" class="material-symbols-outlined text-3xl">add</span>
-///   </button>
-/// </div>
-/// ```
+/// An expandable Floating Action Button that displays multiple actions in a modern,
+/// animated fashion. It features a blurred overlay, staggered animations, and
+/// haptic feedback for a premium user experience.
 class ExpandableFab extends StatefulWidget {
   const ExpandableFab({
     Key? key,
@@ -45,236 +36,199 @@ class ExpandableFab extends StatefulWidget {
 
 class _ExpandableFabState extends State<ExpandableFab>
     with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _animation;
+  final _layerLink = LayerLink();
+  late AnimationController _controller;
+  late Animation<double> _expandAnimation;
   bool _isExpanded = false;
-  OverlayEntry? _overlayEntry; // ✅ AGREGADO: Overlay entry para pantalla completa
+  OverlayEntry? _overlayEntry;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
+    _controller = AnimationController(
+      value: 0.0,
+      duration: const Duration(milliseconds: 250),
       vsync: this,
     );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
+    _expandAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.fastOutSlowIn,
     );
   }
 
   @override
   void dispose() {
-    _overlayEntry?.remove(); // ✅ AGREGADO: Limpiar overlay
-    _animationController.dispose();
+    _controller.dispose();
+    _overlayEntry?.remove();
     super.dispose();
   }
 
   void _toggleExpansion() {
+    HapticFeedback.lightImpact();
     if (_isExpanded) {
-      _closeExpansion();
+      _close();
     } else {
-      _showExpansion();
+      _open();
     }
   }
 
-  void _showExpansion() {
-    setState(() {
-      _isExpanded = true;
-    });
-    _animationController.forward();
-    
-    // ✅ CORREGIDO: Crear overlay que ocupa toda la pantalla pero los action buttons van por encima
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          // Overlay de fondo
-          GestureDetector(
-            onTap: _closeExpansion,
-            child: Container(
-              color: Colors.black.withOpacity(0.2), // HTML: bg-black/20
-            ),
-          ),
-          
-          // ✅ CORREGIDO: Action buttons alineados con el centro del FAB principal
-          Positioned(
-            bottom: 16, // Mismo padding que el FAB
-            right: 16 + (AppDimensions.fabSize / 2) - 24, // ✅ CENTRADO: right edge del FAB - mitad del action button (48/2 = 24)
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center, // ✅ CENTRADO: Cambiar a center
-              children: [
-                // Action buttons animados
-                AnimatedBuilder(
-                  animation: _animation,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _animation.value,
-                      child: Opacity(
-                        opacity: _animation.value,
-                        child: _isExpanded ? _buildActionButtons() : const SizedBox.shrink(),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 12),
-                // Espacio para el FAB principal (que se renderiza separadamente)
-                SizedBox(
-                  width: AppDimensions.fabSize,
-                  height: AppDimensions.fabSize,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-    
-    Overlay.of(context).insert(_overlayEntry!);
+  void _open() {
+    setState(() => _isExpanded = true);
+    _controller.forward();
+    _overlayEntry = _buildOverlayEntry();
+    Overlay.of(context).insert(_overlayEntry!); 
   }
 
-  void _closeExpansion() {
-    if (_isExpanded) {
-      setState(() {
-        _isExpanded = false;
-      });
-      _animationController.reverse();
-      
-      // ✅ AGREGADO: Remover overlay
+  void _close() {
+    setState(() => _isExpanded = false);
+    _controller.reverse().whenComplete(() {
       _overlayEntry?.remove();
       _overlayEntry = null;
-    }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        // Main FAB
-        Container(
-          width: AppDimensions.fabSize,
-          height: AppDimensions.fabSize,
-          decoration: BoxDecoration(
-            color: AppColors.primaryBlue,
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: SizedBox(
+        width: AppDimensions.fabSize,
+        height: AppDimensions.fabSize,
+        child: FloatingActionButton(
+          elevation: 6.0,
+          backgroundColor: AppColors.primaryBlue,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDimensions.fabBorderRadius),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 12,
-                offset: Offset(0, 4),
-              ),
-            ],
           ),
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(AppDimensions.fabBorderRadius),
-            child: InkWell(
-              onTap: _toggleExpansion,
-              borderRadius: BorderRadius.circular(AppDimensions.fabBorderRadius),
-              splashColor: const Color(0xFF1D4ED8).withOpacity(0.3),
-              child: Center(
-                // ✅ SOLUCION: Usar Transform.rotate en lugar de AnimatedRotation
-                child: AnimatedBuilder(
-                  animation: _animationController,
-                  builder: (context, child) {
-                    return Transform.rotate(
-                      angle: _animation.value * 0.785398, // 45 grados en radianes (π/4)
-                      child: Icon(
-                        Icons.add, // ✅ SIEMPRE usar el mismo ícono +
-                        size: AppDimensions.fabIconSize,
-                        color: Colors.white,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
+          child: RotationTransition(
+            turns: Tween<double>(begin: 0.0, end: 0.125).animate(_expandAnimation),
+            child: const Icon(Icons.add, color: Colors.white, size: AppDimensions.fabIconSize),
           ),
+          onPressed: _toggleExpansion,
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildActionButtons() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: widget.actions.map((action) => _buildActionButton(action)).toList(),
-    );
-  }
-
-  Widget _buildActionButton(FabAction action) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12), // HTML: gap-3
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // ✅ CORREGIDO: Label tooltip con mejor aislamiento visual
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // HTML: px-3 py-2
-            decoration: BoxDecoration(
-              color: Colors.black87, // ✅ CAMBIADO: Usar color más sólido sin opacity
-              borderRadius: BorderRadius.circular(8), // HTML: rounded-lg
-              boxShadow: const [
-                // ✅ AGREGADO: Sombra para separar del overlay
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Text(
-              action.label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14, // HTML: text-sm
-                fontWeight: FontWeight.w500, // HTML: font-medium
-                decoration: TextDecoration.none, // ✅ AGREGADO: Asegurar que no haya decoración
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 12), // HTML: gap-3
-
-          // Action button
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: action.backgroundColor,
-              shape: BoxShape.circle,
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 12,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              shape: const CircleBorder(),
-              child: InkWell(
-                onTap: () {
-                  _closeExpansion();
-                  action.onPressed();
-                },
-                customBorder: const CircleBorder(),
-                splashColor: Colors.white.withOpacity(0.2), // ✅ AGREGADO: Efecto de splash sutil
-                child: Center(
-                  child: Icon(
-                    action.icon,
-                    size: 20,
-                    color: Colors.white,
+  OverlayEntry _buildOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) {
+        return GestureDetector(
+          onTap: _close,
+          behavior: HitTestBehavior.translucent,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.25),
                   ),
                 ),
               ),
+              CompositedTransformFollower(
+                link: _layerLink,
+                showWhenUnlinked: false,
+                targetAnchor: Alignment.topRight,
+                followerAnchor: Alignment.bottomRight,
+                offset: const Offset(0, -12.0),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: _buildActionItems(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildActionItems() {
+    final children = <Widget>[];
+    final count = widget.actions.length;
+    const step = 0.5 / 3; // Distribute animation over the first half
+
+    for (var i = 0; i < count; i++) {
+      final action = widget.actions[i];
+      final animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: _controller,
+          curve: Interval(i * step, 1.0, curve: Curves.easeOutCubic),
+        ),
+      );
+
+      children.add(
+        FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.5),
+              end: Offset.zero,
+            ).animate(animation),
+            child: _ActionButton(
+              action: action,
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                _close();
+                action.onPressed();
+              },
             ),
           ),
-        ],
+        ),
+      );
+    }
+    return children;
+  }
+}
+
+/// A private widget to represent a single action button in the ExpandableFab.
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    Key? key,
+    required this.action,
+    required this.onPressed,
+  }) : super(key: key);
+
+  final FabAction action;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isLight = theme.brightness == Brightness.light;
+    final chipColor = isLight ? Colors.white : theme.colorScheme.surface;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0, right: 4.0),
+      child: Material(
+        shape: const StadiumBorder(),
+        clipBehavior: Clip.antiAlias,
+        color: chipColor,
+        elevation: 4.0,
+        child: InkWell(
+          onTap: onPressed,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  action.label,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Icon(action.icon, size: 20, color: action.backgroundColor),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

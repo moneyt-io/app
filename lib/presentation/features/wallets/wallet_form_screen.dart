@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
+
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/chart_account.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/usecases/chart_account_usecases.dart';
-import '../../core/atoms/app_app_bar.dart'; // ✅ REFACTORIZADO: Usar AppAppBar atomizado
-import '../../core/atoms/app_floating_label_field.dart'; // ✅ REUTILIZADO: Para name y description
-import '../../core/atoms/currency_selector_button.dart'; // ✅ NUEVO: Para currency selection
-import '../../core/atoms/parent_wallet_selector_button.dart'; // ✅ NUEVO: Para parent wallet
-import '../../core/molecules/form_action_bar.dart'; // ✅ REUTILIZADO: Footer buttons
+import '../../core/atoms/app_app_bar.dart';
+import '../../core/atoms/app_floating_label_field.dart';
+import '../../core/atoms/currency_selector_button.dart';
+import '../../core/atoms/parent_wallet_selector_button.dart';
+import '../../core/molecules/form_action_bar.dart';
 import '../../core/molecules/error_message_card.dart';
-import '../../core/molecules/currency_selection_dialog.dart'; // ✅ AGREGADO: Import del diálogo de currency
-import '../../core/molecules/parent_wallet_selection_dialog.dart'; // ✅ AGREGADO: Import del diálogo de parent wallet
+import '../../core/molecules/currency_selection_dialog.dart';
+import '../../core/molecules/parent_wallet_selection_dialog.dart';
 import '../../navigation/navigation_service.dart';
+import 'wallet_provider.dart';
 
 class WalletFormScreen extends StatefulWidget {
   final Wallet? wallet;
@@ -30,7 +33,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
   
   String _selectedCurrency = 'USD';
   int? _selectedParentId;
-  String? _selectedParentName; // ✅ NUEVO: Para mostrar nombre del parent
+  String? _selectedParentName; 
   List<Wallet> _parentWallets = [];
 
   bool _isLoading = false;
@@ -44,7 +47,6 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
   late final WalletUseCases _walletUseCases;
   late final ChartAccountUseCases _chartAccountUseCases;
 
-  // ✅ REFACTORIZADO: Lista de currencies mejorada con nombres completos
   final List<Map<String, String>> _currencies = [
     {'id': 'USD', 'name': 'US Dollar', 'symbol': '\$'},
     {'id': 'EUR', 'name': 'Euro', 'symbol': '€'},
@@ -113,14 +115,13 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
       final allWallets = await _walletUseCases.getAllWallets();
       final potentialParents = allWallets
           .where((w) => !isEditing || w.id != widget.wallet!.id)
-          .where((w) => w.parentId == null) // Solo wallets padre
+          .where((w) => w.parentId == null) 
           .toList();
 
       if (mounted) {
         setState(() {
           _parentWallets = potentialParents;
           
-          // ✅ NUEVO: Buscar nombre del parent seleccionado
           if (_selectedParentId != null) {
             final parentWallet = potentialParents.firstWhere(
               (w) => w.id == _selectedParentId,
@@ -149,7 +150,6 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
     super.dispose();
   }
 
-  // ✅ ACTUALIZADO: Método para mostrar currency selector
   void _showCurrencySelector() async {
     final result = await CurrencySelectionDialog.show(
       context: context,
@@ -163,7 +163,6 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
     }
   }
 
-  // ✅ ACTUALIZADO: Método para mostrar parent wallet selector
   void _showParentWalletSelector() async {
     if (_parentWallets.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -187,7 +186,6 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
         _selectedParentName = result.name;
       });
     } else {
-      // Si se retorna null explícitamente, significa "No parent"
       setState(() {
         _selectedParentId = null;
         _selectedParentName = null;
@@ -197,67 +195,51 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
 
   Future<void> _saveWallet() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() {
       _isLoading = true;
       _error = null;
     });
 
+    final walletProvider = Provider.of<WalletProvider>(context, listen: false);
+
     try {
-      final now = DateTime.now();
-      
       if (isEditing) {
-        // Actualización de wallet existente
         final wallet = Wallet(
           id: widget.wallet!.id,
           parentId: _selectedParentId,
           currencyId: _selectedCurrency,
-          chartAccountId: widget.wallet!.chartAccountId, // Mantener la cuenta existente
+          chartAccountId: widget.wallet!.chartAccountId,
           name: _nameController.text.trim(),
           description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
-          active: true,
+          active: widget.wallet!.active,
           createdAt: widget.wallet!.createdAt,
-          updatedAt: now,
+          updatedAt: DateTime.now(),
           deletedAt: null,
         );
-
-        await _walletUseCases.updateWallet(wallet);
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Billetera actualizada con éxito'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
-          
-          NavigationService.goBack(wallet);
-        }
+        await walletProvider.updateWallet(wallet);
       } else {
-        // ✅ SIMPLIFICADO: Creación de nueva wallet sin initial balance
-        final wallet = await _walletUseCases.createWalletWithAccount(
-          parentId: _selectedParentId,
+        await walletProvider.createWalletWithAccount(
           name: _nameController.text.trim(),
           description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
           currencyId: _selectedCurrency,
+          parentId: _selectedParentId,
         );
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Billetera creada con éxito'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
-          
-          NavigationService.goBack(wallet);
-        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isEditing ? 'Billetera actualizada con éxito' : 'Billetera creada con éxito'),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+        );
+        NavigationService.goBack();
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _error = e.toString();
-          _isLoading = false;
         });
       }
     } finally {
@@ -269,7 +251,6 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ NUEVO: Obtener nombre de currency seleccionada
     final selectedCurrencyData = _currencies.firstWhere(
       (currency) => currency['id'] == _selectedCurrency,
       orElse: () => _currencies.first,

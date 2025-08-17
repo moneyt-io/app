@@ -1,4 +1,5 @@
 // lib/domain/repositories/transaction_repository.dart
+import '../entities/transaction.dart';
 import '../entities/transaction_entry.dart';
 import '../entities/transaction_detail.dart';
 
@@ -6,13 +7,16 @@ abstract class TransactionRepository {
   // Consultas básicas
   Future<List<TransactionEntry>> getAllTransactions();
   Future<TransactionEntry?> getTransactionById(int id);
+  Future<TransactionEntity?> getTransactionEntityById(int id);
   Future<List<TransactionEntry>> getTransactionsByType(String documentTypeId);
   Stream<List<TransactionEntry>> watchAllTransactions();
   Future<List<TransactionEntry>> getTransactionsByDateRange(DateTime startDate, DateTime endDate);
   
   // CRUD Operations
   Future<TransactionEntry> createTransaction(TransactionEntry transaction, List<TransactionDetail> details);
-  Future<void> updateTransaction(TransactionEntry transaction);
+  Future<void> updateTransaction(TransactionEntity transaction);
+  @Deprecated('Use updateTransaction with TransactionEntity instead')
+  Future<void> updateTransactionEntry(TransactionEntry transaction);
   Future<void> deleteTransaction(int id);
 
   // Métodos específicos por tipo

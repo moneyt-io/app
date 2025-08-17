@@ -76,10 +76,11 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
   Future<bool> updateTransactionDetail(TransactionDetailsCompanion detail) =>
       update(transactionDetail).replace(detail);
 
-  Future<int> deleteTransactionDetails(int transactionId) =>
-      (delete(transactionDetail)
-            ..where((t) => t.transactionId.equals(transactionId)))
-          .go();
+  Future<int> deleteTransactionDetails(int transactionId) {
+    return (delete(transactionDetail)
+          ..where((t) => t.transactionId.equals(transactionId)))
+        .go();
+  }
 
   // Utilidades
   Future<int> getNextSecuencial(String documentTypeId) async {

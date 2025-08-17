@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
 import '../../../../domain/entities/transaction_entry.dart';
 import '../../../core/atoms/widget_card_header.dart';
 import '../../../navigation/app_routes.dart';
 import '../../../navigation/navigation_service.dart';
+import '../../transactions/transaction_provider.dart';
 
 /// Widget de transacciones recientes para dashboard basado en dashboard_main.html
 ///
@@ -13,13 +16,14 @@ import '../../../navigation/navigation_service.dart';
 ///   <div class="flex items-center justify-between p-4 border-b border-slate-100">
 /// ```
 class RecentTransactionsWidget extends StatelessWidget {
-  final List<TransactionEntry> transactions;
 
-  const RecentTransactionsWidget({Key? key, required this.transactions})
-      : super(key: key);
+  const RecentTransactionsWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<TransactionProvider>();
+    final transactions = provider.transactions;
+    final categoriesMap = provider.categoriesMap;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16), // HTML: mx-4
       decoration: BoxDecoration(
@@ -57,7 +61,10 @@ class RecentTransactionsWidget extends StatelessWidget {
               child: Column(
                 children: [
                   // First 5 transactions
-                  ...transactions.take(5).map((transaction) => _buildTransactionItem(transaction)),
+                  ...transactions
+                      .take(5)
+                      .map((transaction) =>
+                          _buildTransactionItem(transaction, categoriesMap)),
 
                   // More transactions indicator
                   if (transactions.length > 5) ...[
@@ -80,10 +87,19 @@ class RecentTransactionsWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTransactionItem(TransactionEntry transaction) {
+  Widget _buildTransactionItem(
+      TransactionEntry transaction, Map<int, String> categoriesMap) {
     final isIncome = transaction.isIncome;
     final isTransfer = transaction.documentTypeId == 'T';
-    
+
+    final categoryName = transaction.mainCategoryId != null
+        ? categoriesMap[transaction.mainCategoryId]
+        : null;
+
+    final title = transaction.description?.isNotEmpty == true
+        ? transaction.description!
+        : (categoryName ?? 'Transaction');
+
     // Determine colors and icons based on transaction type
     Color iconColor;
     Color iconBackgroundColor;
@@ -140,7 +156,7 @@ class RecentTransactionsWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        transaction.description ?? 'Transaction',
+                        title,
                         style: const TextStyle(
                           fontSize: 14, // HTML: text-sm
                           fontWeight: FontWeight.w500, // HTML: font-medium

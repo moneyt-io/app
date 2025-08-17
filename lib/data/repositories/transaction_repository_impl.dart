@@ -1,5 +1,7 @@
+import 'package:drift/drift.dart' as drift;
 import 'package:injectable/injectable.dart';
 import '../../domain/entities/transaction_entry.dart';
+import '../../domain/entities/transaction.dart';
 import '../../domain/entities/transaction_detail.dart';
 import '../../domain/repositories/transaction_repository.dart';
 import '../datasources/local/daos/transaction_dao.dart';
@@ -59,6 +61,32 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
+  Future<TransactionEntity?> getTransactionEntityById(int id) async {
+    final result = await _transactionDao.getTransactionById(id);
+    if (result == null) return null;
+
+    final details = await _transactionDao.getTransactionDetailsForEntry(result.id);
+
+    // Asumimos que el primer detalle tiene la información principal que necesitamos
+    final mainDetail = details.isNotEmpty ? details.first : null;
+
+    return TransactionEntity(
+      id: result.id,
+      type: result.documentTypeId,
+      flow: mainDetail?.flowId ?? '',
+      amount: result.amount,
+      accountId: mainDetail?.paymentId ?? 0,
+      categoryId: mainDetail?.categoryId,
+      reference: null, // Este campo no parece estar en el modelo de BD
+      contactId: result.contactId,
+      description: result.description,
+      transactionDate: result.date,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    );
+  }
+
+  @override
   Stream<List<TransactionEntry>> watchAllTransactions() {
     return _transactionDao.watchAllTransactions().asyncMap((entries) async {
       final transactionsWithDetails = <TransactionEntry>[];
@@ -104,7 +132,66 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
-  Future<void> updateTransaction(TransactionEntry transaction) async {
+  Future<void> updateTransaction(TransactionEntity transaction) async {
+    // 1. Obtener la transacción original para no perder datos
+    final originalTransaction = await _transactionDao.getTransactionById(transaction.id!);
+    if (originalTransaction == null) {
+      throw Exception('Transaction with id ${transaction.id} not found');
+    }
+
+    // 2. Crear el companion con los datos actualizados y preservando los existentes
+    final transactionCompanion = TransactionEntriesCompanion(
+      id: drift.Value(transaction.id!),
+      documentTypeId: drift.Value(transaction.type),
+      currencyId: drift.Value(originalTransaction.currencyId),
+      journalId: drift.Value(originalTransaction.journalId),
+      secuencial: drift.Value(originalTransaction.secuencial),
+      rateExchange: drift.Value(originalTransaction.rateExchange),
+      contactId: drift.Value(transaction.contactId ?? 0),
+      date: drift.Value(transaction.transactionDate),
+      amount: drift.Value(transaction.amount),
+      description: drift.Value(transaction.description),
+      updatedAt: drift.Value(DateTime.now()),
+    );
+
+    // 2. Actualizar la entrada principal de la transacción
+    await _transactionDao.updateTransaction(transactionCompanion);
+
+    // 3. Actualizar los detalles de la transacción. En lugar de eliminar y crear,
+    // se actualiza el primer detalle existente para preservar su ID.
+    // NOTA: Esta lógica asume un solo detalle para ingresos/gastos y necesita
+    // ser expandida para manejar correctamente las transferencias con múltiples detalles.
+    final existingDetails = await _transactionDao.getTransactionDetailsForEntry(transaction.id!);
+
+    if (existingDetails.isNotEmpty) {
+      final detailToUpdate = existingDetails.first;
+      
+      // TODO: El paymentTypeId debe determinarse dinámicamente a partir de la
+      // información de la cuenta, en lugar de estar hardcodeado.
+      final paymentTypeId = 'W';
+
+      final detailCompanion = TransactionDetailsCompanion(
+        id: drift.Value(detailToUpdate.id), // Preservar el ID original
+        transactionId: drift.Value(transaction.id!),
+        flowId: drift.Value(transaction.flow),
+        paymentId: drift.Value(transaction.accountId),
+        categoryId: drift.Value(transaction.categoryId ?? 0),
+        amount: drift.Value(transaction.amount),
+        currencyId: drift.Value(detailToUpdate.currencyId), // Preservar original
+        paymentTypeId: drift.Value(paymentTypeId),
+        rateExchange: drift.Value(detailToUpdate.rateExchange), // Preservar original
+      );
+
+      await _transactionDao.updateTransactionDetail(detailCompanion);
+    } else {
+      // Como fallback, si no hay detalles, se podría lanzar un error.
+      // Esto no debería ocurrir en una transacción existente.
+      throw Exception('No details found for transaction id ${transaction.id} to update.');
+    }
+  }
+
+  @Deprecated('Use updateTransaction with TransactionEntity instead')
+  Future<void> updateTransactionEntry(TransactionEntry transaction) async {
     final transactionModel = TransactionEntryModel.fromEntity(transaction);
     await _transactionDao.updateTransaction(transactionModel.toCompanion());
   }
@@ -126,7 +213,6 @@ class TransactionRepositoryImpl implements TransactionRepository {
     return transactions;
   }
 
-  @override
   Future<List<TransactionEntry>> getTransactionsByContact(int contactId) async {
     final results = await _transactionDao.getTransactionsByContact(contactId);
     final transactions = <TransactionEntry>[];
@@ -386,7 +472,6 @@ class TransactionRepositoryImpl implements TransactionRepository {
     return await createTransaction(transaction, details);
   }
 
-  @override
   Future<TransactionEntry> createCreditCardExpenseTransaction({
     required DateTime date,
     required String description,
@@ -432,7 +517,6 @@ class TransactionRepositoryImpl implements TransactionRepository {
     return await createTransaction(transaction, details);
   }
 
-  @override
   Future<TransactionEntry> createLoanTransaction({
     required DateTime date,
     required String description,

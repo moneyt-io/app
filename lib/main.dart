@@ -12,6 +12,8 @@ import 'presentation/core/l10n/generated/strings.g.dart';
 import 'presentation/features/backup/backup_provider.dart';
 import 'presentation/features/loans/loan_provider.dart';
 import 'presentation/features/contacts/contact_provider.dart';
+import 'presentation/features/transactions/transaction_provider.dart';
+import 'presentation/features/wallets/wallet_provider.dart';
 import 'presentation/features/auth/auth_provider.dart' as app_auth;
 import 'core/services/data_seed_service.dart';
 import 'core/constants/app_storage_keys.dart';
@@ -88,6 +90,20 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => ContactProvider(GetIt.instance()),
+        ),
+        ChangeNotifierProvider(create: (_) => TransactionProvider()),
+        ChangeNotifierProxyProvider<TransactionProvider, WalletProvider>(
+          // WalletProvider is created here with its direct dependencies.
+          create: (context) => WalletProvider(
+            GetIt.instance(), // WalletUseCases
+            GetIt.instance(), // BalanceCalculationService
+          ),
+          // Whenever TransactionProvider notifies listeners, this 'update' is called.
+          update: (context, transactionProvider, walletProvider) {
+            // Notifies WalletProvider to recalculate balances and update its state.
+            walletProvider?.recalculateBalances();
+            return walletProvider!;
+          },
         ),
       ],
       child: const MoneyTApp(),

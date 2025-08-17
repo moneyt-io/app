@@ -15,8 +15,10 @@ class TransactionsSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
+    final List<Widget> summaryWidgets = [];
+
+    if (totalIncome > 0) {
+      summaryWidgets.add(
         Expanded(
           child: TransactionSummaryCard(
             title: 'Income',
@@ -25,7 +27,14 @@ class TransactionsSummary extends StatelessWidget {
             backgroundColor: const Color(0xFF22C55E), // green-500
           ),
         ),
-        const SizedBox(width: 12),
+      );
+    }
+
+    if (totalExpense > 0) {
+      if (summaryWidgets.isNotEmpty) {
+        summaryWidgets.add(const SizedBox(width: 12));
+      }
+      summaryWidgets.add(
         Expanded(
           child: TransactionSummaryCard(
             title: 'Expense',
@@ -34,7 +43,14 @@ class TransactionsSummary extends StatelessWidget {
             backgroundColor: const Color(0xFFEF4444), // red-500
           ),
         ),
-        const SizedBox(width: 12),
+      );
+    }
+
+    if (totalTransfer > 0) {
+      if (summaryWidgets.isNotEmpty) {
+        summaryWidgets.add(const SizedBox(width: 12));
+      }
+      summaryWidgets.add(
         Expanded(
           child: TransactionSummaryCard(
             title: 'Transfer',
@@ -43,7 +59,15 @@ class TransactionsSummary extends StatelessWidget {
             backgroundColor: const Color(0xFF3B82F6), // blue-500
           ),
         ),
-      ],
+      );
+    }
+
+    if (summaryWidgets.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Row(
+      children: summaryWidgets,
     );
   }
 }

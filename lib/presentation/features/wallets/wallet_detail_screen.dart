@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../../../domain/entities/wallet.dart';
+import '../../core/atoms/app_app_bar.dart';
+import '../../navigation/navigation_service.dart';
 
 class WalletDetailScreen extends StatelessWidget {
   final Wallet wallet;
@@ -9,8 +12,12 @@ class WalletDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(wallet.name),
+      backgroundColor: const Color(0xFFF8FAFC), // slate-50
+      appBar: AppAppBar(
+        title: wallet.name,
+        type: AppAppBarType.blur,
+        leading: AppAppBarLeading.back,
+        onLeadingPressed: () => NavigationService.goBack(),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

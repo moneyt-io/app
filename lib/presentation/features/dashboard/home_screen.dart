@@ -6,10 +6,9 @@ import '../../../core/services/paywall_service.dart';
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../domain/entities/transaction_entry.dart';
-import '../../../domain/usecases/transaction_usecases.dart';
-import '../../../domain/usecases/wallet_usecases.dart';
-import '../../../domain/usecases/journal_usecases.dart';
+import 'package:provider/provider.dart';
+import '../wallets/wallet_provider.dart';
+import '../../features/transactions/transaction_provider.dart';
 import '../../../domain/services/balance_calculation_service.dart';
 import '../../core/atoms/greeting_header.dart';
 import '../../core/atoms/expandable_fab.dart';
@@ -35,33 +34,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  late final WalletUseCases _walletUseCases;
-  late final TransactionUseCases _transactionUseCases;
-  late final JournalUseCases _journalUseCases;
   final _balanceCalculationService =
       GetIt.instance<BalanceCalculationService>();
 
   // Dashboard data
-  double _totalBalance = 0.0;
   double _income = 0.0;
   double _expenses = 0.0;
   bool _isBalanceVisible = true;
 
-  // Wallets data
-  List<WalletDisplayItem> _walletItems = [];
-  int _totalWalletsCount = 5;
-
-  List<TransactionEntry> _recentTransactions = [];
-  bool _isLoading = true;
-
   @override
   void initState() {
     super.initState();
-    _walletUseCases = GetIt.instance<WalletUseCases>();
-    _transactionUseCases = GetIt.instance<TransactionUseCases>();
-    _journalUseCases = GetIt.instance<JournalUseCases>();
-    _loadDashboardData();
-    _showPaywallIfNeeded(); // AÑADIDO: Llamada para mostrar la paywall.
+    // Data loading is handled by providers. We just need to calculate summary.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _calculateMonthlySummary();
+      }
+    });
+    _showPaywallIfNeeded();
   }
 
   // AÑADIDO: Método para mostrar la paywall si el usuario no está suscrito.
@@ -116,112 +106,29 @@ class _HomeScreenState extends State<HomeScreen> {
     print('Paywall event registered');
   }
 
-  Future<void> _loadDashboardData() async {
-    if (!mounted) return;
-    setState(() => _isLoading = true);
+  void _calculateMonthlySummary() {
+    final transactionProvider = context.read<TransactionProvider>();
+    final now = DateTime.now();
+    final transactions = transactionProvider.transactions
+        .where((t) => t.date.year == now.year && t.date.month == now.month)
+        .toList();
 
-    try {
-      // Load wallets and calculate total balance
-      final totalBalance = await _loadWalletsData();
+    final income = _balanceCalculationService.calculateTotalIncome(transactions);
+    final expenses = _balanceCalculationService.calculateTotalExpense(transactions);
 
-      // Calculate income and expenses for the current month
-      final now = DateTime.now();
-
-      final allTransactions = await _transactionUseCases.getAllTransactions();
-      final transactions = allTransactions
-          .where((t) => t.date.year == now.year && t.date.month == now.month)
-          .toList();
-      final income =
-          _balanceCalculationService.calculateTotalIncome(transactions);
-      final expenses =
-          _balanceCalculationService.calculateTotalExpense(transactions);
-
-      // Load recent transactions for the list
-      await _loadRecentTransactions();
-
-      if (mounted) {
-        setState(() {
-          _totalBalance = totalBalance;
-          _income = income;
-          _expenses = expenses;
-        });
-      }
-    } catch (e) {
-      print('Error loading dashboard data: $e');
-      // Optionally, show an error message to the user
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    if (mounted) {
+      setState(() {
+        _income = income;
+        _expenses = expenses;
+      });
     }
   }
 
-  Future<double> _loadWalletsData() async {
-    try {
-      final wallets = await _walletUseCases.getAllWallets();
-      // Filter for active wallets that are children (have a parentId)
-      final activeWallets =
-          wallets.where((w) => w.active && w.parentId != null).toList();
 
-      final List<WalletDisplayItem> walletItems = [];
-      double totalBalance = 0.0;
-
-      for (var wallet in activeWallets) {
-        final balanceData =
-            await _journalUseCases.getAccountBalance(wallet.chartAccountId);
-        final balance = balanceData['balance'] ?? 0.0;
-        totalBalance += balance;
-        walletItems.add(WalletDisplayItem(
-          id: wallet.id,
-          name: wallet.name,
-          balance: balance,
-          icon: Icons.account_balance_wallet,
-          iconColor: Colors.white,
-          iconBackgroundColor: Colors.blue,
-        ));
-      }
-
-      if (mounted) {
-        setState(() {
-          // Show only the first 3 wallets in the dashboard carousel
-          _walletItems = walletItems.take(3).toList();
-        });
-      }
-
-      return totalBalance;
-    } catch (e) {
-      print('❌ HomeScreen: Error loading wallets data: $e');
-      if (mounted) {
-        setState(() {
-          _walletItems = [];
-        });
-      }
-      return 0.0;
-    }
-  }
-
-  Future<void> _loadRecentTransactions() async {
-    try {
-      final transactions = await _transactionUseCases.getAllTransactions();
-      if (mounted) {
-        setState(() {
-          _recentTransactions = transactions.take(5).toList();
-        });
-      }
-    } catch (e) {
-      print('Error loading transactions: $e');
-    }
-  }
-
-  void _navigateToTransactionForm({String type = 'E'}) async {
-    final result = await NavigationService.navigateTo(AppRoutes.transactionForm,
-        arguments: {
-          'initialType': type,
-        });
-
-    if (result == true) {
-      _loadDashboardData();
-    }
+  void _navigateToTransactionForm({String type = 'E'}) {
+    NavigationService.navigateTo(AppRoutes.transactionForm, arguments: {
+      'initialType': type,
+    });
   }
 
   void _openDrawer() {
@@ -243,98 +150,104 @@ class _HomeScreenState extends State<HomeScreen> {
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF8FAFC), // HTML: bg-slate-50
       drawer: const AppDrawer(),
-      body: Stack(
-        children: [
-          // Main content
-          _isLoading
-              ? _buildLoadingState()
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.only(
-                    top: 100, // Space for header
-                    bottom: 100, // Space for FAB
-                  ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 16), // HTML: mt-4
+      body: Consumer<WalletProvider>(
+        builder: (context, walletProvider, child) {
+          if (walletProvider.isLoading) {
+            return _buildLoadingState();
+          }
 
-                      // Balance Summary Widget
-                      BalanceSummaryWidget(
-                        totalBalance: _totalBalance,
-                        income: _income,
-                        expenses: _expenses,
-                        isBalanceVisible: _isBalanceVisible,
-                        onVisibilityToggle: () {
-                          setState(() {
-                            _isBalanceVisible = !_isBalanceVisible;
-                          });
-                        },
-                      ),
+          // Map wallets to display items
+          final walletItems = walletProvider.wallets
+              .where((w) => w.parentId != null) // Show only child accounts on dashboard
+              .map((wallet) => WalletDisplayItem(
+                    id: wallet.id,
+                    name: wallet.name,
+                    balance: walletProvider.walletBalances[wallet.id] ?? 0.0,
+                    icon: Icons.account_balance_wallet,
+                    iconColor: Colors.white,
+                    iconBackgroundColor: Colors.blue,
+                  ))
+              .toList();
 
-                      const SizedBox(height: 24), // HTML: space-y-6
-
-                      // Quick Actions
-                      QuickActionsGrid(
-                        onExpensePressed: () =>
-                            _navigateToTransactionForm(type: 'E'),
-                        onIncomePressed: () =>
-                            _navigateToTransactionForm(type: 'I'),
-                        onTransferPressed: () =>
-                            _navigateToTransactionForm(type: 'T'),
-                        onAllPressed: () => NavigationService.navigateTo(
-                            AppRoutes.transactions),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Wallets Widget
-                      WalletsDashboardWidget(
-                        wallets: _walletItems,
-                        totalCount: _totalWalletsCount,
-                        onHeaderTap: () =>
-                            NavigationService.navigateTo(AppRoutes.wallets),
-                        onWalletTap: (wallet) {
-                          // TODO: Navigate to wallet detail
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('View ${wallet.name} details'),
-                              backgroundColor: const Color(0xFF0c7ff2),
-                            ),
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      RecentTransactionsWidget(
-                          transactions: _recentTransactions),
-                      const SizedBox(height: 24),
-                      _buildCustomizeButton(),
-                      // TODO: Add Chart of Accounts Widget
-                    ],
-                  ),
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.only(
+                  top: 100, // Space for header
+                  bottom: 100, // Space for FAB
                 ),
-          // Header with blur effect
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
-                child: Container(
-                  color: const Color(0xFFF8FAFC).withOpacity(0.8),
-                  child: SafeArea(
-                    bottom: false,
-                    child: GreetingHeader(
-                      onMenuPressed: _openDrawer,
-                      onStarPressed: _triggerPaywall,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16), // HTML: mt-4
+                    BalanceSummaryWidget(
+                      totalBalance: walletProvider.totalBalance,
+                      income: _income,
+                      expenses: _expenses,
+                      isBalanceVisible: _isBalanceVisible,
+                      onVisibilityToggle: () {
+                        setState(() {
+                          _isBalanceVisible = !_isBalanceVisible;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 24), // HTML: space-y-6
+                    QuickActionsGrid(
+                      onExpensePressed: () =>
+                          _navigateToTransactionForm(type: 'E'),
+                      onIncomePressed: () =>
+                          _navigateToTransactionForm(type: 'I'),
+                      onTransferPressed: () =>
+                          _navigateToTransactionForm(type: 'T'),
+                      onAllPressed: () =>
+                          NavigationService.navigateTo(AppRoutes.transactions),
+                    ),
+                    const SizedBox(height: 24),
+                    WalletsDashboardWidget(
+                      wallets: walletItems.take(3).toList(), // Show first 3
+                      totalCount: walletProvider.wallets.length,
+                      onHeaderTap: () =>
+                          NavigationService.navigateTo(AppRoutes.wallets),
+                      onWalletTap: (wallet) {
+                        // TODO: Navigate to wallet detail
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('View ${wallet.name} details'),
+                            backgroundColor: const Color(0xFF0c7ff2),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    RecentTransactionsWidget(),
+                    const SizedBox(height: 24),
+                    _buildCustomizeButton(),
+                  ],
+                ),
+              ),
+              // Header with blur effect
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
+                    child: Container(
+                      color: const Color(0xFFF8FAFC).withOpacity(0.8),
+                      child: SafeArea(
+                        bottom: false,
+                        child: GreetingHeader(
+                          onMenuPressed: _openDrawer,
+                          onStarPressed: _triggerPaywall,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
       floatingActionButton: _buildExpandableFAB(),
     );

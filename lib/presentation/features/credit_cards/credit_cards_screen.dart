@@ -17,6 +17,7 @@ import '../../core/molecules/empty_state.dart';
 import '../../core/atoms/gradient_container.dart';
 import '../../core/atoms/credit_card_chip.dart';
 import '../../core/organisms/app_drawer.dart'; // ✅ AGREGADO: Import del drawer
+import '../../core/organisms/sliver_filter_header_delegate.dart';
 import '../../navigation/navigation_service.dart';
 import '../../navigation/app_routes.dart';
 import '../../core/molecules/credit_card_options_dialog.dart'; // ✅ AGREGADO: Import del nuevo diálogo
@@ -350,51 +351,59 @@ class _CreditCardsScreenState extends State<CreditCardsScreen> {
   }
 
   Widget _buildBody() {
-    return Column(
-      children: [
-        // ✅ CORREGIDO: Alinear filtros a la izquierda como en WalletsScreen
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16), // HTML: px-4 py-4 similar a wallets
-          child: CreditCardFilters(
-            selectedFilter: _selectedFilter,
-            onFilterChanged: (filter) {
-              setState(() {
-                _selectedFilter = filter;
-              });
-            },
+    return CustomScrollView(
+      slivers: [
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: SliverFilterHeaderDelegate(
+            height: 72, // 40 (filter) + 16*2 (padding)
+            blur: true,
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: CreditCardFilters(
+                selectedFilter: _selectedFilter,
+                onFilterChanged: (filter) {
+                  setState(() {
+                    _selectedFilter = filter;
+                  });
+                },
+              ),
+            ),
           ),
         ),
-        
-        // Content
-        Expanded(
-          child: _buildContent(),
-        ),
+        _buildContentSlivers(),
       ],
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContentSlivers() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const SliverFillRemaining(
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (_error != null) {
-      return Center(child: Text('Error: $_error'));
+      return SliverFillRemaining(
+        child: Center(child: Text('Error: $_error')),
+      );
     }
 
     if (_creditCards.isEmpty) {
-      return const EmptyState(
-        icon: Icons.credit_card,
-        title: 'No credit cards',
-        message: 'Add your first credit card to get started',
+      return const SliverFillRemaining(
+        child: EmptyState(
+          icon: Icons.credit_card,
+          title: 'No credit cards',
+          message: 'Add your first credit card to get started',
+        ),
       );
     }
 
     final filteredCards = _filteredCreditCards;
 
-    return SingleChildScrollView(
-      child: Column(
+    return SliverList(delegate: SliverChildListDelegate([
+      Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Credit Summary
@@ -447,7 +456,7 @@ class _CreditCardsScreenState extends State<CreditCardsScreen> {
           const SizedBox(height: 80), // Space for FAB
         ],
       ),
-    );
+    ]));
   }
 }
 

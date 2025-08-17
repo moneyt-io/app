@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:provider/provider.dart';
 
 import '../../../domain/entities/transaction.dart';
 import '../../../domain/entities/category.dart';
@@ -12,7 +13,6 @@ import '../../../domain/entities/credit_card.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/usecases/category_usecases.dart';
 import '../../../domain/usecases/contact_usecases.dart';
-import '../../../domain/usecases/transaction_usecases.dart';
 import '../../../domain/usecases/credit_card_usecases.dart';
 
 import '../../core/atoms/app_app_bar.dart';
@@ -26,8 +26,10 @@ import '../../core/atoms/app_floating_label_selector.dart';
 import 'widgets/transaction_type_toggle.dart';
 import 'widgets/account_selection_dialog.dart';
 import 'package:collection/collection.dart';
+import '../../core/formatters/currency_input_formatter.dart';
 import '../categories/widgets/category_selection_dialog.dart' as cat_dialog;
 import '../contacts/widgets/contact_selection_dialog.dart' as contact_dialog;
+import 'transaction_provider.dart';
 
 class TransactionFormScreen extends StatefulWidget {
   final TransactionEntity? transaction;
@@ -73,7 +75,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   final _walletUseCases = GetIt.instance<WalletUseCases>();
   final _categoryUseCases = GetIt.instance<CategoryUseCases>();
   final _contactUseCases = GetIt.instance<ContactUseCases>();
-  final _transactionUseCases = GetIt.instance<TransactionUseCases>();
 
   // UI Getters
   bool get isTransfer => _selectedType == 'T';
@@ -93,7 +94,36 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     _amountFocusNode.addListener(() => setState(() {}));
     _descriptionFocusNode.addListener(() => setState(() {}));
 
-    _loadData().then((_) => _initializeFormData());
+    _loadData().then((_) {
+      _initializeFormData();
+      if (!isEditing) {
+        // Use a post-frame callback to ensure the UI is built before showing dialogs
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _startInitialSelectionFlow();
+        });
+      }
+    });
+  }
+
+  Future<void> _startInitialSelectionFlow() async {
+    // 1. Show source account selector.
+    await _showAccountSelector(isSource: true);
+    if (!mounted || _selectedAccount == null) return;
+
+    // 2. If it's a transfer, show the destination account selector.
+    if (isTransfer) {
+      await _showAccountSelector(isSource: false);
+      if (!mounted || _selectedToAccount == null) return;
+    } else {
+      // 3. If it's an income/expense, show the category selector.
+      await _selectCategory();
+      if (!mounted || _selectedCategoryId == null) return;
+    }
+
+    // 4. Finally, focus the amount field.
+    if (mounted) {
+      FocusScope.of(context).requestFocus(_amountFocusNode);
+    }
   }
 
   @override
@@ -189,7 +219,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   void _initializeFormData() {
     if (isEditing) {
       final t = widget.transaction!;
-      _amountController.text = t.amount.toString();
+      _amountController.text = t.amount.abs().toString();
       _descriptionController.text = t.description ?? '';
       _selectedDate = t.transactionDate;
       _selectedCategoryId = t.categoryId;
@@ -364,7 +394,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
 
     try {
       double amount =
-          double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
+          double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0.0;
 
       if (isTransfer) {
         amount = amount.abs();
@@ -386,10 +416,29 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       }
 
       if (isEditing) {
-        // TODO: Implementar edición
+        final updatedTransaction = TransactionEntity(
+          id: widget.transaction!.id,
+          type: _selectedType,
+          flow: isIncome ? 'T' : 'F', // To or From
+          amount: amount.abs(),
+          accountId: paymentId,
+          categoryId: _selectedCategoryId,
+          contactId: _selectedContactId,
+          description: _descriptionController.text,
+          transactionDate: _selectedDate,
+          createdAt:
+              widget.transaction!.createdAt, // Keep original creation date
+          updatedAt: DateTime.now(),
+          reference: isTransfer ? _selectedToAccount?.name : null,
+        );
+
+        await context
+            .read<TransactionProvider>()
+            .updateTransaction(updatedTransaction);
       } else {
+        final transactionProvider = context.read<TransactionProvider>();
         if (isExpense) {
-          await _transactionUseCases.createExpense(
+          await transactionProvider.createExpense(
             date: _selectedDate,
             description: _descriptionController.text,
             amount: amount.abs(),
@@ -400,7 +449,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             contactId: _selectedContactId,
           );
         } else if (isIncome) {
-          await _transactionUseCases.createIncome(
+          await transactionProvider.createIncome(
             date: _selectedDate,
             description: _descriptionController.text,
             amount: amount,
@@ -410,7 +459,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             contactId: _selectedContactId,
           );
         } else if (isTransfer) {
-          await _transactionUseCases.createTransfer(
+          await transactionProvider.createTransfer(
             date: _selectedDate,
             description: _descriptionController.text,
             amount: amount,
@@ -429,7 +478,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Transacción guardada con éxito')),
         );
-        Navigator.of(context).pop(true);
+        Navigator.of(context).pop(); // Go back to the previous screen
       }
     } catch (e) {
       if (mounted) {
@@ -461,15 +510,21 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(child: Text(_error!))
-              : Form(
-                  key: _formKey,
-                  child: _buildFormContent(),
+              : Column(
+                  children: [
+                    Expanded(
+                      child: Form(
+                        key: _formKey,
+                        child: _buildFormContent(),
+                      ),
+                    ),
+                    FormActionBar(
+                      onCancel: () => Navigator.of(context).pop(),
+                      onSave: _saveTransaction,
+                      isLoading: _isLoading,
+                    ),
+                  ],
                 ),
-      bottomNavigationBar: FormActionBar(
-        onCancel: () => Navigator.of(context).pop(),
-        onSave: _saveTransaction,
-        isLoading: _isLoading,
-      ),
     );
   }
 
@@ -492,10 +547,12 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         // Amount
         AppFloatingLabelField(
           controller: _amountController,
+          focusNode: _amountFocusNode, // This was missing
           label: 'Amount',
           placeholder: '0.00',
           prefixIcon: Icons.attach_money,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [CurrencyInputFormatter()],
           validator: (value) =>
               (value == null || value.isEmpty) ? 'Amount is required' : null,
         ),
@@ -547,8 +604,12 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                   : 'Select category',
               onTap: _selectCategory,
               hasValue: _selectedCategoryId != null,
-              iconColor: isIncome ? const Color(0xFF16A34A) : const Color(0xFFDC2626), // green-600 or red-600
-              iconBackgroundColor: isIncome ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2)), // green-100 or red-100
+              iconColor: isIncome
+                  ? const Color(0xFF16A34A)
+                  : const Color(0xFFDC2626), // green-600 or red-600
+              iconBackgroundColor: isIncome
+                  ? const Color(0xFFDCFCE7)
+                  : const Color(0xFFFEE2E2)), // green-100 or red-100
         ],
 
         const SizedBox(height: 24),
@@ -558,7 +619,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             label: 'Contact (optional)',
             icon: Icons.person_outline,
             value: _selectedContactId != null
-                ? _contacts.firstWhereOrNull((c) => c.id == _selectedContactId)?.name ?? 'Select contact'
+                ? _contacts
+                        .firstWhereOrNull((c) => c.id == _selectedContactId)
+                        ?.name ??
+                    'Select contact'
                 : 'Select contact',
             onTap: _selectContact,
             hasValue: _selectedContactId != null,

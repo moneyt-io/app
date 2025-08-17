@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import '../entities/transaction.dart';
 import '../entities/transaction_entry.dart';
 import '../repositories/transaction_repository.dart';
 import '../repositories/journal_repository.dart';
@@ -28,6 +29,9 @@ class TransactionUseCases {
 
   Future<TransactionEntry?> getTransactionById(int id) =>
       _transactionRepository.getTransactionById(id);
+
+  Future<TransactionEntity?> getTransactionEntityById(int id) =>
+      _transactionRepository.getTransactionEntityById(id);
 
   Future<List<TransactionEntry>> getTransactionsByType(String documentTypeId) =>
       _transactionRepository.getTransactionsByType(documentTypeId);
@@ -246,8 +250,12 @@ class TransactionUseCases {
   }
 
   // CRUD Operations para transacciones existentes
-  Future<void> updateTransaction(TransactionEntry transaction) =>
+  Future<void> updateTransaction(TransactionEntity transaction) =>
       _transactionRepository.updateTransaction(transaction);
+
+  @Deprecated('Use updateTransaction with TransactionEntity instead')
+  Future<void> updateTransactionEntry(TransactionEntry transaction) =>
+      _transactionRepository.updateTransactionEntry(transaction);
 
   Future<void> deleteTransaction(int id) =>
       _transactionRepository.deleteTransaction(id);
