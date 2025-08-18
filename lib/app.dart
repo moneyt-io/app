@@ -16,28 +16,28 @@ class MoneyTApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'MoneyT',
-          
+
           // AGREGADO: Configurar navigatorKey
           navigatorKey: NavigationService.navigatorKey,
-          
+
           // ✅ CORREGIDO: Configuración de rutas
           initialRoute: AppRoutes.splash, // Empezar en splash
           onGenerateRoute: AppRouter.generateRoute, // Usar AppRouter
-          
+
           // Configuración de localización básica
           locale: const Locale('es', 'ES'), // SIMPLIFICADO: español por defecto
           supportedLocales: const [
             Locale('en', 'US'),
             Locale('es', 'ES'),
           ], // SIMPLIFICADO: locales básicos
-          
+
           // Delegados de localización MANUALES
           localizationsDelegates: [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          
+
           // Configuración de tema
           theme: themeProvider.lightTheme,
           darkTheme: themeProvider.darkTheme,

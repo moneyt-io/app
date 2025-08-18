@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get_it/get_it.dart';
 import '../constants/app_storage_keys.dart';
 import '../../data/datasources/local/database.dart';
+import '../../data/datasources/local/seeds/domain_seeds.dart';
 import '../../data/datasources/local/seeds/reference_seeds.dart';
 
 /// Servicio para gestionar la inicialización de datos (seeds) de la aplicación
@@ -159,6 +160,10 @@ class DataSeedService {
       
       // Ejecutar seeds principales
       await ReferenceSeeds.seedAll(database);
+
+      print('🌱 $_logTag: Executing domain seeds...');
+      // Ejecutar seeds de dominio (Wallets, Categorías, etc.)
+      await DomainSeeds.seedAll();
       
       print('🔍 $_logTag: Validating seed data...');
       

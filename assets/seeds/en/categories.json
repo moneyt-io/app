@@ -1,0 +1,121 @@
+{
+    "income": [
+      {
+        "name": "Employment", "icon": "work",
+        "children": [
+          { "name": "Monthly Salary", "icon": "payments" },
+          { "name": "Commissions", "icon": "trending_up" },
+          { "name": "Bonuses", "icon": "account_balance" }
+        ]
+      },
+      {
+        "name": "Freelance Work", "icon": "business_center",
+        "children": [
+          { "name": "Freelance Projects", "icon": "code" },
+          { "name": "Consulting", "icon": "support_agent" },
+          { "name": "Sales", "icon": "point_of_sale" }
+        ]
+      },
+      {
+        "name": "Interest & Investments", "icon": "show_chart",
+        "children": [
+          { "name": "Bank Yields", "icon": "savings" },
+          { "name": "Policy Interest", "icon": "policy" },
+          { "name": "Property Rent", "icon": "real_estate_agent" }
+        ]
+      },
+      {
+        "name": "Other", "icon": "category",
+        "children": [
+          { "name": "Cash Gift", "icon": "card_giftcard" },
+          { "name": "Asset Sale", "icon": "sell" },
+          { "name": "Refunds", "icon": "assignment_return" }
+        ]
+      }
+    ],
+    "expense": [
+      {
+        "name": "Food", "icon": "fastfood",
+        "children": [
+          { "name": "Groceries", "icon": "shopping_cart" },
+          { "name": "Restaurants", "icon": "restaurant" },
+          { "name": "Bars / Cafes", "icon": "local_bar" }
+        ]
+      },
+      {
+        "name": "Transportation", "icon": "commute",
+        "children": [
+          { "name": "Public Transit / Taxis", "icon": "local_taxi" },
+          { "name": "Fuel", "icon": "local_gas_station" },
+          { "name": "Maintenance & Repairs", "icon": "build" },
+          { "name": "Insurance & Registration", "icon": "receipt_long" }
+        ]
+      },
+      {
+        "name": "Housing", "icon": "home",
+        "children": [
+          { "name": "Rent", "icon": "house" },
+          { "name": "Utilities", "icon": "lightbulb" },
+          { "name": "Internet", "icon": "wifi" },
+          { "name": "Maintenance", "icon": "construction" }
+        ]
+      },
+      {
+        "name": "Personal Care", "icon": "face",
+        "children": [
+          { "name": "Clothing & Accessories", "icon": "checkroom" },
+          { "name": "Haircut", "icon": "content_cut" },
+          { "name": "Toiletries", "icon": "soap" },
+          { "name": "Gym", "icon": "fitness_center" }
+        ]
+      },
+      {
+        "name": "Education", "icon": "school",
+        "children": [
+          { "name": "Courses / Tuition", "icon": "menu_book" },
+          { "name": "Books & Supplies", "icon": "book" }
+        ]
+      },
+      {
+        "name": "Health", "icon": "healing",
+        "children": [
+          { "name": "Health Insurance", "icon": "health_and_safety" },
+          { "name": "Medication", "icon": "medication" },
+          { "name": "Medical Appointments", "icon": "event" }
+        ]
+      },
+      {
+        "name": "Family & Children", "icon": "family_restroom",
+        "children": [
+          { "name": "Childcare", "icon": "child_care" },
+          { "name": "Clothing", "icon": "child_friendly" },
+          { "name": "Toys", "icon": "toys" },
+          { "name": "Activities", "icon": "sports_esports" }
+        ]
+      },
+      {
+        "name": "Entertainment & Leisure", "icon": "celebration",
+        "children": [
+          { "name": "Subscriptions", "icon": "subscriptions" },
+          { "name": "Outings / Events", "icon": "theaters" },
+          { "name": "Hobbies", "icon": "sports_soccer" }
+        ]
+      },
+      {
+        "name": "Financial Obligations", "icon": "account_balance_wallet",
+        "children": [
+          { "name": "Taxes", "icon": "request_quote" },
+          { "name": "Bank Fees", "icon": "payment" },
+          { "name": "Debt Interest", "icon": "trending_down" }
+        ]
+      },
+      {
+        "name": "Other Expenses", "icon": "receipt",
+        "children": [
+          { "name": "Gifts", "icon": "redeem" },
+          { "name": "Donations", "icon": "volunteer_activism" },
+          { "name": "Unexpected Expenses", "icon": "priority_high" }
+        ]
+      }
+    ]
+  }

@@ -1,0 +1,21 @@
+[
+  {
+    "name": "Cash",
+    "children": [
+      { "name": "Cash on Hand" }
+    ]
+  },
+  {
+    "name": "Bank Accounts",
+    "children": [
+      { "name": "Main Bank Account" }
+    ]
+  },
+  {
+    "name": "Savings & Investments",
+    "children": [
+      { "name": "Savings Account" },
+      { "name": "Investment Policy" }
+    ]
+  }
+]

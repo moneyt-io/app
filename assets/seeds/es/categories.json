@@ -1,0 +1,121 @@
+{
+  "income": [
+    {
+      "name": "Empleo", "icon": "work",
+      "children": [
+        { "name": "Salario mensual", "icon": "payments" },
+        { "name": "Comisiones", "icon": "trending_up" },
+        { "name": "Utilidades", "icon": "account_balance" }
+      ]
+    },
+    {
+      "name": "Trabajo independiente", "icon": "business_center",
+      "children": [
+        { "name": "Proyectos de freelance", "icon": "code" },
+        { "name": "Consultoría", "icon": "support_agent" },
+        { "name": "Ventas", "icon": "point_of_sale" }
+      ]
+    },
+    {
+      "name": "Intereses e inversiones", "icon": "show_chart",
+      "children": [
+        { "name": "Rendimientos bancarios", "icon": "savings" },
+        { "name": "Intereses de póliza", "icon": "policy" },
+        { "name": "Renta de propiedad", "icon": "real_estate_agent" }
+      ]
+    },
+    {
+      "name": "Otros", "icon": "category",
+      "children": [
+        { "name": "Regalo en efectivo", "icon": "card_giftcard" },
+        { "name": "Venta de activos", "icon": "sell" },
+        { "name": "Reembolsos", "icon": "assignment_return" }
+      ]
+    }
+  ],
+  "expense": [
+    {
+      "name": "Alimentación", "icon": "fastfood",
+      "children": [
+        { "name": "Mercado", "icon": "shopping_cart" },
+        { "name": "Restaurantes", "icon": "restaurant" },
+        { "name": "Bares / Cafés", "icon": "local_bar" }
+      ]
+    },
+    {
+      "name": "Transporte", "icon": "commute",
+      "children": [
+        { "name": "Transporte Público / Taxis", "icon": "local_taxi" },
+        { "name": "Combustible", "icon": "local_gas_station" },
+        { "name": "Mantenimiento y Reparaciones", "icon": "build" },
+        { "name": "Seguros y Matrícula", "icon": "receipt_long" }
+      ]
+    },
+    {
+      "name": "Vivienda", "icon": "home",
+      "children": [
+        { "name": "Renta", "icon": "house" },
+        { "name": "Servicios Básicos", "icon": "lightbulb" },
+        { "name": "Internet", "icon": "wifi" },
+        { "name": "Mantenimiento", "icon": "construction" }
+      ]
+    },
+    {
+      "name": "Cuidado Personal", "icon": "face",
+      "children": [
+        { "name": "Ropa y Accesorios", "icon": "checkroom" },
+        { "name": "Peluquería", "icon": "content_cut" },
+        { "name": "Aseo", "icon": "soap" },
+        { "name": "Gimnasio", "icon": "fitness_center" }
+      ]
+    },
+    {
+      "name": "Educación", "icon": "school",
+      "children": [
+        { "name": "Cursos / Colegiatura", "icon": "menu_book" },
+        { "name": "Libros y Materiales", "icon": "book" }
+      ]
+    },
+    {
+      "name": "Salud", "icon": "healing",
+      "children": [
+        { "name": "Seguro Médico", "icon": "health_and_safety" },
+        { "name": "Medicamentos", "icon": "medication" },
+        { "name": "Citas Médicas", "icon": "event" }
+      ]
+    },
+    {
+      "name": "Familia e Hijos", "icon": "family_restroom",
+      "children": [
+        { "name": "Cuidado de niños", "icon": "child_care" },
+        { "name": "Ropa", "icon": "child_friendly" },
+        { "name": "Juguetes", "icon": "toys" },
+        { "name": "Actividades", "icon": "sports_esports" }
+      ]
+    },
+    {
+      "name": "Entretenimiento y Ocio", "icon": "celebration",
+      "children": [
+        { "name": "Suscripciones", "icon": "subscriptions" },
+        { "name": "Salidas / Eventos", "icon": "theaters" },
+        { "name": "Hobbies", "icon": "sports_soccer" }
+      ]
+    },
+    {
+      "name": "Obligaciones Financieras", "icon": "account_balance_wallet",
+      "children": [
+        { "name": "Impuestos", "icon": "request_quote" },
+        { "name": "Comisiones Bancarias", "icon": "payment" },
+        { "name": "Intereses de Deudas", "icon": "trending_down" }
+      ]
+    },
+    {
+      "name": "Otros Gastos", "icon": "receipt",
+      "children": [
+        { "name": "Regalos", "icon": "redeem" },
+        { "name": "Donaciones", "icon": "volunteer_activism" },
+        { "name": "Gastos Imprevistos", "icon": "priority_high" }
+      ]
+    }
+  ]
+}

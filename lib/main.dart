@@ -22,17 +22,17 @@ import 'core/di/injection_container.dart';
 import 'core/services/paywall_service.dart';
 
 void main() async {
-  
   WidgetsFlutterBinding.ensureInitialized();
 
   // Hacer la barra de estado transparente
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent, // Color transparente
-    statusBarIconBrightness: Brightness.dark, // Iconos oscuros para el contenido claro
+    statusBarIconBrightness:
+        Brightness.dark, // Iconos oscuros para el contenido claro
   ));
-  
+
   print('🚀 MoneyT App: Starting initialization...');
-  
+
   // ✅ AGREGADO: Inicializar Firebase PRIMERO
   try {
     await Firebase.initializeApp(
@@ -43,7 +43,7 @@ void main() async {
     print('❌ Firebase initialization failed: $e');
     // Continuar sin Firebase para desarrollo local
   }
-  
+
   // Inicializar formateo de fechas
   await initializeDateFormatting('es_ES', null);
 
@@ -65,9 +65,9 @@ void main() async {
 
   // Obtener preferencias
   final prefs = await SharedPreferences.getInstance();
-  
+
   print('✅ MoneyT App: Initialization completed, starting app...');
-  
+
   runApp(
     // ✅ CORREGIDO: AuthProvider agregado con alias
     MultiProvider(
@@ -112,20 +112,20 @@ void main() async {
 }
 
 /// ✅ AGREGADO: Inicialización de datos críticos
-/// 
+///
 /// Se ejecuta antes del arranque de la app para asegurar que los datos
 /// esenciales estén disponibles.
 Future<void> _initializeCriticalData() async {
   try {
     print('🌱 Initializing critical data...');
-    
+
     // Verificar y ejecutar seeds si es necesario
     final seedsCompleted = await DataSeedService.areSeedsCompleted();
-    
+
     if (!seedsCompleted) {
       print('🌱 Seeds not completed, running seeds...');
       final success = await DataSeedService.runSeedsIfNeeded();
-      
+
       if (success) {
         print('✅ Seeds completed successfully');
       } else {
@@ -135,17 +135,16 @@ Future<void> _initializeCriticalData() async {
     } else {
       print('✅ Seeds already completed');
     }
-    
+
     // Registrar última apertura de la app
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-      AppStorageKeys.lastAppOpen, 
+      AppStorageKeys.lastAppOpen,
       DateTime.now().toIso8601String(),
     );
-    
+
     // Logging de estado para debugging
     await _logAppState();
-    
   } catch (e) {
     print('❌ Error during critical data initialization: $e');
     // No bloquear la app, continuar y manejar errores en UI
@@ -153,31 +152,32 @@ Future<void> _initializeCriticalData() async {
 }
 
 /// ✅ AGREGADO: Logging del estado actual de la app
-/// 
+///
 /// Útil para debugging y diagnóstico de problemas.
 Future<void> _logAppState() async {
   try {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Obtener información de seeds
     final seedInfo = await DataSeedService.getSeedInfo();
-    
+
     // Log del estado actual
     print('📊 App State Summary:');
     print('   - Seeds completed: ${seedInfo['completed']}');
-    print('   - Seeds version: ${seedInfo['version']}/${seedInfo['currentVersion']}');
+    print(
+        '   - Seeds version: ${seedInfo['version']}/${seedInfo['currentVersion']}');
     print('   - Seeds valid: ${seedInfo['isValid']}');
-    print('   - Last app open: ${prefs.getString(AppStorageKeys.lastAppOpen) ?? 'Never'}');
-    
+    print(
+        '   - Last app open: ${prefs.getString(AppStorageKeys.lastAppOpen) ?? 'Never'}');
+
     // Información de desarrollo
     final devFlags = AppStorageKeys.developmentKeys
         .where((key) => prefs.containsKey(key))
         .toList();
-    
+
     if (devFlags.isNotEmpty) {
       print('🔧 Active dev flags: $devFlags');
     }
-    
   } catch (e) {
     print('❌ Error logging app state: $e');
   }

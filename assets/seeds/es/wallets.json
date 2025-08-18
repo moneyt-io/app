@@ -1,0 +1,21 @@
+[
+  {
+    "name": "Efectivo",
+    "children": [
+      { "name": "Efectivo en Casa" }
+    ]
+  },
+  {
+    "name": "Cuentas bancarias",
+    "children": [
+      { "name": "Banco principal" }
+    ]
+  },
+  {
+    "name": "Ahorros e Inversión",
+    "children": [
+      { "name": "Cuenta de Ahorros" },
+      { "name": "Póliza del Banco" }
+    ]
+  }
+]
