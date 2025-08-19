@@ -34,6 +34,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey _headerKey = GlobalKey();
   final _balanceCalculationService =
       GetIt.instance<BalanceCalculationService>();
 
@@ -41,13 +42,20 @@ class _HomeScreenState extends State<HomeScreen> {
   double _income = 0.0;
   double _expenses = 0.0;
   bool _isBalanceVisible = true;
+  double _headerHeight = 120; // Default height, will be updated dynamically
 
   @override
   void initState() {
     super.initState();
-    // Data loading is handled by providers. We just need to calculate summary.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        // Calculate header's actual height after it has been rendered
+        final RenderBox? renderBox = _headerKey.currentContext?.findRenderObject() as RenderBox?;
+        if (renderBox != null) {
+          setState(() {
+            _headerHeight = renderBox.size.height;
+          });
+        }
         _calculateMonthlySummary();
       }
     });
@@ -113,8 +121,10 @@ class _HomeScreenState extends State<HomeScreen> {
         .where((t) => t.date.year == now.year && t.date.month == now.month)
         .toList();
 
-    final income = _balanceCalculationService.calculateTotalIncome(transactions);
-    final expenses = _balanceCalculationService.calculateTotalExpense(transactions);
+    final income =
+        _balanceCalculationService.calculateTotalIncome(transactions);
+    final expenses =
+        _balanceCalculationService.calculateTotalExpense(transactions);
 
     if (mounted) {
       setState(() {
@@ -124,15 +134,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
   void _navigateToTransactionForm({String type = 'E'}) {
     NavigationService.navigateTo(AppRoutes.transactionForm, arguments: {
       'initialType': type,
     });
-  }
-
-  void _openDrawer() {
-    _scaffoldKey.currentState?.openDrawer();
   }
 
   void _navigateToDashboardWidgets() {
@@ -158,7 +163,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Map wallets to display items
           final walletItems = walletProvider.wallets
-              .where((w) => w.parentId != null) // Show only child accounts on dashboard
+              .where((w) =>
+                  w.parentId != null) // Show only child accounts on dashboard
               .map((wallet) => WalletDisplayItem(
                     id: wallet.id,
                     name: wallet.name,
@@ -172,13 +178,13 @@ class _HomeScreenState extends State<HomeScreen> {
           return Stack(
             children: [
               SingleChildScrollView(
-                padding: const EdgeInsets.only(
-                  top: 100, // Space for header
+                padding: EdgeInsets.only(
+                  top: _headerHeight,
                   bottom: 100, // Space for FAB
                 ),
                 child: Column(
                   children: [
-                    const SizedBox(height: 16), // HTML: mt-4
+                    const SizedBox(height: 24), // Consistent top spacing
                     BalanceSummaryWidget(
                       totalBalance: walletProvider.totalBalance,
                       income: _income,
@@ -226,6 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               // Header with blur effect
               Positioned(
+                key: _headerKey,
                 top: 0,
                 left: 0,
                 right: 0,
@@ -237,8 +244,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: SafeArea(
                         bottom: false,
                         child: GreetingHeader(
-                          onMenuPressed: _openDrawer,
-                          onStarPressed: _triggerPaywall,
+                          onMenuPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                          onStarPressed: () {
+                            // TODO: Implementar la acción de destacar
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Feature coming soon!'),
+                                backgroundColor: Color(0xFF0c7ff2),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -291,7 +308,8 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: OutlinedButton.icon(
         onPressed: _navigateToDashboardWidgets,
-        icon: const Icon(Icons.edit, color: Color(0xFF64748B), size: 20), // text-slate-500
+        icon: const Icon(Icons.edit,
+            color: Color(0xFF64748B), size: 20), // text-slate-500
         label: const Text(
           'Personalizar',
           style: TextStyle(color: Color(0xFF64748B)), // text-slate-500

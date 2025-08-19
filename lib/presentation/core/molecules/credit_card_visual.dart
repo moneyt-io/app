@@ -34,9 +34,9 @@ class CreditCardVisual extends StatelessWidget {
       height: 180, // Altura basada en el diseño HTML
       child: GradientContainer(
         gradientType: gradientType,
+        padding: const EdgeInsets.all(20), // ✅ CORREGIDO: Ajustar padding para evitar overflow
         opacity: status == CreditCardStatus.blocked ? 0.7 : null, // HTML: opacity-70 for blocked
         child: Column(
-          mainAxisSize: MainAxisSize.min, // ✅ AGREGADO: Usar tamaño mínimo
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header row con nombre y more button

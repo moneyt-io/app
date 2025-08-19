@@ -102,6 +102,14 @@
       ]
     },
     {
+      "name": "Viajes", "icon": "travel",
+      "children": [
+        { "name": "Alojamiento", "icon": "subscriptions" },
+        { "name": "Pasajes", "icon": "theaters" },
+        { "name": "Comida", "icon": "sports_soccer" }
+      ]
+    },
+    {
       "name": "Obligaciones Financieras", "icon": "account_balance_wallet",
       "children": [
         { "name": "Impuestos", "icon": "request_quote" },
