@@ -34,28 +34,17 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final GlobalKey _headerKey = GlobalKey();
-  final _balanceCalculationService =
-      GetIt.instance<BalanceCalculationService>();
+  final _balanceCalculationService = GetIt.instance<BalanceCalculationService>();
 
-  // Dashboard data
   double _income = 0.0;
   double _expenses = 0.0;
   bool _isBalanceVisible = true;
-  double _headerHeight = 120; // Default height, will be updated dynamically
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        // Calculate header's actual height after it has been rendered
-        final RenderBox? renderBox = _headerKey.currentContext?.findRenderObject() as RenderBox?;
-        if (renderBox != null) {
-          setState(() {
-            _headerHeight = renderBox.size.height;
-          });
-        }
         _calculateMonthlySummary();
       }
     });
@@ -151,6 +140,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ OBTENER ALTURA DE LA BARRA DE ESTADO
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    // Altura del contenido del header (ajustar si es necesario) + espaciado deseado
+    const double headerContentHeight = 60.0;
+    const double spacing = 26.0;
+    final double topPadding = statusBarHeight + headerContentHeight + spacing;
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF8FAFC), // HTML: bg-slate-50
@@ -177,14 +173,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
           return Stack(
             children: [
+              // ✅ CONTENIDO DESPLAZABLE (EN EL FONDO)
               SingleChildScrollView(
                 padding: EdgeInsets.only(
-                  top: _headerHeight,
+                  top: topPadding, // Padding calculado y preciso
                   bottom: 100, // Space for FAB
                 ),
                 child: Column(
                   children: [
-                    const SizedBox(height: 24), // Consistent top spacing
                     BalanceSummaryWidget(
                       totalBalance: walletProvider.totalBalance,
                       income: _income,
@@ -230,9 +226,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              // Header with blur effect
+              // ✅ HEADER FLOTANTE CON BLUR (ENCIMA)
               Positioned(
-                key: _headerKey,
                 top: 0,
                 left: 0,
                 right: 0,
@@ -245,16 +240,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         bottom: false,
                         child: GreetingHeader(
                           onMenuPressed: () {
-                            Scaffold.of(context).openDrawer();
+                            _scaffoldKey.currentState?.openDrawer();
                           },
                           onStarPressed: () {
-                            // TODO: Implementar la acción de destacar
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Feature coming soon!'),
-                                backgroundColor: Color(0xFF0c7ff2),
-                              ),
-                            );
+                            _triggerPaywall();
                           },
                         ),
                       ),
