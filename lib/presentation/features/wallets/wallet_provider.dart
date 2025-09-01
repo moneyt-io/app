@@ -143,9 +143,13 @@ class WalletProvider with ChangeNotifier {
       await _walletUseCases.deleteWallet(walletId);
       await loadInitialData(); // Reload all data to ensure consistency
     } catch (e) {
-      _error = 'Failed to delete wallet: ${e.toString()}';
+      if (e.toString().contains('Cannot delete wallet: It has associated transactions.')) {
+        _error = 'This wallet cannot be deleted because it has transactions linked to it.';
+      } else {
+        _error = 'Failed to delete wallet: ${e.toString()}';
+      }
       notifyListeners();
-      throw e; // Re-throw to be caught in the UI if needed
+      // Do not re-throw, as the provider now handles the error state for the UI.
     } finally {
       _isLoading = false;
       notifyListeners();

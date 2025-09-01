@@ -34,7 +34,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _balanceCalculationService = GetIt.instance<BalanceCalculationService>();
+  final _balanceCalculationService =
+      GetIt.instance<BalanceCalculationService>();
 
   double _income = 0.0;
   double _expenses = 0.0;
@@ -144,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     // Altura del contenido del header (ajustar si es necesario) + espaciado deseado
     const double headerContentHeight = 60.0;
-    const double spacing = 26.0;
+    const double spacing = 25.0;
     final double topPadding = statusBarHeight + headerContentHeight + spacing;
 
     return Scaffold(

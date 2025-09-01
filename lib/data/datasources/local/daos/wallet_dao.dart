@@ -24,6 +24,26 @@ class WalletDao extends DatabaseAccessor<AppDatabase> with _$WalletDaoMixin {
   Future<bool> updateWallet(WalletsCompanion wallet) =>
       update(this.wallet).replace(wallet);
 
-  Future<int> deleteWallet(int id) =>
-      (delete(wallet)..where((t) => t.id.equals(id))).go();
+    Future<void> deleteWallet(int walletId) async {
+    return db.transaction(() async {
+      // 1. Find the chart account associated with the wallet.
+      final walletToDelete = await (select(wallet)..where((w) => w.id.equals(walletId))).getSingleOrNull();
+      if (walletToDelete == null) {
+        throw Exception('Wallet not found.');
+      }
+
+      // 2. Check if there are any journal details referencing this chart account.
+      final query = select(db.journalDetail, distinct: true)
+        ..where((jd) => jd.chartAccountId.equals(walletToDelete.chartAccountId));
+      final hasTransactions = await query.getSingleOrNull();
+
+      // 3. If transactions exist, throw an exception to prevent deletion.
+      if (hasTransactions != null) {
+        throw Exception('Cannot delete wallet: It has associated transactions.');
+      }
+
+      // 4. If no transactions, proceed with deletion.
+      await (delete(wallet)..where((w) => w.id.equals(walletId))).go();
+    });
+  }
 }

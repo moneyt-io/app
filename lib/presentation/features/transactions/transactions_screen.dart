@@ -15,6 +15,9 @@ import '../../navigation/app_routes.dart';
 import '../../core/design_system/theme/app_dimensions.dart';
 import '../../core/atoms/app_app_bar.dart';
 import '../../core/atoms/expandable_fab.dart';
+import 'models/transaction_filter_model.dart';
+import 'models/transaction_type_filter_extensions.dart';
+import 'widgets/transaction_filter_dialog.dart';
 import '../../core/molecules/filter_chip_group.dart';
 import '../../core/organisms/transactions_summary.dart';
 import '../../../domain/services/balance_calculation_service.dart';
@@ -33,16 +36,16 @@ class TransactionsScreen extends StatefulWidget {
 }
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
+  late TransactionFilterModel _filterModel;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _balanceCalculationService =
       GetIt.instance<BalanceCalculationService>();
 
-  // Local state for filters
-  String _searchQuery = '';
-  DateTime? _startDate;
-  DateTime? _endDate;
-  TransactionTypeFilter _selectedTypeFilter = TransactionTypeFilter.all;
-  TransactionDateFilter _selectedDateFilter = TransactionDateFilter.all;
+  @override
+  void initState() {
+    super.initState();
+    _filterModel = TransactionFilterModel.initial();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,35 +58,61 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
     // Helper functions
     List<TransactionEntry> getFilteredTransactions() {
-      return transactions.where((transaction) {
-        final matchesSearch = _searchQuery.isEmpty ||
-            transaction.description
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ==
-                true ||
-            (categoriesMap[transaction.mainCategoryId]
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false);
+      return transactions.where((t) {
+        // Date filter
+        if (_filterModel.startDate != null && t.date.isBefore(_filterModel.startDate!)) {
+          return false;
+        }
+        if (_filterModel.endDate != null && t.date.isAfter(_filterModel.endDate!.add(const Duration(days: 1)))) {
+          return false;
+        }
 
-        final matchesDate = (_startDate == null ||
-                transaction.date.isAfter(_startDate!) ||
-                transaction.date.isAtSameMomentAs(_startDate!)) &&
-            (_endDate == null ||
-                transaction.date
-                    .isBefore(_endDate!.add(const Duration(days: 1))));
+        // Type filter
+        if (!_filterModel.transactionTypes.any((type) {
+          bool typeMatches = false;
+          switch (type) {
+            case TransactionType.income:
+              typeMatches = t.isIncome;
+              break;
+            case TransactionType.expense:
+              typeMatches = t.isExpense;
+              break;
+            case TransactionType.transfer:
+              typeMatches = t.isTransfer;
+              break;
+          }
+          return typeMatches;
+        })) {
+            // If the set is empty, it means 'All' is selected, so we don't filter by type.
+            // If it's not empty, and we didn't find a match, then we return false.
+            if (_filterModel.transactionTypes.isNotEmpty) return false;
+        }
 
-        final matchesType = _selectedTypeFilter == TransactionTypeFilter.all ||
-            (_selectedTypeFilter == TransactionTypeFilter.income &&
-                transaction.documentTypeId == 'I') ||
-            (_selectedTypeFilter == TransactionTypeFilter.expense &&
-                transaction.documentTypeId == 'E') ||
-            (_selectedTypeFilter == TransactionTypeFilter.transfer &&
-                transaction.documentTypeId == 'T');
+        // Category filter
+        if (_filterModel.category != null && t.mainCategoryId != _filterModel.category!.id) {
+          return false;
+        }
 
-        return matchesSearch && matchesDate && matchesType;
-      }).toList()
-        ..sort((a, b) => b.date.compareTo(a.date));
+        // Account filter
+        if (_filterModel.account != null && t.mainWalletId != _filterModel.account!.id) {
+          return false;
+        }
+
+        // Contact filter
+        if (_filterModel.contact != null && t.contactId != _filterModel.contact!.id) {
+          return false;
+        }
+
+        // Amount filter
+        if (_filterModel.minAmount != null && t.amount.abs() < _filterModel.minAmount!) {
+          return false;
+        }
+        if (_filterModel.maxAmount != null && t.amount.abs() > _filterModel.maxAmount!) {
+          return false;
+        }
+
+        return true;
+      }).toList()..sort((a, b) => b.date.compareTo(a.date));
     }
 
     Map<String, List<TransactionEntry>> groupTransactionsByDate(
@@ -164,7 +193,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 child: Column(
                   children: [
                     FilterChipGroup<TransactionTypeFilter>(
-                      selectedValue: _selectedTypeFilter,
+                      selectedValue: _filterModel.transactionTypes.isEmpty
+                          ? TransactionTypeFilter.all
+                          : _filterModel.transactionTypes.first.toFilterType(),
                       filters: const {
                         TransactionTypeFilter.all: 'All',
                         TransactionTypeFilter.income: 'Income',
@@ -179,15 +210,39 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       },
                       onFilterChanged: (value) {
                         setState(() {
-                          _selectedTypeFilter = value;
+                          _filterModel = _filterModel.copyWithTransactionTypes(
+                            value == TransactionTypeFilter.all
+                                ? {}
+                                : {value.toTransactionType()},
+                          );
                         });
                       },
                     ),
                     const SizedBox(height: 8),
                     ActiveFiltersBar(
-                      activeFilters: [], // Placeholder
-                      onAddFilter: () {},
-                      onRemoveFilter: (key) {},
+                      activeFilters: _filterModel.activeFilters(excludeTransactionType: true),
+                      onAddFilter: () async {
+                        final newFilter = await Navigator.push(
+                          context,
+                          MaterialPageRoute<TransactionFilterModel>(
+                            builder: (context) => TransactionFilterDialog(
+                              initialFilter: _filterModel,
+                            ),
+                            fullscreenDialog: true,
+                          ),
+                        );
+
+                        if (newFilter != null) {
+                          setState(() {
+                            _filterModel = newFilter;
+                          });
+                        }
+                      },
+                      onRemoveFilter: (key) {
+                        setState(() {
+                          _filterModel = _filterModel.removeFilter(key);
+                        });
+                      },
                     ),
                   ],
                 ),
@@ -343,10 +398,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         text: 'Limpiar filtros',
         onPressed: () {
           setState(() {
-            _searchQuery = '';
-            _selectedTypeFilter = TransactionTypeFilter.all;
-            _startDate = null;
-            _endDate = null;
+            _filterModel = TransactionFilterModel.initial();
           });
         },
         type: AppButtonType.text,
