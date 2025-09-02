@@ -1,11 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import '../../../domain/entities/loan_entry.dart';
+import '../../../domain/entities/contact.dart';
 import '../../../domain/usecases/loan_usecases.dart';
+import '../../../domain/usecases/contact_usecases.dart';
 
 class LoanProvider extends ChangeNotifier {
   final LoanUseCases _loanUseCases = GetIt.instance<LoanUseCases>();
-  
+  final ContactUseCases _contactUseCases = GetIt.instance<ContactUseCases>();
+
   List<LoanEntry> _loans = [];
   bool _isLoading = false;
   String? _errorMessage;
@@ -17,15 +20,18 @@ class LoanProvider extends ChangeNotifier {
 
   // Getters para listas filtradas
   List<LoanEntry> get activeLends => _loans
-      .where((loan) => loan.documentTypeId == 'L' && loan.status == LoanStatus.active)
+      .where((loan) =>
+          loan.documentTypeId == 'L' && loan.status == LoanStatus.active)
       .toList();
 
   List<LoanEntry> get activeBorrows => _loans
-      .where((loan) => loan.documentTypeId == 'B' && loan.status == LoanStatus.active)
+      .where((loan) =>
+          loan.documentTypeId == 'B' && loan.status == LoanStatus.active)
       .toList();
 
   List<LoanEntry> get outstandingLoans => _loans
-      .where((loan) => loan.status == LoanStatus.active && loan.outstandingBalance > 0)
+      .where((loan) =>
+          loan.status == LoanStatus.active && loan.outstandingBalance > 0)
       .toList();
 
   // Métodos para gestión de estado
@@ -49,7 +55,28 @@ class LoanProvider extends ChangeNotifier {
 
     _setLoading(true);
     try {
-      _loans = await _loanUseCases.getAllLoans();
+      // Load loans first
+      final loans = await _loanUseCases.getAllLoans();
+      
+      // Load contacts for each loan and populate the contact field
+      final loansWithContacts = <LoanEntry>[];
+      for (final loan in loans) {
+        if (loan.contactId > 0) {
+          try {
+            final contact = await _contactUseCases.getContactById(loan.contactId);
+            final loanWithContact = loan.copyWith(contact: contact);
+            loansWithContacts.add(loanWithContact);
+          } catch (e) {
+            // If contact loading fails, add loan without contact
+            debugPrint('Failed to load contact ${loan.contactId}: $e');
+            loansWithContacts.add(loan);
+          }
+        } else {
+          loansWithContacts.add(loan);
+        }
+      }
+      
+      _loans = loansWithContacts;
       _clearError();
     } catch (e) {
       _setError('Error al cargar préstamos: ${e.toString()}');
@@ -79,7 +106,7 @@ class LoanProvider extends ChangeNotifier {
         date: date,
         description: description,
       );
-      
+
       await loadLoans(); // Recargar lista
       _clearError();
       return loan;
@@ -95,12 +122,12 @@ class LoanProvider extends ChangeNotifier {
   Future<Map<String, double>> getStatistics() async {
     try {
       final allLoans = _loans;
-      
+
       double totalLent = 0.0;
       double totalBorrowed = 0.0;
       double outstandingLent = 0.0;
       double outstandingBorrowed = 0.0;
-      
+
       for (final loan in allLoans) {
         if (loan.documentTypeId == 'L') {
           totalLent += loan.amount;
@@ -110,9 +137,9 @@ class LoanProvider extends ChangeNotifier {
           outstandingBorrowed += loan.outstandingBalance;
         }
       }
-      
+
       final netBalance = totalLent - totalBorrowed;
-      
+
       return {
         'totalLent': totalLent,
         'totalBorrowed': totalBorrowed,
@@ -149,7 +176,7 @@ class LoanProvider extends ChangeNotifier {
         date: date,
         description: description,
       );
-      
+
       await loadLoans();
       _clearError();
       return loan;
@@ -178,7 +205,7 @@ class LoanProvider extends ChangeNotifier {
         date: date,
         description: description,
       );
-      
+
       await loadLoans();
       _clearError();
     } catch (e) {
@@ -201,7 +228,7 @@ class LoanProvider extends ChangeNotifier {
         loanId: loanId,
         description: description,
       );
-      
+
       await loadLoans();
       _clearError();
     } catch (e) {
@@ -224,7 +251,7 @@ class LoanProvider extends ChangeNotifier {
         loanId: loanId,
         newStatus: newStatus,
       );
-      
+
       await loadLoans();
       _clearError();
     } catch (e) {
