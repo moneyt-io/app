@@ -275,15 +275,15 @@ class _AppDrawerState extends State<AppDrawer> {
           route: AppRoutes.transactions,
           currentRoute: currentRoute,
         ),
-        // SizedBox(height: AppDimensions.spacing4),
-        // _buildNavItem(
-        //   context: context,
-        //   icon: Icons.handshake_outlined,
-        //   activeIcon: Icons.handshake,
-        //   title: t.navigation.loans, // ✅ TRADUCIDO
-        //   route: AppRoutes.loans,
-        //   currentRoute: currentRoute,
-        // ),
+        SizedBox(height: AppDimensions.spacing4),
+        _buildNavItem(
+          context: context,
+          icon: Icons.handshake_outlined,
+          activeIcon: Icons.handshake,
+          title: t.navigation.loans, // ✅ TRADUCIDO
+          route: AppRoutes.loans,
+          currentRoute: currentRoute,
+        ),
       ],
     );
   }

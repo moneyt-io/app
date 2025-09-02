@@ -39,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
 
     _titleController = AnimationController(
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     );
 
@@ -221,7 +221,7 @@ class _SplashScreenState extends State<SplashScreen>
                           child: SplashProgressIndicator(
                             states: _loadingStates,
                             onComplete: _completeInitialization,
-                            stateDuration: const Duration(milliseconds: 600),
+                            stateDuration: const Duration(milliseconds: 200),
                           ),
                         )
                       else

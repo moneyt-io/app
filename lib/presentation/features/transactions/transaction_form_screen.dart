@@ -9,6 +9,7 @@ import '../../../domain/entities/transaction.dart';
 import '../../../domain/entities/category.dart';
 import '../../../domain/entities/contact.dart';
 import '../../../domain/entities/credit_card.dart';
+import '../../../domain/entities/transaction_entry.dart';
 
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/usecases/category_usecases.dart';
@@ -30,6 +31,7 @@ import '../../core/formatters/currency_input_formatter.dart';
 import '../categories/widgets/category_selection_dialog.dart' as cat_dialog;
 import '../contacts/widgets/contact_selection_dialog.dart' as contact_dialog;
 import 'transaction_provider.dart';
+import 'transaction_share_screen.dart';
 
 class TransactionFormScreen extends StatefulWidget {
   final TransactionEntity? transaction;
@@ -437,8 +439,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             .updateTransaction(updatedTransaction);
       } else {
         final transactionProvider = context.read<TransactionProvider>();
+        TransactionEntry? newTransaction;
+
         if (isExpense) {
-          await transactionProvider.createExpense(
+          newTransaction = await transactionProvider.createExpense(
             date: _selectedDate,
             description: _descriptionController.text,
             amount: amount.abs(),
@@ -449,7 +453,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             contactId: _selectedContactId,
           );
         } else if (isIncome) {
-          await transactionProvider.createIncome(
+          newTransaction = await transactionProvider.createIncome(
             date: _selectedDate,
             description: _descriptionController.text,
             amount: amount,
@@ -459,7 +463,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             contactId: _selectedContactId,
           );
         } else if (isTransfer) {
-          await transactionProvider.createTransfer(
+          newTransaction = await transactionProvider.createTransfer(
             date: _selectedDate,
             description: _descriptionController.text,
             amount: amount,
@@ -472,13 +476,31 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             contactId: _selectedContactId,
           );
         }
+
+        if (mounted && newTransaction != null) {
+          // Navigate to the share screen instead of just popping
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) =>
+                  TransactionShareScreen(transaction: newTransaction!),
+            ),
+          );
+        } else if (mounted) {
+          // Fallback in case transaction is null
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Transacción guardada, pero no se pudo compartir.')),
+          );
+          Navigator.of(context).pop();
+        }
+        return; // Exit after navigation
       }
 
+      // This part will now only be reached for updates
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Transacción guardada con éxito')),
+          const SnackBar(content: Text('Transacción actualizada con éxito')),
         );
-        Navigator.of(context).pop(); // Go back to the previous screen
+        Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {

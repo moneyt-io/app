@@ -71,7 +71,7 @@ class TransactionProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> createIncome({
+  Future<TransactionEntry> createIncome({
     required DateTime date,
     required String description,
     required double amount,
@@ -81,7 +81,7 @@ class TransactionProvider extends ChangeNotifier {
     int? contactId,
   }) async {
     try {
-      await _transactionUseCases.createIncome(
+      final newTransaction = await _transactionUseCases.createIncome(
         date: date,
         description: description,
         amount: amount,
@@ -90,7 +90,8 @@ class TransactionProvider extends ChangeNotifier {
         categoryId: categoryId,
         contactId: contactId,
       );
-      await refreshTransactions();
+      // The list will be refreshed when the user returns to the transaction list screen.
+      return newTransaction;
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -98,7 +99,7 @@ class TransactionProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> createExpense({
+  Future<TransactionEntry> createExpense({
     required DateTime date,
     required String description,
     required double amount,
@@ -109,7 +110,7 @@ class TransactionProvider extends ChangeNotifier {
     int? contactId,
   }) async {
     try {
-      await _transactionUseCases.createExpense(
+      final newTransaction = await _transactionUseCases.createExpense(
         date: date,
         description: description,
         amount: amount,
@@ -119,7 +120,7 @@ class TransactionProvider extends ChangeNotifier {
         categoryId: categoryId,
         contactId: contactId,
       );
-      await refreshTransactions();
+      return newTransaction;
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -127,7 +128,7 @@ class TransactionProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> createTransfer({
+  Future<TransactionEntry> createTransfer({
     required DateTime date,
     required String description,
     required double amount,
@@ -140,7 +141,7 @@ class TransactionProvider extends ChangeNotifier {
     int? contactId,
   }) async {
     try {
-      await _transactionUseCases.createTransfer(
+      final newTransaction = await _transactionUseCases.createTransfer(
         date: date,
         description: description,
         amount: amount,
@@ -152,7 +153,7 @@ class TransactionProvider extends ChangeNotifier {
         targetAmount: targetAmount,
         contactId: contactId,
       );
-      await refreshTransactions();
+      return newTransaction;
     } catch (e) {
       _error = e.toString();
       notifyListeners();
