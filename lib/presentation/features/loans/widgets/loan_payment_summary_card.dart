@@ -31,7 +31,6 @@ class LoanPaymentSummaryCard extends StatelessWidget {
     final contactName = contact?.name ?? 'Unknown Contact';
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF7ED), // bg-orange-50

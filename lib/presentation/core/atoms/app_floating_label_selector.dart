@@ -65,7 +65,8 @@ class AppFloatingLabelSelector extends StatelessWidget {
                       ),
                       child: Icon(
                         icon,
-                        color: iconColor ?? const Color(0xFF94A3B8), // Default to slate-400
+                        color: iconColor ??
+                            const Color(0xFF94A3B8), // Default to slate-400
                         size: 20,
                       ),
                     ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui';
 
 import '../../../domain/entities/loan_entry.dart';
 import '../../../domain/entities/contact.dart';
@@ -21,7 +20,18 @@ import '../../navigation/navigation_service.dart';
 import 'loan_contact_detail_screen.dart';
 import '../../core/design_system/tokens/app_dimensions.dart';
 
-enum LoanTypeFilter { all, lent, borrowed, pending }
+enum LoanTypeFilter { all, lent, borrowed }
+
+extension LoanTypeModelExtension on filter_model.LoanType {
+  LoanTypeFilter toFilterType() {
+    switch (this) {
+      case filter_model.LoanType.lent:
+        return LoanTypeFilter.lent;
+      case filter_model.LoanType.borrowed:
+        return LoanTypeFilter.borrowed;
+    }
+  }
+}
 
 extension LoanTypeFilterExtension on LoanTypeFilter {
   filter_model.LoanType? toLoanType() {
@@ -30,19 +40,8 @@ extension LoanTypeFilterExtension on LoanTypeFilter {
         return filter_model.LoanType.lent;
       case LoanTypeFilter.borrowed:
         return filter_model.LoanType.borrowed;
-      default:
+      case LoanTypeFilter.all:
         return null;
-    }
-  }
-}
-
-extension LoanTypeExtension on filter_model.LoanType {
-  LoanTypeFilter toFilterType() {
-    switch (this) {
-      case filter_model.LoanType.lent:
-        return LoanTypeFilter.lent;
-      case filter_model.LoanType.borrowed:
-        return LoanTypeFilter.borrowed;
     }
   }
 }
@@ -72,16 +71,16 @@ class _LoansScreenState extends State<LoansScreen> {
 
   Future<void> _loadData() async {
     final provider = context.read<LoanProvider>();
-    
+
     // Load loans
     await provider.loadLoans();
-    
+
     if (mounted) {
       setState(() {
         _initialLoadCompleted = true;
       });
     }
-    
+
     await _loadStatistics();
   }
 
@@ -109,7 +108,7 @@ class _LoansScreenState extends State<LoansScreen> {
     final provider = context.watch<LoanProvider>();
     final loans = provider.loans;
     final contactsMap = <int, Contact>{};
-    
+
     // Build contacts map from loans that have contact objects loaded
     for (final loan in loans) {
       if (loan.contact != null) {
@@ -121,10 +120,13 @@ class _LoansScreenState extends State<LoansScreen> {
     List<LoanEntry> getFilteredLoans() {
       return loans.where((loan) {
         // Date filter
-        if (_filterModel.startDate != null && loan.date.isBefore(_filterModel.startDate!)) {
+        if (_filterModel.startDate != null &&
+            loan.date.isBefore(_filterModel.startDate!)) {
           return false;
         }
-        if (_filterModel.endDate != null && loan.date.isAfter(_filterModel.endDate!.add(const Duration(days: 1)))) {
+        if (_filterModel.endDate != null &&
+            loan.date
+                .isAfter(_filterModel.endDate!.add(const Duration(days: 1)))) {
           return false;
         }
 
@@ -132,13 +134,15 @@ class _LoansScreenState extends State<LoansScreen> {
         if (_filterModel.loanTypes.isNotEmpty) {
           final isLent = loan.documentTypeId == 'L';
           final matchesType = _filterModel.loanTypes.any((type) {
-            return (type == filter_model.LoanType.lent && isLent) || (type == filter_model.LoanType.borrowed && !isLent);
+            return (type == filter_model.LoanType.lent && isLent) ||
+                (type == filter_model.LoanType.borrowed && !isLent);
           });
           if (!matchesType) return false;
         }
 
         // Contact filter
-        if (_filterModel.contact != null && loan.contactId != _filterModel.contact!.id) {
+        if (_filterModel.contact != null &&
+            loan.contactId != _filterModel.contact!.id) {
           return false;
         }
 
@@ -149,10 +153,12 @@ class _LoansScreenState extends State<LoansScreen> {
         }
 
         // Amount filter
-        if (_filterModel.minAmount != null && loan.amount < _filterModel.minAmount!) {
+        if (_filterModel.minAmount != null &&
+            loan.amount < _filterModel.minAmount!) {
           return false;
         }
-        if (_filterModel.maxAmount != null && loan.amount > _filterModel.maxAmount!) {
+        if (_filterModel.maxAmount != null &&
+            loan.amount > _filterModel.maxAmount!) {
           return false;
         }
 
@@ -178,28 +184,33 @@ class _LoansScreenState extends State<LoansScreen> {
 
     final filteredLoans = getFilteredLoans();
     final groupedLoans = groupLoansByContact(filteredLoans);
-    
+
     // Debug logging
     debugPrint('🔍 Debug Active Loans:');
     debugPrint('   - Total loans: ${loans.length}');
     debugPrint('   - Contacts map size: ${contactsMap.length}');
     debugPrint('   - Filtered loans: ${filteredLoans.length}');
     debugPrint('   - Grouped contacts: ${groupedLoans.length}');
-    
+
     // Check if the issue is in filtering
-    final activeLoans = loans.where((loan) => loan.status == LoanStatus.active).toList();
+    final activeLoans =
+        loans.where((loan) => loan.status == LoanStatus.active).toList();
     debugPrint('   - Active loans (status check): ${activeLoans.length}');
-    
+
     // Check loan types in filter
-    debugPrint('   - Filter has loan types: ${_filterModel.loanTypes.isNotEmpty}');
+    debugPrint(
+        '   - Filter has loan types: ${_filterModel.loanTypes.isNotEmpty}');
     if (_filterModel.loanTypes.isNotEmpty) {
-      debugPrint('   - Filter loan types: ${_filterModel.loanTypes.map((t) => t.name).join(", ")}');
+      debugPrint(
+          '   - Filter loan types: ${_filterModel.loanTypes.map((t) => t.name).join(", ")}');
     }
-    
+
     if (loans.isNotEmpty) {
       final firstLoan = loans.first;
-      debugPrint('   - First loan: contactId=${firstLoan.contactId}, status=${firstLoan.status.name}, active=${firstLoan.active}');
-      debugPrint('   - Contact exists in map: ${contactsMap.containsKey(firstLoan.contactId)}');
+      debugPrint(
+          '   - First loan: contactId=${firstLoan.contactId}, status=${firstLoan.status.name}, active=${firstLoan.active}');
+      debugPrint(
+          '   - Contact exists in map: ${contactsMap.containsKey(firstLoan.contactId)}');
     }
 
     return Scaffold(
@@ -225,23 +236,21 @@ class _LoansScreenState extends State<LoansScreen> {
                     selectedValue: _filterModel.loanTypes.isEmpty
                         ? LoanTypeFilter.all
                         : _filterModel.loanTypes.first.toFilterType(),
-                    filters: {
+                    filters: const {
                       LoanTypeFilter.all: 'All',
                       LoanTypeFilter.lent: 'Lent',
                       LoanTypeFilter.borrowed: 'Borrowed',
-                      LoanTypeFilter.pending: 'Pending',
                     },
-                    icons: {
+                    icons: const {
                       LoanTypeFilter.all: Icons.account_balance,
                       LoanTypeFilter.lent: Icons.trending_up,
                       LoanTypeFilter.borrowed: Icons.trending_down,
-                      LoanTypeFilter.pending: Icons.schedule,
                     },
                     onFilterChanged: (value) {
                       setState(() {
                         _filterModel = _filterModel.copyWithLoanTypes(
                           value == LoanTypeFilter.all
-                              ? {filter_model.LoanType.lent, filter_model.LoanType.borrowed}
+                              ? {}
                               : value.toLoanType() != null
                                   ? {value.toLoanType()!}
                                   : {},
@@ -251,7 +260,8 @@ class _LoansScreenState extends State<LoansScreen> {
                   ),
                   const SizedBox(height: 8),
                   ActiveFiltersBar(
-                    activeFilters: _filterModel.activeFilters(excludeLoanType: true),
+                    activeFilters:
+                        _filterModel.activeFilters(excludeLoanType: true),
                     onAddFilter: () {
                       // TODO: Implement loan filter dialog
                     },
@@ -267,14 +277,8 @@ class _LoansScreenState extends State<LoansScreen> {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 16.0, 0, 12.0),
-              child: LoanSummaryCards(
-                totalLent: _statistics['totalLent'] ?? 0.0,
-                totalBorrowed: _statistics['totalBorrowed'] ?? 0.0,
-                lentToPeople: _getLentToPeopleCount(groupedLoans),
-                borrowedFromPeople: _getBorrowedFromPeopleCount(groupedLoans),
-                isLoading: _statisticsLoading,
-              ),
+              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 12.0),
+              child: _buildSummaryCards(groupedLoans),
             ),
           ),
           provider.isLoading && !_initialLoadCompleted
@@ -287,8 +291,10 @@ class _LoansScreenState extends State<LoansScreen> {
                       ? SliverFillRemaining(child: _buildEmptyState())
                       : SliverToBoxAdapter(
                           child: ActiveLoansSection(
-                            contactSummaries: _buildContactSummaries(groupedLoans, contactsMap),
-                            totalPendingLoans: _getTotalPendingLoans(filteredLoans),
+                            contactSummaries: _buildContactSummaries(
+                                groupedLoans, contactsMap),
+                            totalPendingLoans:
+                                _getTotalPendingLoans(filteredLoans),
                             onContactTap: (summary) {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -300,12 +306,38 @@ class _LoansScreenState extends State<LoansScreen> {
                             },
                           ),
                         ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  // TODO: Implement navigation to complete loan history screen
+                },
+                icon: const Icon(Icons.history,
+                    color: Color(0xFF64748B), size: 20), // text-slate-500
+                label: const Text(
+                  'View Complete Loan History',
+                  style: TextStyle(
+                      color: Color(0xFF64748B),
+                      fontWeight: FontWeight.w500), // text-slate-500
+                ),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50), // Full width
+                  side: const BorderSide(
+                      color: Color(0xFFE2E8F0)), // border-slate-200
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
       floatingActionButton: ExpandableFab(
         actions: [
           FabAction(
-            label: 'Lend Money',
+            label: 'Lend',
             icon: Icons.trending_up,
             backgroundColor: const Color(0xFF22C55E),
             onPressed: () => NavigationService.navigateTo(
@@ -314,7 +346,7 @@ class _LoansScreenState extends State<LoansScreen> {
             ),
           ),
           FabAction(
-            label: 'Borrow Money',
+            label: 'Borrow',
             icon: Icons.trending_down,
             backgroundColor: const Color(0xFFEF4444),
             onPressed: () => NavigationService.navigateTo(
@@ -379,13 +411,13 @@ class _LoansScreenState extends State<LoansScreen> {
       final contactId = entry.key;
       final contactLoans = entry.value;
       final contact = contactsMap[contactId]!;
-      
+
       double totalLent = 0;
       double totalBorrowed = 0;
       int activeCount = 0;
       DateTime? nextDueDate;
       bool isOverdue = false;
-      
+
       for (final loan in contactLoans) {
         if (loan.documentTypeId == 'L') {
           totalLent += loan.amount;
@@ -405,7 +437,8 @@ class _LoansScreenState extends State<LoansScreen> {
         activeLoanCount: activeCount,
         nextDueDate: nextDueDate,
         isOverdue: isOverdue,
-        currencyId: contactLoans.isNotEmpty ? contactLoans.first.currencyId : 'USD',
+        currencyId:
+            contactLoans.isNotEmpty ? contactLoans.first.currencyId : 'USD',
       );
     }).toList();
   }
@@ -424,5 +457,36 @@ class _LoansScreenState extends State<LoansScreen> {
 
   int _getTotalPendingLoans(List<LoanEntry> loans) {
     return loans.where((loan) => loan.status.name == 'active').length;
+  }
+
+  Widget _buildSummaryCards(Map<int, List<LoanEntry>> groupedLoans) {
+    final isLentActive =
+        _filterModel.loanTypes.contains(filter_model.LoanType.lent);
+    final isBorrowedActive =
+        _filterModel.loanTypes.contains(filter_model.LoanType.borrowed);
+    final isAllActive = _filterModel.loanTypes.isEmpty;
+
+    double? totalLent;
+    int? lentToPeople;
+    double? totalBorrowed;
+    int? borrowedFromPeople;
+
+    if (isAllActive || isLentActive) {
+      totalLent = _statistics['totalLent'] ?? 0.0;
+      lentToPeople = _getLentToPeopleCount(groupedLoans);
+    }
+
+    if (isAllActive || isBorrowedActive) {
+      totalBorrowed = _statistics['totalBorrowed'] ?? 0.0;
+      borrowedFromPeople = _getBorrowedFromPeopleCount(groupedLoans);
+    }
+
+    return LoanSummaryCards(
+      totalLent: totalLent,
+      lentToPeople: lentToPeople,
+      totalBorrowed: totalBorrowed,
+      borrowedFromPeople: borrowedFromPeople,
+      isLoading: _statisticsLoading,
+    );
   }
 }

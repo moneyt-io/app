@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../../domain/entities/loan_entry.dart';
 import '../../../domain/entities/contact.dart';
-import '../../../domain/entities/wallet.dart';
 import '../../../domain/usecases/contact_usecases.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
+import '../../../domain/usecases/credit_card_usecases.dart';
 import '../../core/atoms/app_app_bar.dart';
+import '../../core/molecules/date_selection_dialog.dart';
+import '../transactions/widgets/account_selection_dialog.dart';
+import '../../core/organisms/account_selector_modal.dart' show SelectableAccount;
+import './loan_provider.dart';
 import '../../core/atoms/app_floating_label_field.dart';
 import '../../core/atoms/app_floating_label_selector.dart';
 import '../../core/molecules/form_action_bar.dart';
@@ -37,10 +42,11 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
 
   final _contactUseCases = GetIt.instance<ContactUseCases>();
   final _walletUseCases = GetIt.instance<WalletUseCases>();
+  final _creditCardUseCases = GetIt.instance<CreditCardUseCases>();
 
   Contact? _contact;
-  List<Wallet> _wallets = [];
-  Wallet? _selectedWallet;
+  Map<int, SelectableAccount> _accountsMap = {};
+  SelectableAccount? _selectedAccount;
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = true;
   double _paymentAmount = 0.0;
@@ -70,12 +76,20 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
         _contact = await _contactUseCases.getContactById(widget.loan.contactId);
       }
 
-      // Load wallets
-      _wallets = await _walletUseCases.getAllWallets();
+      // Load wallets and credit cards
+      final wallets = await _walletUseCases.getAllWallets();
+      final creditCards = await _creditCardUseCases.getAllCreditCards();
 
-      // Select first wallet as default
-      if (_wallets.isNotEmpty) {
-        _selectedWallet = _wallets.first;
+      final accounts = <SelectableAccount>[
+        ...wallets.map((w) => SelectableAccount.fromWallet(w)),
+        ...creditCards.map((cc) => SelectableAccount.fromCreditCard(cc)),
+      ];
+
+      _accountsMap = { for (var acc in accounts) acc.id: acc };
+
+      // Select first account as default
+      if (accounts.isNotEmpty) {
+        _selectedAccount = accounts.first;
       }
     } catch (e) {
       if (mounted) {
@@ -106,72 +120,25 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
   }
 
   Future<void> _selectDate() async {
-    final selectedDate = await showDatePicker(
+    final picked = await DateSelectionDialog.show(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-
-    if (selectedDate != null) {
+    if (picked != null) {
       setState(() {
-        _selectedDate = selectedDate;
+        _selectedDate = picked;
       });
     }
   }
 
   Future<void> _selectWallet() async {
-    final selectedWallet = await showModalBottomSheet<Wallet>(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Text(
-              'Select Account',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _wallets.length,
-                itemBuilder: (context, index) {
-                  final wallet = _wallets[index];
-                  return ListTile(
-                    leading: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDBEAFE),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.account_balance,
-                        color: Color(0xFF2563EB),
-                        size: 20,
-                      ),
-                    ),
-                    title: Text(wallet.name),
-                    subtitle: Text(wallet.description ?? 'Wallet'),
-                    onTap: () => Navigator.of(context).pop(wallet),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+    final result = await AccountSelectionDialog.show(
+      context,
+      accounts: _accountsMap.values.toList(),
+      initialSelection: _selectedAccount,
     );
-
-    if (selectedWallet != null) {
-      setState(() {
-        _selectedWallet = selectedWallet;
-      });
+    if (result != null) {
+      setState(() => _selectedAccount = result);
     }
   }
 
@@ -183,7 +150,7 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
       );
       return;
     }
-    if (_selectedWallet == null) {
+    if (_selectedAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select an account')),
       );
@@ -193,9 +160,15 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // TODO: Implement recordLoanPayment method in LoanProvider
-      // For now, we'll simulate a successful payment
-      await Future.delayed(const Duration(seconds: 1));
+      final loanProvider = Provider.of<LoanProvider>(context, listen: false);
+      await loanProvider.createLoanPayment(
+        loanId: widget.loan.id,
+        paymentAmount: _paymentAmount,
+        date: _selectedDate, // Correct state variable for date
+        description: _detailsController.text, // Correct state variable for description
+        paymentTypeId: _selectedAccount!.isCreditCard ? 'C' : 'W', // Determine type from isCreditCard
+        paymentId: _selectedAccount!.id,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -243,92 +216,116 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
             child: Form(
               key: _formKey,
               child: ListView(
-                padding: const EdgeInsets.all(16),
                 children: [
+                  const SizedBox(height: 16),
+
                   // Loan Summary
-                  LoanPaymentSummaryCard(
-                    loan: widget.loan,
-                    contact: _contact,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: LoanPaymentSummaryCard(
+                      loan: widget.loan,
+                      contact: _contact,
+                    ),
                   ),
 
                   const SizedBox(height: 24),
 
                   // Payment Amount
-                  AppFloatingLabelField(
-                    controller: _amountController,
-                    focusNode: _amountFocusNode,
-                    label: 'Payment amount',
-                    placeholder: '0.00',
-                    prefixIcon: Icons.attach_money,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [CurrencyInputFormatter()],
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Payment amount is required';
-                      }
-                      final amount = double.tryParse(value.replaceAll(',', ''));
-                      if (amount == null || amount <= 0) {
-                        return 'Please enter a valid amount';
-                      }
-                      if (amount > widget.loan.outstandingBalance) {
-                        return 'Amount cannot exceed remaining balance';
-                      }
-                      return null;
-                    },
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: AppFloatingLabelField(
+                      controller: _amountController,
+                      focusNode: _amountFocusNode,
+                      label: 'Payment amount',
+                      placeholder: '0.00',
+                      prefixIcon: Icons.attach_money,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [CurrencyInputFormatter()],
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Payment amount is required';
+                        }
+                        final amount = double.tryParse(value.replaceAll(',', ''));
+                        if (amount == null || amount <= 0) {
+                          return 'Please enter a valid amount';
+                        }
+                        if (amount > widget.loan.outstandingBalance) {
+                          return 'Amount cannot exceed remaining balance';
+                        }
+                        return null;
+                      },
+                    ),
                   ),
 
                   const SizedBox(height: 8),
 
                   // Quick Amount Buttons
-                  QuickAmountButtons(
-                    remainingAmount: widget.loan.outstandingBalance,
-                    onAmountSelected: _setQuickAmount,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: QuickAmountButtons(
+                      remainingAmount: widget.loan.outstandingBalance,
+                      onAmountSelected: _setQuickAmount,
+                    ),
                   ),
 
                   const SizedBox(height: 24),
 
                   // Payment Date
-                  AppFloatingLabelSelector(
-                    label: 'Payment date',
-                    icon: Icons.calendar_today,
-                    value: DateFormat('MMMM d, yyyy').format(_selectedDate),
-                    onTap: _selectDate,
-                    iconColor: const Color(0xFF2563EB),
-                    iconBackgroundColor: const Color(0xFFDBEAFE),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: AppFloatingLabelSelector(
+                      label: 'Payment date',
+                      icon: Icons.calendar_today,
+                      value: DateFormat('MMMM d, yyyy').format(_selectedDate),
+                      onTap: _selectDate,
+                      iconColor: const Color(0xFF2563EB),
+                      iconBackgroundColor: const Color(0xFFDBEAFE),
+                    ),
                   ),
 
                   const SizedBox(height: 24),
 
                   // Account Selector
-                  AppFloatingLabelSelector(
-                    label: 'Received in account',
-                    icon: Icons.account_balance,
-                    value: _selectedWallet?.name ?? 'Select account',
-                    onTap: _selectWallet,
-                    hasValue: _selectedWallet != null,
-                    iconColor: const Color(0xFF2563EB),
-                    iconBackgroundColor: const Color(0xFFDBEAFE),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: AppFloatingLabelSelector(
+                      label: 'Received in account',
+                      icon: Icons.account_balance,
+                      value: _selectedAccount?.name ?? 'Select account',
+                      onTap: _selectWallet,
+                      hasValue: _selectedAccount != null,
+                      iconColor: const Color(0xFF2563EB),
+                      iconBackgroundColor: const Color(0xFFDBEAFE),
+                    ),
                   ),
 
                   const SizedBox(height: 24),
 
                   // Payment Details
-                  AppFloatingLabelField(
-                    controller: _detailsController,
-                    focusNode: _detailsFocusNode,
-                    label: 'Payment details',
-                    placeholder: 'Add notes about this payment (optional)',
-                    maxLines: 3,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: AppFloatingLabelField(
+                      controller: _detailsController,
+                      focusNode: _detailsFocusNode,
+                      label: 'Payment details',
+                      placeholder: 'Add notes about this payment (optional)',
+                      maxLines: 3,
+                    ),
                   ),
 
                   const SizedBox(height: 24),
 
                   // Payment Summary
-                  PaymentSummaryInfoCard(
-                    paymentAmount: _paymentAmount,
-                    remainingBalance: remainingBalance.clamp(0.0, double.infinity),
-                    newProgressPercentage: newProgressPercentage.clamp(0.0, 100.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: PaymentSummaryInfoCard(
+                      paymentAmount: _paymentAmount,
+                      remainingBalance: remainingBalance.clamp(0.0, double.infinity),
+                      newProgressPercentage: newProgressPercentage.clamp(0.0, 100.0),
+                    ),
                   ),
+
+                  const SizedBox(height: 16),
                 ],
               ),
             ),

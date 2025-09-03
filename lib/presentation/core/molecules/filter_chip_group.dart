@@ -29,16 +29,19 @@ class FilterChipGroup<T> extends StatelessWidget {
           final isSelected = value == selectedValue;
 
           // Colors from transaction_list.html mockup
-          final activeBgColor = const Color(0xFF3B82F6).withOpacity(0.1); // bg-blue-500/10
+          final activeBgColor =
+              const Color(0xFF3B82F6).withOpacity(0.1); // bg-blue-500/10
           final activeFgColor = const Color(0xFF1D4ED8); // text-blue-700
           final activeBorderColor = const Color(0xFFBFDBFE); // border-blue-200
 
           final inactiveBgColor = const Color(0xFFF1F5F9); // bg-slate-100
           final inactiveFgColor = const Color(0xFF475569); // text-slate-600
-          final inactiveBorderColor = const Color(0xFFE2E8F0); // border-slate-200
+          final inactiveBorderColor =
+              const Color(0xFFE2E8F0); // border-slate-200
 
           return Padding(
-            padding: const EdgeInsets.only(right: AppDimensions.spacing8), // HTML: gap-2
+            padding: const EdgeInsets.only(
+                right: AppDimensions.spacing8), // HTML: gap-2
             child: OutlinedButton.icon(
               onPressed: () => onFilterChanged(value),
               icon: Icon(icon, size: 18), // HTML: text-lg
@@ -51,7 +54,8 @@ class FilterChipGroup<T> extends StatelessWidget {
                   width: 1,
                 ),
                 shape: const StadiumBorder(), // HTML: rounded-full
-                padding: const EdgeInsets.symmetric(horizontal: AppDimensions.spacing16), // HTML: px-4
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimensions.spacing16), // HTML: px-4
                 textStyle: theme.textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w500, // HTML: font-medium
                 ),

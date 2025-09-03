@@ -85,6 +85,52 @@ class LoanProvider extends ChangeNotifier {
     }
   }
 
+  // Crear préstamo desde una wallet
+  Future<LoanEntry?> createLoanFromWallet({
+    required String documentTypeId,
+    required int contactId,
+    required double amount,
+    required String currencyId,
+    required DateTime date,
+    required int walletId,
+    String? description,
+  }) async {
+    if (_isLoading) return null;
+
+    _setLoading(true);
+    try {
+      LoanEntry loan;
+      if (documentTypeId == 'L') {
+        loan = await _loanUseCases.createLendLoanFromWallet(
+          contactId: contactId,
+          amount: amount,
+          currencyId: currencyId,
+          date: date,
+          walletId: walletId,
+          description: description,
+        );
+      } else {
+        loan = await _loanUseCases.createBorrowLoanToWallet(
+          contactId: contactId,
+          amount: amount,
+          currencyId: currencyId,
+          date: date,
+          walletId: walletId,
+          description: description,
+        );
+      }
+
+      await loadLoans(); // Recargar lista
+      _clearError();
+      return loan;
+    } catch (e) {
+      _setError('Error al crear préstamo desde wallet: ${e.toString()}');
+      return null;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   // Crear préstamo simple
   Future<LoanEntry?> createLoan({
     required String documentTypeId,
@@ -92,6 +138,7 @@ class LoanProvider extends ChangeNotifier {
     required double amount,
     required String currencyId,
     required DateTime date,
+    required int categoryId,
     String? description,
   }) async {
     if (_isLoading) return null;
@@ -104,6 +151,7 @@ class LoanProvider extends ChangeNotifier {
         amount: amount,
         currencyId: currencyId,
         date: date,
+        categoryId: categoryId,
         description: description,
       );
 
@@ -153,56 +201,26 @@ class LoanProvider extends ChangeNotifier {
     }
   }
 
-  // Crear préstamo con método de pago específico
-  Future<LoanEntry?> createLoanWithPaymentMethod({
-    required String documentTypeId,
-    required int contactId,
-    required double amount,
-    required String currencyId,
-    required DateTime date,
-    required String paymentType,
-    required int? paymentId,
-    String? description,
-  }) async {
-    if (_isLoading) return null;
-
-    _setLoading(true);
-    try {
-      final loan = await _loanUseCases.createSimpleLoan(
-        documentTypeId: documentTypeId,
-        contactId: contactId,
-        amount: amount,
-        currencyId: currencyId,
-        date: date,
-        description: description,
-      );
-
-      await loadLoans();
-      _clearError();
-      return loan;
-    } catch (e) {
-      _setError('Error al crear préstamo: ${e.toString()}');
-      return null;
-    } finally {
-      _setLoading(false);
-    }
-  }
 
   // Crear pago de préstamo
   Future<void> createLoanPayment({
     required int loanId,
     required double paymentAmount,
     required DateTime date,
+    required String paymentTypeId,
+    required int paymentId,
     String? description,
   }) async {
     if (_isLoading) return;
 
     _setLoading(true);
     try {
-      await _loanUseCases.createSimpleLoanPayment(
+      await _loanUseCases.createLoanPayment(
         loanId: loanId,
         paymentAmount: paymentAmount,
         date: date,
+        paymentTypeId: paymentTypeId,
+        paymentId: paymentId,
         description: description,
       );
 
@@ -210,6 +228,7 @@ class LoanProvider extends ChangeNotifier {
       _clearError();
     } catch (e) {
       _setError('Error al registrar pago: ${e.toString()}');
+      rethrow; // Re-lanzar la excepción para que la UI pueda manejarla
     } finally {
       _setLoading(false);
     }

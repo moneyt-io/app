@@ -294,6 +294,8 @@ class _LoanPaymentModalState extends State<LoanPaymentModal> {
         paymentAmount: amount,
         date: _selectedDate,
         description: description,
+        paymentTypeId: 'W', // 'W' for Wallet
+        paymentId: _selectedWallet!.id,
       );
 
       if (mounted) {

@@ -5,19 +5,19 @@ import '../../../core/design_system/tokens/app_dimensions.dart';
 import '../../../core/design_system/tokens/app_colors.dart';
 
 class LoanSummaryCards extends StatelessWidget {
-  final double totalLent;
-  final double totalBorrowed;
-  final int lentToPeople;
-  final int borrowedFromPeople;
+  final double? totalLent;
+  final double? totalBorrowed;
+  final int? lentToPeople;
+  final int? borrowedFromPeople;
   final String currencySymbol;
   final bool isLoading;
 
   const LoanSummaryCards({
     Key? key,
-    required this.totalLent,
-    required this.totalBorrowed,
-    required this.lentToPeople,
-    required this.borrowedFromPeople,
+    this.totalLent,
+    this.totalBorrowed,
+    this.lentToPeople,
+    this.borrowedFromPeople,
     this.currencySymbol = '\$',
     this.isLoading = false,
   }) : super(key: key);
@@ -25,63 +25,55 @@ class LoanSummaryCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return Container(
-        padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacing16),
-        child: Row(
+      if (totalLent != null && totalBorrowed != null) {
+        return const Row(
           children: [
-            Expanded(child: _buildLoadingCard()),
-            SizedBox(width: AppDimensions.spacing12),
-            Expanded(child: _buildLoadingCard()),
+            Expanded(child: ShimmerLoanSummaryCard()),
+            SizedBox(width: 16),
+            Expanded(child: ShimmerLoanSummaryCard()),
           ],
-        ),
-      );
+        );
+      }
+      return const ShimmerLoanSummaryCard();
     }
 
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacing16),
-      child: Row(
-        children: [
-          Expanded(
-            child: _LoanSummaryCard(
-              title: 'Lent Out',
-              amount: totalLent,
-              peopleCount: lentToPeople,
-              icon: Icons.call_made,
-              backgroundColor: const Color(0xFFF97316), // Orange-500
-              currencySymbol: currencySymbol,
-            ),
-          ),
-          SizedBox(width: AppDimensions.spacing12),
-          Expanded(
-            child: _LoanSummaryCard(
-              title: 'Borrowed',
-              amount: totalBorrowed,
-              peopleCount: borrowedFromPeople,
-              icon: Icons.call_received,
-              backgroundColor: const Color(0xFF9333EA), // Purple-500
-              currencySymbol: currencySymbol,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+    final lentCard = totalLent != null
+        ? _LoanSummaryCard(
+            title: 'You Lent',
+            amount: totalLent!,
+            peopleCount: lentToPeople ?? 0,
+            icon: Icons.call_made,
+            backgroundColor: const Color(0xFFF97316), // Orange
+            currencySymbol: currencySymbol,
+          )
+        : null;
 
-  Widget _buildLoadingCard() {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        color: AppColors.slate200,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
-      ),
-      child: const Center(
-        child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-      ),
-    );
+    final borrowedCard = totalBorrowed != null
+        ? _LoanSummaryCard(
+            title: 'You Borrowed',
+            amount: totalBorrowed!,
+            peopleCount: borrowedFromPeople ?? 0,
+            icon: Icons.call_received,
+            backgroundColor: const Color(0xFF8B5CF6), // Violet
+            currencySymbol: currencySymbol,
+          )
+        : null;
+
+    if (lentCard != null && borrowedCard != null) {
+      return Row(
+        children: [
+          Expanded(child: lentCard),
+          const SizedBox(width: 16),
+          Expanded(child: borrowedCard),
+        ],
+      );
+    } else if (lentCard != null) {
+      return lentCard;
+    } else if (borrowedCard != null) {
+      return borrowedCard;
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 }
 
@@ -107,7 +99,7 @@ class _LoanSummaryCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Container(
-      padding: EdgeInsets.all(AppDimensions.spacing16),
+      padding: const EdgeInsets.all(AppDimensions.spacing16),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
@@ -122,7 +114,7 @@ class _LoanSummaryCard extends StatelessWidget {
                 color: Colors.white,
                 size: 18,
               ),
-              SizedBox(width: AppDimensions.spacing8),
+              const SizedBox(width: AppDimensions.spacing8),
               Text(
                 title,
                 style: textTheme.bodySmall?.copyWith(
@@ -133,7 +125,7 @@ class _LoanSummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: AppDimensions.spacing4),
+          const SizedBox(height: AppDimensions.spacing4),
           Text(
             '$currencySymbol${NumberFormat('#,##0.00').format(amount)}',
             style: textTheme.titleLarge?.copyWith(
@@ -142,7 +134,7 @@ class _LoanSummaryCard extends StatelessWidget {
               fontSize: 18,
             ),
           ),
-          SizedBox(height: AppDimensions.spacing2),
+          const SizedBox(height: AppDimensions.spacing2),
           Text(
             '$peopleCount ${peopleCount == 1 ? 'person' : 'people'}',
             style: textTheme.bodySmall?.copyWith(
@@ -151,6 +143,21 @@ class _LoanSummaryCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ShimmerLoanSummaryCard extends StatelessWidget {
+  const ShimmerLoanSummaryCard({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 106, // Adjust height to match _LoanSummaryCard
+      decoration: BoxDecoration(
+        color: AppColors.slate200,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
       ),
     );
   }

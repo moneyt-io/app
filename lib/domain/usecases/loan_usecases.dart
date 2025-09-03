@@ -808,39 +808,28 @@ class LoanUseCases {
     required double amount,
     required String currencyId,
     required DateTime date,
+    required int categoryId,
     String? description,
     double rateExchange = 1.0,
   }) async {
     // Validar tipo de documento
     if (documentTypeId == 'L') {
-      // Préstamo otorgado - usar método estándar sin transferencia (por servicios)
-      // Necesitamos una categoría de ingreso por defecto
-      final incomeCategories = await getAvailableIncomeCategories();
-      if (incomeCategories.isEmpty) {
-        throw const InvalidCategoryTypeException('No hay categorías de ingreso disponibles');
-      }
-      
+      // Préstamo otorgado (ingreso por servicio)
       return await createLendLoanFromService(
         contactId: contactId,
         amount: amount,
         currencyId: currencyId,
-        incomeCategoryId: incomeCategories.first.id,
+        incomeCategoryId: categoryId,
         date: date,
         description: description,
       );
     } else if (documentTypeId == 'B') {
-      // Préstamo recibido - usar método estándar sin transferencia (por servicios)
-      // Necesitamos una categoría de gasto por defecto
-      final expenseCategories = await getAvailableExpenseCategories();
-      if (expenseCategories.isEmpty) {
-        throw const InvalidCategoryTypeException('No hay categorías de gasto disponibles');
-      }
-      
+      // Préstamo recibido (gasto por servicio)
       return await createBorrowLoanFromService(
         contactId: contactId,
         amount: amount,
         currencyId: currencyId,
-        expenseCategoryId: expenseCategories.first.id,
+        expenseCategoryId: categoryId,
         date: date,
         description: description,
       );
@@ -879,22 +868,97 @@ class LoanUseCases {
     await _loanRepository.updateLoan(updatedLoan);
   }
 
-  /// Crear pago simple de préstamo
-  Future<void> createSimpleLoanPayment({
+  /// Crear un pago para un préstamo existente (otorgado o recibido).
+  Future<void> createLoanPayment({
     required int loanId,
     required double paymentAmount,
     required DateTime date,
+    required String paymentTypeId,
+    required int paymentId,
     String? description,
   }) async {
-    // Usar método existente con wallet por defecto (ID 1)
-    // En un escenario real, se debería seleccionar el wallet
-    await createLoanPaymentWithAdjustment(
-      loanId: loanId,
+    // 1. Validar el préstamo
+    final loan = await _loanRepository.getLoanById(loanId);
+    if (loan == null) throw const LoanNotFoundException();
+    if (!loan.canMakePayment) throw const InvalidLoanStatusException();
+
+    final validationErrors = LoanValidators.validatePaymentData(
+      loan: loan,
       paymentAmount: paymentAmount,
-      walletId: 1, // TODO: Obtener wallet por defecto
-      date: date,
+    );
+
+    if (validationErrors.isNotEmpty) {
+      throw LoanValidationException(validationErrors);
+    }
+
+    // 2. Validar el método de pago
+    if (paymentTypeId == LoanConstants.walletPaymentType) {
+      final wallet = await _walletRepository.getWalletById(paymentId);
+      if (wallet == null) {
+        throw const PaymentMethodNotFoundException('Wallet no encontrado');
+      }
+    } else if (paymentTypeId == LoanConstants.creditCardPaymentType) {
+      final creditCard = await _creditCardRepository.getCreditCardById(paymentId);
+      if (creditCard == null) {
+        throw const PaymentMethodNotFoundException('Tarjeta de crédito no encontrada');
+      }
+    } else {
+      throw const PaymentMethodNotFoundException('Tipo de pago no soportado');
+    }
+
+    // 3. Crear la transacción y el detalle del pago
+    final isLendLoan = loan.isLendLoan;
+
+    if (isLendLoan) {
+      // Si es un préstamo que OTORGUÉ, el pago es un INGRESO para mí.
+      await _transactionRepository.createIncomeTransaction(
+        date: date,
+        description: description ?? 'Abono a préstamo',
+        amount: paymentAmount,
+        currencyId: loan.currencyId,
+        walletId: paymentId, // Asumimos que el pago va a un wallet
+        categoryId: 0, // No aplica categoría para pagos de préstamos
+        journalId: 0, // Se podría crear un journal si se necesita
+        contactId: loan.contactId,
+      );
+    } else {
+      // Si es un préstamo que RECIBÍ, el pago es un GASTO para mí.
+      await _transactionRepository.createExpenseTransaction(
+        date: date,
+        description: description ?? 'Pago de préstamo',
+        amount: paymentAmount,
+        currencyId: loan.currencyId,
+        categoryId: 0,
+        journalId: 0,
+        paymentTypeId: paymentTypeId,
+        paymentId: paymentId,
+        contactId: loan.contactId,
+      );
+    }
+
+    // 4. Registrar el detalle del pago en el préstamo
+    await _loanRepository.createLoanPayment(
+      loanId,
+      paymentAmount,
+      paymentTypeId,
+      paymentId,
+      date,
       description: description,
     );
+
+    // 5. Actualizar el total pagado y el estado del préstamo
+    final newTotalPaid = loan.totalPaid + paymentAmount;
+    final newStatus = AccountingHelpers.areAmountsEqual(newTotalPaid, loan.amount)
+        ? LoanStatus.paid
+        : LoanStatus.active;
+
+    final updatedLoan = loan.copyWith(
+      totalPaid: newTotalPaid,
+      status: newStatus,
+      updatedAt: DateTime.now(),
+    );
+
+    await _loanRepository.updateLoan(updatedLoan);
   }
 
   /// Cancelar saldo de préstamo

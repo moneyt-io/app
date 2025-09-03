@@ -4,12 +4,14 @@ import 'package:provider/provider.dart';
 import '../../../domain/entities/contact.dart';
 import '../../../domain/entities/loan_entry.dart';
 import '../../core/atoms/app_app_bar.dart';
+import '../../core/atoms/expandable_fab.dart';
+import '../../navigation/app_routes.dart';
+import '../../navigation/navigation_service.dart';
 import 'loan_provider.dart';
 import 'widgets/contact_summary_card.dart';
 import 'widgets/loan_summary_grid_card.dart';
 import 'widgets/detailed_loan_card.dart';
 import 'widgets/loan_stats_summary_card.dart';
-import 'loan_form_screen.dart';
 import 'loan_detail_mockup_screen.dart';
 
 class LoanContactDetailScreen extends StatefulWidget {
@@ -25,7 +27,6 @@ class LoanContactDetailScreen extends StatefulWidget {
 }
 
 class _LoanContactDetailScreenState extends State<LoanContactDetailScreen> {
-  bool _fabExpanded = false;
 
   @override
   void initState() {
@@ -85,9 +86,7 @@ class _LoanContactDetailScreenState extends State<LoanContactDetailScreen> {
             0.0, (sum, loan) => sum + loan.outstandingBalance);
           final netActivePosition = activeLentAmount - activeBorrowedAmount;
 
-          return Stack(
-            children: [
-              CustomScrollView(
+          return CustomScrollView(
                 slivers: [
                   // Contact Summary Card
                   SliverToBoxAdapter(
@@ -172,49 +171,24 @@ class _LoanContactDetailScreenState extends State<LoanContactDetailScreen> {
                   // View Complete History Button
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: OutlinedButton(
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
+                      child: OutlinedButton.icon(
                         onPressed: _viewCompleteHistory,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.all(16),
-                          side: const BorderSide(
-                            color: Color(0xFFE2E8F0), // border-slate-200
-                          ),
-                          backgroundColor: Colors.white,
+                        icon: const Icon(Icons.history,
+                            color: Color(0xFF64748B), size: 20), // text-slate-500
+                        label: const Text(
+                          'View Complete Loan History',
+                          style: TextStyle(
+                              color: Color(0xFF64748B),
+                              fontWeight: FontWeight.w500), // text-slate-500
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.history,
-                              color: Color(0xFF64748B), // text-slate-600
-                            ),
-                            const SizedBox(width: 12),
-                            const Column(
-                              children: [
-                                Text(
-                                  'View Complete History',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF64748B), // text-slate-600
-                                  ),
-                                ),
-                                Text(
-                                  'See all loans and detailed summary',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Color(0xFF64748B), // text-slate-500
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 12),
-                            const Icon(
-                              Icons.chevron_right,
-                              color: Color(0xFF64748B), // text-slate-600
-                            ),
-                          ],
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 50), // Full width
+                          side: const BorderSide(
+                              color: Color(0xFFE2E8F0)), // border-slate-200
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ),
@@ -225,129 +199,28 @@ class _LoanContactDetailScreenState extends State<LoanContactDetailScreen> {
                     child: SizedBox(height: 100),
                   ),
                 ],
-              ),
-
-              // FAB with Expandable Actions
-              _buildExpandableFAB(),
-
-              // Overlay for FAB Actions
-              if (_fabExpanded)
-                GestureDetector(
-                  onTap: _closeFabActions,
-                  child: Container(
-                    color: Colors.black.withOpacity(0.2),
-                  ),
-                ),
-            ],
-          );
+              );
         },
       ),
-    );
-  }
-
-  Widget _buildExpandableFAB() {
-    return Positioned(
-      bottom: 24,
-      right: 24,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // Action Buttons
-          if (_fabExpanded) ...[
-            // Lend Money Action
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'Lend Money',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                FloatingActionButton(
-                  heroTag: 'lend',
-                  onPressed: () => _navigateToLoanForm('L'),
-                  backgroundColor: const Color(0xFFF97316), // bg-orange-500
-                  child: const Icon(Icons.call_made, color: Colors.white),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 12),
-            
-            // Borrow Money Action
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'Borrow Money',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                FloatingActionButton(
-                  heroTag: 'borrow',
-                  onPressed: () => _navigateToLoanForm('B'),
-                  backgroundColor: const Color(0xFF8B5CF6), // bg-purple-500
-                  child: const Icon(Icons.call_received, color: Colors.white),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 12),
-          ],
-
-          // Main FAB
-          FloatingActionButton(
-            heroTag: 'main',
-            onPressed: _toggleFabActions,
-            backgroundColor: const Color(0xFF0C7FF2), // bg-blue-600
-            child: AnimatedRotation(
-              turns: _fabExpanded ? 0.125 : 0.0,
-              duration: const Duration(milliseconds: 200),
-              child: Icon(
-                _fabExpanded ? Icons.close : Icons.add,
-                color: Colors.white,
-              ),
-            ),
+      floatingActionButton: ExpandableFab(
+        actions: [
+          FabAction(
+            label: 'Lend',
+            icon: Icons.trending_up,
+            backgroundColor: const Color(0xFF22C55E),
+            onPressed: () => _navigateToLoanForm('L'),
+          ),
+          FabAction(
+            label: 'Borrow',
+            icon: Icons.trending_down,
+            backgroundColor: const Color(0xFFEF4444),
+            onPressed: () => _navigateToLoanForm('B'),
           ),
         ],
       ),
     );
   }
 
-  void _toggleFabActions() {
-    setState(() {
-      _fabExpanded = !_fabExpanded;
-    });
-  }
-
-  void _closeFabActions() {
-    setState(() {
-      _fabExpanded = false;
-    });
-  }
 
   void _handleShare() {
     // TODO: Implement share functionality
@@ -374,11 +247,12 @@ class _LoanContactDetailScreenState extends State<LoanContactDetailScreen> {
   }
 
   void _navigateToLoanForm(String documentType) {
-    _closeFabActions();
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => LoanFormScreen(),
-      ),
+    NavigationService.navigateTo(
+      AppRoutes.loanForm,
+      arguments: {
+        'initialType': documentType,
+        'contact': widget.contact,
+      },
     );
   }
 

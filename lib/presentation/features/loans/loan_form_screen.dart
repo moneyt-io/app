@@ -17,6 +17,10 @@ import '../../core/atoms/app_floating_label_selector.dart';
 import '../../core/molecules/form_action_bar.dart';
 import '../contacts/widgets/contact_selection_dialog.dart' as contact_dialog;
 import '../categories/widgets/category_selection_dialog.dart' as cat_dialog;
+import '../../core/molecules/date_selection_dialog.dart';
+import '../transactions/widgets/account_selection_dialog.dart';
+import '../../core/organisms/account_selector_modal.dart'
+    show SelectableAccount;
 
 class LoanFormScreen extends StatefulWidget {
   final LoanEntry? loan;
@@ -38,15 +42,15 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
 
   String _documentType = 'L'; // L = Lend, B = Borrow
   Contact? _selectedContact;
-  Wallet? _selectedWallet;
+  SelectableAccount? _selectedAccount;
   DateTime _selectedDate = DateTime.now();
   DateTime? _selectedDueDate;
   String _selectedCurrency = 'USD';
-  bool _createTransaction = true;
+  bool _createTransaction = false;
   Category? _selectedCategory;
 
   List<Contact> _contacts = [];
-  List<Wallet> _wallets = [];
+  Map<int, SelectableAccount> _accountsMap = {};
   List<Category> _categories = [];
 
   bool _isLoading = false;
@@ -66,12 +70,13 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
       _descriptionController.text = loan.description ?? '';
       _selectedDate = loan.date;
       _selectedCurrency = loan.currencyId;
+      // TODO: Handle editing existing loans with transactions
     }
   }
 
   Future<void> _loadInitialData() async {
     setState(() => _isLoading = true);
-    
+
     try {
       final contactUseCases = GetIt.instance<ContactUseCases>();
       final walletUseCases = GetIt.instance<WalletUseCases>();
@@ -83,10 +88,20 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
         categoryUseCases.getAllCategories(),
       ]);
 
+      final contacts = results[0] as List<Contact>;
+      final wallets = results[1] as List<Wallet>;
+      final categories = results[2] as List<Category>;
+
+      final Map<int, SelectableAccount> accountsMap = {};
+      for (final wallet in wallets) {
+        accountsMap[wallet.id] = SelectableAccount.fromWallet(wallet,
+            balance: 0, accountNumber: '1234');
+      }
+
       setState(() {
-        _contacts = results[0] as List<Contact>;
-        _wallets = results[1] as List<Wallet>;
-        _categories = results[2] as List<Category>;
+        _contacts = contacts;
+        _accountsMap = accountsMap;
+        _categories = categories;
       });
     } catch (e) {
       if (mounted) {
@@ -176,17 +191,20 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
         ),
         const SizedBox(height: 24),
 
-        // Wallet Selector
-        AppFloatingLabelSelector(
-          label: 'Wallet',
-          icon: Icons.account_balance_wallet_outlined,
-          value: _selectedWallet?.name ?? 'Select wallet',
-          onTap: _selectWallet,
-          hasValue: _selectedWallet != null,
-          iconColor: const Color(0xFF2563EB), // blue-600
-          iconBackgroundColor: const Color(0xFFDBEAFE), // blue-100
-        ),
-        const SizedBox(height: 24),
+        // Wallet Selector (conditional)
+        if (!_createTransaction)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 24.0),
+            child: AppFloatingLabelSelector(
+              label: 'Wallet',
+              icon: Icons.account_balance_wallet_outlined,
+              value: _selectedAccount?.name ?? 'Select wallet',
+              onTap: _showAccountSelector,
+              hasValue: _selectedAccount != null,
+              iconColor: const Color(0xFF2563EB), // blue-600
+              iconBackgroundColor: const Color(0xFFDBEAFE), // blue-100
+            ),
+          ),
 
         // Description
         AppFloatingLabelField(
@@ -198,8 +216,142 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
         ),
         const SizedBox(height: 24),
 
-        // Create Transaction Toggle
-        _buildTransactionSection(),
+        // Create Transaction Section
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEFF6FF), // bg-blue-50
+            border: Border.all(color: const Color(0xFFBFDBFE)), // border-blue-200
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Create transaction',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1E40AF), // text-blue-800
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Record this loan as a transaction',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF2563EB), // text-blue-600
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Switch(
+                    value: _createTransaction,
+                    onChanged: (bool value) {
+                      setState(() {
+                        _createTransaction = value;
+                        if (value) {
+                          _selectedAccount = null;
+                        } else {
+                          _selectedCategory = null;
+                        }
+                      });
+                    },
+                  ),
+                ],
+              ),
+              if (_createTransaction) ...[
+                const SizedBox(height: 12),
+                _buildCategorySelector(),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategorySelector() {
+    bool hasValue = _selectedCategory != null;
+
+    // This is a simplified version of AppFloatingLabelSelector, styled specifically for this context.
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: _selectCategory,
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              width: double.infinity,
+              height: 48, // h-12 from mockup
+              padding: const EdgeInsets.symmetric(horizontal: 12), // px-3 from mockup
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFF6FF), // bg-blue-50
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF93C5FD)), // border-blue-300
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 24, // h-6 w-6
+                    height: 24,
+                    decoration: BoxDecoration(
+                      // Colors taken from the 'Loan Given' category in the mockup
+                      color: const Color(0xFFFFF7ED), // bg-orange-100
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.call_made, // Icon from mockup
+                      color: Color(0xFFC2410C), // text-orange-600
+                      size: 16,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _selectedCategory?.name ?? 'Select category',
+                      style: TextStyle(
+                        fontSize: 14, // text-sm
+                        fontWeight: FontWeight.w500,
+                        color: hasValue
+                            ? const Color(0xFF0F172A) // text-slate-900
+                            : const Color(0xFF64748B), // text-slate-500 for placeholder
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const Icon(Icons.expand_more, color: Color(0xFF94A3B8)), // text-slate-400
+                ],
+              ),
+            ),
+          ),
+        ),
+        // Floating Label
+        Positioned(
+          top: -8,
+          left: 12,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            color: const Color(0xFFEFF6FF), // Match background to hide border
+            child: const Text(
+              'Transaction category',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF1D4ED8), // text-blue-700
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -253,12 +405,16 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
       child: Container(
         height: 48,
         decoration: BoxDecoration(
-          color: isSelected 
-              ? (type == 'L' ? const Color(0xFFFED7AA) : const Color(0xFFE9D5FF))
+          color: isSelected
+              ? (type == 'L'
+                  ? const Color(0xFFFED7AA)
+                  : const Color(0xFFE9D5FF))
               : const Color(0xFFF1F5F9),
           border: Border.all(
-            color: isSelected 
-                ? (type == 'L' ? const Color(0xFFFDBA74) : const Color(0xFFDDD6FE))
+            color: isSelected
+                ? (type == 'L'
+                    ? const Color(0xFFFDBA74)
+                    : const Color(0xFFDDD6FE))
                 : const Color(0xFFE2E8F0),
           ),
           borderRadius: BorderRadius.circular(8),
@@ -269,8 +425,10 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
             Icon(
               icon,
               size: 18,
-              color: isSelected 
-                  ? (type == 'L' ? const Color(0xFFEA580C) : const Color(0xFF9333EA))
+              color: isSelected
+                  ? (type == 'L'
+                      ? const Color(0xFFEA580C)
+                      : const Color(0xFF9333EA))
                   : const Color(0xFF64748B),
             ),
             const SizedBox(width: 8),
@@ -279,8 +437,10 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: isSelected 
-                    ? (type == 'L' ? const Color(0xFFEA580C) : const Color(0xFF9333EA))
+                color: isSelected
+                    ? (type == 'L'
+                        ? const Color(0xFFEA580C)
+                        : const Color(0xFF9333EA))
                     : const Color(0xFF64748B),
               ),
             ),
@@ -308,7 +468,7 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
           child: AppFloatingLabelSelector(
             label: 'Due date',
             icon: Icons.schedule_outlined,
-            value: _selectedDueDate != null 
+            value: _selectedDueDate != null
                 ? DateFormat('MMM dd, yyyy').format(_selectedDueDate!)
                 : 'Select date',
             onTap: () => _selectDate(isLoanDate: false),
@@ -321,73 +481,11 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
     );
   }
 
-  Widget _buildTransactionSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF), // bg-blue-50
-        border: Border.all(color: const Color(0xFFBFDBFE)), // border-blue-200
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Create transaction',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E40AF), // text-blue-800
-                    ),
-                  ),
-                  Text(
-                    'Record this loan as a transaction',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF2563EB), // text-blue-600
-                    ),
-                  ),
-                ],
-              ),
-              Switch(
-                value: _createTransaction,
-                onChanged: (value) => setState(() => _createTransaction = value),
-                activeColor: const Color(0xFF2563EB),
-              ),
-            ],
-          ),
-          if (_createTransaction) ...[
-            const SizedBox(height: 16),
-            AppFloatingLabelSelector(
-              label: 'Transaction category',
-              icon: _documentType == 'L' ? Icons.call_made : Icons.call_received,
-              value: _selectedCategory?.name ?? 'Select category',
-              onTap: _selectCategory,
-              hasValue: _selectedCategory != null,
-              iconColor: _documentType == 'L' 
-                  ? const Color(0xFFEA580C) 
-                  : const Color(0xFF9333EA),
-              iconBackgroundColor: _documentType == 'L' 
-                  ? const Color(0xFFFED7AA) 
-                  : const Color(0xFFE9D5FF),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
   Future<void> _selectDate({required bool isLoanDate}) async {
-    final picked = await showDatePicker(
+    final picked = await DateSelectionDialog.show(
       context: context,
-      initialDate: isLoanDate ? _selectedDate : (_selectedDueDate ?? DateTime.now()),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
+      initialDate:
+          isLoanDate ? _selectedDate : (_selectedDueDate ?? DateTime.now()),
     );
     if (picked != null) {
       setState(() {
@@ -431,54 +529,32 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
     }
   }
 
-  Future<void> _selectWallet() async {
-    // Simple wallet selection - could be enhanced with a proper dialog
-    if (_wallets.isEmpty) return;
-    
-    await showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Select Wallet',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 16),
-            ..._wallets.map((wallet) => ListTile(
-              leading: const Icon(Icons.account_balance_wallet),
-              title: Text(wallet.name),
-              subtitle: Text(wallet.description ?? 'No description'),
-              onTap: () {
-                setState(() => _selectedWallet = wallet);
-                Navigator.pop(context);
-              },
-            )),
-          ],
-        ),
-      ),
+  Future<void> _showAccountSelector() async {
+    final result = await AccountSelectionDialog.show(
+      context,
+      accounts: _accountsMap.values.toList(),
+      initialSelection: _selectedAccount,
     );
+    if (result != null) {
+      setState(() => _selectedAccount = result);
+    }
   }
 
   Future<void> _selectCategory() async {
-    final selectableCategories = _categories
-        .where((c) => 
-            (_documentType == 'L' && c.documentTypeId == 'I') ||
-            (_documentType == 'B' && c.documentTypeId == 'E'))
-        .map((c) {
+    final categoryType = _documentType == 'L' ? 'I' : 'E';
+    final selectableCategories =
+        _categories.where((c) => c.documentTypeId == categoryType).map((c) {
       return cat_dialog.SelectableCategory(
         id: c.id.toString(),
         name: c.name,
         parentId: c.parentId?.toString(),
         isIncome: c.documentTypeId == 'I',
         icon: _documentType == 'L' ? Icons.call_made : Icons.call_received,
-        iconColor: _documentType == 'L' 
-            ? const Color(0xFFEA580C) 
+        iconColor: _documentType == 'L'
+            ? const Color(0xFFEA580C)
             : const Color(0xFF9333EA),
-        iconBgColor: _documentType == 'L' 
-            ? const Color(0xFFFED7AA) 
+        iconBgColor: _documentType == 'L'
+            ? const Color(0xFFFED7AA)
             : const Color(0xFFE9D5FF),
       );
     }).toList();
@@ -515,31 +591,57 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
       return;
     }
 
-    if (_selectedWallet == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a wallet')),
-      );
-      return;
+    // Validaciones condicionales
+    if (_createTransaction) {
+      if (_selectedCategory == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a category')),
+        );
+        return;
+      }
+    } else {
+      if (_selectedAccount == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a wallet')),
+        );
+        return;
+      }
     }
 
     final amount = double.parse(_amountController.text);
-    final description = _descriptionController.text.isEmpty 
-        ? null 
+    final description = _descriptionController.text.isEmpty
+        ? null
         : _descriptionController.text;
 
     setState(() => _isLoading = true);
 
     try {
       final loanProvider = Provider.of<LoanProvider>(context, listen: false);
-      
-      final loan = await loanProvider.createLoan(
-        documentTypeId: _documentType,
-        contactId: _selectedContact!.id,
-        amount: amount,
-        currencyId: _selectedCurrency,
-        date: _selectedDate,
-        description: description,
-      );
+      LoanEntry? loan;
+
+      if (_createTransaction) {
+        // Crear préstamo desde categoría (tipo 'T')
+        loan = await loanProvider.createLoan(
+          documentTypeId: _documentType,
+          contactId: _selectedContact!.id,
+          amount: amount,
+          currencyId: _selectedCurrency,
+          date: _selectedDate,
+          categoryId: _selectedCategory!.id,
+          description: description,
+        );
+      } else {
+        // Crear préstamo desde wallet (tipo 'W')
+        loan = await loanProvider.createLoanFromWallet(
+          documentTypeId: _documentType,
+          contactId: _selectedContact!.id,
+          amount: amount,
+          currencyId: _selectedCurrency,
+          date: _selectedDate,
+          walletId: _selectedAccount!.id,
+          description: description,
+        );
+      }
 
       if (loan != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
