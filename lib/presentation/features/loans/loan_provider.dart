@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import '../../../domain/entities/loan_entry.dart';
-import '../../../domain/entities/contact.dart';
 import '../../../domain/usecases/loan_usecases.dart';
 import '../../../domain/usecases/contact_usecases.dart';
 
@@ -57,13 +56,14 @@ class LoanProvider extends ChangeNotifier {
     try {
       // Load loans first
       final loans = await _loanUseCases.getAllLoans();
-      
+
       // Load contacts for each loan and populate the contact field
       final loansWithContacts = <LoanEntry>[];
       for (final loan in loans) {
         if (loan.contactId > 0) {
           try {
-            final contact = await _contactUseCases.getContactById(loan.contactId);
+            final contact =
+                await _contactUseCases.getContactById(loan.contactId);
             final loanWithContact = loan.copyWith(contact: contact);
             loansWithContacts.add(loanWithContact);
           } catch (e) {
@@ -75,7 +75,7 @@ class LoanProvider extends ChangeNotifier {
           loansWithContacts.add(loan);
         }
       }
-      
+
       _loans = loansWithContacts;
       _clearError();
     } catch (e) {
@@ -120,8 +120,13 @@ class LoanProvider extends ChangeNotifier {
         );
       }
 
-      await loadLoans(); // Recargar lista
+      // Add the new loan to the list in memory instead of reloading
+      final contact = await _contactUseCases.getContactById(loan.contactId);
+      final loanWithContact = loan.copyWith(contact: contact);
+      _loans.add(loanWithContact);
+
       _clearError();
+      notifyListeners(); // Notify listeners of the change
       return loan;
     } catch (e) {
       _setError('Error al crear préstamo desde wallet: ${e.toString()}');
@@ -155,8 +160,13 @@ class LoanProvider extends ChangeNotifier {
         description: description,
       );
 
-      await loadLoans(); // Recargar lista
+      // Add the new loan to the list in memory instead of reloading
+      final contact = await _contactUseCases.getContactById(loan.contactId);
+      final loanWithContact = loan.copyWith(contact: contact);
+      _loans.add(loanWithContact);
+
       _clearError();
+      notifyListeners(); // Notify listeners of the change
       return loan;
     } catch (e) {
       _setError('Error al crear préstamo: ${e.toString()}');
@@ -201,7 +211,6 @@ class LoanProvider extends ChangeNotifier {
     }
   }
 
-
   // Crear pago de préstamo
   Future<void> createLoanPayment({
     required int loanId,
@@ -224,8 +233,20 @@ class LoanProvider extends ChangeNotifier {
         description: description,
       );
 
-      await loadLoans();
+      // Instead of reloading, find and update the loan in memory
+      final index = _loans.indexWhere((loan) => loan.id == loanId);
+      if (index != -1) {
+        // To get the updated status and totalPaid, we need to fetch the updated loan
+        final updatedLoan = await _loanUseCases.getLoanById(loanId);
+        if (updatedLoan != null) {
+          // We also need to preserve the contact info if it was loaded before
+          final originalLoan = _loans[index];
+          _loans[index] = updatedLoan.copyWith(contact: originalLoan.contact);
+        }
+      }
+
       _clearError();
+      notifyListeners();
     } catch (e) {
       _setError('Error al registrar pago: ${e.toString()}');
       rethrow; // Re-lanzar la excepción para que la UI pueda manejarla
@@ -248,8 +269,18 @@ class LoanProvider extends ChangeNotifier {
         description: description,
       );
 
-      await loadLoans();
+      // Instead of reloading, find and update the loan in memory
+      final index = _loans.indexWhere((loan) => loan.id == loanId);
+      if (index != -1) {
+        final updatedLoan = await _loanUseCases.getLoanById(loanId);
+        if (updatedLoan != null) {
+          final originalLoan = _loans[index];
+          _loans[index] = updatedLoan.copyWith(contact: originalLoan.contact);
+        }
+      }
+
       _clearError();
+      notifyListeners();
     } catch (e) {
       _setError('Error al cancelar saldo: ${e.toString()}');
     } finally {
@@ -271,8 +302,18 @@ class LoanProvider extends ChangeNotifier {
         newStatus: newStatus,
       );
 
-      await loadLoans();
+      // Instead of reloading, find and update the loan in memory
+      final index = _loans.indexWhere((loan) => loan.id == loanId);
+      if (index != -1) {
+        final updatedLoan = await _loanUseCases.getLoanById(loanId);
+        if (updatedLoan != null) {
+          final originalLoan = _loans[index];
+          _loans[index] = updatedLoan.copyWith(contact: originalLoan.contact);
+        }
+      }
+
       _clearError();
+      notifyListeners();
     } catch (e) {
       _setError('Error al actualizar estado: ${e.toString()}');
     } finally {
@@ -287,8 +328,9 @@ class LoanProvider extends ChangeNotifier {
     _setLoading(true);
     try {
       await _loanUseCases.deleteLoan(id);
-      await loadLoans();
+      _loans.removeWhere((loan) => loan.id == id);
       _clearError();
+      notifyListeners();
     } catch (e) {
       _setError('Error al eliminar préstamo: ${e.toString()}');
     } finally {

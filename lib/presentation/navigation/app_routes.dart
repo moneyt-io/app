@@ -28,6 +28,7 @@ class AppRoutes {
   static const String transactions = '/transactions';
   static const String transactionForm = '/transactions/form';
   static const String transactionDetail = '/transactions/detail';
+  static const String transactionShare = '/transactions/share';
   
   // Plan de cuentas
   static const String chartAccounts = '/chart-accounts';

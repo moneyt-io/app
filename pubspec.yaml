@@ -39,6 +39,7 @@ dependencies:
   confetti: ^0.7.0 
   superwallkit_flutter: ^2.4.1
   table_calendar: ^3.2.0
+  collection: ^1.18.0
   
 dev_dependencies:
   flutter_test:

@@ -17,6 +17,7 @@ import '../features/wallets/wallet_form_screen.dart';
 import '../features/transactions/transactions_screen.dart';
 import '../features/transactions/transaction_form_screen.dart';
 import '../features/transactions/transaction_detail_screen.dart';
+import '../features/transactions/transaction_share_screen.dart';
 import '../features/categories/categories_screen.dart';
 import '../features/categories/category_form_screen.dart';
 import '../features/contacts/contacts_screen.dart';
@@ -119,6 +120,13 @@ class AppRouter {
         final transaction = settings.arguments as TransactionEntry?;
         return MaterialPageRoute(
           builder: (_) => TransactionDetailScreen(transaction: transaction!),
+          settings: settings,
+        );
+
+      case AppRoutes.transactionShare:
+        final transaction = settings.arguments as TransactionEntry;
+        return MaterialPageRoute(
+          builder: (_) => TransactionShareScreen(transaction: transaction),
           settings: settings,
         );
 

@@ -30,13 +30,20 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
   void _loadWidgetConfiguration() {
     // TODO: Cargar desde SharedPreferences o servicio
     _widgets = [
-      const WidgetConfig(type: DashboardWidgetType.balance, enabled: true, order: 1),
-      const WidgetConfig(type: DashboardWidgetType.quickActions, enabled: true, order: 2),
-      const WidgetConfig(type: DashboardWidgetType.wallets, enabled: true, order: 3),
-      const WidgetConfig(type: DashboardWidgetType.loans, enabled: true, order: 4),
-      const WidgetConfig(type: DashboardWidgetType.transactions, enabled: true, order: 5),
-      const WidgetConfig(type: DashboardWidgetType.chartAccounts, enabled: false, order: 6),
-      const WidgetConfig(type: DashboardWidgetType.creditCards, enabled: false, order: 7),
+      const WidgetConfig(
+          type: DashboardWidgetType.balance, enabled: true, order: 1),
+      const WidgetConfig(
+          type: DashboardWidgetType.quickActions, enabled: true, order: 2),
+      const WidgetConfig(
+          type: DashboardWidgetType.wallets, enabled: true, order: 3),
+      const WidgetConfig(
+          type: DashboardWidgetType.loans, enabled: true, order: 4),
+      const WidgetConfig(
+          type: DashboardWidgetType.transactions, enabled: true, order: 5),
+      const WidgetConfig(
+          type: DashboardWidgetType.chartAccounts, enabled: false, order: 6),
+      const WidgetConfig(
+          type: DashboardWidgetType.creditCards, enabled: false, order: 7),
     ];
   }
 
@@ -48,12 +55,12 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
       }
       final item = _widgets.removeAt(oldIndex);
       _widgets.insert(newIndex, item);
-      
+
       // Actualizar órdenes
       for (int i = 0; i < _widgets.length; i++) {
         _widgets[i] = _widgets[i].copyWith(order: i + 1);
       }
-      
+
       _hasChanges = true;
     });
   }
@@ -112,21 +119,22 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
 
     try {
       // TODO: Guardar en SharedPreferences o servicio
-      await Future.delayed(const Duration(milliseconds: 800)); // Simular guardado
-      
+      await Future.delayed(
+          const Duration(milliseconds: 800)); // Simular guardado
+
       if (mounted) {
         setState(() {
           _hasChanges = false;
           _isSaving = false;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Changes saved successfully!'),
             backgroundColor: Color(0xFF16A34A),
           ),
         );
-        
+
         // Regresar al dashboard después de un momento
         Future.delayed(const Duration(milliseconds: 500), () {
           NavigationService.goBack();
@@ -137,7 +145,7 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
         setState(() {
           _isSaving = false;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error saving changes: $e'),
@@ -152,14 +160,14 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // HTML: bg-slate-50
-      
+
       appBar: AppAppBar(
         title: 'Dashboard Widgets',
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.back,
         onLeadingPressed: () => NavigationService.goBack(),
       ),
-      
+
       body: Column(
         children: [
           Expanded(
@@ -174,9 +182,9 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
                     onReorder: _handleReorder,
                     onToggle: _handleToggle,
                   ),
-                  
+
                   const SizedBox(height: 24), // HTML: mt-6
-                  
+
                   // Reset Button
                   AppButton(
                     text: 'Reset to Default Layout',
@@ -185,13 +193,13 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
                     icon: Icons.refresh,
                     isFullWidth: true,
                   ),
-                  
+
                   const SizedBox(height: 100), // Space for sticky footer
                 ],
               ),
             ),
           ),
-          
+
           // Sticky Footer
           StickyActionFooter(
             primaryText: _isSaving ? 'Saving...' : 'Save Changes',

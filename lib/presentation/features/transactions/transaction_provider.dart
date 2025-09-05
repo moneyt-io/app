@@ -90,7 +90,8 @@ class TransactionProvider extends ChangeNotifier {
         categoryId: categoryId,
         contactId: contactId,
       );
-      // The list will be refreshed when the user returns to the transaction list screen.
+      _transactions.insert(0, newTransaction); // Add to list
+      notifyListeners(); // Notify UI
       return newTransaction;
     } catch (e) {
       _error = e.toString();
@@ -120,6 +121,8 @@ class TransactionProvider extends ChangeNotifier {
         categoryId: categoryId,
         contactId: contactId,
       );
+      _transactions.insert(0, newTransaction); // Add to list
+      notifyListeners(); // Notify UI
       return newTransaction;
     } catch (e) {
       _error = e.toString();
@@ -153,6 +156,8 @@ class TransactionProvider extends ChangeNotifier {
         targetAmount: targetAmount,
         contactId: contactId,
       );
+      _transactions.insert(0, newTransaction); // Add to list
+      notifyListeners(); // Notify UI
       return newTransaction;
     } catch (e) {
       _error = e.toString();

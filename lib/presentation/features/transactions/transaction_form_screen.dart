@@ -5,6 +5,8 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
+import '../../navigation/app_routes.dart';
+import '../../navigation/navigation_service.dart';
 import '../../../domain/entities/transaction.dart';
 import '../../../domain/entities/category.dart';
 import '../../../domain/entities/contact.dart';
@@ -478,21 +480,30 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         }
 
         if (mounted && newTransaction != null) {
-          // Navigate to the share screen instead of just popping
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) =>
-                  TransactionShareScreen(transaction: newTransaction!),
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Transacción creada con éxito'),
+              action: SnackBarAction(
+                label: 'Compartir',
+                onPressed: () {
+                  // Use the global navigation service to avoid using the unmounted context
+                  NavigationService.navigateTo(
+                    AppRoutes.transactionShare,
+                    arguments: newTransaction!,
+                  );
+                },
+              ),
             ),
           );
+          Navigator.of(context).pop(); // Go back to the list
         } else if (mounted) {
           // Fallback in case transaction is null
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Transacción guardada, pero no se pudo compartir.')),
+            const SnackBar(content: Text('Transacción guardada con error.')),
           );
           Navigator.of(context).pop();
         }
-        return; // Exit after navigation
+        return;
       }
 
       // This part will now only be reached for updates

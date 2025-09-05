@@ -91,7 +91,17 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => ContactProvider(GetIt.instance()),
         ),
-        ChangeNotifierProvider(create: (_) => TransactionProvider()),
+        ChangeNotifierProxyProvider<LoanProvider, TransactionProvider>(
+          create: (context) => TransactionProvider(),
+          update: (context, loanProvider, transactionProvider) {
+            // Whenever loanProvider notifies listeners, this will be called.
+            // We can trigger a reload of transactions here.
+            // Note: This might need a more sophisticated logic to avoid unnecessary reloads,
+            // but for now, it ensures data consistency.
+            transactionProvider?.refreshTransactions();
+            return transactionProvider!;
+          },
+        ),
         ChangeNotifierProxyProvider<TransactionProvider, WalletProvider>(
           // WalletProvider is created here with its direct dependencies.
           create: (context) => WalletProvider(

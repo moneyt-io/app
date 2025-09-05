@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:get_it/get_it.dart';
+import 'package:collection/collection.dart';
+
 import '../../../domain/entities/loan_entry.dart';
-import '../../../domain/entities/contact.dart';
-import '../../../domain/usecases/loan_usecases.dart';
-import '../../../domain/usecases/contact_usecases.dart';
 import 'loan_provider.dart';
 import '../../core/atoms/loan_status_chip.dart';
 import '../../core/molecules/loan_payment_modal.dart';
@@ -21,83 +19,35 @@ class LoanDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<LoanDetailScreen> createState() => _LoanDetailScreenState();
+  _LoanDetailScreenState createState() => _LoanDetailScreenState();
 }
 
 class _LoanDetailScreenState extends State<LoanDetailScreen> {
-  LoanEntry? _loan;
-  Contact? _contact;
-  bool _isLoading = true;
-  String? _errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadLoanData();
-  }
-
-  Future<void> _loadLoanData() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final loanUseCases = GetIt.instance<LoanUseCases>();
-      final contactUseCases = GetIt.instance<ContactUseCases>();
-
-      final loan = await loanUseCases.getLoanById(widget.loanId);
-      if (loan == null) {
-        setState(() {
-          _errorMessage = 'Préstamo no encontrado';
-          _isLoading = false;
-        });
-        return;
-      }
-
-      final contact = await contactUseCases.getContactById(loan.contactId);
-
-      setState(() {
-        _loan = loan;
-        _contact = contact;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Error al cargar préstamo: ${e.toString()}';
-        _isLoading = false;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final provider = context.watch<LoanProvider>();
+    final loan = provider.loans.firstWhereOrNull((l) => l.id == widget.loanId);
 
-    if (_isLoading) {
+    if (provider.isLoading) {
       return Scaffold(
         appBar: AppBar(title: const Text('Cargando...')),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
-    if (_errorMessage != null) {
+    if (loan == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Error')),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
-              Text(
-                _errorMessage!,
-                style: TextStyle(color: theme.colorScheme.error),
-                textAlign: TextAlign.center,
-              ),
+              const Text('Préstamo no encontrado'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: _loadLoanData,
+                onPressed: () => context.read<LoanProvider>().loadLoans(),
                 child: const Text('Reintentar'),
               ),
             ],
@@ -106,8 +56,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
       );
     }
 
-    final loan = _loan!;
-    final contact = _contact;
+    final contact = loan.contact;
     final isLend = loan.documentTypeId == 'L';
     final outstandingBalance = loan.amount - loan.totalPaid;
     final canMakePayment = loan.status == LoanStatus.active && outstandingBalance > 0;
@@ -119,11 +68,11 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
           if (canMakePayment)
             IconButton(
               icon: Icon(isLend ? Icons.payment : Icons.attach_money),
-              onPressed: () => _showPaymentModal(context),
+              onPressed: () => _showPaymentModal(context, loan),
               tooltip: isLend ? 'Recibir pago' : 'Realizar pago',
             ),
           PopupMenuButton<String>(
-            onSelected: (value) => _handleMenuAction(context, value),
+            onSelected: (value) => _handleMenuAction(context, value, loan),
             itemBuilder: (context) => [
               if (canMakePayment)
                 PopupMenuItem(
@@ -173,7 +122,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _loadLoanData,
+        onRefresh: () => context.read<LoanProvider>().loadLoans(),
         child: ListView(
           padding: const EdgeInsets.all(AppDimensions.paddingMedium),
           children: [
@@ -188,13 +137,13 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                       children: [
                         CircleAvatar(
                           backgroundColor: isLend
-                              ? theme.colorScheme.primary.withOpacity(0.1)
-                              : theme.colorScheme.secondary.withOpacity(0.1),
+                              ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                              : Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                           child: Icon(
                             isLend ? Icons.arrow_upward : Icons.arrow_downward,
                             color: isLend
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.secondary,
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -204,7 +153,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                             children: [
                               Text(
                                 contact?.name ?? 'Contacto desconocido',
-                                style: theme.textTheme.titleLarge?.copyWith(
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -236,14 +185,14 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                       const SizedBox(height: 16),
                       Text(
                         'Descripción:',
-                        style: theme.textTheme.bodyMedium?.copyWith(
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         loan.description!,
-                        style: theme.textTheme.bodyMedium,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ],
@@ -263,7 +212,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                     children: [
                       Text(
                         'Acciones',
-                        style: theme.textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -273,7 +222,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                         children: [
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () => _showPaymentModal(context),
+                              onPressed: () => _showPaymentModal(context, loan),
                               icon: Icon(isLend ? Icons.payment : Icons.attach_money),
                               label: Text(isLend ? 'Recibir Pago' : 'Realizar Pago'),
                             ),
@@ -281,7 +230,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                           const SizedBox(width: AppDimensions.paddingSmall),
                           Expanded(
                             child: OutlinedButton.icon(
-                              onPressed: () => _showWriteOffModal(context),
+                              onPressed: () => _showWriteOffModal(context, loan),
                               icon: const Icon(Icons.cancel_outlined),
                               label: Text(isLend ? 'Cancelar' : 'Asumir'),
                             ),
@@ -305,7 +254,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                   children: [
                     Text(
                       'Historial de Pagos',
-                      style: theme.textTheme.titleMedium?.copyWith(
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -318,7 +267,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                         subtitle: Text('Total: \$${loan.totalPaid.toStringAsFixed(2)}'),
                         trailing: Text(
                           '${loan.date.day}/${loan.date.month}/${loan.date.year}',
-                          style: theme.textTheme.bodySmall,
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
                     ] else ...[
@@ -366,52 +315,52 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     );
   }
 
-  void _handleMenuAction(BuildContext context, String action) {
+  void _handleMenuAction(BuildContext context, String action, LoanEntry loan) {
     switch (action) {
       case 'payment':
-        _showPaymentModal(context);
+        _showPaymentModal(context, loan);
         break;
       case 'writeoff':
-        _showWriteOffModal(context);
+        _showWriteOffModal(context, loan);
         break;
       case 'edit':
-        NavigationService.goToLoanForm(loan: _loan);
+        NavigationService.goToLoanForm(loan: loan);
         break;
       case 'cancel':
-        _showCancelConfirmation(context);
+        _showCancelConfirmation(context, loan);
         break;
     }
   }
 
-  void _showPaymentModal(BuildContext context) {
+  void _showPaymentModal(BuildContext context, LoanEntry loan) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => LoanPaymentModal(
-        loan: _loan!,
+        loan: loan,
         onPaymentConfirmed: () {
           Navigator.of(context).pop();
-          _loadLoanData();
+          // No need to call _loadLoanData, provider handles update
         },
       ),
     );
   }
 
-  void _showWriteOffModal(BuildContext context) {
+  void _showWriteOffModal(BuildContext context, LoanEntry loan) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => WriteOffModal(
-        loan: _loan!,
+        loan: loan,
         onConfirmed: () {
           Navigator.of(context).pop();
-          _loadLoanData();
+          // No need to call _loadLoanData, provider handles update
         },
       ),
     );
   }
 
-  void _showCancelConfirmation(BuildContext context) {
+  void _showCancelConfirmation(BuildContext context, LoanEntry loan) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -431,15 +380,15 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
               try {
                 final provider = Provider.of<LoanProvider>(context, listen: false);
                 await provider.updateLoanStatus(
-                  loanId: _loan!.id,
+                  loanId: loan.id,
                   newStatus: LoanStatus.cancelled,
                 );
                 
-                if (mounted) {
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Préstamo cancelado')),
                   );
-                  _loadLoanData();
+                  Navigator.of(context).pop(); // Pop detail screen after cancellation
                 }
               } catch (e) {
                 if (mounted) {
