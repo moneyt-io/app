@@ -4,6 +4,7 @@ import '../../domain/entities/chart_account.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/entities/credit_card.dart';
 import '../../domain/entities/transaction_entry.dart';
+import '../../domain/entities/loan_entry.dart';
 import '../../domain/entities/wallet.dart';
 import 'app_routes.dart';
 import '../features/dashboard/home_screen.dart';
@@ -30,6 +31,9 @@ import '../features/backup/backup_screen.dart';
 import '../features/loans/loans_screen.dart';
 import '../features/loans/loan_form_screen.dart';
 import '../features/loans/loan_detail_screen.dart';
+import '../features/loans/loan_detail_share_screen.dart';
+import '../features/loans/loan_contact_share_screen.dart';
+import '../features/loans/loan_history_screen.dart';
 import '../features/journals/journals_screen.dart';
 import '../features/journals/journal_detail_screen.dart';
 import '../features/paywall/paywall_launcher_screen.dart';
@@ -56,27 +60,29 @@ class AppRouter {
           settings: settings,
         );
 
-      case AppRoutes.login: {
-        final args = settings.arguments as Map<String, dynamic>?;
-        final hasJustSeenPaywall =
-            args?['hasJustSeenPaywall'] as bool? ?? false;
-        return MaterialPageRoute(
-          builder: (_) => LoginScreen(hasJustSeenPaywall: hasJustSeenPaywall),
-          fullscreenDialog: true,
-          settings: settings,
-        );
-      }
+      case AppRoutes.login:
+        {
+          final args = settings.arguments as Map<String, dynamic>?;
+          final hasJustSeenPaywall =
+              args?['hasJustSeenPaywall'] as bool? ?? false;
+          return MaterialPageRoute(
+            builder: (_) => LoginScreen(hasJustSeenPaywall: hasJustSeenPaywall),
+            fullscreenDialog: true,
+            settings: settings,
+          );
+        }
 
       case AppRoutes.home:
-      case AppRoutes.dashboard: {
-        final args = settings.arguments as Map<String, dynamic>?;
-        final hasJustSeenPaywall =
-            args?['hasJustSeenPaywall'] as bool? ?? false;
-        return MaterialPageRoute(
-          builder: (_) => HomeScreen(hasJustSeenPaywall: hasJustSeenPaywall),
-          settings: settings,
-        );
-      }
+      case AppRoutes.dashboard:
+        {
+          final args = settings.arguments as Map<String, dynamic>?;
+          final hasJustSeenPaywall =
+              args?['hasJustSeenPaywall'] as bool? ?? false;
+          return MaterialPageRoute(
+            builder: (_) => HomeScreen(hasJustSeenPaywall: hasJustSeenPaywall),
+            settings: settings,
+          );
+        }
 
       case AppRoutes.settings:
         return MaterialPageRoute(
@@ -207,7 +213,10 @@ class AppRouter {
       case AppRoutes.loanForm:
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-          builder: (_) => LoanFormScreen(loan: args?['loan']),
+          builder: (_) => LoanFormScreen(
+            loan: args?['loan'],
+            initialType: args?['initialType'],
+          ),
           settings: settings,
         );
 
@@ -216,6 +225,27 @@ class AppRouter {
         final loanId = args?['loanId'] as int?;
         return MaterialPageRoute(
           builder: (_) => LoanDetailScreen(loanId: loanId ?? 0),
+          settings: settings,
+        );
+
+      case AppRoutes.loanDetailShare:
+        final loan = settings.arguments as LoanEntry;
+        return MaterialPageRoute(
+          builder: (_) => LoanDetailShareScreen(loan: loan),
+          settings: settings,
+        );
+
+      case AppRoutes.loanContactShare:
+        final contact = settings.arguments as Contact;
+        return MaterialPageRoute(
+          builder: (_) => LoanContactShareScreen(contact: contact),
+          settings: settings,
+        );
+
+      case AppRoutes.loanHistory:
+        final contact = settings.arguments as Contact;
+        return MaterialPageRoute(
+          builder: (_) => LoanHistoryScreen(contact: contact),
           settings: settings,
         );
 

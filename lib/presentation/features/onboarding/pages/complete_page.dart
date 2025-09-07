@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import '../theme/onboarding_theme.dart';
-import '../../../widgets/animated_feature_icon.dart';
+import '../../../core/atoms/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
 
 class CompletePage extends StatefulWidget {
@@ -12,7 +12,8 @@ class CompletePage extends StatefulWidget {
   State<CompletePage> createState() => _CompletePageState();
 }
 
-class _CompletePageState extends State<CompletePage> with SingleTickerProviderStateMixin {
+class _CompletePageState extends State<CompletePage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _beforeAnimation;
   late Animation<double> _afterAnimation;
@@ -30,8 +31,10 @@ class _CompletePageState extends State<CompletePage> with SingleTickerProviderSt
       curve: Curves.easeInOutCubic,
     );
 
-    _beforeAnimation = Tween<double>(begin: 0, end: 0.3).animate(curvedAnimation);
-    _afterAnimation = Tween<double>(begin: 0, end: 0.7).animate(curvedAnimation);
+    _beforeAnimation =
+        Tween<double>(begin: 0, end: 0.3).animate(curvedAnimation);
+    _afterAnimation =
+        Tween<double>(begin: 0, end: 0.7).animate(curvedAnimation);
 
     // Iniciar la animación después de un breve retraso para que coincida con la entrada de la página
     Timer(const Duration(milliseconds: 500), () {
@@ -59,7 +62,8 @@ class _CompletePageState extends State<CompletePage> with SingleTickerProviderSt
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: OnboardingTheme.spacing32),
+          padding:
+              const EdgeInsets.symmetric(horizontal: OnboardingTheme.spacing32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -69,7 +73,8 @@ class _CompletePageState extends State<CompletePage> with SingleTickerProviderSt
               AnimatedFeatureIcon(
                 icon: Icons.rocket_launch,
                 backgroundColor: Colors.white, // Fondo opaco para resaltar
-                iconColor: const Color(0xFFD97706), // Naranja del gradiente de la página
+                iconColor: const Color(
+                    0xFFD97706), // Naranja del gradiente de la página
                 size: 100,
                 animationDelay: const Duration(milliseconds: 200),
               ),
@@ -92,7 +97,8 @@ class _CompletePageState extends State<CompletePage> with SingleTickerProviderSt
 
               // Descripción
               StaggeredTextAnimation(
-                text: 'Registra tu primera transacción y mira cómo sube tu probabilidad de éxito 📈',
+                text:
+                    'Registra tu primera transacción y mira cómo sube tu probabilidad de éxito 📈',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w400,
@@ -181,7 +187,9 @@ class _CompletePageState extends State<CompletePage> with SingleTickerProviderSt
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14)),
+            Text(label,
+                style: TextStyle(
+                    color: Colors.white.withOpacity(0.9), fontSize: 14)),
             Text(
               '${(value * 100).toInt()}%',
               style: const TextStyle(
@@ -208,16 +216,15 @@ class _CompletePageState extends State<CompletePage> with SingleTickerProviderSt
                   width: constraints.maxWidth * value,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: color.withOpacity(0.5),
-                        blurRadius: 8,
-                        spreadRadius: 1,
-                      )
-                    ]
-                  ),
+                      color: color,
+                      borderRadius: BorderRadius.circular(5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withOpacity(0.5),
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                        )
+                      ]),
                 ),
               ),
             );

@@ -23,12 +23,12 @@ class CategoriesScreen extends StatefulWidget {
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  
+
   String _selectedType = 'I';
   List<Category> _categories = [];
   bool _isLoading = true;
   String? _error;
-  
+
   late final CategoryUseCases _categoryUseCases;
 
   @override
@@ -37,13 +37,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     _categoryUseCases = GetIt.instance<CategoryUseCases>();
     _setupCategoriesStream();
   }
-  
+
   void _setupCategoriesStream() {
     setState(() {
       _isLoading = true;
       _error = null;
     });
-    
+
     _categoryUseCases.getAllCategories().then((categories) {
       if (mounted) {
         setState(() {
@@ -64,7 +64,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Future<void> _refreshCategories() async {
     try {
       final categories = await _categoryUseCases.getAllCategories();
-      
+
       if (mounted) {
         setState(() {
           _categories = categories;
@@ -87,7 +87,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       AppRoutes.categoryForm,
       arguments: category,
     );
-    
+
     if (result != null && result is Category) {
       _refreshCategories();
     }
@@ -96,7 +96,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Future<void> _deleteCategory(Category category) async {
     try {
       await _categoryUseCases.deleteCategory(category.id);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -104,7 +104,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        
+
         _refreshCategories();
       }
     } catch (e) {
@@ -125,21 +125,22 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   Map<Category, List<Category>> _buildCategoryTree(List<Category> categories) {
     final Map<Category, List<Category>> categoryTree = {};
-    final rootCategories = categories.where((cat) => cat.parentId == null).toList();
-    
+    final rootCategories =
+        categories.where((cat) => cat.parentId == null).toList();
+
     for (var rootCategory in rootCategories) {
-      final children = categories
-          .where((cat) => cat.parentId == rootCategory.id)
-          .toList();
+      final children =
+          categories.where((cat) => cat.parentId == rootCategory.id).toList();
       categoryTree[rootCategory] = children;
     }
-    
+
     return categoryTree;
   }
 
   List<Category> _getFilteredCategories() {
     return _categories.where((category) {
-      return category.documentTypeId == _selectedType && category.parentId == null;
+      return category.documentTypeId == _selectedType &&
+          category.parentId == null;
     }).toList();
   }
 
@@ -151,27 +152,27 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF8FAFC),
-      
       appBar: AppAppBar(
         title: t.navigation.categories,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.drawer,
         actions: [AppAppBarAction.search],
         onLeadingPressed: _openDrawer,
-        onActionsPressed: [() {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Search functionality coming soon')),
-          );
-        }],
+        onActionsPressed: [
+          () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Search functionality coming soon')),
+            );
+          }
+        ],
       ),
-      
       drawer: const AppDrawer(),
-      
       body: Column(
         children: [
           // ✅ CORREGIDO: Agregar padding lateral al CategoryTypeFilter
           Padding(
-            padding: const EdgeInsets.all(16), // HTML: px-4 py-4 del category_list.html
+            padding: const EdgeInsets.all(
+                16), // HTML: px-4 py-4 del category_list.html
             child: CategoryTypeFilter(
               selectedType: _selectedType,
               onTypeChanged: (type) {
@@ -181,7 +182,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               },
             ),
           ),
-          
+
           Expanded(
             child: RefreshIndicator(
               onRefresh: _refreshCategories,
@@ -199,7 +200,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
         ],
       ),
-      
       floatingActionButton: AppFloatingActionButton(
         onPressed: () => _navigateToCategoryForm(),
         icon: Icons.add,
@@ -240,12 +240,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  Widget _buildCategoriesList(List<Category> categories, Map<Category, List<Category>> categoryTree) {
+  Widget _buildCategoriesList(
+      List<Category> categories, Map<Category, List<Category>> categoryTree) {
     if (categories.isEmpty) {
       return EmptyState(
         icon: Icons.category_outlined,
         title: 'No hay categorías',
-        message: _selectedType == 'I' 
+        message: _selectedType == 'I'
             ? 'Crea tu primera categoría de ingresos'
             : 'Crea tu primera categoría de gastos',
         action: AppButton(
@@ -257,18 +258,19 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
       itemCount: categories.length,
       separatorBuilder: (context, index) => const SizedBox.shrink(),
       itemBuilder: (context, index) {
         final category = categories[index];
         final subcategories = categoryTree[category] ?? [];
-        
+
         return CategoryCard(
           category: category,
           subcategories: subcategories,
           onCategoryTap: () => _navigateToCategoryForm(category: category),
-          onSubcategoryTap: (subcategory) => _navigateToCategoryForm(category: subcategory),
+          onSubcategoryTap: (subcategory) =>
+              _navigateToCategoryForm(category: subcategory),
         );
       },
     );

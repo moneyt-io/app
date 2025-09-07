@@ -60,10 +60,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     List<TransactionEntry> getFilteredTransactions() {
       return transactions.where((t) {
         // Date filter
-        if (_filterModel.startDate != null && t.date.isBefore(_filterModel.startDate!)) {
+        if (_filterModel.startDate != null &&
+            t.date.isBefore(_filterModel.startDate!)) {
           return false;
         }
-        if (_filterModel.endDate != null && t.date.isAfter(_filterModel.endDate!.add(const Duration(days: 1)))) {
+        if (_filterModel.endDate != null &&
+            t.date
+                .isAfter(_filterModel.endDate!.add(const Duration(days: 1)))) {
           return false;
         }
 
@@ -83,36 +86,42 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           }
           return typeMatches;
         })) {
-            // If the set is empty, it means 'All' is selected, so we don't filter by type.
-            // If it's not empty, and we didn't find a match, then we return false.
-            if (_filterModel.transactionTypes.isNotEmpty) return false;
+          // If the set is empty, it means 'All' is selected, so we don't filter by type.
+          // If it's not empty, and we didn't find a match, then we return false.
+          if (_filterModel.transactionTypes.isNotEmpty) return false;
         }
 
         // Category filter
-        if (_filterModel.category != null && t.mainCategoryId != _filterModel.category!.id) {
+        if (_filterModel.category != null &&
+            t.mainCategoryId != _filterModel.category!.id) {
           return false;
         }
 
         // Account filter
-        if (_filterModel.account != null && t.mainWalletId != _filterModel.account!.id) {
+        if (_filterModel.account != null &&
+            t.mainWalletId != _filterModel.account!.id) {
           return false;
         }
 
         // Contact filter
-        if (_filterModel.contact != null && t.contactId != _filterModel.contact!.id) {
+        if (_filterModel.contact != null &&
+            t.contactId != _filterModel.contact!.id) {
           return false;
         }
 
         // Amount filter
-        if (_filterModel.minAmount != null && t.amount.abs() < _filterModel.minAmount!) {
+        if (_filterModel.minAmount != null &&
+            t.amount.abs() < _filterModel.minAmount!) {
           return false;
         }
-        if (_filterModel.maxAmount != null && t.amount.abs() > _filterModel.maxAmount!) {
+        if (_filterModel.maxAmount != null &&
+            t.amount.abs() > _filterModel.maxAmount!) {
           return false;
         }
 
         return true;
-      }).toList()..sort((a, b) => b.date.compareTo(a.date));
+      }).toList()
+        ..sort((a, b) => b.date.compareTo(a.date));
     }
 
     Map<String, List<TransactionEntry>> groupTransactionsByDate(
@@ -220,7 +229,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     ),
                     const SizedBox(height: 8),
                     ActiveFiltersBar(
-                      activeFilters: _filterModel.activeFilters(excludeTransactionType: true),
+                      activeFilters: _filterModel.activeFilters(
+                          excludeTransactionType: true),
                       onAddFilter: () async {
                         final newFilter = await Navigator.push(
                           context,
@@ -332,6 +342,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                             childCount: dateKeys.length,
                           ),
                         ),
+          SliverToBoxAdapter(
+            child: const SizedBox(height: 70), // For FAB
+          ),
         ],
       ),
       floatingActionButton: ExpandableFab(

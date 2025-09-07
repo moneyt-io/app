@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,7 +12,6 @@ import 'widgets/loan_summary_cards.dart';
 import 'widgets/active_loans_section.dart';
 import '../../core/molecules/empty_state.dart';
 import '../../core/molecules/filter_chip_group.dart';
-import '../../core/molecules/active_filters_bar.dart';
 import '../../core/atoms/app_app_bar.dart';
 import '../../core/atoms/expandable_fab.dart';
 import '../../core/atoms/app_button.dart';
@@ -20,7 +21,7 @@ import '../../navigation/navigation_service.dart';
 import 'loan_contact_detail_screen.dart';
 import '../../core/design_system/tokens/app_dimensions.dart';
 
-enum LoanTypeFilter { all, lent, borrowed }
+enum LoanTypeFilter { pending, lent, borrowed, all }
 
 extension LoanTypeModelExtension on filter_model.LoanType {
   LoanTypeFilter toFilterType() {
@@ -29,19 +30,6 @@ extension LoanTypeModelExtension on filter_model.LoanType {
         return LoanTypeFilter.lent;
       case filter_model.LoanType.borrowed:
         return LoanTypeFilter.borrowed;
-    }
-  }
-}
-
-extension LoanTypeFilterExtension on LoanTypeFilter {
-  filter_model.LoanType? toLoanType() {
-    switch (this) {
-      case LoanTypeFilter.lent:
-        return filter_model.LoanType.lent;
-      case LoanTypeFilter.borrowed:
-        return filter_model.LoanType.borrowed;
-      case LoanTypeFilter.all:
-        return null;
     }
   }
 }
@@ -56,6 +44,7 @@ class LoansScreen extends StatefulWidget {
 class _LoansScreenState extends State<LoansScreen> {
   late filter_model.LoanFilterModel _filterModel;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  LoanTypeFilter _selectedFilter = LoanTypeFilter.pending;
   Map<String, double> _statistics = {};
   bool _statisticsLoading = true;
   bool _initialLoadCompleted = false;
@@ -119,48 +108,23 @@ class _LoansScreenState extends State<LoansScreen> {
     // Helper function to get filtered loans
     List<LoanEntry> getFilteredLoans() {
       return loans.where((loan) {
-        // Date filter
-        if (_filterModel.startDate != null &&
-            loan.date.isBefore(_filterModel.startDate!)) {
-          return false;
-        }
-        if (_filterModel.endDate != null &&
-            loan.date
-                .isAfter(_filterModel.endDate!.add(const Duration(days: 1)))) {
+        // Status filter (based on the main chip selection)
+        if (_selectedFilter != LoanTypeFilter.all &&
+            loan.status != LoanStatus.active) {
           return false;
         }
 
-        // Type filter
-        if (_filterModel.loanTypes.isNotEmpty) {
-          final isLent = loan.documentTypeId == 'L';
-          final matchesType = _filterModel.loanTypes.any((type) {
-            return (type == filter_model.LoanType.lent && isLent) ||
-                (type == filter_model.LoanType.borrowed && !isLent);
-          });
-          if (!matchesType) return false;
+        // Type filter (for Lent/Borrowed)
+        if (_selectedFilter == LoanTypeFilter.lent &&
+            loan.documentTypeId != 'L') {
+          return false;
         }
-
-        // Contact filter
-        if (_filterModel.contact != null &&
-            loan.contactId != _filterModel.contact!.id) {
+        if (_selectedFilter == LoanTypeFilter.borrowed &&
+            loan.documentTypeId != 'B') {
           return false;
         }
 
-        // Account filter
-        if (_filterModel.account != null) {
-          // This would need to be implemented based on loan payment method
-          // For now, we'll skip this filter
-        }
-
-        // Amount filter
-        if (_filterModel.minAmount != null &&
-            loan.amount < _filterModel.minAmount!) {
-          return false;
-        }
-        if (_filterModel.maxAmount != null &&
-            loan.amount > _filterModel.maxAmount!) {
-          return false;
-        }
+        // The rest of the filters from the dialog can be added here in the future
 
         return true;
       }).toList();
@@ -227,51 +191,38 @@ class _LoansScreenState extends State<LoansScreen> {
       drawer: const AppDrawer(),
       body: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                children: [
-                  FilterChipGroup<LoanTypeFilter>(
-                    selectedValue: _filterModel.loanTypes.isEmpty
-                        ? LoanTypeFilter.all
-                        : _filterModel.loanTypes.first.toFilterType(),
-                    filters: const {
-                      LoanTypeFilter.all: 'All',
-                      LoanTypeFilter.lent: 'Lent',
-                      LoanTypeFilter.borrowed: 'Borrowed',
-                    },
-                    icons: const {
-                      LoanTypeFilter.all: Icons.account_balance,
-                      LoanTypeFilter.lent: Icons.trending_up,
-                      LoanTypeFilter.borrowed: Icons.trending_down,
-                    },
-                    onFilterChanged: (value) {
-                      setState(() {
-                        _filterModel = _filterModel.copyWithLoanTypes(
-                          value == LoanTypeFilter.all
-                              ? {}
-                              : value.toLoanType() != null
-                                  ? {value.toLoanType()!}
-                                  : {},
-                        );
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  ActiveFiltersBar(
-                    activeFilters:
-                        _filterModel.activeFilters(excludeLoanType: true),
-                    onAddFilter: () {
-                      // TODO: Implement loan filter dialog
-                    },
-                    onRemoveFilter: (key) {
-                      setState(() {
-                        _filterModel = _filterModel.removeFilter(key);
-                      });
-                    },
-                  ),
-                ],
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _SliverFilterHeaderDelegate(
+              height: 64,
+              blur: true,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  children: [
+                    FilterChipGroup<LoanTypeFilter>(
+                      selectedValue: _selectedFilter,
+                      filters: const {
+                        LoanTypeFilter.pending: 'Pending',
+                        LoanTypeFilter.lent: 'Lent',
+                        LoanTypeFilter.borrowed: 'Borrowed',
+                        LoanTypeFilter.all: 'All',
+                      },
+                      icons: const {
+                        LoanTypeFilter.pending: Icons.hourglass_top_outlined,
+                        LoanTypeFilter.lent: Icons.trending_up,
+                        LoanTypeFilter.borrowed: Icons.trending_down,
+                        LoanTypeFilter.all: Icons.list_alt_outlined,
+                      },
+                      onFilterChanged: (value) {
+                        setState(() {
+                          _selectedFilter = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -289,49 +240,27 @@ class _LoansScreenState extends State<LoansScreen> {
                       child: _buildErrorState(context, provider.errorMessage!))
                   : filteredLoans.isEmpty
                       ? SliverFillRemaining(child: _buildEmptyState())
-                      : SliverToBoxAdapter(
-                          child: ActiveLoansSection(
-                            contactSummaries: _buildContactSummaries(
-                                groupedLoans, contactsMap),
-                            totalPendingLoans:
-                                _getTotalPendingLoans(filteredLoans),
-                            onContactTap: (summary) {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => LoanContactDetailScreen(
-                                    contact: summary.contact,
+                      : SliverList(
+                          delegate: SliverChildListDelegate([
+                            ActiveLoansSection(
+                              contactSummaries: _buildContactSummaries(
+                                  groupedLoans, contactsMap),
+                              totalPendingLoans:
+                                  _getTotalPendingLoans(filteredLoans),
+                              onContactTap: (summary) {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        LoanContactDetailScreen(
+                                      contact: summary.contact,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 85), // For FAB
+                          ]),
                         ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  // TODO: Implement navigation to complete loan history screen
-                },
-                icon: const Icon(Icons.history,
-                    color: Color(0xFF64748B), size: 20), // text-slate-500
-                label: const Text(
-                  'View Complete Loan History',
-                  style: TextStyle(
-                      color: Color(0xFF64748B),
-                      fontWeight: FontWeight.w500), // text-slate-500
-                ),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50), // Full width
-                  side: const BorderSide(
-                      color: Color(0xFFE2E8F0)), // border-slate-200
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
       floatingActionButton: ExpandableFab(
@@ -488,5 +417,54 @@ class _LoansScreenState extends State<LoansScreen> {
       borrowedFromPeople: borrowedFromPeople,
       isLoading: _statisticsLoading,
     );
+  }
+}
+
+class _SliverFilterHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final double height;
+  final bool blur;
+
+  _SliverFilterHeaderDelegate({
+    required this.child,
+    required this.height,
+    this.blur = false,
+  });
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final backgroundColor = blur
+        ? Theme.of(context).scaffoldBackgroundColor.withOpacity(0.85)
+        : Theme.of(context).scaffoldBackgroundColor;
+
+    final content = Container(
+      color: backgroundColor,
+      child: child,
+    );
+
+    if (blur) {
+      return ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: content,
+        ),
+      );
+    }
+
+    return content;
+  }
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  bool shouldRebuild(covariant _SliverFilterHeaderDelegate oldDelegate) {
+    return oldDelegate.child != child ||
+        oldDelegate.height != height ||
+        oldDelegate.blur != blur;
   }
 }

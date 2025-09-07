@@ -24,10 +24,12 @@ import '../../core/organisms/account_selector_modal.dart'
 
 class LoanFormScreen extends StatefulWidget {
   final LoanEntry? loan;
+  final String? initialType;
 
   const LoanFormScreen({
     super.key,
     this.loan,
+    this.initialType,
   });
 
   @override
@@ -58,11 +60,39 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
-    _initializeForm();
+    _loadInitialData().then((_) {
+      _initializeForm();
+      if (widget.loan == null) {
+        // Use a post-frame callback to ensure the UI is built before showing dialogs
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _startInitialSelectionFlow();
+          }
+        });
+      }
+    });
+  }
+
+  Future<void> _startInitialSelectionFlow() async {
+    // 1. Show contact selector.
+    await _selectContact();
+    if (!mounted || _selectedContact == null) return;
+
+    // 2. Show account selector.
+    await _showAccountSelector();
+    if (!mounted || _selectedAccount == null) return;
+
+    // 3. Finally, focus the amount field.
+    if (mounted) {
+      FocusScope.of(context).requestFocus(_amountFocusNode);
+    }
   }
 
   void _initializeForm() {
+    if (widget.initialType != null) {
+      _documentType = widget.initialType!;
+    }
+
     if (widget.loan != null) {
       final loan = widget.loan!;
       _documentType = loan.documentTypeId;

@@ -1,28 +1,102 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:get_it/get_it.dart';
 import 'package:collection/collection.dart';
 
 import '../../../domain/entities/loan_entry.dart';
+import '../../../domain/entities/contact.dart';
+import '../../../domain/usecases/contact_usecases.dart';
+import '../../core/atoms/app_app_bar.dart';
 import 'loan_provider.dart';
-import '../../core/atoms/loan_status_chip.dart';
-import '../../core/molecules/loan_payment_modal.dart';
-import '../../core/molecules/write_off_modal.dart';
+import 'loan_payment_form_screen.dart';
+import 'widgets/loan_detail_summary_card.dart';
+import 'widgets/loan_progress_card.dart';
+import 'widgets/loan_payment_info_card.dart';
+import 'widgets/loan_lender_info_card.dart';
+import 'widgets/loan_details_info_card.dart';
+import '../../navigation/app_routes.dart';
 import '../../navigation/navigation_service.dart';
-import '../../core/design_system/theme/app_dimensions.dart';
 
 class LoanDetailScreen extends StatefulWidget {
   final int loanId;
 
   const LoanDetailScreen({
-    super.key,
+    Key? key,
     required this.loanId,
-  });
+  }) : super(key: key);
 
   @override
-  _LoanDetailScreenState createState() => _LoanDetailScreenState();
+  State<LoanDetailScreen> createState() => _LoanDetailScreenState();
 }
 
 class _LoanDetailScreenState extends State<LoanDetailScreen> {
+  Future<void> _navigateToEdit(LoanEntry loan) async {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => LoanPaymentFormScreen(loan: loan),
+      ),
+    );
+  }
+
+  Future<void> _shareLoan(LoanEntry loan) async {
+    NavigationService.navigateTo(
+      AppRoutes.loanDetailShare,
+      arguments: loan,
+    );
+  }
+
+  Future<void> _makePayment(LoanEntry loan) async {
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (context) => LoanPaymentFormScreen(loan: loan),
+      ),
+    );
+
+    if (result == true && mounted) {
+      await context.read<LoanProvider>().loadLoans();
+    }
+  }
+
+  Future<void> _deleteLoan(LoanEntry loan) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Loan'),
+        content: const Text(
+            'Are you sure you want to delete this loan? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await context.read<LoanProvider>().deleteLoan(loan.id);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Loan deleted successfully')),
+          );
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error deleting loan: ${e.toString()}')),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<LoanProvider>();
@@ -30,25 +104,25 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
     if (provider.isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Cargando...')),
+        appBar: AppAppBar(title: 'Loading...'),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (loan == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Error')),
+        appBar: AppAppBar(title: 'Error'),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
-              const Text('Préstamo no encontrado'),
+              const Text('Loan not found'),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => context.read<LoanProvider>().loadLoans(),
-                child: const Text('Reintentar'),
+                child: const Text('Retry'),
               ),
             ],
           ),
@@ -56,355 +130,171 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
       );
     }
 
-    final contact = loan.contact;
-    final isLend = loan.documentTypeId == 'L';
-    final outstandingBalance = loan.amount - loan.totalPaid;
-    final canMakePayment = loan.status == LoanStatus.active && outstandingBalance > 0;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isLend ? 'Préstamo Otorgado' : 'Préstamo Recibido'),
-        actions: [
-          if (canMakePayment)
-            IconButton(
-              icon: Icon(isLend ? Icons.payment : Icons.attach_money),
-              onPressed: () => _showPaymentModal(context, loan),
-              tooltip: isLend ? 'Recibir pago' : 'Realizar pago',
-            ),
-          PopupMenuButton<String>(
-            onSelected: (value) => _handleMenuAction(context, value, loan),
-            itemBuilder: (context) => [
-              if (canMakePayment)
-                PopupMenuItem(
-                  value: 'payment',
-                  child: Row(
-                    children: [
-                      Icon(isLend ? Icons.payment : Icons.attach_money),
-                      const SizedBox(width: 8),
-                      Text(isLend ? 'Recibir pago' : 'Realizar pago'),
-                    ],
-                  ),
-                ),
-              if (canMakePayment)
-                PopupMenuItem(
-                  value: 'writeoff',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.cancel_outlined),
-                      const SizedBox(width: 8),
-                      Text(isLend ? 'Cancelar saldo' : 'Asumir como gasto'),
-                    ],
-                  ),
-                ),
-              const PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit),
-                    SizedBox(width: 8),
-                    Text('Editar'),
-                  ],
-                ),
-              ),
-              if (loan.status == LoanStatus.active)
-                const PopupMenuItem(
-                  value: 'cancel',
-                  child: Row(
-                    children: [
-                      Icon(Icons.block, color: Colors.red),
-                      SizedBox(width: 8),
-                      Text('Cancelar préstamo', style: TextStyle(color: Colors.red)),
-                    ],
-                  ),
-                ),
-            ],
+      backgroundColor: const Color(0xFFF8FAFC), // bg-slate-50
+      appBar: AppAppBar(
+        title: 'Loan Details',
+        type: AppAppBarType.blur,
+        leading: AppAppBarLeading.back,
+        customActions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () => _shareLoan(loan),
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () => context.read<LoanProvider>().loadLoans(),
-        child: ListView(
-          padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-          children: [
-            // Información básica
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimensions.paddingLarge),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: isLend
-                              ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-                              : Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-                          child: Icon(
-                            isLend ? Icons.arrow_upward : Icons.arrow_downward,
-                            color: isLend
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                contact?.name ?? 'Contacto desconocido',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              LoanStatusChip(status: loan.status),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const Divider(height: 32),
-                    
-                    // Información financiera
-                    _buildInfoRow('Monto original:', '\$${loan.amount.toStringAsFixed(2)}'),
-                    _buildInfoRow('Total pagado:', '\$${loan.totalPaid.toStringAsFixed(2)}'),
-                    _buildInfoRow(
-                      'Saldo pendiente:',
-                      '\$${outstandingBalance.toStringAsFixed(2)}',
-                      isHighlight: outstandingBalance > 0,
-                    ),
-                    _buildInfoRow('Moneda:', loan.currencyId),
-                    _buildInfoRow(
-                      'Fecha:',
-                      '${loan.date.day}/${loan.date.month}/${loan.date.year}',
-                    ),
-                    
-                    if (loan.description != null && loan.description!.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        'Descripción:',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        loan.description!,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: AppDimensions.paddingMedium),
-
-            // Acciones rápidas
-            if (canMakePayment) ...[
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Acciones',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: AppDimensions.paddingMedium),
-                      
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () => _showPaymentModal(context, loan),
-                              icon: Icon(isLend ? Icons.payment : Icons.attach_money),
-                              label: Text(isLend ? 'Recibir Pago' : 'Realizar Pago'),
-                            ),
-                          ),
-                          const SizedBox(width: AppDimensions.paddingSmall),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () => _showWriteOffModal(context, loan),
-                              icon: const Icon(Icons.cancel_outlined),
-                              label: Text(isLend ? 'Cancelar' : 'Asumir'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: AppDimensions.paddingMedium),
-            ],
-
-            // Historial de pagos (placeholder)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Historial de Pagos',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: AppDimensions.paddingMedium),
-                    
-                    if (loan.totalPaid > 0) ...[
-                      ListTile(
-                        leading: const Icon(Icons.payment),
-                        title: const Text('Pago registrado'),
-                        subtitle: Text('Total: \$${loan.totalPaid.toStringAsFixed(2)}'),
-                        trailing: Text(
-                          '${loan.date.day}/${loan.date.month}/${loan.date.year}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ),
-                    ] else ...[
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(AppDimensions.paddingLarge),
-                          child: Text(
-                            'No hay pagos registrados',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      body: _LoanDetailContent(loan: loan, onAction: _handleAction),
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {bool isHighlight = false}) {
-    final theme = Theme.of(context);
-    
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: theme.textTheme.bodyMedium,
-          ),
-          Text(
-            value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: isHighlight ? theme.colorScheme.primary : null,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _handleMenuAction(BuildContext context, String action, LoanEntry loan) {
+  void _handleAction(String action, LoanEntry loan) {
     switch (action) {
-      case 'payment':
-        _showPaymentModal(context, loan);
-        break;
-      case 'writeoff':
-        _showWriteOffModal(context, loan);
-        break;
       case 'edit':
-        NavigationService.goToLoanForm(loan: loan);
+        _navigateToEdit(loan);
         break;
-      case 'cancel':
-        _showCancelConfirmation(context, loan);
+      case 'pay':
+        _makePayment(loan);
+        break;
+      case 'delete':
+        _deleteLoan(loan);
         break;
     }
   }
+}
 
-  void _showPaymentModal(BuildContext context, LoanEntry loan) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => LoanPaymentModal(
-        loan: loan,
-        onPaymentConfirmed: () {
-          Navigator.of(context).pop();
-          // No need to call _loadLoanData, provider handles update
-        },
-      ),
-    );
+class _LoanDetailContent extends StatefulWidget {
+  final LoanEntry loan;
+  final void Function(String, LoanEntry) onAction;
+
+  const _LoanDetailContent({required this.loan, required this.onAction});
+
+  @override
+  State<_LoanDetailContent> createState() => _LoanDetailContentState();
+}
+
+class _LoanDetailContentState extends State<_LoanDetailContent> {
+  final _contactUseCases = GetIt.instance<ContactUseCases>();
+  Contact? _contact;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRelatedData();
   }
 
-  void _showWriteOffModal(BuildContext context, LoanEntry loan) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => WriteOffModal(
-        loan: loan,
-        onConfirmed: () {
-          Navigator.of(context).pop();
-          // No need to call _loadLoanData, provider handles update
-        },
-      ),
-    );
+  @override
+  void didUpdateWidget(covariant _LoanDetailContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.loan.contactId != widget.loan.contactId) {
+      _loadRelatedData();
+    }
   }
 
-  void _showCancelConfirmation(BuildContext context, LoanEntry loan) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cancelar Préstamo'),
-        content: const Text(
-          '¿Está seguro de que desea cancelar este préstamo? Esta acción no se puede deshacer.',
+  Future<void> _loadRelatedData() async {
+    setState(() => _isLoading = true);
+    try {
+      if (widget.loan.contactId > 0) {
+        final contact = await _contactUseCases.getContactById(widget.loan.contactId);
+        if (mounted) {
+          setState(() {
+            _contact = contact;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading contact: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        LoanDetailSummaryCard(loan: widget.loan),
+        LoanProgressCard(loan: widget.loan),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              _buildActionChip(
+                label: 'Edit',
+                icon: Icons.edit,
+                onTap: () => widget.onAction('edit', widget.loan),
+              ),
+              const SizedBox(width: 8),
+              _buildActionChip(
+                label: 'Pay',
+                icon: Icons.payment,
+                onTap: () => widget.onAction('pay', widget.loan),
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              
-              try {
-                final provider = Provider.of<LoanProvider>(context, listen: false);
-                await provider.updateLoanStatus(
-                  loanId: loan.id,
-                  newStatus: LoanStatus.cancelled,
-                );
-                
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Préstamo cancelado')),
-                  );
-                  Navigator.of(context).pop(); // Pop detail screen after cancellation
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: ${e.toString()}')),
-                  );
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+        LoanPaymentInfoCard(loan: widget.loan),
+        if (_isLoading)
+          const Center(child: Padding(padding: EdgeInsets.all(16.0), child: CircularProgressIndicator()))
+        else
+          LoanLenderInfoCard(lender: _contact),
+        LoanDetailsInfoCard(loan: widget.loan),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: TextButton.icon(
+            icon: const Icon(Icons.delete_outline),
+            label: const Text('Delete Loan'),
+            onPressed: () => widget.onAction('delete', widget.loan),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFDC2626),
+              backgroundColor: const Color(0xFFFEF2F2),
+              minimumSize: const Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Cancelar Préstamo'),
           ),
-        ],
+        ),
+        const SizedBox(height: 32),
+      ],
+    );
+  }
+
+  Widget _buildActionChip({
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    final isEdit = label == 'Edit';
+    final backgroundColor = isEdit ? const Color(0xFFDBEAFE) : const Color(0xFFDCFCE7);
+    final textColor = isEdit ? const Color(0xFF2563EB) : const Color(0xFF16A34A);
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: textColor, size: 16),
+              const SizedBox(width: 4),
+              Text(label, style: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.w500)),
+            ],
+          ),
+        ),
       ),
     );
   }

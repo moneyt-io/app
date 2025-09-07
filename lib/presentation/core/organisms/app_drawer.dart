@@ -93,7 +93,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   SizedBox(height: AppDimensions.spacing24),
 
                   // Advanced Section (con subnav expandible)
-                  _buildAdvancedSection(context, currentRoute),
+                  //_buildAdvancedSection(context, currentRoute),
                 ],
               ),
             ),

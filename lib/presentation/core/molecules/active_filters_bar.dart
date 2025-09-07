@@ -18,12 +18,14 @@ class ActiveFiltersBar extends StatelessWidget {
   final List<ActiveFilter> activeFilters;
   final VoidCallback onAddFilter;
   final Function(String) onRemoveFilter;
+  final bool showAddButton;
 
   const ActiveFiltersBar({
     Key? key,
     required this.activeFilters,
     required this.onAddFilter,
     required this.onRemoveFilter,
+    this.showAddButton = true,
   }) : super(key: key);
 
   @override
@@ -34,7 +36,7 @@ class ActiveFiltersBar extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         children: [
           ...activeFilters.map((filter) => _buildFilterPill(filter)),
-          _buildAddFilterButton(),
+          if (showAddButton) _buildAddFilterButton(),
         ],
       ),
     );

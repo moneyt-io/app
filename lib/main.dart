@@ -24,52 +24,37 @@ import 'core/services/paywall_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Hacer la barra de estado transparente
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent, // Color transparente
-    statusBarIconBrightness:
-        Brightness.dark, // Iconos oscuros para el contenido claro
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
   ));
 
-  print('🚀 MoneyT App: Starting initialization...');
-
-  // ✅ AGREGADO: Inicializar Firebase PRIMERO
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print('✅ Firebase initialized successfully');
   } catch (e) {
-    print('❌ Firebase initialization failed: $e');
-    // Continuar sin Firebase para desarrollo local
+    // Log error to a crashlytics service or analytics in a real app
+    debugPrint('Firebase initialization failed: $e');
   }
 
-  // Inicializar formateo de fechas
   await initializeDateFormatting('es_ES', null);
 
-  // Inicializar slang con idioma por defecto (español)
   LocaleSettings.setLocale(AppLocale.es);
 
-  // Inicializar dependencias (ahora incluye Firebase)
   await initializeDependencies();
 
-  // ✅ AÑADIDO: Inicializar PaywallService
   try {
     await GetIt.instance<PaywallService>().init();
   } catch (e) {
-    print('❌ PaywallService initialization failed: $e');
+    debugPrint('PaywallService initialization failed: $e');
   }
 
-  // ✅ AGREGADO: Inicialización temprana de datos críticos
   await _initializeCriticalData();
 
-  // Obtener preferencias
   final prefs = await SharedPreferences.getInstance();
 
-  print('✅ MoneyT App: Initialization completed, starting app...');
-
   runApp(
-    // ✅ CORREGIDO: AuthProvider agregado con alias
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -78,7 +63,6 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => LanguageProvider(prefs),
         ),
-        // ✅ CORREGIDO: AuthProvider usando alias
         ChangeNotifierProvider(
           create: (_) => GetIt.instance<app_auth.AuthProvider>(),
         ),
@@ -94,23 +78,16 @@ void main() async {
         ChangeNotifierProxyProvider<LoanProvider, TransactionProvider>(
           create: (context) => TransactionProvider(),
           update: (context, loanProvider, transactionProvider) {
-            // Whenever loanProvider notifies listeners, this will be called.
-            // We can trigger a reload of transactions here.
-            // Note: This might need a more sophisticated logic to avoid unnecessary reloads,
-            // but for now, it ensures data consistency.
             transactionProvider?.refreshTransactions();
             return transactionProvider!;
           },
         ),
         ChangeNotifierProxyProvider<TransactionProvider, WalletProvider>(
-          // WalletProvider is created here with its direct dependencies.
           create: (context) => WalletProvider(
             GetIt.instance(), // WalletUseCases
             GetIt.instance(), // BalanceCalculationService
           ),
-          // Whenever TransactionProvider notifies listeners, this 'update' is called.
           update: (context, transactionProvider, walletProvider) {
-            // Notifies WalletProvider to recalculate balances and update its state.
             walletProvider?.recalculateBalances();
             return walletProvider!;
           },
@@ -121,74 +98,21 @@ void main() async {
   );
 }
 
-/// ✅ AGREGADO: Inicialización de datos críticos
-///
-/// Se ejecuta antes del arranque de la app para asegurar que los datos
-/// esenciales estén disponibles.
+/// Ensures essential data is available before the app starts.
 Future<void> _initializeCriticalData() async {
   try {
-    print('🌱 Initializing critical data...');
-
-    // Verificar y ejecutar seeds si es necesario
     final seedsCompleted = await DataSeedService.areSeedsCompleted();
 
     if (!seedsCompleted) {
-      print('🌱 Seeds not completed, running seeds...');
-      final success = await DataSeedService.runSeedsIfNeeded();
-
-      if (success) {
-        print('✅ Seeds completed successfully');
-      } else {
-        print('❌ Warning: Seeds failed to complete');
-        // No bloquear la app, continuar y manejar en UI
-      }
-    } else {
-      print('✅ Seeds already completed');
+      await DataSeedService.runSeedsIfNeeded();
     }
 
-    // Registrar última apertura de la app
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       AppStorageKeys.lastAppOpen,
       DateTime.now().toIso8601String(),
     );
-
-    // Logging de estado para debugging
-    await _logAppState();
   } catch (e) {
-    print('❌ Error during critical data initialization: $e');
-    // No bloquear la app, continuar y manejar errores en UI
-  }
-}
-
-/// ✅ AGREGADO: Logging del estado actual de la app
-///
-/// Útil para debugging y diagnóstico de problemas.
-Future<void> _logAppState() async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-
-    // Obtener información de seeds
-    final seedInfo = await DataSeedService.getSeedInfo();
-
-    // Log del estado actual
-    print('📊 App State Summary:');
-    print('   - Seeds completed: ${seedInfo['completed']}');
-    print(
-        '   - Seeds version: ${seedInfo['version']}/${seedInfo['currentVersion']}');
-    print('   - Seeds valid: ${seedInfo['isValid']}');
-    print(
-        '   - Last app open: ${prefs.getString(AppStorageKeys.lastAppOpen) ?? 'Never'}');
-
-    // Información de desarrollo
-    final devFlags = AppStorageKeys.developmentKeys
-        .where((key) => prefs.containsKey(key))
-        .toList();
-
-    if (devFlags.isNotEmpty) {
-      print('🔧 Active dev flags: $devFlags');
-    }
-  } catch (e) {
-    print('❌ Error logging app state: $e');
+    debugPrint('Error during critical data initialization: $e');
   }
 }

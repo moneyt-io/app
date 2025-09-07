@@ -28,10 +28,10 @@ class _ContactsScreenState extends State<ContactsScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearchVisible = false;
   String _searchQuery = '';
-  
+
   // ✅ AGREGADO: GlobalKey para el Scaffold (solución estándar)
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  
+
   @override
   void initState() {
     super.initState();
@@ -63,7 +63,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
   void _handleImportContacts() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(t.contacts.importContactSoon), // ✅ CORREGIDO: Usar traducción consistente
+        content: Text(t.contacts
+            .importContactSoon), // ✅ CORREGIDO: Usar traducción consistente
         backgroundColor: AppColors.primaryBlue,
         duration: const Duration(seconds: 2),
       ),
@@ -86,17 +87,18 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Future<void> _navigateToContactForm({Contact? contact}) async {
     try {
       // ✅ AGREGADO: Logging detallado para debugging
-      debugPrint('🔍 Navigating to contact form with contact: ${contact?.toString()}');
+      debugPrint(
+          '🔍 Navigating to contact form with contact: ${contact?.toString()}');
       debugPrint('🔍 Contact type: ${contact.runtimeType}');
       debugPrint('🔍 Route: ${AppRoutes.contactForm}');
-      
+
       final result = await Navigator.of(context).pushNamed(
         AppRoutes.contactForm,
         arguments: contact, // Contact? directo
       );
-      
+
       debugPrint('🔍 Navigation result: $result');
-      
+
       if (result == true && mounted) {
         context.read<ContactProvider>().loadContacts();
       }
@@ -104,7 +106,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
       // ✅ MEJORADO: Logging detallado del error
       debugPrint('❌ Navigation error: $e');
       debugPrint('❌ Stack trace: $stackTrace');
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -135,25 +137,21 @@ class _ContactsScreenState extends State<ContactsScreen> {
         ],
       ),
     );
-    
+
     if (confirmed == true) {
       final provider = context.read<ContactProvider>();
       final success = await provider.deleteContact(contact.id);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              success 
-                ? t.contacts.contactDeleted 
-                : provider.error ?? t.contacts.errorDeleting
-            ),
-            backgroundColor: success 
-              ? AppColors.primaryBlue
-              : Colors.red,
+            content: Text(success
+                ? t.contacts.contactDeleted
+                : provider.error ?? t.contacts.errorDeleting),
+            backgroundColor: success ? AppColors.primaryBlue : Colors.red,
           ),
         );
-        
+
         if (success) {
           provider.clearError();
         }
@@ -194,29 +192,29 @@ class _ContactsScreenState extends State<ContactsScreen> {
     return Scaffold(
       key: _scaffoldKey, // ✅ AGREGADO: Asignar GlobalKey al Scaffold
       backgroundColor: Colors.white,
-      
+
       appBar: AppAppBar(
         title: t.contacts.title,
         type: AppAppBarType.standard,
         leading: AppAppBarLeading.drawer,
         actions: [AppAppBarAction.search],
-        onLeadingPressed: _openDrawer, // ✅ CORREGIDO: Usar método helper con GlobalKey
+        onLeadingPressed:
+            _openDrawer, // ✅ CORREGIDO: Usar método helper con GlobalKey
         onActionsPressed: [_toggleSearch],
       ),
-      
+
       drawer: const AppDrawer(),
-      
+
       body: Column(
         children: [
           // Search bar cuando está visible
           if (_isSearchVisible)
             Container(
               padding: EdgeInsets.fromLTRB(
-                AppDimensions.spacing16, 
-                AppDimensions.spacing8, 
-                AppDimensions.spacing16, 
-                AppDimensions.spacing16
-              ), // ✅ MEJORA 3: Usar AppDimensions
+                  AppDimensions.spacing16,
+                  AppDimensions.spacing8,
+                  AppDimensions.spacing16,
+                  AppDimensions.spacing16), // ✅ MEJORA 3: Usar AppDimensions
               decoration: const BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -238,7 +236,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                 autofocus: true,
               ),
             ),
-          
+
           // Contenido principal expandido
           Expanded(
             child: RefreshIndicator(
@@ -253,7 +251,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           ),
         ],
       ),
-      
+
       // ✅ MEJORA 2: Usar AppFloatingActionButton del design system
       floatingActionButton: AppFloatingActionButton(
         onPressed: () => _navigateToContactForm(),
@@ -280,19 +278,28 @@ class _ContactsScreenState extends State<ContactsScreen> {
     }
 
     // ✅ CORREGIDO: Usar solo filtrado local en lugar de provider.filteredContacts inexistente
-    final contacts = _searchQuery.isEmpty 
-        ? provider.contacts 
-        : provider.contacts.where((contact) =>
-            contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            (contact.phone?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
-            (contact.email?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false)
-          ).toList();
+    final contacts = _searchQuery.isEmpty
+        ? provider.contacts
+        : provider.contacts
+            .where((contact) =>
+                contact.name
+                    .toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ||
+                (contact.phone
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false) ||
+                (contact.email
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false))
+            .toList();
 
     // ✅ SOLUCIONADO: Integrar botón de importar dentro del ListView para que scrollee
     if (contacts.isEmpty) {
       return _buildEmptyState();
     }
-    
+
     return _buildScrollableContactsList(contacts);
   }
 
@@ -300,9 +307,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Widget _buildScrollableContactsList(List<Contact> contacts) {
     final groupedContacts = _groupContactsByLetter(contacts);
     final totalContactItems = _getTotalItemCount(groupedContacts);
-    
+
     return ListView.builder(
-      padding: EdgeInsets.only(bottom: AppDimensions.spacing64 + AppDimensions.spacing16),
+      padding: const EdgeInsets.only(bottom: 90),
       itemCount: totalContactItems + 1, // +1 para el botón de importar
       itemBuilder: (context, index) {
         // Primer item: Botón de importar
@@ -311,7 +318,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
             onPressed: _handleImportContacts,
           );
         }
-        
+
         // Resto de items: contactos agrupados (ajustar index -1)
         return _buildGroupedContactItem(context, groupedContacts, index - 1);
       },
@@ -319,25 +326,22 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   // ✅ REFACTORIZADO: Lista agrupada separada para mejor organización
-  Widget _buildGroupedContactItem(
-    BuildContext context, 
-    Map<String, List<Contact>> groupedContacts, 
-    int index
-  ) {
+  Widget _buildGroupedContactItem(BuildContext context,
+      Map<String, List<Contact>> groupedContacts, int index) {
     int currentIndex = 0;
-    
+
     // Iterar por todos los grupos para encontrar el item correcto
     for (final entry in groupedContacts.entries) {
       final letter = entry.key;
       final contacts = entry.value;
-      
+
       // Si es el header del grupo
       if (currentIndex == index) {
         // Usar ContactGroupHeader del core
         return ContactGroupHeader(letter: letter);
       }
       currentIndex++;
-      
+
       // Si es un contacto del grupo
       for (final contact in contacts) {
         if (currentIndex == index) {
@@ -350,7 +354,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
         currentIndex++;
       }
     }
-    
+
     return const SizedBox.shrink();
   }
 
@@ -432,13 +436,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Widget _buildEmptyState() {
     return EmptyState(
       icon: Icons.contacts_outlined,
-      title: _searchQuery.isEmpty 
-          ? 'No contacts found' 
-          : 'No search results',
-      message: _searchQuery.isEmpty 
+      title: _searchQuery.isEmpty ? 'No contacts found' : 'No search results',
+      message: _searchQuery.isEmpty
           ? 'Add your first contact to get started managing your connections'
           : 'No contacts match "$_searchQuery". Try a different search term.',
-      action: _searchQuery.isNotEmpty 
+      action: _searchQuery.isNotEmpty
           ? AppButton(
               text: 'Clear search',
               onPressed: () {
@@ -459,7 +461,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Widget _buildErrorState(String error) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(AppDimensions.spacing16), // ✅ MEJORA 3: Usar AppDimensions
+        padding: EdgeInsets.all(
+            AppDimensions.spacing16), // ✅ MEJORA 3: Usar AppDimensions
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -468,14 +471,20 @@ class _ContactsScreenState extends State<ContactsScreen> {
               size: AppDimensions.spacing64, // ✅ MEJORA 3: Usar AppDimensions
               color: Colors.red,
             ),
-            SizedBox(height: AppDimensions.spacing16), // ✅ MEJORA 3: Usar AppDimensions
+            SizedBox(
+                height:
+                    AppDimensions.spacing16), // ✅ MEJORA 3: Usar AppDimensions
             const Text(
               'Error loading contacts',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: AppDimensions.spacing8), // ✅ MEJORA 3: Usar AppDimensions
+            SizedBox(
+                height:
+                    AppDimensions.spacing8), // ✅ MEJORA 3: Usar AppDimensions
             Text(error),
-            SizedBox(height: AppDimensions.spacing16), // ✅ MEJORA 3: Usar AppDimensions
+            SizedBox(
+                height:
+                    AppDimensions.spacing16), // ✅ MEJORA 3: Usar AppDimensions
             AppButton(
               text: 'Retry',
               onPressed: _loadContacts,
@@ -491,45 +500,55 @@ class _ContactsScreenState extends State<ContactsScreen> {
   // HTML: Grupos A, E, I, J, L, M, N, O, S como en la maqueta
   Map<String, List<Contact>> _groupContactsByLetter(List<Contact> contacts) {
     final Map<String, List<Contact>> grouped = {};
-    
+
     for (final contact in contacts) {
-      final firstLetter = contact.name.isNotEmpty 
-          ? contact.name[0].toUpperCase() 
+      final firstLetter = contact.name.isNotEmpty
+          ? contact.name[0].toUpperCase()
           : '#'; // Para nombres vacíos
-      
+
       if (!grouped.containsKey(firstLetter)) {
         grouped[firstLetter] = [];
       }
       grouped[firstLetter]!.add(contact);
     }
-    
+
     // ✅ CORREGIDO: Ordenar cada grupo alfabéticamente por nombre completo
     grouped.forEach((key, value) {
-      value.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+      value
+          .sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     });
-    
+
     // ✅ AGREGADO: Crear mapa ordenado por las llaves (letras) alfabéticamente
     final sortedGrouped = <String, List<Contact>>{};
-    
+
     // Separar letras normales de caracteres especiales
-    final normalLetters = grouped.keys.where((key) => key.length == 1 && key.codeUnitAt(0) >= 65 && key.codeUnitAt(0) <= 90).toList();
-    final specialChars = grouped.keys.where((key) => !(key.length == 1 && key.codeUnitAt(0) >= 65 && key.codeUnitAt(0) <= 90)).toList();
-    
+    final normalLetters = grouped.keys
+        .where((key) =>
+            key.length == 1 &&
+            key.codeUnitAt(0) >= 65 &&
+            key.codeUnitAt(0) <= 90)
+        .toList();
+    final specialChars = grouped.keys
+        .where((key) => !(key.length == 1 &&
+            key.codeUnitAt(0) >= 65 &&
+            key.codeUnitAt(0) <= 90))
+        .toList();
+
     // Ordenar letras normales alfabéticamente
     normalLetters.sort();
-    
+
     // Ordenar caracteres especiales
     specialChars.sort();
-    
+
     // Agregar al mapa ordenado: primero letras, luego caracteres especiales
     for (final letter in normalLetters) {
       sortedGrouped[letter] = grouped[letter]!;
     }
-    
+
     for (final char in specialChars) {
       sortedGrouped[char] = grouped[char]!;
     }
-    
+
     return sortedGrouped;
   }
 
