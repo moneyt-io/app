@@ -18,7 +18,7 @@ class _LoanHistorySummaryCardState extends State<LoanHistorySummaryCard> {
   @override
   Widget build(BuildContext context) {
     final summary = _calculateSummary(widget.loans);
-    final currencyFormat = NumberFormat.currency(locale: 'es_PE', symbol: 'S/', decimalDigits: 2);
+    final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

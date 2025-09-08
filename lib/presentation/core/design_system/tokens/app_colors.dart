@@ -5,6 +5,12 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
+  // --- Semantic Colors for Loans --- 
+  static const Color lendColor1 = Color(0xFFF97316); // Orange 500
+  static const Color lendColor2 = Color(0xFFEA580C); // Orange 600
+  static const Color borrowColor1 = Color(0xFF8B5CF6); // Purple 500
+  static const Color borrowColor2 = Color(0xFF7C3AED); // Purple 600
+
   // --- Primary Brand Color ---
   static const Color primaryBlue = Color(0xFF0c7ff2);
 

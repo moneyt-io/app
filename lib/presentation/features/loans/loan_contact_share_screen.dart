@@ -19,7 +19,8 @@ import '../../core/molecules/contact_loan_summary_card.dart';
 class LoanContactShareScreen extends StatefulWidget {
   final Contact contact;
 
-  const LoanContactShareScreen({Key? key, required this.contact}) : super(key: key);
+  const LoanContactShareScreen({Key? key, required this.contact})
+      : super(key: key);
 
   @override
   State<LoanContactShareScreen> createState() => _LoanContactShareScreenState();
@@ -45,7 +46,8 @@ class _LoanContactShareScreenState extends State<LoanContactShareScreen> {
     setState(() => _isLoading = true);
     try {
       final allLoans = await _loanUseCases.getLoansByContact(widget.contact.id);
-      final activeLoans = allLoans.where((l) => l.status == LoanStatus.active).toList();
+      final activeLoans =
+          allLoans.where((l) => l.status == LoanStatus.active).toList();
 
       double totalLent = 0;
       double totalBorrowed = 0;
@@ -69,7 +71,9 @@ class _LoanContactShareScreenState extends State<LoanContactShareScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading data: ${e.toString()}'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Error loading data: ${e.toString()}'),
+              backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -80,7 +84,8 @@ class _LoanContactShareScreenState extends State<LoanContactShareScreen> {
   }
 
   String _buildShareText() {
-    final currencyFormat = NumberFormat.currency(locale: 'es_PE', symbol: 'S/', decimalDigits: 2);
+    final currencyFormat =
+        NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
     final dateFormat = DateFormat('MMM dd, yyyy');
 
     final details = [
@@ -100,7 +105,7 @@ class _LoanContactShareScreenState extends State<LoanContactShareScreen> {
       }),
       '',
       'Generated on ${dateFormat.format(DateTime.now())}',
-      'Powered by MoneyT • moneyt.app',
+      'Powered by MoneyT • moneyt.io',
     ];
 
     return details.join('\n');
@@ -119,7 +124,8 @@ class _LoanContactShareScreenState extends State<LoanContactShareScreen> {
       if (image == null) return;
 
       final directory = await getApplicationDocumentsDirectory();
-      final imagePath = await File('${directory.path}/contact_loan_summary.png').create();
+      final imagePath =
+          await File('${directory.path}/contact_loan_summary.png').create();
       await imagePath.writeAsBytes(image);
 
       await Share.shareXFiles(

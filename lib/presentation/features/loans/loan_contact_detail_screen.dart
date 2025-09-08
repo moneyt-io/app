@@ -71,11 +71,6 @@ class _LoanContactDetailScreenState extends State<LoanContactDetailScreen> {
           final borrowedLoans =
               activeLoans.where((loan) => loan.documentTypeId == 'B').toList();
 
-          final lentAmount =
-              lentLoans.fold<double>(0.0, (sum, loan) => sum + loan.amount);
-          final borrowedAmount =
-              borrowedLoans.fold<double>(0.0, (sum, loan) => sum + loan.amount);
-          final netBalance = lentAmount - borrowedAmount;
 
           final activeLentAmount = lentLoans.fold<double>(
               0.0, (sum, loan) => sum + loan.outstandingBalance);
@@ -89,7 +84,7 @@ class _LoanContactDetailScreenState extends State<LoanContactDetailScreen> {
               SliverToBoxAdapter(
                 child: ContactSummaryCard(
                   contact: widget.contact,
-                  netBalance: netBalance,
+                  netBalance: netActivePosition,
                   activeLoansCount: activeLoans.length,
                   lentCount: lentLoans.length,
                   borrowedCount: borrowedLoans.length,
@@ -101,8 +96,8 @@ class _LoanContactDetailScreenState extends State<LoanContactDetailScreen> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 16),
                   child: LoanSummaryGrid(
-                    lentAmount: lentAmount,
-                    borrowedAmount: borrowedAmount,
+                    lentAmount: activeLentAmount,
+                    borrowedAmount: activeBorrowedAmount,
                     lentActiveCount: lentLoans.length,
                     borrowedActiveCount: borrowedLoans.length,
                     onLentTap: () => _filterLoans('L'),

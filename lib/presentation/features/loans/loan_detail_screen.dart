@@ -11,9 +11,9 @@ import 'loan_provider.dart';
 import 'loan_payment_form_screen.dart';
 import 'widgets/loan_detail_summary_card.dart';
 import 'widgets/loan_progress_card.dart';
-import 'widgets/loan_payment_info_card.dart';
 import 'widgets/loan_lender_info_card.dart';
 import 'widgets/loan_details_info_card.dart';
+import 'widgets/loan_payment_history_card.dart';
 import '../../navigation/app_routes.dart';
 import '../../navigation/navigation_service.dart';
 
@@ -31,9 +31,10 @@ class LoanDetailScreen extends StatefulWidget {
 
 class _LoanDetailScreenState extends State<LoanDetailScreen> {
   Future<void> _navigateToEdit(LoanEntry loan) async {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => LoanPaymentFormScreen(loan: loan),
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Próximamente'),
+        duration: Duration(seconds: 2),
       ),
     );
   }
@@ -195,7 +196,8 @@ class _LoanDetailContentState extends State<_LoanDetailContent> {
     setState(() => _isLoading = true);
     try {
       if (widget.loan.contactId > 0) {
-        final contact = await _contactUseCases.getContactById(widget.loan.contactId);
+        final contact =
+            await _contactUseCases.getContactById(widget.loan.contactId);
         if (mounted) {
           setState(() {
             _contact = contact;
@@ -243,11 +245,15 @@ class _LoanDetailContentState extends State<_LoanDetailContent> {
             ],
           ),
         ),
-        LoanPaymentInfoCard(loan: widget.loan),
         if (_isLoading)
-          const Center(child: Padding(padding: EdgeInsets.all(16.0), child: CircularProgressIndicator()))
+          const Center(
+              child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: CircularProgressIndicator()))
         else
           LoanLenderInfoCard(lender: _contact),
+        if (widget.loan.details.length > 1)
+          LoanPaymentHistoryCard(payments: widget.loan.details.sublist(1)),
         LoanDetailsInfoCard(loan: widget.loan),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -259,7 +265,8 @@ class _LoanDetailContentState extends State<_LoanDetailContent> {
               foregroundColor: const Color(0xFFDC2626),
               backgroundColor: const Color(0xFFFEF2F2),
               minimumSize: const Size(double.infinity, 50),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
           ),
         ),
@@ -274,14 +281,16 @@ class _LoanDetailContentState extends State<_LoanDetailContent> {
     required VoidCallback onTap,
   }) {
     final isEdit = label == 'Edit';
-    final backgroundColor = isEdit ? const Color(0xFFDBEAFE) : const Color(0xFFDCFCE7);
-    final textColor = isEdit ? const Color(0xFF2563EB) : const Color(0xFF16A34A);
+    final backgroundColor =
+        isEdit ? const Color(0xFFDBEAFE) : const Color(0xFFDCFCE7);
+    final textColor =
+        isEdit ? const Color(0xFF2563EB) : const Color(0xFF16A34A);
 
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: BorderRadius.circular(8),
@@ -291,7 +300,11 @@ class _LoanDetailContentState extends State<_LoanDetailContent> {
             children: [
               Icon(icon, color: textColor, size: 16),
               const SizedBox(width: 4),
-              Text(label, style: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.w500)),
+              Text(label,
+                  style: TextStyle(
+                      color: textColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500)),
             ],
           ),
         ),

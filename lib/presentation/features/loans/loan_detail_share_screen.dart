@@ -51,7 +51,9 @@ class _LoanDetailShareScreenState extends State<LoanDetailShareScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading data: ${e.toString()}'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Error loading data: ${e.toString()}'),
+              backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -62,7 +64,8 @@ class _LoanDetailShareScreenState extends State<LoanDetailShareScreen> {
   }
 
   String _buildShareText() {
-    final currencyFormat = NumberFormat.currency(locale: 'es_PE', symbol: 'S/', decimalDigits: 2);
+    final currencyFormat =
+        NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
     final dateFormat = DateFormat('MMM dd, yyyy');
     final generationTimeFormat = DateFormat('MMM dd, yyyy \'at\' hh:mm a');
 
@@ -79,7 +82,7 @@ class _LoanDetailShareScreenState extends State<LoanDetailShareScreen> {
       if (_contact != null) 'Contact: ${_contact!.name}',
       '',
       'Generated on ${generationTimeFormat.format(DateTime.now())}',
-      'Powered by MoneyT • moneyt.app',
+      'Powered by MoneyT • moneyt.io',
     ];
 
     return details.join('\n');
@@ -98,7 +101,8 @@ class _LoanDetailShareScreenState extends State<LoanDetailShareScreen> {
       if (image == null) return;
 
       final directory = await getApplicationDocumentsDirectory();
-      final imagePath = await File('${directory.path}/loan_statement.png').create();
+      final imagePath =
+          await File('${directory.path}/loan_statement.png').create();
       await imagePath.writeAsBytes(image);
 
       await Share.shareXFiles(

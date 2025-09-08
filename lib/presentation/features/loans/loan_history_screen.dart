@@ -108,7 +108,7 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
 
   Widget _buildContactHeader(List<LoanEntry> allLoans) {
     final totalLoaned = allLoans.where((l) => l.isLend).map((l) => l.amount).sum;
-    final currencyFormat = NumberFormat.currency(locale: 'es_PE', symbol: 'S/', decimalDigits: 2);
+    final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),

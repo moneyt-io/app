@@ -1,14 +1,16 @@
 import 'package:injectable/injectable.dart';
 import '../entities/wallet.dart';
 import '../entities/credit_card.dart';
+import '../repositories/credit_card_repository.dart';
 import '../repositories/transaction_repository.dart';
 import '../entities/transaction_entry.dart';
 
 @injectable
 class BalanceCalculationService {
   final TransactionRepository _transactionRepository;
+  final CreditCardRepository _creditCardRepository;
 
-  BalanceCalculationService(this._transactionRepository);
+  BalanceCalculationService(this._transactionRepository, this._creditCardRepository);
 
   /// Calcula el balance actual de un wallet basado en transacciones
   Future<double> calculateWalletBalance(int walletId) async {
@@ -73,6 +75,15 @@ class BalanceCalculationService {
   Future<double> calculateAvailableCredit(CreditCard creditCard) async {
     final usedBalance = await calculateCreditCardUsedBalance(creditCard.id);
     return creditCard.quota - usedBalance;
+  }
+
+  /// Calcula el crédito disponible de una tarjeta a partir de su ID.
+  Future<double> calculateAvailableCreditFromId(int creditCardId) async {
+    final creditCard = await _creditCardRepository.getCreditCardById(creditCardId);
+    if (creditCard == null) {
+      return 0.0;
+    }
+    return calculateAvailableCredit(creditCard);
   }
 
   /// Verifica si un wallet tiene fondos suficientes

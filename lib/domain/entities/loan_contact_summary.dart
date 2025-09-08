@@ -7,6 +7,7 @@ class LoanContactSummary extends Equatable {
   final double totalLent;
   final double totalBorrowed;
   final int activeLoanCount;
+  final int? totalLoanCount;
   final DateTime? nextDueDate;
   final bool isOverdue;
   final int overdueDays;
@@ -17,6 +18,7 @@ class LoanContactSummary extends Equatable {
     required this.totalLent,
     required this.totalBorrowed,
     required this.activeLoanCount,
+    this.totalLoanCount,
     this.nextDueDate,
     this.isOverdue = false,
     this.overdueDays = 0,
@@ -31,6 +33,7 @@ class LoanContactSummary extends Equatable {
         totalLent,
         totalBorrowed,
         activeLoanCount,
+        totalLoanCount,
         nextDueDate,
         isOverdue,
         overdueDays,

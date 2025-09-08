@@ -1,29 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../domain/entities/loan_entry.dart';
-import '../../../../domain/entities/wallet.dart';
+import '../../../../domain/usecases/credit_card_usecases.dart';
+import '../../../../domain/usecases/wallet_usecases.dart';
 
-class DetailedLoanCard extends StatelessWidget {
+class DetailedLoanCard extends StatefulWidget {
   final LoanEntry loan;
-  final Wallet? wallet;
   final String currencySymbol;
   final VoidCallback onTap;
 
   const DetailedLoanCard({
     Key? key,
     required this.loan,
-    this.wallet,
     this.currencySymbol = '\$',
     required this.onTap,
   }) : super(key: key);
 
   @override
+  State<DetailedLoanCard> createState() => _DetailedLoanCardState();
+}
+
+class _DetailedLoanCardState extends State<DetailedLoanCard> {
+  final _walletUseCases = GetIt.instance<WalletUseCases>();
+  final _creditCardUseCases = GetIt.instance<CreditCardUseCases>();
+  String _paymentMethodName = '...';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPaymentMethodName();
+  }
+
+  Future<void> _loadPaymentMethodName() async {
+    if (widget.loan.details.isEmpty) {
+      if (mounted) setState(() => _paymentMethodName = 'N/A');
+      return;
+    }
+
+    final detail = widget.loan.details.first;
+    String name = 'Unknown';
+
+    try {
+      if (detail.paymentTypeId == 'W') {
+        final wallet = await _walletUseCases.getWalletById(detail.paymentId);
+        name = wallet?.name ?? 'Wallet not found';
+      } else if (detail.paymentTypeId == 'C') {
+        final card = await _creditCardUseCases.getCreditCardById(detail.paymentId);
+        name = card?.name ?? 'Card not found';
+      }
+    } catch (e) {
+      name = 'Error';
+    }
+
+    if (mounted) {
+      setState(() {
+        _paymentMethodName = name;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isLent = loan.documentTypeId == 'L';
-    final paidAmount = loan.amount - loan.outstandingBalance;
-    final progressPercentage = loan.amount > 0 ? (paidAmount / loan.amount) : 0.0;
-    
+    final isLent = widget.loan.documentTypeId == 'L';
+    final paidAmount = widget.loan.amount - widget.loan.outstandingBalance;
+    final progressPercentage =
+        widget.loan.amount > 0 ? (paidAmount / widget.loan.amount) : 0.0;
+    final dueDate = DateTime(widget.loan.date.year, widget.loan.date.month + 1, widget.loan.date.day);
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
@@ -42,7 +87,7 @@ class DetailedLoanCard extends StatelessWidget {
         ),
       ),
       child: InkWell(
-        onTap: onTap,
+        onTap: widget.onTap,
         borderRadius: BorderRadius.circular(8),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -53,22 +98,22 @@ class DetailedLoanCard extends StatelessWidget {
                 height: 48,
                 width: 48,
                 decoration: BoxDecoration(
-                  color: isLent 
+                  color: isLent
                       ? const Color(0xFFFED7AA) // bg-orange-100
                       : const Color(0xFFE9D5FF), // bg-purple-100
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Icon(
                   isLent ? Icons.call_made : Icons.call_received,
-                  color: isLent 
+                  color: isLent
                       ? const Color(0xFFEA580C) // text-orange-600
                       : const Color(0xFF9333EA), // text-purple-600
                   size: 24,
                 ),
               ),
-              
+
               const SizedBox(width: 12),
-              
+
               // Content
               Expanded(
                 child: Column(
@@ -80,7 +125,8 @@ class DetailedLoanCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            loan.description ?? (isLent ? 'Loan Given' : 'Loan Received'),
+                            widget.loan.description ??
+                                (isLent ? 'Loan Given' : 'Loan Received'),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -91,36 +137,38 @@ class DetailedLoanCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '$currencySymbol${NumberFormat('#,##0.00').format(loan.amount)}',
+                          '${widget.currencySymbol}${NumberFormat('#,##0.00').format(widget.loan.amount)}',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: isLent 
+                            color: isLent
                                 ? const Color(0xFFEA580C) // text-orange-600
                                 : const Color(0xFF9333EA), // text-purple-600
                           ),
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     // Wallet and Due Date Row
                     Row(
                       children: [
-                        Icon(
-                          wallet != null 
-                              ? Icons.account_balance_wallet
-                              : Icons.payments,
+                        const Icon(
+                          Icons.account_balance_wallet,
                           size: 14,
-                          color: const Color(0xFF64748B), // text-slate-500
+                          color: Color(0xFF64748B), // text-slate-500
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          wallet?.name ?? 'Cash Wallet',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF64748B), // text-slate-500
+                        Flexible(
+                          child: Text(
+                            _paymentMethodName,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF64748B), // text-slate-500
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -139,7 +187,7 @@ class DetailedLoanCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Due: ${DateFormat('MMM dd, yyyy').format(loan.date)}',
+                          'Due: ${DateFormat('MMM dd, yyyy').format(dueDate)}',
                           style: const TextStyle(
                             fontSize: 14,
                             color: Color(0xFF64748B), // text-slate-500
@@ -147,9 +195,9 @@ class DetailedLoanCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 12),
-                    
+
                     // Progress Section
                     Column(
                       children: [
@@ -158,14 +206,14 @@ class DetailedLoanCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Paid: $currencySymbol${NumberFormat('#,##0.00').format(paidAmount)}',
+                              'Paid: ${widget.currencySymbol}${NumberFormat('#,##0.00').format(paidAmount)}',
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFF475569), // text-slate-600
                               ),
                             ),
                             Text(
-                              'Remaining: $currencySymbol${NumberFormat('#,##0.00').format(loan.outstandingBalance)}',
+                              'Remaining: ${widget.currencySymbol}${NumberFormat('#,##0.00').format(widget.loan.outstandingBalance)}',
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFF475569), // text-slate-600
@@ -173,9 +221,9 @@ class DetailedLoanCard extends StatelessWidget {
                             ),
                           ],
                         ),
-                        
+
                         const SizedBox(height: 4),
-                        
+
                         // Progress Bar
                         Container(
                           width: double.infinity,
@@ -189,7 +237,7 @@ class DetailedLoanCard extends StatelessWidget {
                             widthFactor: progressPercentage.clamp(0.0, 1.0),
                             child: Container(
                               decoration: BoxDecoration(
-                                color: isLent 
+                                color: isLent
                                     ? const Color(0xFFF97316) // bg-orange-500
                                     : const Color(0xFF8B5CF6), // bg-purple-500
                                 borderRadius: BorderRadius.circular(4),
@@ -197,9 +245,9 @@ class DetailedLoanCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 4),
-                        
+
                         // Progress Percentage
                         Align(
                           alignment: Alignment.centerLeft,
@@ -213,16 +261,17 @@ class DetailedLoanCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 12),
-                    
+
                     // Status and Date Row
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: isLent 
+                            color: isLent
                                 ? const Color(0xFFFED7AA) // bg-orange-100
                                 : const Color(0xFFE9D5FF), // bg-purple-100
                             borderRadius: BorderRadius.circular(12),
@@ -232,7 +281,7 @@ class DetailedLoanCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: isLent 
+                              color: isLent
                                   ? const Color(0xFFC2410C) // text-orange-700
                                   : const Color(0xFF7C3AED), // text-purple-700
                             ),
@@ -240,7 +289,7 @@ class DetailedLoanCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          DateFormat('MMM dd, yyyy').format(loan.date),
+                          DateFormat('MMM dd, yyyy').format(widget.loan.date),
                           style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFF9CA3AF), // text-slate-400
@@ -251,9 +300,9 @@ class DetailedLoanCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               const SizedBox(width: 8),
-              
+
               // Chevron
               const Icon(
                 Icons.chevron_right,

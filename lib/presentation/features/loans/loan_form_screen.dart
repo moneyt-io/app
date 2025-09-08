@@ -25,11 +25,13 @@ import '../../core/organisms/account_selector_modal.dart'
 class LoanFormScreen extends StatefulWidget {
   final LoanEntry? loan;
   final String? initialType;
+  final Contact? contact;
 
   const LoanFormScreen({
     super.key,
     this.loan,
     this.initialType,
+    this.contact,
   });
 
   @override
@@ -74,9 +76,11 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
   }
 
   Future<void> _startInitialSelectionFlow() async {
-    // 1. Show contact selector.
-    await _selectContact();
-    if (!mounted || _selectedContact == null) return;
+    // 1. Show contact selector only if not pre-selected.
+    if (_selectedContact == null) {
+      await _selectContact();
+      if (!mounted || _selectedContact == null) return;
+    }
 
     // 2. Show account selector.
     await _showAccountSelector();
@@ -91,6 +95,10 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
   void _initializeForm() {
     if (widget.initialType != null) {
       _documentType = widget.initialType!;
+    }
+
+    if (widget.contact != null) {
+      _selectedContact = widget.contact;
     }
 
     if (widget.loan != null) {
@@ -251,7 +259,8 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: const Color(0xFFEFF6FF), // bg-blue-50
-            border: Border.all(color: const Color(0xFFBFDBFE)), // border-blue-200
+            border:
+                Border.all(color: const Color(0xFFBFDBFE)), // border-blue-200
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
@@ -323,11 +332,13 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
             child: Container(
               width: double.infinity,
               height: 48, // h-12 from mockup
-              padding: const EdgeInsets.symmetric(horizontal: 12), // px-3 from mockup
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 12), // px-3 from mockup
               decoration: BoxDecoration(
                 color: const Color(0xFFEFF6FF), // bg-blue-50
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF93C5FD)), // border-blue-300
+                border: Border.all(
+                    color: const Color(0xFF93C5FD)), // border-blue-300
               ),
               child: Row(
                 children: [
@@ -354,12 +365,14 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                         fontWeight: FontWeight.w500,
                         color: hasValue
                             ? const Color(0xFF0F172A) // text-slate-900
-                            : const Color(0xFF64748B), // text-slate-500 for placeholder
+                            : const Color(
+                                0xFF64748B), // text-slate-500 for placeholder
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Icon(Icons.expand_more, color: Color(0xFF94A3B8)), // text-slate-400
+                  const Icon(Icons.expand_more,
+                      color: Color(0xFF94A3B8)), // text-slate-400
                 ],
               ),
             ),

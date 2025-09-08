@@ -8,12 +8,14 @@ class LoanContactCard extends StatelessWidget {
   final LoanContactSummary summary;
   final String currencySymbol;
   final VoidCallback onTap;
+  final bool isHistoryView;
 
   const LoanContactCard({
     Key? key,
     required this.summary,
     this.currencySymbol = '\$',
     required this.onTap,
+    this.isHistoryView = false,
   }) : super(key: key);
 
   double get netBalance => summary.netBalance;
@@ -21,15 +23,18 @@ class LoanContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     // Colors matching the mockup exactly
-    final Color amountColor = isLent ? const Color(0xFFEA580C) : const Color(0xFF9333EA);
-    final Color chipBgColor = isLent ? const Color(0xFFFED7AA) : const Color(0xFFE9D5FF);
-    final Color chipFgColor = isLent ? const Color(0xFFC2410C) : const Color(0xFF7C3AED);
+    final Color amountColor =
+        isLent ? const Color(0xFFEA580C) : const Color(0xFF9333EA);
+    final Color chipBgColor =
+        isLent ? const Color(0xFFFED7AA) : const Color(0xFFE9D5FF);
+    final Color chipFgColor =
+        isLent ? const Color(0xFFC2410C) : const Color(0xFF7C3AED);
     final String chipLabel = isLent ? 'You lent' : 'You borrowed';
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6), // mx-4 mb-3
+      margin:
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 6), // mx-4 mb-3
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8), // rounded-lg
@@ -40,7 +45,8 @@ class LoanContactCard extends StatelessWidget {
             offset: const Offset(0, 1),
           ),
         ],
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1), // border-slate-200
+        border: Border.all(
+            color: const Color(0xFFE2E8F0), width: 1), // border-slate-200
       ),
       child: Material(
         color: Colors.transparent,
@@ -59,7 +65,7 @@ class LoanContactCard extends StatelessWidget {
                   size: AppAvatarSize.large, // 48x48
                 ),
                 const SizedBox(width: 12), // mr-3
-                
+
                 // Content area - flex-grow
                 Expanded(
                   child: Column(
@@ -83,65 +89,79 @@ class LoanContactCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          
+
                           // Amount and status chip
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                '$currencySymbol${NumberFormat('#,##0.00').format(netBalance.abs())}',
-                                style: TextStyle(
-                                  color: amountColor,
-                                  fontSize: 18, // text-lg
-                                  fontWeight: FontWeight.bold, // font-bold
-                                  height: 1.25,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // px-2 py-1
-                                decoration: BoxDecoration(
-                                  color: chipBgColor,
-                                  borderRadius: BorderRadius.circular(12), // rounded-full
-                                ),
-                                child: Text(
-                                  chipLabel,
+                          if (!isHistoryView)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '$currencySymbol${NumberFormat('#,##0.00').format(netBalance.abs())}',
                                   style: TextStyle(
-                                    color: chipFgColor,
-                                    fontSize: 12, // text-xs
-                                    fontWeight: FontWeight.w500, // font-medium
-                                    height: 1.0,
+                                    color: amountColor,
+                                    fontSize: 18, // text-lg
+                                    fontWeight: FontWeight.bold, // font-bold
+                                    height: 1.25,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 4), // mb-1 spacing
-                      
-                      // Bottom row: Loan count and Due date
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '${summary.activeLoanCount} active loan${summary.activeLoanCount == 1 ? '' : 's'}',
-                            style: const TextStyle(
-                              color: Color(0xFF64748B), // text-slate-500
-                              fontSize: 14, // text-sm
-                              height: 1.25,
+                                const SizedBox(height: 2),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4), // px-2 py-1
+                                  decoration: BoxDecoration(
+                                    color: chipBgColor,
+                                    borderRadius: BorderRadius.circular(
+                                        12), // rounded-full
+                                  ),
+                                  child: Text(
+                                    chipLabel,
+                                    style: TextStyle(
+                                      color: chipFgColor,
+                                      fontSize: 12, // text-xs
+                                      fontWeight:
+                                          FontWeight.w500, // font-medium
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          _buildDueDateStatus(context),
                         ],
                       ),
+
+                      const SizedBox(height: 4), // mb-1 spacing
+
+                      // Bottom row: Loan count and Due date
+                      if (isHistoryView)
+                        Text(
+                          '${summary.totalLoanCount ?? 0} transacciones realizadas',
+                          style: const TextStyle(
+                            color: Color(0xFF64748B), // text-slate-500
+                            fontSize: 14, // text-sm
+                            height: 1.25,
+                          ),
+                        )
+                      else
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${summary.activeLoanCount} active loan${summary.activeLoanCount == 1 ? '' : 's'}',
+                              style: const TextStyle(
+                                color: Color(0xFF64748B), // text-slate-500
+                                fontSize: 14, // text-sm
+                                height: 1.25,
+                              ),
+                            ),
+                            _buildDueDateStatus(context),
+                          ],
+                        ),
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(width: 12),
-                
+
                 // Chevron icon - w-6 justify-center
                 SizedBox(
                   width: 24,

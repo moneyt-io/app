@@ -8,10 +8,12 @@ import '../../../domain/entities/contact.dart';
 import '../../../domain/usecases/contact_usecases.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/usecases/credit_card_usecases.dart';
+import '../../../domain/usecases/transaction_usecases.dart';
 import '../../core/atoms/app_app_bar.dart';
 import '../../core/molecules/date_selection_dialog.dart';
 import '../transactions/widgets/account_selection_dialog.dart';
-import '../../core/organisms/account_selector_modal.dart' show SelectableAccount;
+import '../../core/organisms/account_selector_modal.dart'
+    show SelectableAccount;
 import './loan_provider.dart';
 import '../../core/atoms/app_floating_label_field.dart';
 import '../../core/atoms/app_floating_label_selector.dart';
@@ -43,6 +45,7 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
   final _contactUseCases = GetIt.instance<ContactUseCases>();
   final _walletUseCases = GetIt.instance<WalletUseCases>();
   final _creditCardUseCases = GetIt.instance<CreditCardUseCases>();
+  final _transactionUseCases = GetIt.instance<TransactionUseCases>();
 
   Contact? _contact;
   Map<int, SelectableAccount> _accountsMap = {};
@@ -85,10 +88,42 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
         ...creditCards.map((cc) => SelectableAccount.fromCreditCard(cc)),
       ];
 
-      _accountsMap = { for (var acc in accounts) acc.id: acc };
+      _accountsMap = {for (var acc in accounts) acc.id: acc};
 
-      // Select first account as default
-      if (accounts.isNotEmpty) {
+      // --- NEW LOGIC: Select the source account of the loan as default ---
+      int? sourceAccountId;
+      String? sourceAccountType;
+
+      // 1. Get transactionId and payment type from loan details
+      if (widget.loan.details.isNotEmpty) {
+        final loanDetail = widget.loan.details.first;
+        final transactionId = loanDetail.transactionId;
+        final transaction =
+            await _transactionUseCases.getTransactionEntityById(transactionId);
+
+        if (transaction != null) {
+          sourceAccountId = transaction.accountId;
+          sourceAccountType =
+              loanDetail.paymentTypeId; // Use type from loan detail
+        }
+      }
+
+      // 2. Find and select the source account
+      if (sourceAccountId != null && sourceAccountType != null) {
+        final isCreditCard = sourceAccountType == 'C';
+        // Use a try-catch or a loop to avoid type errors with firstWhere's orElse
+        try {
+          _selectedAccount = accounts.firstWhere(
+            (acc) =>
+                acc.id == sourceAccountId && acc.isCreditCard == isCreditCard,
+          );
+        } catch (e) {
+          _selectedAccount = null; // Not found
+        }
+      }
+
+      // Fallback to first account if source is not found or no details exist
+      if (_selectedAccount == null && accounts.isNotEmpty) {
         _selectedAccount = accounts.first;
       }
     } catch (e) {
@@ -165,8 +200,11 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
         loanId: widget.loan.id,
         paymentAmount: _paymentAmount,
         date: _selectedDate, // Correct state variable for date
-        description: _detailsController.text, // Correct state variable for description
-        paymentTypeId: _selectedAccount!.isCreditCard ? 'C' : 'W', // Determine type from isCreditCard
+        description:
+            _detailsController.text, // Correct state variable for description
+        paymentTypeId: _selectedAccount!.isCreditCard
+            ? 'C'
+            : 'W', // Determine type from isCreditCard
         paymentId: _selectedAccount!.id,
       );
 
@@ -200,7 +238,8 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
     final remainingBalance = widget.loan.outstandingBalance - _paymentAmount;
     final originalAmount = widget.loan.amount;
     final newPaidAmount = originalAmount - remainingBalance;
-    final newProgressPercentage = originalAmount > 0 ? (newPaidAmount / originalAmount) * 100 : 0.0;
+    final newProgressPercentage =
+        originalAmount > 0 ? (newPaidAmount / originalAmount) * 100 : 0.0;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // bg-slate-50
@@ -239,13 +278,15 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
                       label: 'Payment amount',
                       placeholder: '0.00',
                       prefixIcon: Icons.attach_money,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [CurrencyInputFormatter()],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Payment amount is required';
                         }
-                        final amount = double.tryParse(value.replaceAll(',', ''));
+                        final amount =
+                            double.tryParse(value.replaceAll(',', ''));
                         if (amount == null || amount <= 0) {
                           return 'Please enter a valid amount';
                         }
@@ -320,8 +361,10 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: PaymentSummaryInfoCard(
                       paymentAmount: _paymentAmount,
-                      remainingBalance: remainingBalance.clamp(0.0, double.infinity),
-                      newProgressPercentage: newProgressPercentage.clamp(0.0, 100.0),
+                      remainingBalance:
+                          remainingBalance.clamp(0.0, double.infinity),
+                      newProgressPercentage:
+                          newProgressPercentage.clamp(0.0, 100.0),
                     ),
                   ),
 

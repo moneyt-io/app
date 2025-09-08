@@ -19,6 +19,7 @@ import '../../domain/usecases/credit_card_usecases.dart';
 import '../../domain/usecases/loan_usecases.dart';
 import '../../domain/usecases/shared_expense_usecases.dart';
 import '../../domain/services/balance_calculation_service.dart'; // AGREGADO: Import faltante
+import '../../domain/repositories/credit_card_repository.dart'; // AGREGADO: Import faltante
 
 final getIt = GetIt.instance;
 
@@ -50,7 +51,10 @@ void registerDomainDependencies() {
   
   // PRIMERO: Registrar el servicio de cálculo de balances
   getIt.registerLazySingleton<BalanceCalculationService>(
-    () => BalanceCalculationService(getIt<TransactionRepository>()),
+    () => BalanceCalculationService(
+      getIt<TransactionRepository>(),
+      getIt<CreditCardRepository>(),
+    ),
   );
 
   // Casos de Uso - Dependen de los repositorios registrados en data_di_module

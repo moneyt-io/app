@@ -28,7 +28,8 @@ class TransactionReceiptCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withOpacity(0.08), // slate-900 with opacity
+            color: const Color(0xFF0F172A)
+                .withOpacity(0.08), // slate-900 with opacity
             blurRadius: 20.0,
             offset: const Offset(0, 10),
           ),
@@ -53,7 +54,10 @@ class TransactionReceiptCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF3B82F6), Color(0xFF9333EA)], // blue-500 to purple-600
+          colors: [
+            Color(0xFF3B82F6),
+            Color(0xFF9333EA)
+          ], // blue-500 to purple-600
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
@@ -137,7 +141,8 @@ class TransactionReceiptCard extends StatelessWidget {
             _buildInfoRow(
               'Category',
               category!.name,
-              leading: const Icon(Icons.fastfood_outlined, size: 16, color: Color(0xFFF59E0B)), // amber-500
+              leading: const Icon(Icons.fastfood_outlined,
+                  size: 16, color: Color(0xFFF59E0B)), // amber-500
             ),
           _buildInfoRow(
             'Date',
@@ -151,10 +156,10 @@ class TransactionReceiptCard extends StatelessWidget {
             _buildInfoRow(
               'Payment Method',
               wallet!.name,
-              leading: const Icon(Icons.account_balance_wallet_outlined, size: 16, color: Color(0xFF3B82F6)), // blue-500
+              leading: const Icon(Icons.account_balance_wallet_outlined,
+                  size: 16, color: Color(0xFF3B82F6)), // blue-500
             ),
-          if (contact != null)
-            _buildInfoRow('Contact', contact!.name),
+          if (contact != null) _buildInfoRow('Contact', contact!.name),
         ],
       ),
     );
@@ -171,12 +176,14 @@ class TransactionReceiptCard extends StatelessWidget {
             children: [
               Text(
                 'Transaction ID: TXN-${transaction.id.toString().padLeft(8, '0')}',
-                style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)), // slate-400
+                style: const TextStyle(
+                    fontSize: 12, color: Color(0xFF94A3B8)), // slate-400
               ),
               const SizedBox(height: 4),
               Text(
                 'Generated on ${DateFormat('MMM d, yyyy \'at\' h:mm a').format(DateTime.now())}',
-                 style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)), // slate-400
+                style: const TextStyle(
+                    fontSize: 12, color: Color(0xFF94A3B8)), // slate-400
               ),
             ],
           ),
@@ -186,7 +193,7 @@ class TransactionReceiptCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12),
           color: const Color(0xFFF8FAFC), // slate-50
           child: const Text(
-            'Powered by MoneyT • moneyt.app',
+            'Powered by MoneyT • moneyt.io',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12,
@@ -207,7 +214,8 @@ class TransactionReceiptCard extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(color: Color(0xFF64748B), fontSize: 14), // slate-500
+            style: const TextStyle(
+                color: Color(0xFF64748B), fontSize: 14), // slate-500
           ),
           Row(
             children: [

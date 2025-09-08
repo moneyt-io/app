@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../domain/services/balance_calculation_service.dart';
 import '../../../core/molecules/form_action_bar.dart';
-
 import '../../../core/organisms/account_selector_modal.dart'
     show SelectableAccount;
 
@@ -52,7 +53,11 @@ class AccountSelectionDialog extends StatefulWidget {
 
 class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
   final _searchController = TextEditingController();
+  final _balanceService = GetIt.instance<BalanceCalculationService>();
   late SelectableAccount? _selectedAccount;
+  Map<int, double> _balances = {};
+  bool _isLoadingBalances = true;
+
   List<SelectableAccount> _filteredAccounts = [];
 
   @override
@@ -61,6 +66,27 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
     _selectedAccount = widget.initialSelection;
     _filteredAccounts = widget.accounts;
     _searchController.addListener(_filterAccounts);
+    _loadBalances();
+  }
+
+  Future<void> _loadBalances() async {
+    setState(() => _isLoadingBalances = true);
+    final balanceMap = <int, double>{};
+    for (final account in widget.accounts) {
+      if (account.isCreditCard) {
+        final availableCredit = await _balanceService.calculateAvailableCreditFromId(account.id);
+        balanceMap[account.id] = availableCredit;
+      } else {
+        final balance = await _balanceService.calculateWalletBalance(account.id);
+        balanceMap[account.id] = balance;
+      }
+    }
+    if (mounted) {
+      setState(() {
+        _balances = balanceMap;
+        _isLoadingBalances = false;
+      });
+    }
   }
 
   @override
@@ -159,11 +185,13 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
               ),
               const Divider(height: 1, color: _slate100),
               Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: EdgeInsets.zero,
-                  children: _buildAccountList(),
-                ),
+                child: _isLoadingBalances
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView(
+                        controller: scrollController,
+                        padding: EdgeInsets.zero,
+                        children: _buildAccountList(),
+                      ),
               ),
               FormActionBar(
                 onCancel: () => Navigator.of(context).pop(),
@@ -182,7 +210,7 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
     final List<Widget> listItems = [];
     final wallets = _filteredAccounts.where((a) => !a.isCreditCard).toList();
     final creditCards = _filteredAccounts.where((a) => a.isCreditCard).toList();
-    final currencyFormat = NumberFormat.currency(locale: 'es_ES', symbol: '€');
+    final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$');
 
     if (wallets.isNotEmpty) {
       listItems.add(_buildSectionHeader('Wallets'));
@@ -214,8 +242,8 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
           ));
           // Render children, indented and selectable
           for (final child in children) {
-            final details =
-                '****${child.last4Digits} • ${currencyFormat.format(child.balance ?? 0.0)}';
+            final balance = _balances[child.id] ?? 0.0;
+            final details = 'Balance: ${currencyFormat.format(balance)}';
             listItems.add(Padding(
               padding: const EdgeInsets.only(left: 16.0),
               child: _AccountListItem(
@@ -231,8 +259,8 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
           }
         } else {
           // Render standalone account as a selectable item
-          final details =
-              '****${rootWallet.last4Digits} • ${currencyFormat.format(rootWallet.balance ?? 0.0)}';
+          final balance = _balances[rootWallet.id] ?? 0.0;
+          final details = 'Balance: ${currencyFormat.format(balance)}';
           listItems.add(_AccountListItem(
               icon: Icons.account_balance,
               iconBgColor: _blue100,
@@ -249,8 +277,8 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
     if (creditCards.isNotEmpty) {
       listItems.add(_buildSectionHeader('Credit Cards'));
       for (final account in creditCards) {
-        final details =
-            '****${account.last4Digits} • Available: ${currencyFormat.format(account.availableCredit ?? 0.0)}';
+        final availableCredit = _balances[account.id] ?? 0.0;
+        final details = 'Available: ${currencyFormat.format(availableCredit)}';
         listItems.add(_AccountListItem(
           icon: Icons.credit_card,
           iconBgColor: _purple100,

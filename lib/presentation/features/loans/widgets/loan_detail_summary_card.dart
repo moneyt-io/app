@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../domain/entities/loan_entry.dart';
+import '../../../core/design_system/tokens/app_colors.dart';
 
 class LoanDetailSummaryCard extends StatelessWidget {
   final LoanEntry loan;
@@ -24,8 +25,10 @@ class LoanDetailSummaryCard extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFEF4444), Color(0xFFDC2626)], // red-500 to red-600
+        gradient: LinearGradient(
+          colors: loan.isLend
+              ? [AppColors.lendColor1, AppColors.lendColor2]
+              : [AppColors.borrowColor1, AppColors.borrowColor2],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

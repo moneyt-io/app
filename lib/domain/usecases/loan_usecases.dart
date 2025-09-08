@@ -40,13 +40,13 @@ class LoanUseCases {
 
   // ========== OPERACIONES BÁSICAS ==========
   Future<List<LoanEntry>> getAllLoans() => _loanRepository.getAllLoans();
-  
+
   Future<LoanEntry?> getLoanById(int id) => _loanRepository.getLoanById(id);
-  
+
   Stream<List<LoanEntry>> watchAllLoans() => _loanRepository.watchAllLoans();
 
   // ========== CREAR PRÉSTAMOS OTORGADOS (LEND) ==========
-  
+
   /// Crear préstamo otorgado desde wallet (dinero sale del wallet)
   Future<LoanEntry> createLendLoanFromWallet({
     required int contactId,
@@ -68,7 +68,8 @@ class LoanUseCases {
     }
 
     // VALIDACIÓN MEJORADA con cálculo real de balance
-    final validationErrors = await LoanValidators.validateCompleteNewLoanWithBalances(
+    final validationErrors =
+        await LoanValidators.validateCompleteNewLoanWithBalances(
       contactId: contactId,
       amount: amount,
       currencyId: currencyId,
@@ -121,7 +122,7 @@ class LoanUseCases {
     // 3. Crear transacción
     final transaction = await _transactionRepository.createExpenseTransaction(
       date: date,
-      description: description ?? LoanConstants.defaultLendFromWalletDescription,
+      description: 'Préstamo otorgado a ${contact.name}',
       amount: amount,
       currencyId: currencyId,
       categoryId: 0, // No aplica categoría para préstamos
@@ -137,7 +138,8 @@ class LoanUseCases {
       documentTypeId: LoanConstants.lendDocumentType,
       currencyId: currencyId,
       contactId: contactId,
-      secuencial: await _loanRepository.getNextSecuencial(LoanConstants.lendDocumentType),
+      secuencial: await _loanRepository
+          .getNextSecuencial(LoanConstants.lendDocumentType),
       date: date,
       amount: amount,
       rateExchange: 1.0,
@@ -178,9 +180,11 @@ class LoanUseCases {
     String? description,
   }) async {
     // Validaciones similares...
-    final creditCard = await _creditCardRepository.getCreditCardById(creditCardId);
+    final creditCard =
+        await _creditCardRepository.getCreditCardById(creditCardId);
     if (creditCard == null) {
-      throw const PaymentMethodNotFoundException('Tarjeta de crédito no encontrada');
+      throw const PaymentMethodNotFoundException(
+          'Tarjeta de crédito no encontrada');
     }
 
     final contact = await _contactRepository.getContactById(contactId);
@@ -225,9 +229,10 @@ class LoanUseCases {
     );
 
     // 2. Crear transacción
-    final transaction = await _transactionRepository.createCreditCardExpenseTransaction(
+    final transaction =
+        await _transactionRepository.createCreditCardExpenseTransaction(
       date: date,
-      description: description ?? LoanConstants.defaultLendFromCreditCardDescription,
+      description: 'Préstamo otorgado a ${contact.name}',
       amount: amount,
       currencyId: currencyId,
       creditCardId: creditCardId,
@@ -241,7 +246,8 @@ class LoanUseCases {
       documentTypeId: LoanConstants.lendDocumentType,
       currencyId: currencyId,
       contactId: contactId,
-      secuencial: await _loanRepository.getNextSecuencial(LoanConstants.lendDocumentType),
+      secuencial: await _loanRepository
+          .getNextSecuencial(LoanConstants.lendDocumentType),
       date: date,
       amount: amount,
       rateExchange: 1.0,
@@ -287,9 +293,11 @@ class LoanUseCases {
       throw const ContactNotFoundException();
     }
 
-    final category = await _categoryRepository.getCategoryById(incomeCategoryId);
+    final category =
+        await _categoryRepository.getCategoryById(incomeCategoryId);
     if (category == null || category.documentTypeId != 'I') {
-      throw const InvalidCategoryTypeException('Debe ser una categoría de ingreso');
+      throw const InvalidCategoryTypeException(
+          'Debe ser una categoría de ingreso');
     }
 
     // 1. Crear journal específico para préstamo por servicios
@@ -308,9 +316,10 @@ class LoanUseCases {
     );
 
     // 2. Crear transacción de ingreso
-    final transaction = await _transactionRepository.createLendFromServiceTransaction(
+    final transaction =
+        await _transactionRepository.createLendFromServiceTransaction(
       date: date,
-      description: description ?? LoanConstants.defaultLendFromServiceDescription,
+      description: 'Préstamo otorgado a ${contact.name}',
       amount: amount,
       currencyId: currencyId,
       categoryId: incomeCategoryId,
@@ -324,7 +333,8 @@ class LoanUseCases {
       documentTypeId: LoanConstants.lendDocumentType,
       currencyId: currencyId,
       contactId: contactId,
-      secuencial: await _loanRepository.getNextSecuencial(LoanConstants.lendDocumentType),
+      secuencial: await _loanRepository
+          .getNextSecuencial(LoanConstants.lendDocumentType),
       date: date,
       amount: amount,
       rateExchange: 1.0,
@@ -414,7 +424,7 @@ class LoanUseCases {
     // 3. Crear transacción
     final transaction = await _transactionRepository.createIncomeTransaction(
       date: date,
-      description: description ?? LoanConstants.defaultBorrowToWalletDescription,
+      description: 'Préstamo recibido de ${contact.name}',
       amount: amount,
       currencyId: currencyId,
       walletId: walletId,
@@ -429,7 +439,8 @@ class LoanUseCases {
       documentTypeId: LoanConstants.borrowDocumentType,
       currencyId: currencyId,
       contactId: contactId,
-      secuencial: await _loanRepository.getNextSecuencial(LoanConstants.borrowDocumentType),
+      secuencial: await _loanRepository
+          .getNextSecuencial(LoanConstants.borrowDocumentType),
       date: date,
       amount: amount,
       rateExchange: 1.0,
@@ -475,9 +486,11 @@ class LoanUseCases {
       throw const ContactNotFoundException();
     }
 
-    final category = await _categoryRepository.getCategoryById(expenseCategoryId);
+    final category =
+        await _categoryRepository.getCategoryById(expenseCategoryId);
     if (category == null || category.documentTypeId != 'E') {
-      throw const InvalidCategoryTypeException('Debe ser una categoría de gasto');
+      throw const InvalidCategoryTypeException(
+          'Debe ser una categoría de gasto');
     }
 
     // 1. Crear journal específico para préstamo por servicios
@@ -496,9 +509,10 @@ class LoanUseCases {
     );
 
     // 2. Crear transacción de gasto
-    final transaction = await _transactionRepository.createBorrowFromServiceTransaction(
+    final transaction =
+        await _transactionRepository.createBorrowFromServiceTransaction(
       date: date,
-      description: description ?? LoanConstants.defaultBorrowFromServiceDescription,
+      description: 'Préstamo recibido de ${contact.name}',
       amount: amount,
       currencyId: currencyId,
       categoryId: expenseCategoryId,
@@ -512,7 +526,8 @@ class LoanUseCases {
       documentTypeId: LoanConstants.borrowDocumentType,
       currencyId: currencyId,
       contactId: contactId,
-      secuencial: await _loanRepository.getNextSecuencial(LoanConstants.borrowDocumentType),
+      secuencial: await _loanRepository
+          .getNextSecuencial(LoanConstants.borrowDocumentType),
       date: date,
       amount: amount,
       rateExchange: 1.0,
@@ -571,16 +586,19 @@ class LoanUseCases {
     if (validationErrors.isNotEmpty) {
       throw LoanValidationException(validationErrors);
     }
-    
+
     // Calcular totales
     final totalPaidBefore = loan.totalPaid;
-    final regularPayment = paymentAmount - (writeOffAmount ?? 0) - (extraAmount ?? 0);
-    final newTotalPaid = totalPaidBefore + regularPayment + (writeOffAmount ?? 0);
-    
+    final regularPayment =
+        paymentAmount - (writeOffAmount ?? 0) - (extraAmount ?? 0);
+    final newTotalPaid =
+        totalPaidBefore + regularPayment + (writeOffAmount ?? 0);
+
     // Determinar nuevo estado
-    final newStatus = AccountingHelpers.areAmountsEqual(newTotalPaid, loan.amount) 
-        ? LoanStatus.paid 
-        : LoanStatus.active;
+    final newStatus =
+        AccountingHelpers.areAmountsEqual(newTotalPaid, loan.amount)
+            ? LoanStatus.paid
+            : LoanStatus.active;
 
     // 1. Registrar pago regular si hay monto
     if (regularPayment > 0) {
@@ -595,13 +613,16 @@ class LoanUseCases {
     }
 
     // 2. Manejar write-off si existe
-    if (writeOffAmount != null && writeOffAmount > 0 && writeOffCategoryId != null) {
+    if (writeOffAmount != null &&
+        writeOffAmount > 0 &&
+        writeOffCategoryId != null) {
       await _processWriteOff(loan, writeOffAmount, writeOffCategoryId, date);
     }
 
     // 3. Manejar monto extra si existe
     if (extraAmount != null && extraAmount > 0 && extraCategoryId != null) {
-      await _processExtraAmount(loan, extraAmount, extraCategoryId, date, walletId);
+      await _processExtraAmount(
+          loan, extraAmount, extraCategoryId, date, walletId);
     }
 
     // 4. Actualizar estado del préstamo
@@ -645,14 +666,16 @@ class LoanUseCases {
 
   // ========== MÉTODOS HELPER PRIVADOS ==========
 
-  Future<void> _processWriteOff(LoanEntry loan, double amount, int categoryId, DateTime date) async {
+  Future<void> _processWriteOff(
+      LoanEntry loan, double amount, int categoryId, DateTime date) async {
     final isLendLoan = loan.isLendLoan;
-    
+
     if (isLendLoan) {
       // Préstamo otorgado: cancelar como gasto
       await _transactionRepository.createAdjustmentTransaction(
         date: date,
-        description: 'Cancelación de saldo pendiente - ${loan.description ?? 'Préstamo'}',
+        description:
+            'Cancelación de saldo pendiente - ${loan.description ?? 'Préstamo'}',
         amount: amount,
         currencyId: loan.currencyId,
         categoryId: categoryId,
@@ -663,7 +686,8 @@ class LoanUseCases {
       // Préstamo recibido: cancelar como ingreso
       await _transactionRepository.createAdjustmentTransaction(
         date: date,
-        description: 'Cancelación de deuda pendiente - ${loan.description ?? 'Préstamo'}',
+        description:
+            'Cancelación de deuda pendiente - ${loan.description ?? 'Préstamo'}',
         amount: amount,
         currencyId: loan.currencyId,
         categoryId: categoryId,
@@ -673,9 +697,10 @@ class LoanUseCases {
     }
   }
 
-  Future<void> _processExtraAmount(LoanEntry loan, double amount, int categoryId, DateTime date, int walletId) async {
+  Future<void> _processExtraAmount(LoanEntry loan, double amount,
+      int categoryId, DateTime date, int walletId) async {
     final isLendLoan = loan.isLendLoan;
-    
+
     if (isLendLoan) {
       // Préstamo otorgado: extra como ingreso (ej: intereses recibidos)
       await _transactionRepository.createIncomeTransaction(
@@ -709,29 +734,34 @@ class LoanUseCases {
   Future<List<LoanEntry>> getLoansByContact(int contactId) =>
       _loanRepository.getLoansByContact(contactId);
 
-  Future<List<LoanEntry>> getActiveLends() =>
-      _loanRepository.getLoansByType(LoanConstants.lendDocumentType)
-          .then((loans) => loans.where((loan) => loan.status == LoanStatus.active).toList());
+  Future<List<LoanEntry>> getActiveLends() => _loanRepository
+      .getLoansByType(LoanConstants.lendDocumentType)
+      .then((loans) =>
+          loans.where((loan) => loan.status == LoanStatus.active).toList());
 
-  Future<List<LoanEntry>> getActiveBorrows() =>
-      _loanRepository.getLoansByType(LoanConstants.borrowDocumentType)
-          .then((loans) => loans.where((loan) => loan.status == LoanStatus.active).toList());
+  Future<List<LoanEntry>> getActiveBorrows() => _loanRepository
+      .getLoansByType(LoanConstants.borrowDocumentType)
+      .then((loans) =>
+          loans.where((loan) => loan.status == LoanStatus.active).toList());
 
   Future<double> getTotalLentAmount() => _loanRepository.getTotalLentAmount();
-  
-  Future<double> getTotalBorrowedAmount() => _loanRepository.getTotalBorrowedAmount();
-  
-  Future<double> getOutstandingLentAmount() => _loanRepository.getOutstandingLentAmount();
-  
-  Future<double> getOutstandingBorrowedAmount() => _loanRepository.getOutstandingBorrowedAmount();
+
+  Future<double> getTotalBorrowedAmount() =>
+      _loanRepository.getTotalBorrowedAmount();
+
+  Future<double> getOutstandingLentAmount() =>
+      _loanRepository.getOutstandingLentAmount();
+
+  Future<double> getOutstandingBorrowedAmount() =>
+      _loanRepository.getOutstandingBorrowedAmount();
 
   // ========== VALIDACIONES ==========
 
   Future<bool> validateLoanPayment(int loanId, double paymentAmount) async {
     final loan = await _loanRepository.getLoanById(loanId);
     if (loan == null) return false;
-    return LoanValidators.canReceivePayment(loan) && 
-           LoanValidators.isValidPaymentAmount(loan, paymentAmount);
+    return LoanValidators.canReceivePayment(loan) &&
+        LoanValidators.isValidPaymentAmount(loan, paymentAmount);
   }
 
   Future<List<Category>> getAvailableIncomeCategories() =>
@@ -754,14 +784,15 @@ class LoanUseCases {
   }
 
   // ========== MÉTODOS HELPER PARA UI ==========
-  
+
   double getOutstandingBalance(LoanEntry loan) => loan.outstandingBalance;
-  
+
   bool canWriteOffLoan(LoanEntry loan) => loan.canWriteOff;
 
   /// Obtener estadísticas de préstamos
   Future<Map<String, double>> getLoanStatistics() async {
-    final [totalLent, totalBorrowed, outstandingLent, outstandingBorrowed] = await Future.wait([
+    final [totalLent, totalBorrowed, outstandingLent, outstandingBorrowed] =
+        await Future.wait([
       _loanRepository.getTotalLentAmount(),
       _loanRepository.getTotalBorrowedAmount(),
       _loanRepository.getOutstandingLentAmount(),
@@ -779,11 +810,12 @@ class LoanUseCases {
   }
 
   /// Obtener préstamos por rango de fechas
-  Future<List<LoanEntry>> getLoansByDateRange(DateTime startDate, DateTime endDate) async {
+  Future<List<LoanEntry>> getLoansByDateRange(
+      DateTime startDate, DateTime endDate) async {
     final allLoans = await _loanRepository.getAllLoans();
     return allLoans.where((loan) {
       return loan.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
-             loan.date.isBefore(endDate.add(const Duration(days: 1)));
+          loan.date.isBefore(endDate.add(const Duration(days: 1)));
     }).toList();
   }
 
@@ -791,10 +823,12 @@ class LoanUseCases {
   Future<List<LoanEntry>> searchLoans(String query) async {
     final allLoans = await _loanRepository.getAllLoans();
     final queryLower = query.toLowerCase();
-    
+
     return allLoans.where((loan) {
-      final descriptionMatch = loan.description?.toLowerCase().contains(queryLower) ?? false;
-      final contactMatch = loan.contact?.name.toLowerCase().contains(queryLower) ?? false;
+      final descriptionMatch =
+          loan.description?.toLowerCase().contains(queryLower) ?? false;
+      final contactMatch =
+          loan.contact?.name.toLowerCase().contains(queryLower) ?? false;
       return descriptionMatch || contactMatch;
     }).toList();
   }
@@ -898,9 +932,11 @@ class LoanUseCases {
         throw const PaymentMethodNotFoundException('Wallet no encontrado');
       }
     } else if (paymentTypeId == LoanConstants.creditCardPaymentType) {
-      final creditCard = await _creditCardRepository.getCreditCardById(paymentId);
+      final creditCard =
+          await _creditCardRepository.getCreditCardById(paymentId);
       if (creditCard == null) {
-        throw const PaymentMethodNotFoundException('Tarjeta de crédito no encontrada');
+        throw const PaymentMethodNotFoundException(
+            'Tarjeta de crédito no encontrada');
       }
     } else {
       throw const PaymentMethodNotFoundException('Tipo de pago no soportado');
@@ -909,11 +945,15 @@ class LoanUseCases {
     // 3. Crear la transacción y el detalle del pago
     final isLendLoan = loan.isLendLoan;
 
+    // 4. Obtener el nombre del contacto para la descripción
+    final contact = await _contactRepository.getContactById(loan.contactId);
+    final contactName = contact?.name ?? 'un contacto';
+
     if (isLendLoan) {
       // Si es un préstamo que OTORGUÉ, el pago es un INGRESO para mí.
       await _transactionRepository.createIncomeTransaction(
         date: date,
-        description: description ?? 'Abono a préstamo',
+        description: 'Pago recibido de $contactName',
         amount: paymentAmount,
         currencyId: loan.currencyId,
         walletId: paymentId, // Asumimos que el pago va a un wallet
@@ -925,7 +965,7 @@ class LoanUseCases {
       // Si es un préstamo que RECIBÍ, el pago es un GASTO para mí.
       await _transactionRepository.createExpenseTransaction(
         date: date,
-        description: description ?? 'Pago de préstamo',
+        description: 'Pago realizado a $contactName',
         amount: paymentAmount,
         currencyId: loan.currencyId,
         categoryId: 0,
@@ -948,9 +988,10 @@ class LoanUseCases {
 
     // 5. Actualizar el total pagado y el estado del préstamo
     final newTotalPaid = loan.totalPaid + paymentAmount;
-    final newStatus = AccountingHelpers.areAmountsEqual(newTotalPaid, loan.amount)
-        ? LoanStatus.paid
-        : LoanStatus.active;
+    final newStatus =
+        AccountingHelpers.areAmountsEqual(newTotalPaid, loan.amount)
+            ? LoanStatus.paid
+            : LoanStatus.active;
 
     final updatedLoan = loan.copyWith(
       totalPaid: newTotalPaid,
@@ -978,7 +1019,8 @@ class LoanUseCases {
     }
 
     if (categories.isEmpty) {
-      throw const InvalidCategoryTypeException('No hay categorías disponibles para cancelación');
+      throw const InvalidCategoryTypeException(
+          'No hay categorías disponibles para cancelación');
     }
 
     await writeOffOutstandingBalance(
@@ -1003,7 +1045,7 @@ class LoanUseCases {
 
   /// Verificar si préstamo está completamente pagado
   bool isLoanFullyPaid(LoanEntry loan) {
-    return loan.status == LoanStatus.paid || 
-           AccountingHelpers.areAmountsEqual(loan.totalPaid, loan.amount);
+    return loan.status == LoanStatus.paid ||
+        AccountingHelpers.areAmountsEqual(loan.totalPaid, loan.amount);
   }
 }

@@ -216,6 +216,7 @@ class AppRouter {
           builder: (_) => LoanFormScreen(
             loan: args?['loan'],
             initialType: args?['initialType'],
+            contact: args?['contact'],
           ),
           settings: settings,
         );

@@ -24,7 +24,8 @@ class ContactLoanSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'es_PE', symbol: 'S/', decimalDigits: 2);
+    final currencyFormat =
+        NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
     final dateFormat = DateFormat('MMM dd, yyyy');
 
     return Container(
@@ -73,7 +74,10 @@ class ContactLoanSummaryCard extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF475569), Color(0xFF334155)], // slate-600 to slate-700
+          colors: [
+            Color(0xFF475569),
+            Color(0xFF334155)
+          ], // slate-600 to slate-700
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
@@ -112,14 +116,16 @@ class ContactLoanSummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(bottom: 16),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9))), // slate-100
+        border:
+            Border(bottom: BorderSide(color: Color(0xFFF1F5F9))), // slate-100
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
             radius: 24,
-            child: Text(contact.name.isNotEmpty ? contact.name[0].toUpperCase() : '?'),
+            child: Text(
+                contact.name.isNotEmpty ? contact.name[0].toUpperCase() : '?'),
           ),
           const SizedBox(width: 12),
           Column(
@@ -153,14 +159,17 @@ class ContactLoanSummaryCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isOwed ? const Color(0xFFFFF7ED) : const Color(0xFFF5F3FF), // orange-50 or purple-50
+        color: isOwed
+            ? const Color(0xFFFFF7ED)
+            : const Color(0xFFF5F3FF), // orange-50 or purple-50
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         children: [
           const Text(
             'Net Balance',
-            style: TextStyle(color: Color(0xFF475569), fontSize: 14), // slate-600
+            style:
+                TextStyle(color: Color(0xFF475569), fontSize: 14), // slate-600
           ),
           const SizedBox(height: 4),
           Text(
@@ -168,13 +177,16 @@ class ContactLoanSummaryCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.bold,
-              color: isOwed ? const Color(0xFFEA580C) : const Color(0xFF9333EA), // orange-600 or purple-600
+              color: isOwed
+                  ? const Color(0xFFEA580C)
+                  : const Color(0xFF9333EA), // orange-600 or purple-600
             ),
           ),
           const SizedBox(height: 4),
           Text(
             isOwed ? 'You are owed' : 'You owe',
-            style: TextStyle(color: const Color(0xFF64748B), fontSize: 14), // slate-500
+            style: TextStyle(
+                color: const Color(0xFF64748B), fontSize: 14), // slate-500
           ),
         ],
       ),
@@ -183,20 +195,30 @@ class ContactLoanSummaryCard extends StatelessWidget {
 
   Widget _buildLoanBreakdown(NumberFormat currencyFormat) {
     final lentLoans = activeLoans.where((l) => l.documentTypeId == 'L').length;
-    final borrowedLoans = activeLoans.where((l) => l.documentTypeId == 'B').length;
+    final borrowedLoans =
+        activeLoans.where((l) => l.documentTypeId == 'B').length;
 
     return Row(
       children: [
-        Expanded(child: _buildBreakdownCard('You Lent', totalLent, lentLoans, true, currencyFormat)),
+        Expanded(
+            child: _buildBreakdownCard(
+                'You Lent', totalLent, lentLoans, true, currencyFormat)),
         const SizedBox(width: 12),
-        Expanded(child: _buildBreakdownCard('You Borrowed', totalBorrowed, borrowedLoans, false, currencyFormat)),
+        Expanded(
+            child: _buildBreakdownCard('You Borrowed', totalBorrowed,
+                borrowedLoans, false, currencyFormat)),
       ],
     );
   }
 
-  Widget _buildBreakdownCard(String title, double amount, int count, bool isLent, NumberFormat currencyFormat) {
-    final color = isLent ? const Color(0xFFEA580C) : const Color(0xFF9333EA); // orange-600 or purple-600
-    final bgColor = isLent ? const Color(0xFFFFF7ED) : const Color(0xFFF5F3FF); // orange-100 or purple-100
+  Widget _buildBreakdownCard(String title, double amount, int count,
+      bool isLent, NumberFormat currencyFormat) {
+    final color = isLent
+        ? const Color(0xFFEA580C)
+        : const Color(0xFF9333EA); // orange-600 or purple-600
+    final bgColor = isLent
+        ? const Color(0xFFFFF7ED)
+        : const Color(0xFFF5F3FF); // orange-100 or purple-100
     final icon = isLent ? Icons.call_made : Icons.call_received;
 
     return Container(
@@ -212,11 +234,15 @@ class ContactLoanSummaryCard extends StatelessWidget {
             children: [
               Icon(icon, color: color, size: 16),
               const SizedBox(width: 4),
-              Text(title, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w500)),
+              Text(title,
+                  style: TextStyle(
+                      color: color, fontSize: 12, fontWeight: FontWeight.w500)),
             ],
           ),
           const SizedBox(height: 4),
-          Text(currencyFormat.format(amount), style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(currencyFormat.format(amount),
+              style: TextStyle(
+                  color: color, fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 2),
           Text('$count active', style: TextStyle(color: color, fontSize: 12)),
         ],
@@ -224,7 +250,8 @@ class ContactLoanSummaryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildActiveLoansList(DateFormat dateFormat, NumberFormat currencyFormat) {
+  Widget _buildActiveLoansList(
+      DateFormat dateFormat, NumberFormat currencyFormat) {
     if (activeLoans.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -232,15 +259,20 @@ class ContactLoanSummaryCard extends StatelessWidget {
       children: [
         Text(
           'Active Loans (${activeLoans.length})',
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF334155)), // slate-700
+          style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF334155)), // slate-700
         ),
         const SizedBox(height: 12),
-        ...activeLoans.map((loan) => _buildLoanListItem(loan, dateFormat, currencyFormat)),
+        ...activeLoans.map(
+            (loan) => _buildLoanListItem(loan, dateFormat, currencyFormat)),
       ],
     );
   }
 
-  Widget _buildLoanListItem(LoanEntry loan, DateFormat dateFormat, NumberFormat currencyFormat) {
+  Widget _buildLoanListItem(
+      LoanEntry loan, DateFormat dateFormat, NumberFormat currencyFormat) {
     final isLent = loan.documentTypeId == 'L';
     final color = isLent ? const Color(0xFFEA580C) : const Color(0xFF9333EA);
     final bgColor = isLent ? const Color(0xFFFFF7ED) : const Color(0xFFF5F3FF);
@@ -266,16 +298,28 @@ class ContactLoanSummaryCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(loan.description ?? 'Loan', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF1E293B))), // slate-800
-                      Text(currencyFormat.format(loan.amount), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: color)),
+                      Text(loan.description ?? 'Loan',
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF1E293B))), // slate-800
+                      Text(currencyFormat.format(loan.amount),
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: color)),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Date: ${dateFormat.format(loan.date)}', style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))), // slate-500
-                      Text('${percentPaid.toStringAsFixed(0)}% paid', style: TextStyle(fontSize: 12, color: color)),
+                      Text('Date: ${dateFormat.format(loan.date)}',
+                          style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF64748B))), // slate-500
+                      Text('${percentPaid.toStringAsFixed(0)}% paid',
+                          style: TextStyle(fontSize: 12, color: color)),
                     ],
                   ),
                 ],
@@ -298,12 +342,14 @@ class ContactLoanSummaryCard extends StatelessWidget {
           children: [
             Text(
               'Total Active: ${activeLoans.length} loans',
-              style: const TextStyle(color: Color(0xFF64748B), fontSize: 12), // slate-500
+              style: const TextStyle(
+                  color: Color(0xFF64748B), fontSize: 12), // slate-500
             ),
             const SizedBox(height: 4),
             Text(
               'Generated on ${dateFormat.format(generationDate)}',
-              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12), // slate-400
+              style: const TextStyle(
+                  color: Color(0xFF94A3B8), fontSize: 12), // slate-400
             ),
           ],
         ),
@@ -320,7 +366,7 @@ class ContactLoanSummaryCard extends StatelessWidget {
       ),
       child: const Center(
         child: Text(
-          'Powered by MoneyT • moneyt.app',
+          'Powered by MoneyT • moneyt.io',
           style: TextStyle(
             color: Color(0xFF64748B), // slate-500
             fontSize: 12,

@@ -25,7 +25,8 @@ class LoanStatementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'es_PE', symbol: 'S/', decimalDigits: 2);
+    final currencyFormat =
+        NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
     final dateFormat = DateFormat('MMM dd, yyyy');
     final generationTimeFormat = DateFormat('MMM dd, yyyy \'at\' hh:mm a');
 
@@ -119,7 +120,8 @@ class LoanStatementCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(bottom: 16),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9))), // slate-100
+        border:
+            Border(bottom: BorderSide(color: Color(0xFFF1F5F9))), // slate-100
       ),
       child: Column(
         children: [
@@ -213,7 +215,8 @@ class LoanStatementCard extends StatelessWidget {
             value: percentPaid,
             minHeight: 12, // h-3
             backgroundColor: const Color(0xFFE2E8F0), // slate-200
-            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF16A34A)), // green-600
+            valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFF16A34A)), // green-600
           ),
         ),
       ],
@@ -282,7 +285,7 @@ class LoanStatementCard extends StatelessWidget {
       ),
       child: const Center(
         child: Text(
-          'Powered by MoneyT • moneyt.app',
+          'Powered by MoneyT • moneyt.io',
           style: TextStyle(
             color: Color(0xFF64748B), // slate-500
             fontSize: 12,

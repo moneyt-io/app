@@ -20,13 +20,9 @@ class LoanDetailsInfoCard extends StatelessWidget {
         children: [
           _buildDetailRow('Loan Type', _getLoanType()),
           const SizedBox(height: 12),
-          _buildDetailRow('Vehicle', _getVehicleInfo()),
-          const SizedBox(height: 12),
           _buildDetailRow('Loan Start', _formatDate(loan.date)),
           const SizedBox(height: 12),
-          _buildDetailRow('Maturity Date', _getMaturityDate()),
-          const SizedBox(height: 12),
-          _buildDetailRow('Account Number', _getAccountNumber()),
+          _buildDetailRow('Due Date', _getDueDate()),
         ],
       ),
     );
@@ -80,36 +76,12 @@ class LoanDetailsInfoCard extends StatelessWidget {
     return 'Personal Loan';
   }
 
-  String _getVehicleInfo() {
-    // Extract vehicle info from description or return placeholder
-    final description = loan.description ?? '';
-    if (description.toLowerCase().contains('honda')) {
-      return '2022 Honda Civic';
-    } else if (description.toLowerCase().contains('toyota')) {
-      return '2023 Toyota Camry';
-    } else if (description.toLowerCase().contains('car') || description.toLowerCase().contains('auto')) {
-      return 'Vehicle Information';
-    }
-    
-    return description.isNotEmpty ? description : 'N/A';
-  }
-
   String _formatDate(DateTime date) {
     return DateFormat('MMMM d, yyyy').format(date);
   }
 
-  String _getMaturityDate() {
-    // Calculate maturity date (placeholder: 5 years from start date)
-    final maturityDate = loan.date.add(const Duration(days: 365 * 5));
-    return DateFormat('MMMM d, yyyy').format(maturityDate);
-  }
-
-  String _getAccountNumber() {
-    // Generate a masked account number based on loan ID
-    final loanIdStr = loan.id.toString();
-    final lastFour = loanIdStr.length >= 4 
-        ? loanIdStr.substring(loanIdStr.length - 4)
-        : loanIdStr.padLeft(4, '0');
-    return '****-$lastFour';
+  String _getDueDate() {
+    final dueDate = DateTime(loan.date.year, loan.date.month + 1, loan.date.day);
+    return _formatDate(dueDate);
   }
 }
