@@ -40,6 +40,7 @@ dependencies:
   superwallkit_flutter: ^2.4.1
   table_calendar: ^3.2.0
   collection: ^1.18.0
+  flutter_dotenv: ^6.0.0
   
 dev_dependencies:
   flutter_test:
@@ -53,6 +54,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - .env
     - assets/seeds/en/
     - assets/seeds/es/
 

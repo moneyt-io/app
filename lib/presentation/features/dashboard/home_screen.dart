@@ -58,40 +58,19 @@ class _HomeScreenState extends State<HomeScreen> {
     await Future.delayed(const Duration(milliseconds: 500));
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final hasShownPaywall =
-          prefs.getBool('hasShownPostOnboardingPaywall') ?? false;
-
-      // 1. Si ya se mostró la paywall post-onboarding, no hacer nada.
-      if (hasShownPaywall) {
-        print(' HomeScreen: Post-onboarding paywall already shown. Skipping.');
-        return;
-      }
-
-      // 2. Verificar si el usuario ya tiene una suscripción activa.
+      // 1. Verificar si el usuario ya tiene una suscripción activa.
       final isSubscribed =
           Superwall.shared.subscriptionStatus is SubscriptionStatusActive;
       if (isSubscribed) {
         print(' HomeScreen: User is already subscribed. Skipping paywall.');
-        // Marcar como mostrada para no volver a verificar
-        await prefs.setBool('hasShownPostOnboardingPaywall', true);
         return;
       }
 
-      // 3. Si el usuario acaba de ver la paywall (desde el onboarding), no la mostramos de nuevo en esta sesión.
-      if (widget.hasJustSeenPaywall) {
-        print(
-            ' HomeScreen: User has just seen paywall. Skipping trigger for this session.');
-        return;
-      }
-
-      // 4. Si no está suscrito, no se ha mostrado antes y el widget está montado, mostrar el paywall.
+      // 3. Si no está suscrito y el widget está montado, mostrar el paywall.
       if (mounted) {
         print(
-            ' HomeScreen: User is not subscribed. Triggering paywall for the first time...');
+            ' HomeScreen: User is not subscribed. Triggering paywall...');
         _triggerPaywall();
-        // Marcar como mostrada para que no vuelva a aparecer automáticamente.
-        await prefs.setBool('hasShownPostOnboardingPaywall', true);
       }
     } catch (e) {
       print(' HomeScreen: Error trying to show paywall: $e');

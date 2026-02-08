@@ -1,0 +1,117 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "90A566C3",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6757993685",
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_developerTeamID" : "N87S493PLM",
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 792156951.92353499,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21920023",
+      "localizations" : [
+
+      ],
+      "name" : "MoneyT Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "5.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6758839105",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Full access to all features",
+              "displayName" : "MoneyT Monthly",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Acceso total a todas las funciones",
+              "displayName" : "MoneyT Mensual",
+              "locale" : "es_ES"
+            }
+          ],
+          "productID" : "moneyt_1m",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "MoneyT 1M",
+          "subscriptionGroupID" : "21920023",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "39.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6758871555",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Acceso total a todas las funciones",
+              "displayName" : "MoneyT Anual",
+              "locale" : "es_ES"
+            },
+            {
+              "description" : "Full access to all features",
+              "displayName" : "MoneyT Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "money_1y",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "MoneyT 1Y",
+          "subscriptionGroupID" : "21920023",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

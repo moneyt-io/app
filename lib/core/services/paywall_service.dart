@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Servicio para encapsular toda la lógica de Superwall.
 ///
@@ -8,8 +11,10 @@ import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 /// - Exponer métodos simples para registrar eventos.
 /// - Gestionar la navegación después de la interacción con la paywall.
 class PaywallService implements SuperwallDelegate {
-  // TODO: Reemplaza 'YOUR_SUPERWALL_API_KEY' con tu clave de API pública de Superwall.
-  static const String _apiKey = 'pk_7fedd9149f8698d2116bff03452f6cb65dfcd260bcd58ecc';
+  static final String _apiKey = Platform.isIOS 
+      ? dotenv.env['SUPERWALL_KEY_IOS'] ?? ''
+      : dotenv.env['SUPERWALL_KEY_ANDROID'] ?? '';
+
 
   /// Inicializa Superwall y establece este servicio como el delegado.
   Future<void> init() async {
