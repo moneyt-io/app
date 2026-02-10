@@ -6,8 +6,6 @@ import '../l10n/generated/strings.g.dart';
 /// Opciones disponibles en el diálogo de categoría
 enum CategoryOption {
   edit,
-  duplicate,
-  viewTransactions,
   delete,
 }
 
@@ -18,16 +16,19 @@ class CategoryOptionsDialog extends StatelessWidget {
     Key? key,
     required this.category,
     required this.onOptionSelected,
+    this.canDelete = true,
   }) : super(key: key);
 
   final Category category;
   final Function(CategoryOption) onOptionSelected;
+  final bool canDelete;
 
   /// Método estático para mostrar el diálogo
   static Future<void> show({
     required BuildContext context,
     required Category category,
     required Function(CategoryOption) onOptionSelected,
+    bool canDelete = true,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -42,6 +43,7 @@ class CategoryOptionsDialog extends StatelessWidget {
       builder: (context) => CategoryOptionsDialog(
         category: category,
         onOptionSelected: onOptionSelected,
+        canDelete: canDelete,
       ),
     );
   }
@@ -147,39 +149,29 @@ class CategoryOptionsDialog extends StatelessWidget {
               children: [
                 _buildOptionItem(
                   icon: Icons.edit,
-                  title: 'Edit category',
-                  subtitle: 'Modify name, type or icon',
+                  title: 'Edit category', // TODO: Use translation
+                  subtitle: 'Modify name, type or icon', // TODO: Use translation
                   onTap: () => _handleOptionTap(context, CategoryOption.edit),
                 ),
-                _buildOptionItem(
-                  icon: Icons.content_copy,
-                  title: 'Duplicate category',
-                  subtitle: 'Create a copy of this category',
-                  onTap: () => _handleOptionTap(context, CategoryOption.duplicate),
-                ),
-                _buildOptionItem(
-                  icon: Icons.visibility,
-                  title: 'View transactions',
-                  subtitle: 'See all transactions in this category',
-                  onTap: () => _handleOptionTap(context, CategoryOption.viewTransactions),
-                ),
                 
-                // Divider
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8), // HTML: my-2
-                  child: Divider(
-                    color: Color(0xFFE2E8F0), // HTML: border-slate-200
-                    height: 1,
+                // Divider and Delete option ONLY if enabled
+                if (canDelete) ...[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8), // HTML: my-2
+                    child: Divider(
+                      color: Color(0xFFE2E8F0), // HTML: border-slate-200
+                      height: 1,
+                    ),
                   ),
-                ),
-                
-                _buildOptionItem(
-                  icon: Icons.delete,
-                  title: 'Delete category',
-                  subtitle: 'This action cannot be undone',
-                  onTap: () => _handleOptionTap(context, CategoryOption.delete),
-                  isDestructive: true,
-                ),
+                  
+                  _buildOptionItem(
+                    icon: Icons.delete,
+                    title: 'Delete category', // TODO: Use translation
+                    subtitle: 'This action cannot be undone', // TODO: Use translation
+                    onTap: () => _handleOptionTap(context, CategoryOption.delete),
+                    isDestructive: true,
+                  ),
+                ],
               ],
             ),
           ),

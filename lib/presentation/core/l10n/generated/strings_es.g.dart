@@ -251,6 +251,7 @@ class _AppStringsWalletsEs extends AppStringsWalletsEn {
 	// Translations
 	@override String get title => 'Billeteras';
 	@override late final _AppStringsWalletsEmptyEs empty = _AppStringsWalletsEmptyEs._(_root);
+	@override late final _AppStringsWalletsEmptyArchivedEs emptyArchived = _AppStringsWalletsEmptyArchivedEs._(_root);
 	@override late final _AppStringsWalletsFilterEs filter = _AppStringsWalletsFilterEs._(_root);
 	@override late final _AppStringsWalletsFormEs form = _AppStringsWalletsFormEs._(_root);
 	@override late final _AppStringsWalletsDeleteEs delete = _AppStringsWalletsDeleteEs._(_root);
@@ -946,6 +947,17 @@ class _AppStringsWalletsEmptyEs extends AppStringsWalletsEmptyEn {
 	@override String get action => 'Crear Billetera';
 }
 
+// Path: wallets.emptyArchived
+class _AppStringsWalletsEmptyArchivedEs extends AppStringsWalletsEmptyArchivedEn {
+	_AppStringsWalletsEmptyArchivedEs._(AppStringsEs root) : this._root = root, super.internal(root);
+
+	final AppStringsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'No hay billeteras archivadas';
+	@override String get message => 'Las billeteras archivadas aparecerán aquí.';
+}
+
 // Path: wallets.filter
 class _AppStringsWalletsFilterEs extends AppStringsWalletsFilterEn {
 	_AppStringsWalletsFilterEs._(AppStringsEs root) : this._root = root, super.internal(root);
@@ -1045,6 +1057,8 @@ class _AppStringsWalletsOptionsEs extends AppStringsWalletsOptionsEn {
 	@override String get duplicateWalletSubtitle => 'Crear copia de esta billetera';
 	@override String get archiveWallet => 'Archivar billetera';
 	@override String get archiveWalletSubtitle => 'Ocultar de la vista principal';
+	@override String get unarchiveWallet => 'Desarchivar billetera';
+	@override String get unarchiveWalletSubtitle => 'Restaurar a la vista principal';
 	@override String get deleteWallet => 'Eliminar billetera';
 	@override String get deleteWalletSubtitle => 'Eliminar permanentemente';
 	@override String get defaultTitle => 'Billetera';
@@ -2259,6 +2273,8 @@ extension on AppStringsEs {
 			case 'wallets.empty.title': return 'No hay billeteras';
 			case 'wallets.empty.message': return 'Añade tu primera billetera para comenzar a rastrear tus finanzas.';
 			case 'wallets.empty.action': return 'Crear Billetera';
+			case 'wallets.emptyArchived.title': return 'No hay billeteras archivadas';
+			case 'wallets.emptyArchived.message': return 'Las billeteras archivadas aparecerán aquí.';
 			case 'wallets.filter.active': return 'Activas';
 			case 'wallets.filter.archived': return 'Archivadas';
 			case 'wallets.filter.all': return 'Todas';
@@ -2306,6 +2322,8 @@ extension on AppStringsEs {
 			case 'wallets.options.duplicateWalletSubtitle': return 'Crear copia de esta billetera';
 			case 'wallets.options.archiveWallet': return 'Archivar billetera';
 			case 'wallets.options.archiveWalletSubtitle': return 'Ocultar de la vista principal';
+			case 'wallets.options.unarchiveWallet': return 'Desarchivar billetera';
+			case 'wallets.options.unarchiveWalletSubtitle': return 'Restaurar a la vista principal';
 			case 'wallets.options.deleteWallet': return 'Eliminar billetera';
 			case 'wallets.options.deleteWalletSubtitle': return 'Eliminar permanentemente';
 			case 'wallets.options.defaultTitle': return 'Billetera';

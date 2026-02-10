@@ -15,6 +15,7 @@ import '../../core/design_system/tokens/app_colors.dart';
 import '../../navigation/app_routes.dart';
 import '../../core/l10n/l10n_helper.dart';
 import 'contact_provider.dart';
+import '../transactions/transaction_provider.dart'; // AGREGADO: Import TransactionProvider
 import '../../../domain/entities/contact.dart';
 
 class ContactsScreen extends StatefulWidget {
@@ -310,17 +311,21 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
     return ListView.builder(
       padding: const EdgeInsets.only(bottom: 90),
-      itemCount: totalContactItems + 1, // +1 para el botón de importar
+      // itemCount: totalContactItems + 1, // +1 para el botón de importar (OCULTO)
+      itemCount: totalContactItems, // Botón importar oculto temporalmente
       itemBuilder: (context, index) {
-        // Primer item: Botón de importar
+        // Primer item: Botón de importar (OCULTO)
+        /*
         if (index == 0) {
           return ImportContactsButton(
             onPressed: _handleImportContacts,
           );
         }
+        */
 
-        // Resto de items: contactos agrupados (ajustar index -1)
-        return _buildGroupedContactItem(context, groupedContacts, index - 1);
+        // Resto de items: contactos agrupados (ajustar index -1 si estuviera el botón)
+        // Como el primero ya no es el botón, usamos index directo
+        return _buildGroupedContactItem(context, groupedContacts, index);
       },
     );
   }
@@ -371,9 +376,18 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   void _showContactOptions(Contact contact) {
+    bool hasTransactions = false;
+    try {
+      final transactionProvider = context.read<TransactionProvider>();
+      hasTransactions = transactionProvider.transactions.any((t) => t.contactId == contact.id);
+    } catch (e) {
+      debugPrint('Error checking transactions for contact options: $e');
+    }
+
     ContactOptionsDialog.show(
       context: context,
       contact: contact,
+      canDelete: !hasTransactions,
       onOptionSelected: (option) => _handleContactOption(contact, option),
     );
   }
@@ -386,9 +400,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
         break;
       case ContactOption.message:
         _messageContact(contact);
-        break;
-      case ContactOption.share:
-        _shareContact(contact);
         break;
       case ContactOption.edit:
         // ✅ MEJORA 2: Habilitada navegación a edición de contacto

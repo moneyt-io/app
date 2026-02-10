@@ -203,6 +203,8 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                     
                     const SizedBox(height: 16),
                     
+                    // Botón de importar contacto oculto temporalmente
+                    /*
                     // ✅ CORREGIDO: Import contact button con traducción
                     SizedBox(
                       width: double.infinity,
@@ -237,6 +239,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                         ),
                       ),
                     ),
+                    */
                   ],
                 ),
               ),

@@ -9,7 +9,6 @@ import '../l10n/l10n_helper.dart';
 enum ContactOption {
   call,
   message,
-  share,
   edit,
   delete,
 }
@@ -21,16 +20,19 @@ class ContactOptionsDialog extends StatelessWidget {
     Key? key,
     required this.contact,
     required this.onOptionSelected,
+    this.canDelete = true,
   }) : super(key: key);
 
   final Contact contact;
   final Function(ContactOption) onOptionSelected;
+  final bool canDelete;
 
   /// Método estático para mostrar el diálogo
   static Future<void> show({
     required BuildContext context,
     required Contact contact,
     required Function(ContactOption) onOptionSelected,
+    bool canDelete = true,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -45,6 +47,7 @@ class ContactOptionsDialog extends StatelessWidget {
       builder: (context) => ContactOptionsDialog(
         contact: contact,
         onOptionSelected: onOptionSelected,
+        canDelete: canDelete,
       ),
     );
   }
@@ -158,21 +161,27 @@ class ContactOptionsDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildOptionItem(
-                  icon: Icons.share,
-                  label: 'Share contact',
-                  onTap: () => _handleOptionTap(context, ContactOption.share),
-                ),
-                _buildOptionItem(
                   icon: Icons.edit,
-                  label: 'Edit contact',
+                  label: 'Edit contact', // TODO: Use translation
+                  subtitle: 'Modify contact details', // TODO: Use translation
                   onTap: () => _handleOptionTap(context, ContactOption.edit),
                 ),
-                _buildOptionItem(
-                  icon: Icons.delete,
-                  label: 'Delete contact',
-                  onTap: () => _handleOptionTap(context, ContactOption.delete),
-                  isDestructive: true,
-                ),
+                if (canDelete) ...[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8), // HTML: my-2
+                    child: Divider(
+                      color: Color(0xFFE2E8F0), // HTML: border-slate-200
+                      height: 1,
+                    ),
+                  ),
+                  _buildOptionItem(
+                    icon: Icons.delete,
+                    label: 'Delete contact', // TODO: Use translation
+                    subtitle: 'This action cannot be undone', // TODO: Use translation
+                    onTap: () => _handleOptionTap(context, ContactOption.delete),
+                    isDestructive: true,
+                  ),
+                ],
               ],
             ),
           ),
@@ -213,20 +222,25 @@ class ContactOptionsDialog extends StatelessWidget {
   Widget _buildOptionItem({
     required IconData icon,
     required String label,
+    required String subtitle, // Added subtitle
     required VoidCallback onTap,
     bool isDestructive = false,
   }) {
     final iconColor = isDestructive 
         ? const Color(0xFFDC2626) // HTML: text-red-600
-        : const Color(0xFF374151); // HTML: text-slate-700
+        : const Color(0xFF334155); // HTML: text-slate-700
 
     final textColor = isDestructive 
         ? const Color(0xFFDC2626) // HTML: text-red-600
         : const Color(0xFF1E293B); // HTML: text-slate-800
+        
+    final subtitleColor = isDestructive 
+        ? const Color(0xFFEF4444) // HTML: text-red-500
+        : const Color(0xFF64748B); // HTML: text-slate-500
 
     final hoverColor = isDestructive
         ? const Color(0xFFFEF2F2) // HTML: hover:bg-red-50
-        : const Color(0xFFF8FAFC); // HTML: hover:bg-slate-100
+        : const Color(0xFFF1F5F9); // HTML: hover:bg-slate-100
 
     return Material(
       color: Colors.transparent,
@@ -245,14 +259,26 @@ class ContactOptionsDialog extends StatelessWidget {
               ),
               const SizedBox(width: 16), // HTML: gap-4
               Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 16, // HTML: text-base
-                    fontWeight: FontWeight.w500, // HTML: font-medium
-                    color: textColor,
-                    height: 1.25, // HTML: leading-normal
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 16, // HTML: text-base
+                        fontWeight: FontWeight.w500, // HTML: font-medium
+                        color: textColor,
+                        height: 1.25, // HTML: leading-normal
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 14, // HTML: text-sm
+                        color: subtitleColor,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

@@ -30,15 +30,6 @@ class WalletTypeFilter extends StatelessWidget {
       children: [
         Expanded(
           child: _buildFilterButton(
-            type: WalletFilterType.all,
-            icon: Icons.account_balance_wallet,
-            label: t.wallets.filter.all,
-            isActive: selectedType == WalletFilterType.all,
-          ),
-        ),
-        const SizedBox(width: 8), // HTML: gap-2
-        Expanded(
-          child: _buildFilterButton(
             type: WalletFilterType.active,
             icon: Icons.visibility,
             label: t.wallets.filter.active,
@@ -52,6 +43,15 @@ class WalletTypeFilter extends StatelessWidget {
             icon: Icons.archive,
             label: t.wallets.filter.archived,
             isActive: selectedType == WalletFilterType.archived,
+          ),
+        ),
+        const SizedBox(width: 8), // HTML: gap-2
+        Expanded(
+          child: _buildFilterButton(
+            type: WalletFilterType.all,
+            icon: Icons.account_balance_wallet,
+            label: t.wallets.filter.all,
+            isActive: selectedType == WalletFilterType.all,
           ),
         ),
       ],

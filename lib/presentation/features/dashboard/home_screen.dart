@@ -111,12 +111,45 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _navigateToDashboardWidgets() {
-    // ✅ SOLUCION SIMPLE: Usar Navigator directo sin cambiar el sistema de rutas
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const DashboardWidgetsScreen(),
       ),
     );
+  }
+
+  /// Calcular el balance total excluyendo cuentas archivadas
+  double _calculateActiveTotalBalance(WalletProvider provider) {
+    // 1. Obtener todas las wallets
+    final allWallets = provider.wallets;
+    
+    // 2. Filtrar solo las wallets ACTIVAS
+    // Un hijo se considera activo si él mismo es activo Y su padre (si tiene) tambien es activo.
+    // Sin embargo, por simplicidad y siguiendo la lógica de WalletsScreen:
+    // "Active" filter sums "Own Balance" of active wallets.
+    
+    double total = 0.0;
+    
+    for (var wallet in allWallets) {
+      if (wallet.active) {
+        // Obtenemos el balance del wallet
+        double balance = provider.walletBalances[wallet.id] ?? 0.0;
+        
+        // Si es PADRE, su balance en el provider es consolidado (suma de hijos).
+        // Debemos restar los hijos para obtener su "Own Balance" puro antes de sumar,
+        // ya que los hijos activos se sumarán individualmente en su turno del bucle.
+        if (wallet.parentId == null) {
+          final children = allWallets.where((w) => w.parentId == wallet.id);
+          for (var child in children) {
+            balance -= (provider.walletBalances[child.id] ?? 0.0);
+          }
+        }
+        
+        total += balance;
+      }
+    }
+    
+    return total;
   }
 
   @override
@@ -141,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Map wallets to display items
           final walletItems = walletProvider.wallets
               .where((w) =>
-                  w.parentId != null) // Show only child accounts on dashboard
+                  w.parentId != null && w.active) // Show only active child accounts on dashboard
               .map((wallet) => WalletDisplayItem(
                     id: wallet.id,
                     name: wallet.name,
@@ -163,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   children: [
                     BalanceSummaryWidget(
-                      totalBalance: walletProvider.totalBalance,
+                      totalBalance: _calculateActiveTotalBalance(walletProvider), // ✅ Usando cálculo filtrado
                       income: _income,
                       expenses: _expenses,
                       isBalanceVisible: _isBalanceVisible,

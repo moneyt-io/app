@@ -21,6 +21,7 @@ import '../../navigation/navigation_service.dart';
 import '../../core/l10n/generated/strings.g.dart';
 import '../../core/organisms/sliver_filter_header_delegate.dart';
 import 'wallet_provider.dart';
+import '../transactions/transaction_provider.dart';
 
 class WalletsScreen extends StatefulWidget {
   const WalletsScreen({Key? key}) : super(key: key);
@@ -32,7 +33,7 @@ class WalletsScreen extends StatefulWidget {
 class _WalletsScreenState extends State<WalletsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   // Local UI state
-  WalletFilterType _selectedFilter = WalletFilterType.all;
+  WalletFilterType _selectedFilter = WalletFilterType.active;
   bool _isBalanceVisible = true;
   final Map<int, bool> _expandedWallets = {};
   // TODO: This should come from a ChartAccountProvider
@@ -98,6 +99,106 @@ class _WalletsScreenState extends State<WalletsScreen> {
     }
   }
 
+  Future<void> _archiveWallet(BuildContext context, Wallet wallet, {bool archive = true}) async {
+    final walletProvider = Provider.of<WalletProvider>(context, listen: false);
+
+    try {
+      final walletsToUpdate = <Wallet>[];
+      final now = DateTime.now();
+
+      // 1. Añadir la la wallet objetivo
+      walletsToUpdate.add(wallet.copyWith(
+        active: !archive,
+        updatedAt: now,
+      ));
+
+      // 2. Si es PADRE, aplicar cambio a TODOS los hijos
+      // "si yo archivo o desarchivo la cuenta padre el cambio afecta a todas las cuentas hijo"
+      final children = walletProvider.wallets.where((w) => w.parentId == wallet.id).toList();
+      if (children.isNotEmpty) {
+        for (var child in children) {
+          // Solo actualizamos si el estado es diferente al deseado
+          if (child.active == archive) { 
+             walletsToUpdate.add(child.copyWith(
+               active: !archive,
+               updatedAt: now,
+             ));
+          }
+        }
+      }
+
+      // 3. Si es HIJO, verificar consistencia del PADRE
+      if (wallet.parentId != null) {
+        final parent = walletProvider.wallets.firstWhere(
+           (w) => w.id == wallet.parentId,
+           orElse: () => wallet, // Fallback seguro, aunque no debería ocurrir si hay integridad
+        );
+        
+        if (parent.id != wallet.id) { // Solo si encontramos al padre
+          if (archive) {
+            // Caso: Estamos archivando un hijo.
+            // Regla: "la cuenta padre no se debe mostrar activa si no tiene ningun hijo activo"
+            // Verificar si quedan otros hijos activos (excluyendo el actual)
+            final otherActiveSiblings = walletProvider.wallets.where((w) => 
+               w.parentId == parent.id && 
+               w.id != wallet.id && 
+               w.active
+            ).toList();
+
+            if (otherActiveSiblings.isEmpty && parent.active) {
+               // No quedan hijos activos, archivar al padre también
+               bool alreadyQueued = walletsToUpdate.any((w) => w.id == parent.id);
+               if (!alreadyQueued) {
+                  walletsToUpdate.add(parent.copyWith(
+                    active: false,
+                    updatedAt: now,
+                  ));
+               }
+            }
+          } else {
+             // Caso: Estamos desarchivando un hijo.
+             // Regla implícita: Para ver al hijo, el padre debe estar activo (o al menos visible).
+             if (!parent.active) {
+               bool alreadyQueued = walletsToUpdate.any((w) => w.id == parent.id);
+               if (!alreadyQueued) {
+                  walletsToUpdate.add(parent.copyWith(
+                    active: true,
+                    updatedAt: now,
+                  ));
+               }
+             }
+          }
+        }
+      }
+
+      // 4. Ejecutar actualizaciones
+      // Nota: Idealmente deberíamos tener un método `updateWallets` en batch en el provider/repo,
+      // pero iteraremos por ahora respetando las restricciones de no tocar la capa de data.
+      for (var w in walletsToUpdate) {
+         await walletProvider.updateWallet(w);
+      }
+      
+      if (mounted) {
+        final message = archive 
+            ? '${wallet.name} archived' // TODO: add proper translation
+            : '${wallet.name} restored'; // TODO: add proper translation
+            
+        ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text(message)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating wallet: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final walletProvider = Provider.of<WalletProvider>(context);
@@ -148,7 +249,8 @@ class _WalletsScreenState extends State<WalletsScreen> {
   }
 
   Widget _buildWalletsSlivers(BuildContext context, WalletProvider provider) {
-    final filteredWallets = provider.wallets.where((w) {
+    // 1. Identificar wallets que coinciden directamente con el filtro
+    final matchingWallets = provider.wallets.where((w) {
       switch (_selectedFilter) {
         case WalletFilterType.active:
           return w.active;
@@ -159,15 +261,30 @@ class _WalletsScreenState extends State<WalletsScreen> {
       }
     }).toList();
 
-    if (filteredWallets.isEmpty) {
+    if (matchingWallets.isEmpty) {
       return SliverFillRemaining(child: _buildEmptyState());
     }
+
+    // 2. Expandir selección para incluir padres necesarios
+    // Si una wallet hija coincide, su padre DEBE mostrarse para mantener la jerarquía
+    // aunque no coincida directamente con el filtro (Ej: Padre activo con hijo archivado)
+    final Set<int> idsToDisplay = matchingWallets.map((w) => w.id).toSet();
+    
+    for (var wallet in matchingWallets) {
+      if (wallet.parentId != null) {
+        idsToDisplay.add(wallet.parentId!);
+      }
+    }
+
+    final filteredWallets = provider.wallets
+        .where((w) => idsToDisplay.contains(w.id))
+        .toList();
 
     final walletTree = _buildWalletTree(filteredWallets);
 
     return SliverList(delegate: SliverChildListDelegate([
         TotalBalanceCard(
-          totalBalance: provider.totalBalance,
+          totalBalance: _calculateFilteredBalance(provider), // Modificado: Balance filtrado
           monthlyGrowth: 0, // TODO: Implement monthly growth
           isBalanceVisible: _isBalanceVisible,
           onVisibilityToggle: () =>
@@ -181,7 +298,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
             parentWallet: parentWallet,
             childWallets: childWallets,
             chartAccount: _chartAccountsMap[parentWallet.chartAccountId],
-            isExpanded: _expandedWallets[parentWallet.id] ?? true,
+            isExpanded: _expandedWallets[parentWallet.id] ?? false,
             parentBalance: provider.walletBalances[parentWallet.id] ?? 0.0,
             childBalances: {
               for (var child in childWallets)
@@ -189,7 +306,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
             },
             onToggleExpansion: () => setState(() =>
                 _expandedWallets[parentWallet.id] =
-                    !(_expandedWallets[parentWallet.id] ?? true)),
+                    !(_expandedWallets[parentWallet.id] ?? false)),
             onWalletTap: (wallet) => _navigateToWalletForm(wallet: wallet),
             onWalletMorePressed: (wallet) =>
                 _showWalletOptions(context, wallet, provider),
@@ -215,15 +332,88 @@ class _WalletsScreenState extends State<WalletsScreen> {
     return {for (var root in rootWallets) root: walletTree[root]!};
   }
 
+  /// Calcula el balance total considerando solo las wallets que pasan el filtro.
+  double _calculateFilteredBalance(WalletProvider provider) {
+    if (_selectedFilter == WalletFilterType.all) return provider.totalBalance;
+
+    double total = 0.0;
+    
+    for (var wallet in provider.wallets) {
+      // 1. Filtrar por estado activo/archivado
+      bool matches = false;
+      switch (_selectedFilter) {
+        case WalletFilterType.active:
+          matches = wallet.active;
+          break;
+        case WalletFilterType.archived:
+          matches = !wallet.active;
+          break;
+        case WalletFilterType.all:
+          matches = true;
+          break;
+      }
+
+      if (matches) {
+        // 2. Obtener balance propio ("Own Balance")
+        // El provider entrega el balance del padre consolidado (suma de hijos).
+        // Aquí necesitamos sumar los componentes INDIVIDUALES que coinciden con el filtro.
+        
+        double balance = provider.walletBalances[wallet.id] ?? 0.0;
+
+        if (wallet.parentId == null) {
+          // Es padre: Su balance en provider es consolidado.
+          // Restamos los balances de TODOS sus hijos para obtener su "Own Balance" puro.
+          // Luego sumaremos los hijos que coincidan (si los hay) en la siguiente iteración del bucle principal.
+          final children = provider.wallets.where((w) => w.parentId == wallet.id);
+          for (var child in children) {
+            balance -= (provider.walletBalances[child.id] ?? 0.0);
+          }
+        }
+        
+        total += balance;
+      }
+    }
+    
+    return total;
+  }
+
   void _showWalletOptions(
       BuildContext context, Wallet wallet, WalletProvider provider) {
+    // Verificar si el wallet tiene transacciones asociadas
+    final transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
+    
+    bool checkWalletHasTransactions(int walletId) {
+       return transactionProvider.transactions.any((t) {
+        if (t.wallet?.id == walletId) return true;
+        if (t.details.isNotEmpty) {
+          return t.details.any((d) => d.paymentId == walletId);
+        }
+        return false;
+      });
+    }
+
+    // 1. Verificar el wallet actual
+    bool hasHistory = checkWalletHasTransactions(wallet.id);
+
+    // 2. Si es padre, verificar si alguno de sus hijos tiene transacciones
+    if (!hasHistory) {
+      final children = provider.wallets.where((w) => w.parentId == wallet.id);
+      for (var child in children) {
+        if (checkWalletHasTransactions(child.id)) {
+          hasHistory = true;
+          break;
+        }
+      }
+    }
+
     WalletOptionsDialog.show(
       context: context,
       wallet: wallet,
       chartAccount: _chartAccountsMap[wallet.chartAccountId],
       balance: provider.walletBalances[wallet.id] ?? 0.0,
+      hasTransactions: hasHistory,
       onOptionSelected: (option) {
-        Navigator.pop(context); // Close the dialog
+        // Navigator.pop(context); // El diálogo ya se cierra internamente en _handleOptionTap
         _handleWalletOption(context, wallet, option, provider);
       },
     );
@@ -238,15 +428,27 @@ class _WalletsScreenState extends State<WalletsScreen> {
       case WalletOption.deleteWallet:
         _deleteWallet(context, wallet);
         break;
-      // TODO: Implement other options
+      case WalletOption.archiveWallet:
+        _archiveWallet(context, wallet, archive: true);
+        break;
+      case WalletOption.unarchiveWallet:
+        _archiveWallet(context, wallet, archive: false);
+        break;
       default:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.wallets.errors.comingSoon(name: option.name))),
-        );
+        // Otras opciones
+        break;
     }
   }
 
   Widget _buildEmptyState() {
+    if (_selectedFilter == WalletFilterType.archived) {
+      return EmptyState(
+        icon: Icons.archive_outlined,
+        title: t.wallets.emptyArchived.title,
+        message: t.wallets.emptyArchived.message,
+      );
+    }
+
     return EmptyState(
       icon: Icons.account_balance_wallet_outlined,
       title: t.wallets.empty.title,

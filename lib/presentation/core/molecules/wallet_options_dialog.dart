@@ -5,22 +5,14 @@ import '../l10n/generated/strings.g.dart';
 
 /// Opciones disponibles en el diálogo de wallet
 enum WalletOption {
-  viewTransactions,
-  transferFunds,
   editWallet,
-  duplicateWallet,
   archiveWallet,
+  unarchiveWallet,
   deleteWallet,
 }
 
 /// Bottom sheet dialog que muestra opciones para un wallet específico
 /// Basado en wallet_dialog_options.html
-/// 
-/// HTML Reference:
-/// ```html
-/// <div class="flex absolute top-0 left-0 h-full w-full flex-col justify-end items-stretch bg-black/30">
-///   <div class="flex flex-col items-stretch bg-white rounded-t-2xl shadow-lg">
-/// ```
 class WalletOptionsDialog extends StatelessWidget {
   const WalletOptionsDialog({
     Key? key,
@@ -28,12 +20,14 @@ class WalletOptionsDialog extends StatelessWidget {
     this.chartAccount,
     required this.balance,
     required this.onOptionSelected,
+    required this.hasTransactions,
   }) : super(key: key);
 
   final Wallet wallet;
   final ChartAccount? chartAccount;
   final double balance;
   final Function(WalletOption) onOptionSelected;
+  final bool hasTransactions;
 
   /// Método estático para mostrar el diálogo
   static Future<void> show({
@@ -42,6 +36,7 @@ class WalletOptionsDialog extends StatelessWidget {
     ChartAccount? chartAccount,
     required double balance,
     required Function(WalletOption) onOptionSelected,
+    required bool hasTransactions,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -58,6 +53,7 @@ class WalletOptionsDialog extends StatelessWidget {
         chartAccount: chartAccount,
         balance: balance,
         onOptionSelected: onOptionSelected,
+        hasTransactions: hasTransactions,
       ),
     );
   }
@@ -163,51 +159,59 @@ class WalletOptionsDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildOptionItem(
-                  icon: Icons.receipt_long,
-                  label: t.wallets.options.viewTransactions,
-                  subtitle: t.wallets.options.viewTransactionsSubtitle,
-                  onTap: () => _handleOptionTap(context, WalletOption.viewTransactions),
-                ),
-                _buildOptionItem(
-                  icon: Icons.swap_horiz,
-                  label: t.wallets.options.transferFunds,
-                  subtitle: t.wallets.options.transferFundsSubtitle,
-                  onTap: () => _handleOptionTap(context, WalletOption.transferFunds),
-                ),
-                _buildOptionItem(
                   icon: Icons.edit,
                   label: t.wallets.options.editWallet,
                   subtitle: t.wallets.options.editWalletSubtitle,
                   onTap: () => _handleOptionTap(context, WalletOption.editWallet),
                 ),
-                _buildOptionItem(
-                  icon: Icons.content_copy,
-                  label: t.wallets.options.duplicateWallet,
-                  subtitle: t.wallets.options.duplicateWalletSubtitle,
-                  onTap: () => _handleOptionTap(context, WalletOption.duplicateWallet),
-                ),
-                _buildOptionItem(
-                  icon: Icons.archive,
-                  label: t.wallets.options.archiveWallet,
-                  subtitle: t.wallets.options.archiveWalletSubtitle,
-                  onTap: () => _handleOptionTap(context, WalletOption.archiveWallet),
-                ),
                 
-                // Separator line
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8), // HTML: my-2
-                  height: 1,
-                  color: const Color(0xFFE2E8F0), // HTML: border-slate-200
-                ),
-                
-                // Delete option (destructive)
-                _buildOptionItem(
-                  icon: Icons.delete,
-                  label: t.wallets.options.deleteWallet,
-                  subtitle: t.wallets.options.deleteWalletSubtitle,
-                  onTap: () => _handleOptionTap(context, WalletOption.deleteWallet),
-                  isDestructive: true,
-                ),
+                // Lógica de archivo/desarchivo/eliminación
+                if (!wallet.active)
+                   // Si está archivada (active false), mostrar Desarchivar
+                   _buildOptionItem(
+                    icon: Icons.unarchive,
+                    label: t.wallets.options.unarchiveWallet,
+                    subtitle: t.wallets.options.unarchiveWalletSubtitle,
+                    onTap: () =>
+                        _handleOptionTap(context, WalletOption.unarchiveWallet),
+                  )
+                else if (hasTransactions)
+                  // Si tiene transacciones y está activa, mostrar Archivar
+                  ...[
+                    const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8), // HTML: my-2
+                    child: Divider(
+                      color: Color(0xFFE2E8F0), // HTML: border-slate-200
+                      height: 1,
+                    ),
+                  ),
+                  _buildOptionItem(
+                    icon: Icons.archive,
+                    label: t.wallets.options.archiveWallet,
+                    subtitle: t.wallets.options.archiveWalletSubtitle,
+                    onTap: () =>
+                        _handleOptionTap(context, WalletOption.archiveWallet),
+                  ),
+                  ]
+                else
+                  // Si no tiene transacciones y está activa, mostrar Eliminar
+                  ...[
+                    const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8), // HTML: my-2
+                    child: Divider(
+                      color: Color(0xFFE2E8F0), // HTML: border-slate-200
+                      height: 1,
+                    ),
+                  ),
+                  _buildOptionItem(
+                    icon: Icons.delete,
+                    label: t.wallets.options.deleteWallet,
+                    subtitle: t.wallets.options.deleteWalletSubtitle,
+                    onTap: () =>
+                        _handleOptionTap(context, WalletOption.deleteWallet),
+                    isDestructive: true,
+                  ),
+                  ],
               ],
             ),
           ),
@@ -351,12 +355,13 @@ class WalletOptionsDialog extends StatelessWidget {
   String _getWalletSubtitle() {
     final List<String> parts = [];
     
-    // Tipo de cuenta
-    if (chartAccount != null) {
-      parts.add(chartAccount!.name);
-    } else {
+    // Tipo de cuenta (Simplificado)
+    // Se elimina el nombre de la cuenta contable técnica para limpiar la interfaz
+    //if (chartAccount != null) {
+      // parts.add(chartAccount!.name); 
+    //} else {
       parts.add(t.wallets.options.defaultTitle);
-    }
+    //}
     
     // Placeholder para número de cuenta (basado en el nombre)
     final name = wallet.name.toLowerCase();

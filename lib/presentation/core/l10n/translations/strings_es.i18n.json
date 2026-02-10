@@ -496,6 +496,10 @@
       "message": "Añade tu primera billetera para comenzar a rastrear tus finanzas.",
       "action": "Crear Billetera"
     },
+    "emptyArchived": {
+      "title": "No hay billeteras archivadas",
+      "message": "Las billeteras archivadas aparecerán aquí."
+    },
     "filter": {
       "active": "Activas",
       "archived": "Archivadas",
@@ -554,6 +558,8 @@
       "duplicateWalletSubtitle": "Crear copia de esta billetera",
       "archiveWallet": "Archivar billetera",
       "archiveWalletSubtitle": "Ocultar de la vista principal",
+      "unarchiveWallet": "Desarchivar billetera",
+      "unarchiveWalletSubtitle": "Restaurar a la vista principal",
       "deleteWallet": "Eliminar billetera",
       "deleteWalletSubtitle": "Eliminar permanentemente",
       "defaultTitle": "Billetera"

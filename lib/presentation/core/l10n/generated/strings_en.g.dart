@@ -373,6 +373,7 @@ class AppStringsWalletsEn {
 	String get title => 'Wallets';
 
 	late final AppStringsWalletsEmptyEn empty = AppStringsWalletsEmptyEn.internal(_root);
+	late final AppStringsWalletsEmptyArchivedEn emptyArchived = AppStringsWalletsEmptyArchivedEn.internal(_root);
 	late final AppStringsWalletsFilterEn filter = AppStringsWalletsFilterEn.internal(_root);
 	late final AppStringsWalletsFormEn form = AppStringsWalletsFormEn.internal(_root);
 	late final AppStringsWalletsDeleteEn delete = AppStringsWalletsDeleteEn.internal(_root);
@@ -1549,6 +1550,21 @@ class AppStringsWalletsEmptyEn {
 	String get action => 'Create Wallet';
 }
 
+// Path: wallets.emptyArchived
+class AppStringsWalletsEmptyArchivedEn {
+	AppStringsWalletsEmptyArchivedEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'No archived wallets'
+	String get title => 'No archived wallets';
+
+	/// en: 'Archived wallets will appear here.'
+	String get message => 'Archived wallets will appear here.';
+}
+
 // Path: wallets.filter
 class AppStringsWalletsFilterEn {
 	AppStringsWalletsFilterEn.internal(this._root);
@@ -1736,6 +1752,12 @@ class AppStringsWalletsOptionsEn {
 
 	/// en: 'Hide wallet from main view'
 	String get archiveWalletSubtitle => 'Hide wallet from main view';
+
+	/// en: 'Unarchive wallet'
+	String get unarchiveWallet => 'Unarchive wallet';
+
+	/// en: 'Restore to main view'
+	String get unarchiveWalletSubtitle => 'Restore to main view';
 
 	/// en: 'Delete wallet'
 	String get deleteWallet => 'Delete wallet';
@@ -3639,6 +3661,8 @@ extension on AppStrings {
 			case 'wallets.empty.title': return 'No wallets found';
 			case 'wallets.empty.message': return 'Add your first wallet to start tracking your finances.';
 			case 'wallets.empty.action': return 'Create Wallet';
+			case 'wallets.emptyArchived.title': return 'No archived wallets';
+			case 'wallets.emptyArchived.message': return 'Archived wallets will appear here.';
 			case 'wallets.filter.active': return 'Active';
 			case 'wallets.filter.archived': return 'Archived';
 			case 'wallets.filter.all': return 'All';
@@ -3686,6 +3710,8 @@ extension on AppStrings {
 			case 'wallets.options.duplicateWalletSubtitle': return 'Create a copy of this wallet';
 			case 'wallets.options.archiveWallet': return 'Archive wallet';
 			case 'wallets.options.archiveWalletSubtitle': return 'Hide wallet from main view';
+			case 'wallets.options.unarchiveWallet': return 'Unarchive wallet';
+			case 'wallets.options.unarchiveWalletSubtitle': return 'Restore to main view';
 			case 'wallets.options.deleteWallet': return 'Delete wallet';
 			case 'wallets.options.deleteWalletSubtitle': return 'Permanently remove this wallet';
 			case 'wallets.options.defaultTitle': return 'Wallet';

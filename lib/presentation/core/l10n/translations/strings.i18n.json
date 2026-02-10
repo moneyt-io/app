@@ -496,6 +496,10 @@
       "message": "Add your first wallet to start tracking your finances.",
       "action": "Create Wallet"
     },
+    "emptyArchived": {
+      "title": "No archived wallets",
+      "message": "Archived wallets will appear here."
+    },
     "filter": {
       "active": "Active",
       "archived": "Archived",
@@ -554,6 +558,8 @@
       "duplicateWalletSubtitle": "Create a copy of this wallet",
       "archiveWallet": "Archive wallet",
       "archiveWalletSubtitle": "Hide wallet from main view",
+      "unarchiveWallet": "Unarchive wallet",
+      "unarchiveWalletSubtitle": "Restore to main view",
       "deleteWallet": "Delete wallet",
       "deleteWalletSubtitle": "Permanently remove this wallet",
       "defaultTitle": "Wallet"
