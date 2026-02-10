@@ -224,13 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       onHeaderTap: () =>
                           NavigationService.navigateTo(AppRoutes.wallets),
                       onWalletTap: (wallet) {
-                        // TODO: Navigate to wallet detail
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(t.dashboard.wallets.viewDetails(name: wallet.name)),
-                            backgroundColor: const Color(0xFF0c7ff2),
-                          ),
-                        );
+                        // TODO: Navigate to wallet detail if needed in the future
                       },
                     ),
                     const SizedBox(height: 24),

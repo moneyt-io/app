@@ -16,6 +16,7 @@ import '../../core/atoms/app_floating_label_field.dart';
 import '../../core/atoms/app_floating_label_selector.dart';
 import '../../core/molecules/form_action_bar.dart';
 import '../../core/l10n/generated/strings.g.dart';
+import '../../navigation/app_routes.dart';
 import '../contacts/widgets/contact_selection_dialog.dart' as contact_dialog;
 import '../categories/widgets/category_selection_dialog.dart' as cat_dialog;
 import '../../core/molecules/date_selection_dialog.dart';
@@ -691,7 +692,13 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Loan created successfully')),
         );
-        Navigator.of(context).pop();
+        
+        // Reemplazar la pantalla de formulario con la pantalla de compartir
+        // Al volver atrás, el usuario irá a la lista de préstamos (o pantalla anterior al formulario)
+        Navigator.of(context).pushReplacementNamed(
+          AppRoutes.loanDetailShare,
+          arguments: loan,
+        );
       }
     } catch (e) {
       if (mounted) {

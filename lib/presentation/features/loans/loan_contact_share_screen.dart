@@ -133,23 +133,37 @@ class _LoanContactShareScreenState extends State<LoanContactShareScreen> {
 
   Future<void> _shareAsImage() async {
     try {
-      final Uint8List? image = await _screenshotController.capture();
-      if (image == null) return;
+      if (!mounted) return;
 
-      final directory = await getApplicationDocumentsDirectory();
-      final imagePath =
-          await File('${directory.path}/contact_loan_summary.png').create();
+      final Uint8List? image =
+          await _screenshotController.capture(pixelRatio: 3.0);
+      if (image == null) {
+        throw Exception('Could not capture image');
+      }
+
+      final directory = await getTemporaryDirectory();
+      final imagePath = await File(
+              '${directory.path}/contact_loan_summary_${DateTime.now().millisecondsSinceEpoch}.png')
+          .create();
       await imagePath.writeAsBytes(image);
+
+      if (!mounted) return;
+
+      final box = context.findRenderObject() as RenderBox?;
 
       await Share.shareXFiles(
         [XFile(imagePath.path)],
         text: t.loans.share.contactMessage(name: widget.contact.name),
+        sharePositionOrigin: box != null
+            ? box.localToGlobal(Offset.zero) & box.size
+            : null,
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(t.loans.share.error(error: e.toString()))),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.loans.share.error(error: e.toString()))),
+        );
+      }
     }
   }
 

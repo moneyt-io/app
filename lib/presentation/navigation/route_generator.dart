@@ -34,12 +34,15 @@ import '../features/credit_cards/credit_card_payment_screen.dart';
 import '../features/loans/loans_screen.dart';
 import '../features/loans/loan_form_screen.dart';
 import '../features/loans/loan_detail_screen.dart';
+import '../features/loans/loan_detail_share_screen.dart';
 import 'app_routes.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     // Extract arguments safely
-    final args = settings.arguments as Map<String, dynamic>?;
+    final args = settings.arguments is Map<String, dynamic>
+        ? settings.arguments as Map<String, dynamic>
+        : null;
 
     switch (settings.name) {
       case AppRoutes.welcome:
@@ -240,7 +243,14 @@ class RouteGenerator {
           builder: (_) => LoanDetailScreen(loanId: loanId),
           settings: settings,
         );
-        
+
+      case AppRoutes.loanDetailShare:
+        final loan = settings.arguments as LoanEntry;
+        return MaterialPageRoute(
+          builder: (_) => LoanDetailShareScreen(loan: loan),
+          settings: settings,
+        );
+
       default:
         return _errorRoute('Route not found: ${settings.name}');
     }

@@ -323,6 +323,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         const SnackBar(
           content: Text('No categories loaded. Please check for errors.'),
           backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
         ),
       );
       return;
@@ -373,14 +374,20 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
 
     if (_selectedAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.transactions.form.selectAccount)),
+        SnackBar(
+          content: Text(t.transactions.form.selectAccount),
+          duration: const Duration(seconds: 3),
+        ),
       );
       return;
     }
 
     if (!isTransfer && _selectedCategoryId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.transactions.form.selectCategory)),
+        SnackBar(
+          content: Text(t.transactions.form.selectCategory),
+          duration: const Duration(seconds: 3),
+        ),
       );
       return;
     }
@@ -388,7 +395,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     if (isTransfer && _selectedToAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(t.transactions.form.selectDestination)),
+            content: Text(t.transactions.form.selectDestination),
+            duration: const Duration(seconds: 3)),
       );
       return;
     }
@@ -481,8 +489,11 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         }
 
         if (mounted && newTransaction != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          final messenger = ScaffoldMessenger.of(context);
+          messenger.clearSnackBars();
+          messenger.showSnackBar(
             SnackBar(
+              duration: const Duration(seconds: 3), // Show for 3 seconds
               content: Text(t.transactions.form.created),
               action: SnackBarAction(
                 label: t.transactions.form.share,
@@ -497,10 +508,21 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             ),
           );
           Navigator.of(context).pop(); // Go back to the list
+
+          // Force hide after 3 seconds to workaround potential OS/Accessibility overrides 
+          // that keep SnackBars with actions visible indefinitely.
+          Future.delayed(const Duration(seconds: 3), () {
+            try {
+              messenger.hideCurrentSnackBar();
+            } catch (_) {}
+          });
         } else if (mounted) {
           // Fallback in case transaction is null
           ScaffoldMessenger.of(context).showSnackBar(
-             SnackBar(content: Text(t.transactions.form.saveError)),
+             SnackBar(
+               content: Text(t.transactions.form.saveError),
+               duration: const Duration(seconds: 3),
+             ),
           );
           Navigator.of(context).pop();
         }
@@ -510,7 +532,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       // This part will now only be reached for updates
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.transactions.form.updateSuccess)),
+          SnackBar(
+            duration: const Duration(seconds: 3),
+            content: Text(t.transactions.form.updateSuccess),
+          ),
         );
         Navigator.of(context).pop();
       }

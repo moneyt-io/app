@@ -234,12 +234,14 @@ class _LoanDetailContentState extends State<_LoanDetailContent> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
+              /*
               _buildActionChip(
                 label: t.common.edit,
                 icon: Icons.edit,
                 onTap: () => widget.onAction('edit', widget.loan),
               ),
               const SizedBox(width: 8),
+              */
               _buildActionChip(
                 label: t.loans.detail.pay,
                 icon: Icons.payment,

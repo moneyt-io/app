@@ -119,20 +119,38 @@ class _TransactionShareScreenState extends State<TransactionShareScreen> {
 
   Future<void> _shareAsImage() async {
     try {
-      final image = await _screenshotController.capture();
-      if (image == null) return;
+      if (!mounted) return;
 
-      final directory = await getApplicationDocumentsDirectory();
-      final imagePath =
-          await File('${directory.path}/transaction.png').create();
+      final image = await _screenshotController.capture(pixelRatio: 3.0);
+      if (image == null) {
+        throw Exception('Could not capture image');
+      }
+
+      final directory = await getTemporaryDirectory();
+      final imagePath = await File(
+              '${directory.path}/transaction_receipt_${DateTime.now().millisecondsSinceEpoch}.png')
+          .create();
       await imagePath.writeAsBytes(image);
 
-      await Share.shareXFiles([XFile(imagePath.path)],
-          text: t.transactions.share.shareMessage);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.transactions.share.errorImage(error: e.toString()))),
+      if (!mounted) return;
+
+      final box = context.findRenderObject() as RenderBox?;
+
+      await Share.shareXFiles(
+        [XFile(imagePath.path)],
+        text: t.transactions.share.shareMessage,
+        sharePositionOrigin: box != null
+            ? box.localToGlobal(Offset.zero) & box.size
+            : null,
       );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  t.transactions.share.errorImage(error: e.toString()))),
+        );
+      }
     }
   }
 

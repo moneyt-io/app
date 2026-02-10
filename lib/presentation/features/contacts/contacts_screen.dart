@@ -113,7 +113,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           SnackBar(
             content: Text('Error navigating to contact form: $e'),
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 5), // Más tiempo para leer el error
+            duration: const Duration(seconds: 3), // Más tiempo para leer el error
           ),
         );
       }
@@ -150,6 +150,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                 ? t.contacts.contactDeleted
                 : provider.error ?? t.contacts.errorDeleting),
             backgroundColor: success ? AppColors.primaryBlue : Colors.red,
+            duration: const Duration(seconds: 3),
           ),
         );
 
