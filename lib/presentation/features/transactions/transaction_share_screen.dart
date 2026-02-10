@@ -18,6 +18,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/atoms/app_app_bar.dart';
 import '../../core/molecules/form_action_bar.dart';
 import '../../core/molecules/transaction_receipt_card.dart';
+import '../../core/l10n/generated/strings.g.dart';
 
 class TransactionShareScreen extends StatefulWidget {
   final TransactionEntry transaction;
@@ -97,22 +98,22 @@ class _TransactionShareScreenState extends State<TransactionShareScreen> {
   void _copyToClipboard() {
     final description = widget.transaction.description ?? '';
     final details = [
-      '--- Transaction Details ---',
-      'Amount: ${_amountFormat.format(widget.transaction.amount)}',
-      if (description.isNotEmpty) 'Description: $description',
-      if (_category != null) 'Category: ${_category!.name}',
-      'Date: ${_dateFormat.format(widget.transaction.date)}',
-      'Time: ${_timeFormat.format(widget.transaction.date)}',
-      if (_wallet != null) 'Wallet: ${_wallet!.name}',
-      if (_contact != null) 'Contact: ${_contact!.name}',
-      'Transaction ID: ${widget.transaction.id.toString()}',
-      '--------------------------',
+      t.transactions.share.receipt.title,
+      t.transactions.share.receipt.amount(amount: _amountFormat.format(widget.transaction.amount)),
+      if (description.isNotEmpty) t.transactions.share.receipt.description(description: description),
+      if (_category != null) t.transactions.share.receipt.category(category: _category!.name),
+      t.transactions.share.receipt.date(date: _dateFormat.format(widget.transaction.date)),
+      t.transactions.share.receipt.time(time: _timeFormat.format(widget.transaction.date)),
+      if (_wallet != null) t.transactions.share.receipt.wallet(wallet: _wallet!.name),
+      if (_contact != null) t.transactions.share.receipt.contact(contact: _contact!.name),
+      t.transactions.share.receipt.id(id: widget.transaction.id.toString()),
+      t.transactions.share.receipt.separator,
     ];
 
     Clipboard.setData(ClipboardData(text: details.join('\n')));
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Transaction details copied to clipboard!')),
+      SnackBar(content: Text(t.transactions.share.copied)),
     );
   }
 
@@ -127,10 +128,10 @@ class _TransactionShareScreenState extends State<TransactionShareScreen> {
       await imagePath.writeAsBytes(image);
 
       await Share.shareXFiles([XFile(imagePath.path)],
-          text: 'Here is my transaction receipt:');
+          text: t.transactions.share.shareMessage);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error sharing image: ${e.toString()}')),
+        SnackBar(content: Text(t.transactions.share.errorImage(error: e.toString()))),
       );
     }
   }
@@ -140,7 +141,7 @@ class _TransactionShareScreenState extends State<TransactionShareScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // slate-50
       appBar: AppAppBar(
-        title: 'Share Transaction',
+        title: t.transactions.share.title,
         type: AppAppBarType.blur,
         onLeadingPressed: () => Navigator.of(context).pop(),
       ),
@@ -161,8 +162,8 @@ class _TransactionShareScreenState extends State<TransactionShareScreen> {
       bottomNavigationBar: FormActionBar(
         onCancel: _copyToClipboard,
         onSave: _shareAsImage,
-        cancelText: 'Copy Text',
-        saveText: 'Share',
+        cancelText: t.transactions.share.copyText,
+        saveText: t.transactions.share.shareButton,
       ),
     );
   }

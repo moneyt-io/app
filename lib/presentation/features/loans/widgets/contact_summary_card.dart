@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../domain/entities/contact.dart';
 import '../../../core/atoms/app_avatar.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class ContactSummaryCard extends StatelessWidget {
   final Contact contact;
@@ -25,7 +26,7 @@ class ContactSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isOwed = netBalance > 0;
-    final balanceText = isOwed ? 'You are owed' : 'You owe';
+    final balanceText = isOwed ? t.loans.share.owed : t.loans.share.owe;
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -95,9 +96,9 @@ class ContactSummaryCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'NET BALANCE',
-                        style: TextStyle(
+                      Text(
+                        t.loans.summary.netBalance,
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: Color(0xFFCBD5E1), // text-slate-200
@@ -132,9 +133,9 @@ class ContactSummaryCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'ACTIVE LOANS',
-                        style: TextStyle(
+                      Text(
+                        t.loans.summary.activeLoans,
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: Color(0xFFCBD5E1), // text-slate-200
@@ -171,15 +172,15 @@ class ContactSummaryCard extends StatelessWidget {
 
   String _buildLoansBreakdown() {
     if (lentCount == 0 && borrowedCount == 0) {
-      return 'No active loans';
+      return t.loans.summary.noActive;
     }
     
     final parts = <String>[];
     if (lentCount > 0) {
-      parts.add('$lentCount lent');
+      parts.add(t.loans.summary.lent(n: lentCount));
     }
     if (borrowedCount > 0) {
-      parts.add('$borrowedCount borrowed');
+      parts.add(t.loans.summary.borrowed(n: borrowedCount));
     }
     
     return parts.join(' • ');

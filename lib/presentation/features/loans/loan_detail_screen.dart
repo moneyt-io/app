@@ -7,6 +7,7 @@ import '../../../domain/entities/loan_entry.dart';
 import '../../../domain/entities/contact.dart';
 import '../../../domain/usecases/contact_usecases.dart';
 import '../../core/atoms/app_app_bar.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import 'loan_provider.dart';
 import 'loan_payment_form_screen.dart';
 import 'widgets/loan_detail_summary_card.dart';
@@ -62,17 +63,17 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Loan'),
-        content: const Text(
-            'Are you sure you want to delete this loan? This action cannot be undone.'),
+        title: Text(t.loans.detail.deleteTitle),
+        content: Text(t.loans.detail.deleteMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(t.common.delete,
+                style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -84,14 +85,16 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Loan deleted successfully')),
+            SnackBar(content: Text(t.loans.detail.deleteSuccess)),
           );
           Navigator.of(context).pop();
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error deleting loan: ${e.toString()}')),
+            SnackBar(
+                content:
+                    Text(t.loans.detail.deleteError(error: e.toString()))),
           );
         }
       }
@@ -105,25 +108,25 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
     if (provider.isLoading) {
       return Scaffold(
-        appBar: AppAppBar(title: 'Loading...'),
+        appBar: AppAppBar(title: t.common.loading),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (loan == null) {
       return Scaffold(
-        appBar: AppAppBar(title: 'Error'),
+        appBar: AppAppBar(title: t.common.error),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
-              const Text('Loan not found'),
+              Text(t.loans.detail.notFound),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => context.read<LoanProvider>().loadLoans(),
-                child: const Text('Retry'),
+                child: Text(t.common.retry),
               ),
             ],
           ),
@@ -134,7 +137,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // bg-slate-50
       appBar: AppAppBar(
-        title: 'Loan Details',
+        title: t.loans.detail.title,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.back,
         customActions: [
@@ -232,13 +235,13 @@ class _LoanDetailContentState extends State<_LoanDetailContent> {
           child: Row(
             children: [
               _buildActionChip(
-                label: 'Edit',
+                label: t.common.edit,
                 icon: Icons.edit,
                 onTap: () => widget.onAction('edit', widget.loan),
               ),
               const SizedBox(width: 8),
               _buildActionChip(
-                label: 'Pay',
+                label: t.loans.detail.pay,
                 icon: Icons.payment,
                 onTap: () => widget.onAction('pay', widget.loan),
               ),
@@ -259,7 +262,7 @@ class _LoanDetailContentState extends State<_LoanDetailContent> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: TextButton.icon(
             icon: const Icon(Icons.delete_outline),
-            label: const Text('Delete Loan'),
+            label: Text(t.loans.detail.deleteTitle),
             onPressed: () => widget.onAction('delete', widget.loan),
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFFDC2626),
@@ -280,7 +283,7 @@ class _LoanDetailContentState extends State<_LoanDetailContent> {
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    final isEdit = label == 'Edit';
+    final isEdit = label == t.common.edit;
     final backgroundColor =
         isEdit ? const Color(0xFFDBEAFE) : const Color(0xFFDCFCE7);
     final textColor =

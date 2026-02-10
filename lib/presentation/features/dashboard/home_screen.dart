@@ -21,6 +21,7 @@ import '../../navigation/navigation_service.dart';
 import '../../navigation/app_routes.dart';
 import 'dashboard_widgets_screen.dart'; // AGREGADO: Import de la pantalla de widgets
 import 'widgets/recent_transactions_widget.dart';
+import '../../core/l10n/generated/strings.g.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool hasJustSeenPaywall;
@@ -193,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         // TODO: Navigate to wallet detail
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('View ${wallet.name} details'),
+                            content: Text(t.dashboard.wallets.viewDetails(name: wallet.name)),
                             backgroundColor: const Color(0xFF0c7ff2),
                           ),
                         );
@@ -252,19 +253,19 @@ class _HomeScreenState extends State<HomeScreen> {
       actions: [
         FabAction(
           icon: Icons.trending_up,
-          label: 'Income',
+          label: t.dashboard.actions.income,
           onPressed: () => _navigateToTransactionForm(type: 'I'),
           backgroundColor: const Color(0xFF16A34A), // green-500
         ),
         FabAction(
           icon: Icons.trending_down,
-          label: 'Expense',
+          label: t.dashboard.actions.expense,
           onPressed: () => _navigateToTransactionForm(type: 'E'),
           backgroundColor: const Color(0xFFDC2626), // red-500
         ),
         FabAction(
           icon: Icons.swap_horiz,
-          label: 'Transfer',
+          label: t.dashboard.actions.transfer,
           onPressed: () => _navigateToTransactionForm(type: 'T'),
           backgroundColor: const Color(0xFF2563EB), // blue-500
         ),
@@ -279,9 +280,9 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: _navigateToDashboardWidgets,
         icon: const Icon(Icons.edit,
             color: Color(0xFF64748B), size: 20), // text-slate-500
-        label: const Text(
-          'Personalizar',
-          style: TextStyle(color: Color(0xFF64748B)), // text-slate-500
+        label: Text(
+          t.dashboard.customize,
+          style: const TextStyle(color: Color(0xFF64748B)), // text-slate-500
         ),
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(double.infinity, 50), // Full width

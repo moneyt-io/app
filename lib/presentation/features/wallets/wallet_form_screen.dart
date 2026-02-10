@@ -15,6 +15,7 @@ import '../../core/molecules/error_message_card.dart';
 import '../../core/molecules/currency_selection_dialog.dart';
 import '../../core/molecules/parent_wallet_selection_dialog.dart';
 import '../../navigation/navigation_service.dart';
+import '../../core/l10n/generated/strings.g.dart'; // ✅ IMPORTANTE: Importar traducciones
 import 'wallet_provider.dart';
 
 class WalletFormScreen extends StatefulWidget {
@@ -91,7 +92,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
       }
     } catch (e) {
       setState(() {
-        _error = 'Error al cargar cuenta contable: $e';
+        _error = t.wallets.form.loadChartAccountError(error: e.toString());
         _isChartAccountsLoading = false;
       });
     }
@@ -136,7 +137,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'Error al cargar billeteras padre: $e';
+          _error = t.wallets.form.loadParentError(error: e.toString());
           _isParentWalletsLoading = false;
         });
       }
@@ -166,8 +167,8 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
   void _showParentWalletSelector() async {
     if (_parentWallets.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No hay billeteras disponibles como padre'),
+        SnackBar(
+          content: Text(t.wallets.form.parentEmpty),
           backgroundColor: Colors.orange,
         ),
       );
@@ -230,7 +231,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isEditing ? 'Billetera actualizada con éxito' : 'Billetera creada con éxito'),
+            content: Text(isEditing ? t.wallets.form.updateSuccess : t.wallets.form.createSuccess),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
@@ -261,7 +262,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
       
       // ✅ REFACTORIZADO: Usar AppAppBar atomizado exacto del HTML
       appBar: AppAppBar(
-        title: isEditing ? 'Edit wallet' : 'New wallet', // HTML: exacto del wallet_form.html
+        title: isEditing ? t.wallets.form.editTitle : t.wallets.form.newTitle, // HTML: exacto del wallet_form.html
         type: AppAppBarType.blur, // HTML: bg-slate-50/80 backdrop-blur-md
         leading: AppAppBarLeading.close, // HTML: close button exacto
         onLeadingPressed: () => Navigator.of(context).pop(),
@@ -289,11 +290,11 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
                           // ✅ REFACTORIZADO: Wallet name con floating label exacto del HTML
                           AppFloatingLabelField(
                             controller: _nameController,
-                            label: 'Wallet name', // HTML: exacto
-                            placeholder: 'Enter wallet name', // HTML: exacto
+                            label: t.wallets.form.name, // HTML: exacto
+                            placeholder: t.wallets.form.namePlaceholder, // HTML: exacto
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'El nombre es requerido';
+                                return t.wallets.form.nameRequired;
                               }
                               return null;
                             },
@@ -305,8 +306,8 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
                           // ✅ REFACTORIZADO: Description con floating label exacto del HTML
                           AppFloatingLabelField(
                             controller: _descriptionController,
-                            label: 'Description', // HTML: exacto
-                            placeholder: 'Optional description for this wallet', // HTML: exacto
+                            label: t.wallets.form.description, // HTML: exacto
+                            placeholder: t.wallets.form.descriptionPlaceholder, // HTML: exacto
                             maxLines: 3, // HTML: textarea con rows="3"
                             textInputAction: TextInputAction.newline,
                           ),
@@ -315,7 +316,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
                           
                           // ✅ NUEVO: Currency selector exacto del HTML
                           CurrencySelectorButton(
-                            label: 'Currency', // HTML: exacto
+                            label: t.wallets.form.currency, // HTML: exacto
                             selectedCurrency: _selectedCurrency,
                             selectedCurrencyName: selectedCurrencyData['name']!,
                             onPressed: _showCurrencySelector,
@@ -325,7 +326,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
                           
                           // ✅ NUEVO: Parent wallet selector exacto del HTML
                           ParentWalletSelectorButton(
-                            label: 'Parent wallet (optional)', // HTML: exacto
+                            label: t.wallets.form.parent, // HTML: exacto
                             selectedWalletName: _selectedParentName,
                             onPressed: _showParentWalletSelector,
                           ),
@@ -344,7 +345,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Cuenta contable asociada',
+                                    t.wallets.form.chartAccount,
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Color(0xFF64748B),
@@ -361,7 +362,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'La cuenta contable no puede ser modificada',
+                                    t.wallets.form.chartAccountLocked,
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Color(0xFF64748B),

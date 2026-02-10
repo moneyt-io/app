@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../l10n/generated/strings.g.dart';
 
 class LoanStatementCard extends StatelessWidget {
   final String loanDescription;
@@ -25,10 +26,11 @@ class LoanStatementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = TranslationProvider.of(context).flutterLocale.languageCode;
     final currencyFormat =
-        NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
-    final dateFormat = DateFormat('MMM dd, yyyy');
-    final generationTimeFormat = DateFormat('MMM dd, yyyy \'at\' hh:mm a');
+        NumberFormat.currency(locale: locale, symbol: '\$', decimalDigits: 2);
+    final dateFormat = DateFormat.yMMMd(locale);
+    final generationTimeFormat = DateFormat.yMMMd(locale).add_jm();
 
     return Container(
       decoration: BoxDecoration(
@@ -105,7 +107,7 @@ class LoanStatementCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Loan Statement',
+            t.loans.share.loanStatement,
             style: TextStyle(
               color: Colors.red.shade100,
               fontSize: 14,
@@ -135,9 +137,9 @@ class LoanStatementCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Personal Loan',
-            style: TextStyle(
+          Text(
+            t.loans.share.personalLoan,
+            style: const TextStyle(
               fontSize: 14,
               color: Color(0xFF64748B), // slate-500
             ),
@@ -156,9 +158,9 @@ class LoanStatementCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
-            'Remaining Balance',
-            style: TextStyle(
+          Text(
+            t.loans.share.remainingLabel,
+            style: const TextStyle(
               color: Color(0xFF475569), // slate-600
               fontSize: 14,
             ),
@@ -174,7 +176,7 @@ class LoanStatementCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'of ${currencyFormat.format(originalAmount)} original',
+            t.loans.share.original(amount: currencyFormat.format(originalAmount)),
             style: const TextStyle(
               color: Color(0xFF64748B), // slate-500
               fontSize: 14,
@@ -191,15 +193,15 @@ class LoanStatementCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Payment Progress',
-              style: TextStyle(
+            Text(
+              t.loans.share.progressLabel,
+              style: const TextStyle(
                 color: Color(0xFF475569), // slate-600
                 fontSize: 14,
               ),
             ),
             Text(
-              '${(percentPaid * 100).toStringAsFixed(0)}% Paid',
+              '${(percentPaid * 100).toStringAsFixed(0)}% ${t.loans.share.paidSuffix}',
               style: const TextStyle(
                 color: Color(0xFF0F172A), // slate-900
                 fontSize: 14,
@@ -226,9 +228,9 @@ class LoanStatementCard extends StatelessWidget {
   Widget _buildKeyInfo(DateFormat dateFormat) {
     return Column(
       children: [
-        _buildInfoRow('Loan Date', dateFormat.format(loanDate)),
+        _buildInfoRow(t.loans.share.dateLabel, dateFormat.format(loanDate)),
         const SizedBox(height: 12),
-        _buildInfoRow('Contact', contactName),
+        _buildInfoRow(t.loans.share.contactLabel, contactName),
       ],
     );
   }
@@ -266,7 +268,7 @@ class LoanStatementCard extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          'Generated on ${generationTimeFormat.format(generationDate)}',
+          t.loans.share.generated(date: generationTimeFormat.format(generationDate)),
           style: const TextStyle(
             color: Color(0xFF94A3B8), // slate-400
             fontSize: 12,
@@ -283,10 +285,10 @@ class LoanStatementCard extends StatelessWidget {
         color: Color(0xFFF8FAFC), // slate-50
         border: Border(top: BorderSide(color: Color(0xFFF1F5F9))), // slate-100
       ),
-      child: const Center(
+      child: Center(
         child: Text(
-          'Powered by MoneyT • moneyt.io',
-          style: TextStyle(
+          t.loans.share.poweredBy,
+          style: const TextStyle(
             color: Color(0xFF64748B), // slate-500
             fontSize: 12,
           ),

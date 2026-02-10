@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'form_action_bar.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../l10n/generated/strings.g.dart';
 
 // HTML Color Palette
 const Color _primaryBlue = Color(0xFF0C7FF2);
@@ -87,13 +88,13 @@ class _DateDialogState extends State<_DateDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Select date',
-                      style: TextStyle(
+                  Text(t.components.dateSelection.title,
+                      style: const TextStyle(
                           color: _slate900,
                           fontSize: 18,
                           fontWeight: FontWeight.w600)),
-                  const Text('Choose transaction date',
-                      style: TextStyle(color: _slate500, fontSize: 14)),
+                  Text(t.components.dateSelection.subtitle,
+                      style: const TextStyle(color: _slate500, fontSize: 14)),
                 ],
               ),
             ),
@@ -109,7 +110,7 @@ class _DateDialogState extends State<_DateDialog> {
             FormActionBar(
               onCancel: () => Navigator.of(context).pop(),
               onSave: () => Navigator.of(context).pop(_selectedDate),
-              saveText: 'Seleccionar',
+              saveText: t.components.dateSelection.confirm,
             ),
           ],
         ),
@@ -127,14 +128,14 @@ class _DateDialogState extends State<_DateDialog> {
         children: [
           Expanded(
               child: _QuickDateButton(
-                  label: 'Today',
+                  label: t.common.today,
                   date: today,
                   selectedDate: _selectedDate,
                   onSelect: _selectQuickDate)),
           const SizedBox(width: 8),
           Expanded(
               child: _QuickDateButton(
-                  label: 'Yesterday',
+                  label: t.common.yesterday,
                   date: yesterday,
                   selectedDate: _selectedDate,
                   onSelect: _selectQuickDate)),
@@ -145,6 +146,7 @@ class _DateDialogState extends State<_DateDialog> {
 
   Widget _buildCalendar() {
     return TableCalendar(
+      locale: LocaleSettings.currentLocale.languageCode,
       firstDay: DateTime.utc(2010, 1, 1),
       lastDay: DateTime.utc(2030, 12, 31),
       focusedDay: _focusedDate,
@@ -170,7 +172,7 @@ class _DateDialogState extends State<_DateDialog> {
       ),
       calendarBuilders: CalendarBuilders(
         dowBuilder: (context, day) {
-          final text = DateFormat.E().format(day);
+          final text = DateFormat.E(LocaleSettings.currentLocale.languageCode).format(day);
           return Center(
             child: Text(text,
                 style: const TextStyle(
@@ -254,13 +256,13 @@ class _DateDialogState extends State<_DateDialog> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Selected Date',
-                    style: TextStyle(
+                Text(t.components.dateSelection.selectedDate,
+                    style: const TextStyle(
                         color: Color(0xFF1E40AF),
                         fontSize: 14,
                         fontWeight: FontWeight.w600)), // blue-800
                 Text(
-                  DateFormat.yMMMMEEEEd('en_US').format(_selectedDate),
+                  DateFormat.yMMMMEEEEd(LocaleSettings.currentLocale.languageCode).format(_selectedDate),
                   style: const TextStyle(
                       color: Color(0xFF1D4ED8),
                       fontSize: 16,

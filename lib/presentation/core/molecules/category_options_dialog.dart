@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/category.dart';
 import '../design_system/tokens/app_colors.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Opciones disponibles en el diálogo de categoría
 enum CategoryOption {
@@ -303,6 +304,8 @@ class CategoryOptionsDialog extends StatelessWidget {
 
   /// Obtiene el texto del tipo de categoría
   String _getCategoryTypeText() {
-    return category.documentTypeId == 'I' ? 'Income' : 'Expense';
+    return category.documentTypeId == 'I' 
+        ? t.transactions.types.income 
+        : t.transactions.types.expense;
   }
 }

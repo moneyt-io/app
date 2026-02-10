@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/onboarding_theme.dart';
 import '../widgets/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class FeatureItem {
   final IconData icon;
@@ -21,64 +22,64 @@ class FeatureShowcaseSimplePage extends StatelessWidget {
   const FeatureShowcaseSimplePage({Key? key}) : super(key: key);
 
   // Features disponibles
-  static const availableFeatures = [
+  List<FeatureItem> get availableFeatures => [
     FeatureItem(
       icon: Icons.trending_up,
-      title: 'Ingresos',
-      iconColor: Color(0xFF16A34A), // green-600
-      backgroundColor: Color(0xFFDCFCE7), // green-100
+      title: t.onboarding.featuresShowcase.features.income,
+      iconColor: const Color(0xFF16A34A), // green-600
+      backgroundColor: const Color(0xFFDCFCE7), // green-100
     ),
     FeatureItem(
       icon: Icons.trending_down,
-      title: 'Egresos',
-      iconColor: Color(0xFFDC2626), // red-600
-      backgroundColor: Color(0xFFFEE2E2), // red-100
+      title: t.onboarding.featuresShowcase.features.expense,
+      iconColor: const Color(0xFFDC2626), // red-600
+      backgroundColor: const Color(0xFFFEE2E2), // red-100
     ),
     FeatureItem(
       icon: Icons.swap_horiz,
-      title: 'Transfer',
-      iconColor: Color(0xFF2563EB), // blue-600
-      backgroundColor: Color(0xFFDBEAFE), // blue-100
+      title: t.onboarding.featuresShowcase.features.transfer,
+      iconColor: const Color(0xFF2563EB), // blue-600
+      backgroundColor: const Color(0xFFDBEAFE), // blue-100
     ),
   ];
 
   // Features en desarrollo
-  static const developmentFeatures = [
+  List<FeatureItem> get developmentFeatures => [
     FeatureItem(
       icon: Icons.account_balance,
-      title: 'Préstamos',
-      iconColor: Color(0xFF7C3AED), // violet-600
-      backgroundColor: Color(0xFFEDE9FE), // violet-100
+      title: t.onboarding.featuresShowcase.features.loans,
+      iconColor: const Color(0xFF7C3AED), // violet-600
+      backgroundColor: const Color(0xFFEDE9FE), // violet-100
     ),
     FeatureItem(
       icon: Icons.flag,
-      title: 'Metas',
-      iconColor: Color(0xFFEA580C), // orange-600
-      backgroundColor: Color(0xFFFED7AA), // orange-100
+      title: t.onboarding.featuresShowcase.features.goals,
+      iconColor: const Color(0xFFEA580C), // orange-600
+      backgroundColor: const Color(0xFFFED7AA), // orange-100
     ),
     FeatureItem(
       icon: Icons.pie_chart,
-      title: 'Presupuestos',
-      iconColor: Color(0xFF0891B2), // cyan-600
-      backgroundColor: Color(0xFFCFFAFE), // cyan-100
+      title: t.onboarding.featuresShowcase.features.budgets,
+      iconColor: const Color(0xFF0891B2), // cyan-600
+      backgroundColor: const Color(0xFFCFFAFE), // cyan-100
     ),
     FeatureItem(
       icon: Icons.trending_up_outlined,
-      title: 'Inversiones',
-      iconColor: Color(0xFF059669), // emerald-600
-      backgroundColor: Color(0xFFD1FAE5), // emerald-100
+      title: t.onboarding.featuresShowcase.features.investments,
+      iconColor: const Color(0xFF059669), // emerald-600
+      backgroundColor: const Color(0xFFD1FAE5), // emerald-100
     ),
     FeatureItem(
       icon: Icons.cloud,
-      title: 'MoneyT Cloud',
-      iconColor: Color(0xFF4338CA), // indigo-600
-      backgroundColor: Color(0xFFE0E7FF), // indigo-100
+      title: t.onboarding.featuresShowcase.features.cloud,
+      iconColor: const Color(0xFF4338CA), // indigo-600
+      backgroundColor: const Color(0xFFE0E7FF), // indigo-100
     ),
     FeatureItem(
       icon: Icons.link,
-      title: 'Open Banking',
-      iconColor: Color(0xFFBE185D), // pink-600
-      backgroundColor: Color(0xFFFCE7F3), // pink-100
+      title: t.onboarding.featuresShowcase.features.openBanking,
+      iconColor: const Color(0xFFBE185D), // pink-600
+      backgroundColor: const Color(0xFFFCE7F3), // pink-100
     ),
   ];
 
@@ -109,7 +110,7 @@ class FeatureShowcaseSimplePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
                   StaggeredTextAnimation(
-                    text: 'Funciones disponibles y en desarrollo ✨',
+                    text: t.onboarding.featuresShowcase.title,
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -120,8 +121,7 @@ class FeatureShowcaseSimplePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   StaggeredTextAnimation(
-                    text:
-                        'Transacciones listas para usar. Más funciones en camino.',
+                    text: t.onboarding.featuresShowcase.subtitle,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w400,
@@ -140,7 +140,7 @@ class FeatureShowcaseSimplePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   _buildSectionTitle(
-                    'DISPONIBLE AHORA',
+                    t.onboarding.featuresShowcase.available,
                     const Duration(milliseconds: 800),
                   ),
                   const SizedBox(height: 12),
@@ -151,7 +151,7 @@ class FeatureShowcaseSimplePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   _buildSectionTitle(
-                    'PRÓXIMAMENTE',
+                    t.onboarding.featuresShowcase.comingSoon,
                     const Duration(milliseconds: 1200),
                   ),
                   const SizedBox(height: 12),

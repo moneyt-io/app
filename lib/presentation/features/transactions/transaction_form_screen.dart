@@ -34,6 +34,7 @@ import '../categories/widgets/category_selection_dialog.dart' as cat_dialog;
 import '../contacts/widgets/contact_selection_dialog.dart' as contact_dialog;
 import 'transaction_provider.dart';
 import 'transaction_share_screen.dart';
+import '../../core/l10n/generated/strings.g.dart';
 
 class TransactionFormScreen extends StatefulWidget {
   final TransactionEntity? transaction;
@@ -89,7 +90,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   @override
   void initState() {
     super.initState();
-    initializeDateFormatting('es_ES', null);
+    initializeDateFormatting(t.$meta.locale.languageCode, null);
 
     _selectedType = widget.transaction?.type ??
         (widget.initialType == 'all' ? 'E' : widget.initialType);
@@ -372,22 +373,22 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
 
     if (_selectedAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor seleccione una cuenta')),
+        SnackBar(content: Text(t.transactions.form.selectAccount)),
       );
       return;
     }
 
     if (!isTransfer && _selectedCategoryId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor seleccione una categoría')),
+        SnackBar(content: Text(t.transactions.form.selectCategory)),
       );
       return;
     }
 
     if (isTransfer && _selectedToAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Por favor seleccione una cuenta destino')),
+        SnackBar(
+            content: Text(t.transactions.form.selectDestination)),
       );
       return;
     }
@@ -482,9 +483,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         if (mounted && newTransaction != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Transacción creada con éxito'),
+              content: Text(t.transactions.form.created),
               action: SnackBarAction(
-                label: 'Compartir',
+                label: t.transactions.form.share,
                 onPressed: () {
                   // Use the global navigation service to avoid using the unmounted context
                   NavigationService.navigateTo(
@@ -499,7 +500,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         } else if (mounted) {
           // Fallback in case transaction is null
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Transacción guardada con error.')),
+             SnackBar(content: Text(t.transactions.form.saveError)),
           );
           Navigator.of(context).pop();
         }
@@ -509,7 +510,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       // This part will now only be reached for updates
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Transacción actualizada con éxito')),
+          SnackBar(content: Text(t.transactions.form.updateSuccess)),
         );
         Navigator.of(context).pop();
       }
@@ -534,7 +535,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // slate-50
       appBar: AppAppBar(
-        title: isEditing ? 'Edit Transaction' : 'New Transaction',
+        title: isEditing ? t.transactions.form.editTitle : t.transactions.form.newTitle,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.close,
         onLeadingPressed: () => Navigator.of(context).pop(),
@@ -566,8 +567,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         // Transaction Type
-        const Text('Transaction type',
-            style: TextStyle(
+        Text(t.transactions.form.type,
+            style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF334155))),
@@ -581,21 +582,21 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         AppFloatingLabelField(
           controller: _amountController,
           focusNode: _amountFocusNode, // This was missing
-          label: 'Amount',
+          label: t.transactions.form.amount,
           placeholder: '0.00',
           prefixIcon: Icons.attach_money,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [CurrencyInputFormatter()],
           validator: (value) =>
-              (value == null || value.isEmpty) ? 'Amount is required' : null,
+              (value == null || value.isEmpty) ? t.transactions.form.amountRequired : null,
         ),
         const SizedBox(height: 24),
 
         // Date
         AppFloatingLabelSelector(
-            label: 'Date',
+            label: t.transactions.form.date,
             icon: Icons.calendar_today_outlined,
-            value: DateFormat.yMMMMd('es_ES').format(_selectedDate),
+            value: DateFormat.yMMMMd(t.$meta.locale.languageCode).format(_selectedDate),
             onTap: _selectDate,
             iconColor: const Color(0xFF2563EB), // blue-600
             iconBackgroundColor: const Color(0xFFDBEAFE)), // blue-100
@@ -603,9 +604,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
 
         // Account
         AppFloatingLabelSelector(
-            label: 'Account',
+            label: t.transactions.form.account,
             icon: Icons.account_balance_wallet_outlined,
-            value: _selectedAccount?.name ?? 'Select account',
+            value: _selectedAccount?.name ?? t.components.accountSelection.selectAccount,
             onTap: () => _showAccountSelector(),
             hasValue: _selectedAccount != null,
             iconColor: const Color(0xFF2563EB), // blue-600
@@ -615,9 +616,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         if (isTransfer) ...[
           const SizedBox(height: 24),
           AppFloatingLabelSelector(
-              label: 'To Account',
+              label: t.transactions.form.toAccount,
               icon: Icons.account_balance_wallet_outlined,
-              value: _selectedToAccount?.name ?? 'Select destination',
+              value: _selectedToAccount?.name ?? t.components.accountSelection.selectAccount,
               onTap: () => _showAccountSelector(isSource: false),
               hasValue: _selectedToAccount != null,
               iconColor: const Color(0xFF2563EB), // blue-600
@@ -628,13 +629,13 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         if (!isTransfer) ...[
           const SizedBox(height: 24),
           AppFloatingLabelSelector(
-              label: 'Category',
+              label: t.transactions.form.category,
               icon: isIncome ? Icons.trending_up : Icons.trending_down,
               value: _selectedCategoryId != null
                   ? _categories
                       .firstWhere((c) => c.id == _selectedCategoryId)
                       .name
-                  : 'Select category',
+                  : t.components.categorySelection.title,
               onTap: _selectCategory,
               hasValue: _selectedCategoryId != null,
               iconColor: isIncome
@@ -649,14 +650,14 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
 
         // Contact
         AppFloatingLabelSelector(
-            label: 'Contact (optional)',
+            label: t.transactions.form.contactOptional,
             icon: Icons.person_outline,
             value: _selectedContactId != null
                 ? _contacts
                         .firstWhereOrNull((c) => c.id == _selectedContactId)
                         ?.name ??
-                    'Select contact'
-                : 'Select contact',
+                    t.components.contactSelection.title
+                : t.components.contactSelection.title,
             onTap: _selectContact,
             hasValue: _selectedContactId != null,
             iconColor: const Color(0xFF64748B), // slate-500
@@ -667,8 +668,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         // Description
         AppFloatingLabelField(
           controller: _descriptionController,
-          label: 'Description',
-          placeholder: 'Optional description',
+          label: t.transactions.form.description,
+          placeholder: t.transactions.form.descriptionOptional,
           maxLines: 3,
           textInputAction: TextInputAction.newline,
         ),

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../domain/entities/loan_entry.dart';
 import '../../../core/design_system/tokens/app_colors.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class LoanDetailSummaryCard extends StatelessWidget {
   final LoanEntry loan;
@@ -85,14 +86,14 @@ class LoanDetailSummaryCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Original: $currencySymbol${NumberFormat('#,##0.00').format(originalAmount)}',
+                t.loans.detail.original(amount: '$currencySymbol${NumberFormat('#,##0.00').format(originalAmount)}'),
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.8),
                   fontSize: 14,
                 ),
               ),
               Text(
-                '${progressPercentage.toStringAsFixed(1)}% Paid',
+                t.loans.item.percentPaid(percent: progressPercentage.toStringAsFixed(1)),
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.8),
                   fontSize: 14,

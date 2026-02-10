@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/l10n/generated/strings.g.dart';
 import '../../../core/molecules/form_action_bar.dart';
 
 // TODO: This should be moved to a shared theme file
@@ -123,7 +124,7 @@ class _ContactSelectionDialogState extends State<ContactSelectionDialog> {
               FormActionBar(
                 onCancel: () => Navigator.of(context).pop(),
                 onSave: () => Navigator.of(context).pop(_selectedContact),
-                saveText: 'Select',
+                saveText: t.components.selection.select,
                 enabled: _selectedContact != null,
               )
             ],
@@ -155,14 +156,14 @@ class _ContactSelectionDialogState extends State<ContactSelectionDialog> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text('Select contact',
+            children: [
+              Text(t.components.contactSelection.title,
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: _slate800)),
               SizedBox(height: 4),
-              Text('Choose who this transaction is with',
+              Text(t.components.contactSelection.subtitle,
                   style: TextStyle(fontSize: 14, color: _slate500)),
             ],
           ),
@@ -177,7 +178,7 @@ class _ContactSelectionDialogState extends State<ContactSelectionDialog> {
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: 'Search contacts',
+          hintText: t.components.contactSelection.searchPlaceholder,
           hintStyle: const TextStyle(color: _slate500),
           prefixIcon: const Icon(Icons.search, color: _slate500, size: 20),
           filled: true,
@@ -207,18 +208,18 @@ class _ContactSelectionDialogState extends State<ContactSelectionDialog> {
     listItems.add(_ContactListItem(
       contact: SelectableContact(
         id: _noContactId,
-        name: 'No contact',
-        details: 'Transaction without specific contact',
+        name: t.components.contactSelection.noContact,
+        details: t.components.contactSelection.noContactDetails,
       ),
       isSelected: _selectedContact?.id == _noContactId,
       onTap: () => setState(() => _selectedContact =
-          SelectableContact(id: _noContactId, name: 'No contact')),
+          SelectableContact(id: _noContactId, name: t.components.contactSelection.noContact)),
       isSpecial: true,
     ));
 
     // TODO: Implement logic for 'Recent' contacts
     if (_filteredContacts.isNotEmpty) {
-      listItems.add(_buildSectionHeader('All Contacts'));
+      listItems.add(_buildSectionHeader(t.components.contactSelection.allContacts));
       for (final contact in _filteredContacts) {
         listItems.add(_ContactListItem(
           contact: contact,
@@ -234,8 +235,8 @@ class _ContactSelectionDialogState extends State<ContactSelectionDialog> {
         padding: const EdgeInsets.all(16.0),
         child: TextButton.icon(
           icon: const Icon(Icons.add_circle, color: _blue600),
-          label: const Text('Create new contact',
-              style: TextStyle(color: _blue600, fontWeight: FontWeight.w600)),
+          label: Text(t.components.contactSelection.create,
+              style: const TextStyle(color: _blue600, fontWeight: FontWeight.w600)),
           onPressed: () {
             // TODO: Navigate to contact creation screen
           },

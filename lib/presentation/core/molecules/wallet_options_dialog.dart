@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/chart_account.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Opciones disponibles en el diálogo de wallet
 enum WalletOption {
@@ -163,32 +164,32 @@ class WalletOptionsDialog extends StatelessWidget {
               children: [
                 _buildOptionItem(
                   icon: Icons.receipt_long,
-                  label: 'View transactions',
-                  subtitle: 'See all transactions for this wallet',
+                  label: t.wallets.options.viewTransactions,
+                  subtitle: t.wallets.options.viewTransactionsSubtitle,
                   onTap: () => _handleOptionTap(context, WalletOption.viewTransactions),
                 ),
                 _buildOptionItem(
                   icon: Icons.swap_horiz,
-                  label: 'Transfer funds',
-                  subtitle: 'Move money between wallets',
+                  label: t.wallets.options.transferFunds,
+                  subtitle: t.wallets.options.transferFundsSubtitle,
                   onTap: () => _handleOptionTap(context, WalletOption.transferFunds),
                 ),
                 _buildOptionItem(
                   icon: Icons.edit,
-                  label: 'Edit wallet',
-                  subtitle: 'Modify wallet details',
+                  label: t.wallets.options.editWallet,
+                  subtitle: t.wallets.options.editWalletSubtitle,
                   onTap: () => _handleOptionTap(context, WalletOption.editWallet),
                 ),
                 _buildOptionItem(
                   icon: Icons.content_copy,
-                  label: 'Duplicate wallet',
-                  subtitle: 'Create a copy of this wallet',
+                  label: t.wallets.options.duplicateWallet,
+                  subtitle: t.wallets.options.duplicateWalletSubtitle,
                   onTap: () => _handleOptionTap(context, WalletOption.duplicateWallet),
                 ),
                 _buildOptionItem(
                   icon: Icons.archive,
-                  label: 'Archive wallet',
-                  subtitle: 'Hide wallet from main view',
+                  label: t.wallets.options.archiveWallet,
+                  subtitle: t.wallets.options.archiveWalletSubtitle,
                   onTap: () => _handleOptionTap(context, WalletOption.archiveWallet),
                 ),
                 
@@ -202,8 +203,8 @@ class WalletOptionsDialog extends StatelessWidget {
                 // Delete option (destructive)
                 _buildOptionItem(
                   icon: Icons.delete,
-                  label: 'Delete wallet',
-                  subtitle: 'Permanently remove this wallet',
+                  label: t.wallets.options.deleteWallet,
+                  subtitle: t.wallets.options.deleteWalletSubtitle,
                   onTap: () => _handleOptionTap(context, WalletOption.deleteWallet),
                   isDestructive: true,
                 ),
@@ -354,7 +355,7 @@ class WalletOptionsDialog extends StatelessWidget {
     if (chartAccount != null) {
       parts.add(chartAccount!.name);
     } else {
-      parts.add('Wallet');
+      parts.add(t.wallets.options.defaultTitle);
     }
     
     // Placeholder para número de cuenta (basado en el nombre)

@@ -18,6 +18,7 @@ import '../../core/atoms/app_app_bar.dart';
 import '../../core/atoms/detail_action_chip.dart';
 import '../../core/molecules/info_card.dart';
 import '../../core/molecules/info_row.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import '../../navigation/app_routes.dart';
 import '../../navigation/navigation_service.dart';
 import 'transaction_provider.dart';
@@ -111,9 +112,8 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
       // Handle case where transaction is not found
       if (transactionEntity == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'Error: No se pudieron cargar los detalles de la transacción.'),
+          SnackBar(
+              content: Text(t.transactions.detail.errorLoad),
               backgroundColor: Colors.red),
         );
         return;
@@ -132,7 +132,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Error al preparar la edición: ${e.toString()}'),
+              content: Text(t.transactions.detail.errorPrepareEdit(error: e.toString())),
               backgroundColor: Colors.red),
         );
       }
@@ -156,22 +156,22 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
   Future<void> _duplicateTransaction() async {
     // Lógica para duplicar - Placeholder
     ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Duplicar no implementado')));
+        SnackBar(content: Text(t.transactions.detail.duplicateNotImplemented)));
   }
 
   Future<void> _deleteTransaction() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Transacción'),
-        content: const Text('¿Estás seguro? Esta acción no se puede deshacer.'),
+        title: Text(t.transactions.detail.delete),
+        content: Text(t.transactions.detail.deleteConfirmation),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar')),
+              child: Text(t.common.cancel)),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+            child: Text(t.common.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -186,7 +186,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Transacción eliminada')),
+            SnackBar(content: Text(t.transactions.detail.deleted)),
           );
           // Go back without returning a value, UI will update via provider
           NavigationService.goBack();
@@ -194,7 +194,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al eliminar: ${e.toString()}')),
+            SnackBar(content: Text(t.transactions.detail.errorDelete(error: e.toString()))),
           );
         }
       }
@@ -205,7 +205,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri)) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('No se pudo abrir $url')));
+          .showSnackBar(SnackBar(content: Text(t.transactions.detail.errorUrl(url: url))));
     }
   }
 
@@ -236,7 +236,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // slate-50
       appBar: AppAppBar(
-        title: 'Transaction Details',
+        title: t.transactions.detail.title,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.back,
         onLeadingPressed: () => NavigationService.goBack(),
@@ -363,12 +363,12 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
         children: [
           Expanded(
               child: DetailActionChip(
-                  icon: Icons.edit, label: 'Edit', onTap: _navigateToEdit)),
+                  icon: Icons.edit, label: t.transactions.detail.edit, onTap: _navigateToEdit)),
           const SizedBox(width: 12),
           Expanded(
               child: DetailActionChip(
                   icon: Icons.content_copy,
-                  label: 'Duplicate',
+                  label: t.transactions.detail.duplicate,
                   onTap: _duplicateTransaction)),
         ],
       ),
@@ -377,7 +377,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
 
   Widget _buildCategoryInfo() {
     return InfoCard(
-      title: 'Category',
+      title: t.transactions.detail.category,
       child: InfoRow(
         icon: Icons.work_outline, // Placeholder icon
         iconBackgroundColor: const Color(0xFFDBEAFE), // blue-100
@@ -392,7 +392,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            _category!.documentTypeId == 'I' ? 'Income' : 'Expense',
+            _category!.documentTypeId == 'I' ? t.transactions.types.income : t.transactions.types.expense,
             style: TextStyle(
                 color: _category!.documentTypeId == 'I'
                     ? const Color(0xFF16A34A)
@@ -409,7 +409,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     final isTransfer = transaction.isTransfer;
     if (isTransfer) {
       return InfoCard(
-        title: 'Transfer Details',
+        title: t.transactions.detail.transferDetails,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         child: Column(
           children: [
@@ -417,34 +417,34 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                 icon: Icons.north_east,
                 iconBackgroundColor: const Color(0xFFFEE2E2),
                 iconColor: const Color(0xFFDC2626),
-                title: _wallet?.name ?? 'Unknown Account',
-                subtitle: 'From'),
+                title: _wallet?.name ?? t.transactions.detail.unknownAccount,
+                subtitle: t.transactions.detail.from),
             const Divider(height: 1, indent: 56, endIndent: 16),
             InfoRow(
                 icon: Icons.south_west,
                 iconBackgroundColor: const Color(0xFFDCFCE7),
                 iconColor: const Color(0xFF16A34A),
-                title: _targetWallet?.name ?? 'Unknown Account',
-                subtitle: 'To'),
+                title: _targetWallet?.name ?? t.transactions.detail.unknownAccount,
+                subtitle: t.transactions.detail.to),
           ],
         ),
       );
     }
     return InfoCard(
-      title: 'Account',
+      title: t.transactions.detail.account,
       child: InfoRow(
         icon: Icons.account_balance_wallet_outlined,
         iconBackgroundColor: const Color(0xFFDBEAFE),
         iconColor: const Color(0xFF2563EB),
-        title: _wallet?.name ?? 'Unknown Account',
-        subtitle: _wallet?.description ?? 'Account',
+        title: _wallet?.name ?? t.transactions.detail.unknownAccount,
+        subtitle: _wallet?.description ?? t.transactions.detail.account,
       ),
     );
   }
 
   Widget _buildContactInfo() {
     return InfoCard(
-      title: 'Contact',
+      title: t.transactions.detail.contact,
       child: Row(
         children: [
           CircleAvatar(
@@ -480,7 +480,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
 
   Widget _buildDescriptionInfo(TransactionEntry transaction) {
     return InfoCard(
-      title: 'Description',
+      title: t.transactions.detail.description,
       child: Text(transaction.description!,
           style: const TextStyle(
               fontSize: 14, color: Color(0xFF475569), height: 1.5)),
@@ -492,7 +492,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: TextButton.icon(
         icon: const Icon(Icons.delete_outline),
-        label: const Text('Delete Transaction'),
+        label: Text(t.transactions.detail.delete),
         onPressed: _deleteTransaction,
         style: TextButton.styleFrom(
           foregroundColor: const Color(0xFFDC2626),

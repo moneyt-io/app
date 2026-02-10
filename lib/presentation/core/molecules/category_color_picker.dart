@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Selector de colores para categorías basado en category_form.html
 /// 
@@ -42,7 +43,7 @@ class CategoryColorPicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Select Color',
+          t.categories.form.selectColor,
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,

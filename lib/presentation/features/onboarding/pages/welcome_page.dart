@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/onboarding_theme.dart';
 import '../../../core/atoms/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
+import '../../../core/l10n/generated/strings.g.dart'; // ✅ CORREGIDO
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({Key? key}) : super(key: key);
@@ -39,7 +40,7 @@ class WelcomePage extends StatelessWidget {
 
               // Animated Title
               StaggeredTextAnimation(
-                text: 'Bienvenido a MoneyT 👋',
+                text: t.onboarding.welcome.title, // ✅ LOCALIZADO
                 style: const TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
@@ -53,7 +54,7 @@ class WelcomePage extends StatelessWidget {
 
               // Animated Subtitle
               StaggeredTextAnimation(
-                text: 'Controla tu dinero en minutos ✨',
+                text: t.onboarding.welcome.subtitle, // ✅ LOCALIZADO
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w400,

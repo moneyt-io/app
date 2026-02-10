@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/molecules/active_filters_bar.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 import '../../../../domain/entities/category.dart';
 import '../../../../domain/entities/contact.dart';
@@ -20,15 +21,15 @@ extension QuickDateFilterExtension on QuickDateFilter {
   String get displayName {
     switch (this) {
       case QuickDateFilter.thisMonth:
-        return 'This Month';
+        return t.transactions.filter.ranges.thisMonth;
       case QuickDateFilter.lastMonth:
-        return 'Last Month';
+        return t.transactions.filter.ranges.lastMonth;
       case QuickDateFilter.thisYear:
-        return 'This Year';
+        return t.transactions.filter.ranges.thisYear;
       case QuickDateFilter.lastYear:
-        return 'Last Year';
+        return t.transactions.filter.ranges.lastYear;
       case QuickDateFilter.custom:
-        return 'Custom';
+        return t.transactions.filter.customRange;
     }
   }
 }

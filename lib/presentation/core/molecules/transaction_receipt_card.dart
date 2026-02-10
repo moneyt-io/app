@@ -5,6 +5,8 @@ import 'package:moneyt_pfm/domain/entities/contact.dart';
 import 'package:moneyt_pfm/domain/entities/transaction_entry.dart';
 import 'package:moneyt_pfm/domain/entities/wallet.dart';
 
+import '../l10n/generated/strings.g.dart';
+
 /// A new, visually rich receipt card that matches the latest design mockup.
 class TransactionReceiptCard extends StatelessWidget {
   final TransactionEntry transaction;
@@ -63,15 +65,15 @@ class TransactionReceiptCard extends StatelessWidget {
         ),
       ),
       child: Column(
-        children: const [
+        children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.savings_outlined, color: Colors.white, size: 24),
-              SizedBox(width: 8),
+              const Icon(Icons.savings_outlined, color: Colors.white, size: 24),
+              const SizedBox(width: 8),
               Text(
-                'MoneyT',
-                style: TextStyle(
+                t.app.name,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -79,10 +81,10 @@ class TransactionReceiptCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
-            'Transaction Receipt',
-            style: TextStyle(
+            t.transactions.share.receiptTitle,
+            style: const TextStyle(
               color: Colors.white70,
               fontSize: 14,
             ),
@@ -103,14 +105,14 @@ class TransactionReceiptCard extends StatelessWidget {
       case 'I':
         sign = '+';
         amountColor = const Color(0xFF16A34A); // green-600
-        typeText = 'Income Transaction';
+        typeText = t.transactions.types.income;
         break;
       case 'E':
         sign = '-';
-        typeText = 'Expense Transaction';
+        typeText = t.transactions.types.expense;
         break;
       case 'T':
-        typeText = 'Transfer';
+        typeText = t.transactions.types.transfer;
         break;
     }
 
@@ -136,30 +138,30 @@ class TransactionReceiptCard extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           if (transaction.description?.isNotEmpty ?? false)
-            _buildInfoRow('Description', transaction.description!),
+            _buildInfoRow(t.transactions.detail.description, transaction.description!),
           if (category != null)
             _buildInfoRow(
-              'Category',
+              t.transactions.detail.category,
               category!.name,
               leading: const Icon(Icons.fastfood_outlined,
                   size: 16, color: Color(0xFFF59E0B)), // amber-500
             ),
           _buildInfoRow(
-            'Date',
+            t.transactions.detail.date,
             DateFormat('MMM d, yyyy').format(transaction.date),
           ),
           _buildInfoRow(
-            'Time',
+            t.transactions.detail.time,
             DateFormat('h:mm a').format(transaction.date),
           ),
           if (wallet != null)
             _buildInfoRow(
-              'Payment Method',
+              t.transactions.share.paymentMethod,
               wallet!.name,
               leading: const Icon(Icons.account_balance_wallet_outlined,
                   size: 16, color: Color(0xFF3B82F6)), // blue-500
             ),
-          if (contact != null) _buildInfoRow('Contact', contact!.name),
+          if (contact != null) _buildInfoRow(t.transactions.detail.contact, contact!.name),
         ],
       ),
     );
@@ -175,13 +177,13 @@ class TransactionReceiptCard extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                'Transaction ID: TXN-${transaction.id.toString().padLeft(8, '0')}',
+                t.transactions.share.receipt.id(id: 'TXN-${transaction.id.toString().padLeft(8, '0')}'),
                 style: const TextStyle(
                     fontSize: 12, color: Color(0xFF94A3B8)), // slate-400
               ),
               const SizedBox(height: 4),
               Text(
-                'Generated on ${DateFormat('MMM d, yyyy \'at\' h:mm a').format(DateTime.now())}',
+                t.transactions.share.generatedOn(date: DateFormat('MMM d, yyyy \'at\' h:mm a').format(DateTime.now())),
                 style: const TextStyle(
                     fontSize: 12, color: Color(0xFF94A3B8)), // slate-400
               ),
@@ -192,10 +194,10 @@ class TransactionReceiptCard extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 12),
           color: const Color(0xFFF8FAFC), // slate-50
-          child: const Text(
-            'Powered by MoneyT • moneyt.io',
+          child: Text(
+            t.transactions.share.poweredBy,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               color: Color(0xFF94A3B8), // slate-400
             ),

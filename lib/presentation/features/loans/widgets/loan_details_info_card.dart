@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../domain/entities/loan_entry.dart';
 import '../../../core/molecules/info_card.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class LoanDetailsInfoCard extends StatelessWidget {
   final LoanEntry loan;
@@ -15,14 +16,14 @@ class LoanDetailsInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InfoCard(
-      title: 'Loan Details',
+      title: t.loans.detail.info,
       child: Column(
         children: [
-          _buildDetailRow('Loan Type', _getLoanType()),
+          _buildDetailRow(t.loans.detail.type.label, _getLoanType()),
           const SizedBox(height: 12),
-          _buildDetailRow('Loan Start', _formatDate(loan.date)),
+          _buildDetailRow(t.loans.detail.startDate, _formatDate(loan.date)),
           const SizedBox(height: 12),
-          _buildDetailRow('Due Date', _getDueDate()),
+          _buildDetailRow(t.loans.detail.dueDate, _getDueDate()),
         ],
       ),
     );
@@ -58,26 +59,26 @@ class LoanDetailsInfoCard extends StatelessWidget {
   String _getLoanType() {
     // Determine loan type based on document type or description
     if (loan.documentTypeId == 'L') {
-      return 'Personal Loan';
+      return t.loans.detail.type.personal;
     } else if (loan.documentTypeId == 'B') {
-      return 'Borrowed Loan';
+      return t.loans.detail.type.borrowed;
     }
     
     // Try to infer from description
     final description = loan.description?.toLowerCase() ?? '';
     if (description.contains('car') || description.contains('auto') || description.contains('vehicle')) {
-      return 'Auto Loan';
+      return t.loans.detail.type.auto;
     } else if (description.contains('house') || description.contains('home') || description.contains('mortgage')) {
-      return 'Mortgage';
+      return t.loans.detail.type.mortgage;
     } else if (description.contains('student') || description.contains('education')) {
-      return 'Student Loan';
+      return t.loans.detail.type.student;
     }
     
-    return 'Personal Loan';
+    return t.loans.detail.type.personal;
   }
 
   String _formatDate(DateTime date) {
-    return DateFormat('MMMM d, yyyy').format(date);
+    return DateFormat('MMMM d, yyyy', LocaleSettings.currentLocale.languageCode).format(date);
   }
 
   String _getDueDate() {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Botón selector de parent wallet basado en wallet_form.html
 /// 
@@ -87,7 +88,7 @@ class ParentWalletSelectorButton extends StatelessWidget {
                             // Wallet name or placeholder
                             Expanded(
                               child: Text(
-                                selectedWalletName ?? 'Select parent wallet',
+                                selectedWalletName ?? t.components.parentWalletSelection.title,
                                 style: TextStyle(
                                   fontSize: 16, // HTML: text-base
                                   fontWeight: FontWeight.normal, // HTML: font-normal
@@ -135,16 +136,6 @@ class ParentWalletSelectorButton extends StatelessWidget {
               ),
             ),
           ],
-        ),
-        
-        // Helper text like HTML
-        const SizedBox(height: 4),
-        Text(
-          'Choose a parent wallet to organize this wallet under another one',
-          style: const TextStyle(
-            fontSize: 12, // HTML: text-xs
-            color: Color(0xFF64748B), // HTML: text-slate-500
-          ),
         ),
       ],
     );

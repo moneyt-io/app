@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/strings.g.dart';
 import '../atoms/app_search_field.dart';
 import 'dialog_action_bar.dart';
 
@@ -208,7 +209,7 @@ class _CurrencySelectionDialogState extends State<CurrencySelectionDialog> {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'Select currency',
+                              t.components.currencySelection.title,
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -220,7 +221,7 @@ class _CurrencySelectionDialogState extends State<CurrencySelectionDialog> {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'Choose the currency for this wallet',
+                              t.components.currencySelection.subtitle,
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Color(0xFF64748B),
@@ -243,7 +244,7 @@ class _CurrencySelectionDialogState extends State<CurrencySelectionDialog> {
                       ),
                       child: AppSearchField(
                         controller: _searchController,
-                        hintText: 'Search currencies',
+                        hintText: t.components.currencySelection.searchPlaceholder,
                         onChanged: (value) {
                           setState(() {
                             _searchQuery = value;

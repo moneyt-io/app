@@ -27,7 +27,7 @@ class ThemeSwitcher extends StatelessWidget {
           size: AppDimensions.iconSizeMedium,
         ),
       ),
-      title: Text(t.settings.darkTheme),
+      title: Text(t.settings.appearance.darkTheme),
       trailing: Switch(
         value: themeProvider.isDarkMode,
         onChanged: (value) {

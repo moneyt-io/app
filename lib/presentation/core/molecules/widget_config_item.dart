@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../atoms/drag_handle.dart';
 import '../atoms/toggle_switch.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Tipos de widgets disponibles en el dashboard
 enum DashboardWidgetType {
@@ -178,60 +179,60 @@ class WidgetConfigItem extends StatelessWidget {
   WidgetInfo _getWidgetInfo(DashboardWidgetType type) {
     switch (type) {
       case DashboardWidgetType.balance:
-        return const WidgetInfo(
-          title: 'Total Balance',
-          description: 'Shows your overall financial status',
+        return WidgetInfo(
+          title: t.dashboard.widgets.balance.title,
+          description: t.dashboard.widgets.balance.description,
           icon: Icons.account_balance_wallet,
-          iconColor: Color(0xFF2563EB), // HTML: text-blue-600
-          backgroundColor: Color(0xFFDBEAFE), // HTML: bg-blue-100
+          iconColor: const Color(0xFF2563EB), // HTML: text-blue-600
+          backgroundColor: const Color(0xFFDBEAFE), // HTML: bg-blue-100
         );
       case DashboardWidgetType.quickActions:
-        return const WidgetInfo(
-          title: 'Quick Actions',
-          description: 'Fast access to common transactions',
+        return WidgetInfo(
+          title: t.dashboard.widgets.quickActions.title,
+          description: t.dashboard.widgets.quickActions.description,
           icon: Icons.flash_on,
-          iconColor: Color(0xFF16A34A), // HTML: text-green-600
-          backgroundColor: Color(0xFFDCFCE7), // HTML: bg-green-100
+          iconColor: const Color(0xFF16A34A), // HTML: text-green-600
+          backgroundColor: const Color(0xFFDCFCE7), // HTML: bg-green-100
         );
       case DashboardWidgetType.wallets:
-        return const WidgetInfo(
-          title: 'Wallets',
-          description: 'Overview of your accounts',
+        return WidgetInfo(
+          title: t.dashboard.widgets.wallets.title,
+          description: t.dashboard.widgets.wallets.description,
           icon: Icons.account_balance_wallet,
-          iconColor: Color(0xFF2563EB), // HTML: text-blue-600
-          backgroundColor: Color(0xFFDBEAFE), // HTML: bg-blue-100
+          iconColor: const Color(0xFF2563EB), // HTML: text-blue-600
+          backgroundColor: const Color(0xFFDBEAFE), // HTML: bg-blue-100
         );
       case DashboardWidgetType.loans:
-        return const WidgetInfo(
-          title: 'Loans',
-          description: 'Track borrowed and lent money',
+        return WidgetInfo(
+          title: t.dashboard.widgets.loans.title,
+          description: t.dashboard.widgets.loans.description,
           icon: Icons.handshake,
-          iconColor: Color(0xFFEA580C), // HTML: text-orange-600
-          backgroundColor: Color(0xFFFED7AA), // HTML: bg-orange-100
+          iconColor: const Color(0xFFEA580C), // HTML: text-orange-600
+          backgroundColor: const Color(0xFFFED7AA), // HTML: bg-orange-100
         );
       case DashboardWidgetType.transactions:
-        return const WidgetInfo(
-          title: 'Recent Transactions',
-          description: 'Latest financial activity',
+        return WidgetInfo(
+          title: t.dashboard.widgets.transactions.title,
+          description: t.dashboard.widgets.transactions.description,
           icon: Icons.receipt_long,
-          iconColor: Color(0xFF64748B), // HTML: text-slate-600
-          backgroundColor: Color(0xFFF1F5F9), // HTML: bg-slate-100
+          iconColor: const Color(0xFF64748B), // HTML: text-slate-600
+          backgroundColor: const Color(0xFFF1F5F9), // HTML: bg-slate-100
         );
       case DashboardWidgetType.chartAccounts:
-        return const WidgetInfo(
-          title: 'Chart of Accounts',
-          description: 'Account structure overview',
+        return WidgetInfo(
+          title: t.dashboard.widgets.chartAccounts.title,
+          description: t.dashboard.widgets.chartAccounts.description,
           icon: Icons.account_tree,
-          iconColor: Color(0xFF9333EA), // HTML: text-purple-600
-          backgroundColor: Color(0xFFF3E8FF), // HTML: bg-purple-100
+          iconColor: const Color(0xFF9333EA), // HTML: text-purple-600
+          backgroundColor: const Color(0xFFF3E8FF), // HTML: bg-purple-100
         );
       case DashboardWidgetType.creditCards:
-        return const WidgetInfo(
-          title: 'Credit Cards',
-          description: 'Credit card balances and limits',
+        return WidgetInfo(
+          title: t.dashboard.widgets.creditCards.title,
+          description: t.dashboard.widgets.creditCards.description,
           icon: Icons.credit_card,
-          iconColor: Color(0xFFDC2626), // HTML: text-red-600
-          backgroundColor: Color(0xFFFEE2E2), // HTML: bg-red-100
+          iconColor: const Color(0xFFDC2626), // HTML: text-red-600
+          backgroundColor: const Color(0xFFFEE2E2), // HTML: bg-red-100
         );
     }
   }

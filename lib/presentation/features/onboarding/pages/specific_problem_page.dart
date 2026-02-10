@@ -2,15 +2,27 @@ import 'package:flutter/material.dart';
 import '../theme/onboarding_theme.dart';
 import '../widgets/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
+import '../../../core/l10n/generated/strings.g.dart'; // ✅ CORREGIDO
 
 enum PainPoint {
-  noSavings('no_savings', 'No logro ahorrar nada 🐷'),       // ✅ ELIMINADO: número ①
-  unknownDebt('unknown_debt', 'No sé cuánto debo 💳'),       // ✅ ELIMINADO: número ②
-  unknownBalance('unknown_balance', 'No sé cuánto dinero tengo ❓'); // ✅ ELIMINADO: número ③
+  noSavings('no_savings'),
+  unknownDebt('unknown_debt'),
+  unknownBalance('unknown_balance');
 
-  const PainPoint(this.key, this.label);
+  const PainPoint(this.key);
   final String key;
-  final String label;
+ 
+  // Getters para etiquetas dinámicas
+  String get label {
+    switch (this) {
+      case PainPoint.noSavings:
+        return t.onboarding.specificProblem.options.savings;
+      case PainPoint.unknownDebt:
+        return t.onboarding.specificProblem.options.debts;
+      case PainPoint.unknownBalance:
+        return t.onboarding.specificProblem.options.unknown;
+    }
+  }
 }
 
 class SpecificProblemPage extends StatefulWidget {
@@ -72,7 +84,7 @@ class _SpecificProblemPageState extends State<SpecificProblemPage>
               
               // Question
               StaggeredTextAnimation(
-                text: 'Cuéntanos, ¿qué te frustra más? 🤔',
+                text: t.onboarding.specificProblem.title, // ✅ LOCALIZADO
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -86,7 +98,7 @@ class _SpecificProblemPageState extends State<SpecificProblemPage>
               
               // Subtitle
               StaggeredTextAnimation(
-                text: 'Elige la opción que mejor te describe.',
+                 text: t.common.moreOptions, // ✅ LOCALIZADO (o usar uno más específico si existe)
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w400,  // ✅ AGREGADO: Ligeramente más pesado que normal

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Widget de resumen de balance basado en dashboard_main.html
 /// 
@@ -56,7 +57,7 @@ class BalanceSummaryWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Total Balance',
+                      t.dashboard.balance.total,
                       style: const TextStyle(
                         fontSize: 14, // HTML: text-sm
                         color: Color(0xFFBFDBFE), // HTML: text-blue-100
@@ -134,7 +135,7 @@ class BalanceSummaryWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'INCOME',
+                      t.dashboard.balance.income,
                       style: const TextStyle(
                         fontSize: 12, // HTML: text-xs
                         color: Color(0xFFBFDBFE), // HTML: text-blue-200
@@ -163,7 +164,7 @@ class BalanceSummaryWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'EXPENSES',
+                      t.dashboard.balance.expenses,
                       style: const TextStyle(
                         fontSize: 12, // HTML: text-xs
                         color: Color(0xFFBFDBFE), // HTML: text-blue-200

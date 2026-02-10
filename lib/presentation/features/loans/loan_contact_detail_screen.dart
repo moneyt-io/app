@@ -5,6 +5,7 @@ import '../../../domain/entities/contact.dart';
 import '../../../domain/entities/loan_entry.dart';
 import '../../core/atoms/app_app_bar.dart';
 import '../../core/atoms/expandable_fab.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import '../../navigation/app_routes.dart';
 import '../../navigation/navigation_service.dart';
 import 'loan_provider.dart';
@@ -41,7 +42,7 @@ class _LoanContactDetailScreenState extends State<LoanContactDetailScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // bg-slate-50
       appBar: AppAppBar(
-        title: 'Loans with ${widget.contact.name}',
+        title: t.loans.contactDetail.titleWith(name: widget.contact.name),
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.back,
         customActions: [
@@ -114,16 +115,16 @@ class _LoanContactDetailScreenState extends State<LoanContactDetailScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Active Loans',
-                          style: TextStyle(
+                        Text(
+                          t.loans.section.activeLoans,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF1E293B), // text-slate-800
                           ),
                         ),
                         Text(
-                          '${activeLoans.length} loans',
+                          t.loans.section.loansCount(n: activeLoans.length),
                           style: const TextStyle(
                             fontSize: 14,
                             color: Color(0xFF64748B), // text-slate-500
@@ -168,9 +169,9 @@ class _LoanContactDetailScreenState extends State<LoanContactDetailScreen> {
                     onPressed: _viewCompleteHistory,
                     icon: const Icon(Icons.history,
                         color: Color(0xFF64748B), size: 20), // text-slate-500
-                    label: const Text(
-                      'View Complete Loan History',
-                      style: TextStyle(
+                    label: Text(
+                      t.loans.detail.viewHistory,
+                      style: const TextStyle(
                           color: Color(0xFF64748B),
                           fontWeight: FontWeight.w500), // text-slate-500
                     ),
@@ -198,13 +199,13 @@ class _LoanContactDetailScreenState extends State<LoanContactDetailScreen> {
       floatingActionButton: ExpandableFab(
         actions: [
           FabAction(
-            label: 'Lend',
+            label: t.loans.form.lend,
             icon: Icons.trending_up,
             backgroundColor: const Color(0xFF22C55E),
             onPressed: () => _navigateToLoanForm('L'),
           ),
           FabAction(
-            label: 'Borrow',
+            label: t.loans.form.borrow,
             icon: Icons.trending_down,
             backgroundColor: const Color(0xFFEF4444),
             onPressed: () => _navigateToLoanForm('B'),

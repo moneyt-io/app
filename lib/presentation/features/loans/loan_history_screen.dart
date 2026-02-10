@@ -7,6 +7,7 @@ import 'dart:ui';
 import '../../../domain/entities/contact.dart';
 import '../../../domain/entities/loan_entry.dart';
 import '../../core/atoms/app_app_bar.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import '../../navigation/navigation_service.dart';
 import 'loan_provider.dart';
 import 'widgets/loan_history_item_card.dart';
@@ -57,7 +58,7 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // slate-50
       appBar: AppAppBar(
-        title: 'Loan History',
+        title: t.loans.history.title,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.back,
       ),
@@ -75,11 +76,11 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
                         children: [
                           FilterChipGroup<LoanHistoryFilter>(
                             selectedValue: _currentFilter,
-                            filters: const {
-                              LoanHistoryFilter.all: 'All',
-                              LoanHistoryFilter.lent: 'Lent',
-                              LoanHistoryFilter.borrowed: 'Borrowed',
-                              LoanHistoryFilter.completed: 'Completed',
+                            filters: {
+                              LoanHistoryFilter.all: t.loans.history.filter.all,
+                              LoanHistoryFilter.lent: t.loans.history.filter.lent,
+                              LoanHistoryFilter.borrowed: t.loans.history.filter.borrowed,
+                              LoanHistoryFilter.completed: t.loans.history.filter.completed,
                             },
                             icons: const {
                               LoanHistoryFilter.all: Icons.history,
@@ -127,7 +128,7 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(widget.contact.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const Text('Complete loan history', style: TextStyle(color: Colors.grey)),
+                Text(t.loans.history.section, style: const TextStyle(color: Colors.grey)),
               ],
             ),
           ),
@@ -135,7 +136,7 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(currencyFormat.format(totalLoaned), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const Text('Total loaned', style: TextStyle(color: Colors.grey, fontSize: 12)),
+              Text(t.loans.history.totalLoaned, style: const TextStyle(color: Colors.grey, fontSize: 12)),
             ],
           ),
         ],
@@ -145,11 +146,11 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
 
   Widget _buildLoanList(List<LoanEntry> loans) {
     if (loans.isEmpty) {
-      return const SliverToBoxAdapter(
+      return SliverToBoxAdapter(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 48.0),
-            child: Text('No loans found for this filter.', style: TextStyle(color: Colors.grey)),
+            padding: const EdgeInsets.symmetric(vertical: 48.0),
+            child: Text(t.loans.history.noLoans, style: const TextStyle(color: Colors.grey)),
           ),
         ),
       );
@@ -162,7 +163,22 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
         (context, index) {
           final status = groupedLoans.keys.elementAt(index);
           final loansInGroup = groupedLoans[status]!;
-          final statusName = status.toString().split('.').last;
+          
+          String sectionTitle;
+          switch(status) {
+            case LoanStatus.active:
+              sectionTitle = t.loans.history.headers.active;
+              break;
+            case LoanStatus.paid:
+              sectionTitle = t.loans.history.headers.completed;
+              break;
+            case LoanStatus.cancelled:
+              sectionTitle = t.loans.history.headers.cancelled;
+              break;
+            case LoanStatus.writtenOff:
+              sectionTitle = t.loans.history.headers.writtenOff;
+              break;
+          }
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +186,7 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Text(
-                  '${statusName[0].toUpperCase()}${statusName.substring(1)} Loans',
+                  sectionTitle,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
                 ),
               ),

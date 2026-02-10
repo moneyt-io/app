@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/onboarding_theme.dart';
 import '../widgets/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
+import '../../../core/l10n/generated/strings.g.dart'; // ✅ CORREGIDO
 
 class SolutionPreviewPage extends StatelessWidget {
   const SolutionPreviewPage({Key? key}) : super(key: key);
@@ -38,7 +39,7 @@ class SolutionPreviewPage extends StatelessWidget {
 
               // Solution Statement
               StaggeredTextAnimation(
-                text: 'MoneyT te da control\ntotal de tus finanzas 💡',
+                text: t.onboarding.solutionPreview.title, // ✅ LOCALIZADO
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -54,18 +55,13 @@ class SolutionPreviewPage extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                   // ✅ MEJORADO: Usando el subtitulo para el primer beneficio o dividiendo
                   _buildBenefitItem(
-                    '📊 Visualiza todos tus gastos en tiempo real',
+                    t.onboarding.solutionPreview.subtitle, 
                     const Duration(milliseconds: 600),
                   ),
-                  _buildBenefitItem(
-                    '🎯 Establece metas y sigue tu progreso',
-                    const Duration(milliseconds: 800),
-                  ),
-                  _buildBenefitItem(
-                    '💡 Toma decisiones financieras inteligentes',
-                    const Duration(milliseconds: 1000),
-                  ),
+                  // Opcional: Agregar más claves para beneficios individuales en el archivo i18n
+                  // Por ahora reusamos el subtitulo como mensaje principal
                 ],
               ),
 

@@ -9,8 +9,7 @@ import '../../core/molecules/settings_item.dart';
 import '../../core/organisms/app_drawer.dart';
 import '../../core/providers/theme_provider.dart';
 import '../../core/providers/language_provider.dart';
-import '../../core/l10n/l10n_helper.dart';
-import '../../core/l10n/generated/strings.g.dart' show AppLocale;
+import '../../core/l10n/generated/strings.g.dart';
 import '../../navigation/app_routes.dart';
 import 'social_screen.dart'; // ✅ AGREGADO: Import de SocialScreen
 import 'language_screen.dart'; // ✅ AGREGADO: Import de LanguageScreen
@@ -32,9 +31,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _navigateToProfile() async {
     // SIMPLIFICADO: Implementación básica sin autenticación
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profile screen coming soon'),
-        backgroundColor: Color(0xFF0c7ff2),
+      SnackBar(
+        content: Text(t.settings.messages.profileComingSoon),
+        backgroundColor: const Color(0xFF0c7ff2),
       ),
     );
   }
@@ -73,8 +72,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Could not open privacy policy'),
+          SnackBar(
+            content: Text(t.settings.messages.privacyError),
             backgroundColor: Colors.red,
           ),
         );
@@ -86,19 +85,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Sign out'),
-        content: const Text('Are you sure you want to sign out of your account?'),
+        title: Text(t.settings.logout.dialogTitle),
+        content: Text(t.settings.logout.dialogMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(t.settings.logout.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFFDC2626),
             ),
-            child: const Text('Sign out'),
+            child: Text(t.settings.logout.confirm),
           ),
         ],
       ),
@@ -108,9 +107,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // TODO: Implementar lógica de sign out
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sign out functionality coming soon'),
-            backgroundColor: Color(0xFFDC2626),
+          SnackBar(
+            content: Text(t.settings.messages.logoutComingSoon),
+            backgroundColor: const Color(0xFFDC2626),
           ),
         );
       }
@@ -125,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       
       // ✅ CORREGIDO: Usar AppAppBar con blur effect exacto del HTML
       appBar: AppAppBar(
-        title: 'Settings',
+        title: t.settings.title,
         type: AppAppBarType.blur, // HTML: bg-slate-50/80 backdrop-blur-md
         leading: AppAppBarLeading.drawer, // HTML: arrow_back_ios_new para drawer
         onLeadingPressed: _openDrawer,
@@ -138,12 +137,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             // Account Section
             SettingsCard(
-              title: 'Account',
+              title: t.settings.account.title,
               children: [
                 SettingsItem(
                   icon: Icons.person,
-                  title: 'Profile',
-                  subtitle: 'Manage your account information',
+                  title: t.settings.account.profile,
+                  subtitle: t.settings.account.profileSubtitle,
                   backgroundColor: const Color(0xFFDBEAFE), // HTML: bg-blue-100
                   iconColor: const Color(0xFF2563EB), // HTML: text-blue-600
                   trailing: const Icon(
@@ -157,7 +156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // Appearance Section
             SettingsCard(
-              title: 'Appearance',
+              title: t.settings.appearance.title,
               children: [
                 // Dark Mode Toggle
                 Consumer<ThemeProvider>(
@@ -184,21 +183,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const SizedBox(width: 16),
                           
                           // Content
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Dark mode',
-                                  style: TextStyle(
+                                  t.settings.appearance.darkMode,
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
                                     color: Color(0xFF1E293B),
                                   ),
                                 ),
                                 Text(
-                                  'Switch to dark theme',
-                                  style: TextStyle(
+                                  t.settings.appearance.darkModeSubtitle,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     color: Color(0xFF64748B),
                                   ),
@@ -223,7 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   builder: (context, languageProvider, child) {
                     return SettingsItem(
                       icon: Icons.language,
-                      title: 'Language',
+                      title: t.settings.appearance.language,
                       subtitle: languageProvider.getCurrentLanguageName(), // ✅ CORREGIDO: Dinámico
                       backgroundColor: const Color(0xFFFED7AA),
                       iconColor: const Color(0xFFEA580C),
@@ -240,12 +239,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // Data & Storage Section
             SettingsCard(
-              title: 'Data & Storage',
+              title: t.settings.data.title,
               children: [
                 SettingsItem(
                   icon: Icons.backup,
-                  title: 'Database backup',
-                  subtitle: 'Manage your data backups',
+                  title: t.settings.data.backup,
+                  subtitle: t.settings.data.backupSubtitle,
                   backgroundColor: const Color(0xFFA7F3D0), // HTML: bg-cyan-100
                   iconColor: const Color(0xFF059669), // HTML: text-cyan-600
                   trailing: const Icon(
@@ -259,12 +258,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // Information Section
             SettingsCard(
-              title: 'Information',
+              title: t.settings.info.title,
               children: [
                 SettingsItem(
                   icon: Icons.share,
-                  title: 'Contact & Social',
-                  subtitle: 'Get support and follow us online',
+                  title: t.settings.info.contact,
+                  subtitle: t.settings.info.contactSubtitle,
                   backgroundColor: const Color(0xFFFCE7F3), // HTML: bg-pink-100
                   iconColor: const Color(0xFFDB2777), // HTML: text-pink-600
                   trailing: const Icon(
@@ -276,8 +275,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 
                 SettingsItem(
                   icon: Icons.policy,
-                  title: 'Privacy policy',
-                  subtitle: 'Read our privacy policy',
+                  title: t.settings.info.privacy,
+                  subtitle: t.settings.info.privacySubtitle,
                   backgroundColor: const Color(0xFFF1F5F9), // HTML: bg-slate-100
                   iconColor: const Color(0xFF475569), // HTML: text-slate-600
                   trailing: const Icon(

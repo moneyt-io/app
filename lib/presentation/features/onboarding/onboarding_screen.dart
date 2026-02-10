@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../navigation/navigation_service.dart';
 import '../../navigation/app_routes.dart';
 import '../../core/services/onboarding_service.dart';
+import '../auth/auth_provider.dart' as app_auth;
 import 'theme/onboarding_theme.dart';
 import 'widgets/animated_page_indicator.dart';
 import 'pages/welcome_page.dart';
@@ -13,6 +15,7 @@ import 'pages/solution_preview_page.dart';
 import 'pages/current_method_page.dart';
 import 'pages/features_showcase_simple_page.dart';
 import 'pages/complete_page.dart';
+import '../../core/l10n/generated/strings.g.dart'; // ✅ AÑADIDO
 
 /// Onboarding simplificado solo para demostración (frontend de venta)
 class OnboardingScreen extends StatefulWidget {
@@ -34,7 +37,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   final ValueNotifier<bool> _isButtonEnabled = ValueNotifier(true);
 
   late final List<Widget> _pages;
-  late final List<String> _buttonLabels;
+  // late final List<String> _buttonLabels; // ❌ ELIMINADO para usar getter dinámico
 
   @override
   void initState() {
@@ -58,16 +61,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       CompletePage(),
     ];
 
-    _buttonLabels = [
-      'Comenzar ahora 🚀',
-      'Solucionalo hoy ⚡',
-      'Continuar',
-      'Fijar mi meta 🎯',
-      '¡Quiero este control!',
-      'Continuar',
-      '¡Genial, espero verlo!',
-      'Registrar mi primera transacción ➕',
-    ];
+    // _buttonLabels se elimina porque necesitamos que sea reactivo al idioma
+    // Usaremos _getButtonLabel(_currentPage) en su lugar o reconstruiremos labels en build
 
     // Iniciar animación del botón skip
     _skipButtonController.forward();
@@ -122,17 +117,24 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _goToPage(_pages.length - 1); // Ir a la CompletePage
   }
 
-  // ✅ SIMPLIFICADO: Sin guardar preferencias, solo completar
+  // ✅ SIMPLIFICADO: Navegación directa al Home, omitiendo Login explícito
   Future<void> _completeOnboarding() async {
     print('🎯 OnboardingScreen: Completing onboarding...');
 
     try {
-      // ✅ CRÍTICO: Marcar onboarding como completado
+      // 1. Marcar onboarding como completado
       await OnboardingService.markOnboardingCompleted();
 
+      // 2. Iniciar sesión como invitado automáticamente para cumplir requisitos de Auth
       if (mounted) {
-        // Navegar a la pantalla que lanza la paywall de Superwall
-        NavigationService.navigateToAndClearStack(AppRoutes.paywallLauncher);
+        final authProvider = context.read<app_auth.AuthProvider>();
+        await authProvider.continueAsGuest();
+      }
+
+      // 3. Navegar directamente al Home
+      // (El Home se encargará de mostrar la Paywall si es necesario)
+      if (mounted) {
+        NavigationService.navigateToAndClearStack(AppRoutes.home);
       }
     } catch (e) {
       print('❌ OnboardingScreen: Error completing onboarding: $e');
@@ -221,9 +223,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       child: _showSkipButton
                           ? TextButton(
                               onPressed: _skipOnboarding,
-                              child: const Text(
-                                'Saltar',
-                                style: TextStyle(
+                              child: Text( // ✅ CORREGIDO: const eliminado
+                                t.onboarding.buttons.skip,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -266,7 +268,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         shadowColor: Colors.black.withOpacity(0.1),
                       ),
                       child: Text(
-                        _buttonLabels[_currentPage],
+                        _getButtonLabel(_currentPage), // ✅ AÑADIDO: Getter dinámico
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -281,5 +283,23 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         ],
       ),
     );
+  }
+
+  // ✅ NUEVO: Getter para etiquetas de botones localizadas
+  String _getButtonLabel(int index) {
+    if (index >= 8) return t.common.retry; // Fallback
+    
+    final labels = [
+      t.onboarding.buttons.start,
+      t.onboarding.buttons.fixIt,
+      t.onboarding.buttons.actionContinue, // ✅ CORREGIDO: Renombrado a actionContinue
+      t.onboarding.buttons.setGoal,
+      t.onboarding.buttons.wantControl,
+      t.onboarding.buttons.actionContinue, // ✅ CORREGIDO: Renombrado a actionContinue
+      t.onboarding.buttons.great,
+      t.onboarding.buttons.firstTransaction,
+    ];
+    
+    return labels[index];
   }
 }

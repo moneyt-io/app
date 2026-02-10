@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 enum TransactionToggleType { income, expense, transfer }
 
@@ -19,7 +20,7 @@ class TransactionTypeToggle extends StatelessWidget {
         _buildButton(
           context,
           type: TransactionToggleType.income,
-          label: 'Income',
+          label: t.transactions.types.income,
           icon: Icons.trending_up,
           activeColor: const Color(0xFF22C55E), // green-500
           activeBgColor: const Color(0xFFF0FDF4), // green-50
@@ -29,7 +30,7 @@ class TransactionTypeToggle extends StatelessWidget {
         _buildButton(
           context,
           type: TransactionToggleType.expense,
-          label: 'Expense',
+          label: t.transactions.types.expense,
           icon: Icons.trending_down,
           activeColor: const Color(0xFFEF4444), // red-500
           activeBgColor: const Color(0xFFFEF2F2), // red-50
@@ -39,7 +40,7 @@ class TransactionTypeToggle extends StatelessWidget {
         _buildButton(
           context,
           type: TransactionToggleType.transfer,
-          label: 'Transfer',
+          label: t.transactions.types.transfer,
           icon: Icons.swap_horiz,
           activeColor: const Color(0xFF3B82F6), // blue-500
           activeBgColor: const Color(0xFFEFF6FF), // blue-50

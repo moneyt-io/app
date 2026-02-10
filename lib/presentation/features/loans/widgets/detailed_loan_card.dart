@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../domain/entities/loan_entry.dart';
 import '../../../../domain/usecases/credit_card_usecases.dart';
 import '../../../../domain/usecases/wallet_usecases.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class DetailedLoanCard extends StatefulWidget {
   final LoanEntry loan;
@@ -126,7 +127,7 @@ class _DetailedLoanCardState extends State<DetailedLoanCard> {
                         Expanded(
                           child: Text(
                             widget.loan.description ??
-                                (isLent ? 'Loan Given' : 'Loan Received'),
+                                (isLent ? t.loans.given : t.loans.received),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -187,7 +188,7 @@ class _DetailedLoanCardState extends State<DetailedLoanCard> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Due: ${DateFormat('MMM dd, yyyy').format(dueDate)}',
+                          t.loans.item.due(date: DateFormat('MMM dd, yyyy', LocaleSettings.currentLocale.languageCode).format(dueDate)),
                           style: const TextStyle(
                             fontSize: 14,
                             color: Color(0xFF64748B), // text-slate-500
@@ -206,14 +207,14 @@ class _DetailedLoanCardState extends State<DetailedLoanCard> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Paid: ${widget.currencySymbol}${NumberFormat('#,##0.00').format(paidAmount)}',
+                              t.loans.item.paidAmount(amount: '${widget.currencySymbol}${NumberFormat('#,##0.00').format(paidAmount)}'),
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFF475569), // text-slate-600
                               ),
                             ),
                             Text(
-                              'Remaining: ${widget.currencySymbol}${NumberFormat('#,##0.00').format(widget.loan.outstandingBalance)}',
+                              t.loans.item.remaining(amount: '${widget.currencySymbol}${NumberFormat('#,##0.00').format(widget.loan.outstandingBalance)}'),
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFF475569), // text-slate-600
@@ -252,7 +253,7 @@ class _DetailedLoanCardState extends State<DetailedLoanCard> {
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            '${(progressPercentage * 100).round()}% paid',
+                            t.loans.item.percentPaid(percent: (progressPercentage * 100).round()),
                             style: const TextStyle(
                               fontSize: 12,
                               color: Color(0xFF64748B), // text-slate-500
@@ -277,7 +278,7 @@ class _DetailedLoanCardState extends State<DetailedLoanCard> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            isLent ? 'You Lent' : 'You Borrowed',
+                            isLent ? t.loans.card.lent : t.loans.card.borrowed,
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -289,7 +290,7 @@ class _DetailedLoanCardState extends State<DetailedLoanCard> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          DateFormat('MMM dd, yyyy').format(widget.loan.date),
+                          DateFormat('MMM dd, yyyy', LocaleSettings.currentLocale.languageCode).format(widget.loan.date),
                           style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFF9CA3AF), // text-slate-400

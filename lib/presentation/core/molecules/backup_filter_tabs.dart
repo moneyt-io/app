@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Tabs de filtro para backups basado en backup_list.html
 /// 
@@ -20,9 +21,9 @@ class BackupFilterTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final filters = [
-      {'name': 'All', 'icon': Icons.backup},
-      {'name': 'Auto', 'icon': Icons.schedule},
-      {'name': 'Manual', 'icon': Icons.touch_app},
+      {'name': 'All', 'label': t.backups.filters.all, 'icon': Icons.backup},
+      {'name': 'Auto', 'label': t.backups.filters.auto, 'icon': Icons.schedule},
+      {'name': 'Manual', 'label': t.backups.filters.manual, 'icon': Icons.touch_app},
     ];
 
     return SizedBox(
@@ -37,7 +38,7 @@ class BackupFilterTabs extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => onFilterChanged(filter['name'] as String),
               icon: Icon(filter['icon'] as IconData, size: 18),
-              label: Text(filter['name'] as String),
+              label: Text(filter['label'] as String),
               style: OutlinedButton.styleFrom(
                 backgroundColor: isSelected ? const Color(0x1A3B82F6) : const Color(0xFFF1F5F9),
                 foregroundColor: isSelected ? const Color(0xFF1D4ED8) : const Color(0xFF475569),

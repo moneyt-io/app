@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../models/loan_history_filter_model.dart';
 import '../../../core/atoms/app_button.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class LoanHistoryFilterDialog extends StatefulWidget {
   final LoanHistoryFilterModel initialFilter;
@@ -30,7 +31,7 @@ class _LoanHistoryFilterDialogState extends State<LoanHistoryFilterDialog> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Filter Loan History'),
+        title: Text(t.loans.history.filter.title),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
@@ -44,7 +45,7 @@ class _LoanHistoryFilterDialogState extends State<LoanHistoryFilterDialog> {
                 _maxAmountController.clear();
               });
             },
-            child: const Text('Reset'),
+            child: Text(t.loans.history.filter.reset),
           ),
         ],
       ),
@@ -59,7 +60,7 @@ class _LoanHistoryFilterDialogState extends State<LoanHistoryFilterDialog> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: AppButton(
-          text: 'Apply Filters',
+          text: t.loans.history.filter.apply,
           onPressed: () {
             final minAmount = double.tryParse(_minAmountController.text);
             final maxAmount = double.tryParse(_maxAmountController.text);
@@ -77,7 +78,7 @@ class _LoanHistoryFilterDialogState extends State<LoanHistoryFilterDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Date Range', style: Theme.of(context).textTheme.titleMedium),
+        Text(t.loans.history.filter.dateRange, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8.0,
@@ -159,8 +160,8 @@ class _LoanHistoryFilterDialogState extends State<LoanHistoryFilterDialog> {
                 }
               },
               child: InputDecorator(
-                decoration: const InputDecoration(labelText: 'Start Date'),
-                child: Text(_filter.startDate != null ? formatter.format(_filter.startDate!) : 'Select'),
+                decoration: InputDecoration(labelText: t.loans.history.filter.startDate),
+                child: Text(_filter.startDate != null ? formatter.format(_filter.startDate!) : t.loans.history.filter.select),
               ),
             ),
           ),
@@ -181,8 +182,8 @@ class _LoanHistoryFilterDialogState extends State<LoanHistoryFilterDialog> {
                 }
               },
               child: InputDecorator(
-                decoration: const InputDecoration(labelText: 'End Date'),
-                child: Text(_filter.endDate != null ? formatter.format(_filter.endDate!) : 'Select'),
+                decoration: InputDecoration(labelText: t.loans.history.filter.endDate),
+                child: Text(_filter.endDate != null ? formatter.format(_filter.endDate!) : t.loans.history.filter.select),
               ),
             ),
           ),
@@ -195,7 +196,7 @@ class _LoanHistoryFilterDialogState extends State<LoanHistoryFilterDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Amount Range', style: Theme.of(context).textTheme.titleMedium),
+        Text(t.loans.history.filter.amountRange, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 16),
         Row(
           children: [

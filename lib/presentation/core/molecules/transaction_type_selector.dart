@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/strings.g.dart';
 
 class TransactionTypeSelector extends StatelessWidget {
   final String selectedType;
@@ -17,21 +18,21 @@ class TransactionTypeSelector extends StatelessWidget {
         _buildTypeButton(
           context,
           type: 'I',
-          label: 'Income',
+          label: t.transactions.types.income,
           icon: Icons.trending_up,
         ),
         const SizedBox(width: 8),
         _buildTypeButton(
           context,
           type: 'E',
-          label: 'Expense',
+          label: t.transactions.types.expense,
           icon: Icons.trending_down,
         ),
         const SizedBox(width: 8),
         _buildTypeButton(
           context,
           type: 'T',
-          label: 'Transfer',
+          label: t.transactions.types.transfer,
           icon: Icons.swap_horiz,
         ),
       ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 enum LoanSummaryType { lent, borrowed }
 
@@ -46,7 +47,7 @@ class LoanSummaryGridCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  isLent ? 'You Lent' : 'You Borrowed',
+                  isLent ? t.loans.card.lent : t.loans.card.borrowed,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -72,7 +73,7 @@ class LoanSummaryGridCard extends StatelessWidget {
             
             // Active count
             Text(
-              '$activeCount active',
+              t.loans.card.active(n: activeCount),
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.white.withOpacity(0.8),

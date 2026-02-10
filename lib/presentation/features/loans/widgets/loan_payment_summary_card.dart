@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../domain/entities/loan_entry.dart';
 import '../../../../domain/entities/contact.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class LoanPaymentSummaryCard extends StatelessWidget {
   final LoanEntry loan;
@@ -27,8 +28,8 @@ class LoanPaymentSummaryCard extends StatelessWidget {
     final nextDueDate = DateTime.now().add(const Duration(days: 30));
     
     final isLent = loan.documentTypeId == 'L';
-    final loanDescription = loan.description ?? 'Loan';
-    final contactName = contact?.name ?? 'Unknown Contact';
+    final loanDescription = loan.description ?? t.loans.payment.summary.defaultTitle;
+    final contactName = contact?.name ?? t.loans.payment.summary.unknownContact;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -61,7 +62,10 @@ class LoanPaymentSummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$loanDescription to $contactName',
+                      t.loans.payment.summary.description(
+                        loan: loanDescription,
+                        contact: contactName,
+                      ),
                       style: const TextStyle(
                         color: Color(0xFF9A3412), // text-orange-800
                         fontSize: 14,
@@ -70,7 +74,9 @@ class LoanPaymentSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$currencySymbol${NumberFormat('#,##0.00').format(originalAmount)} total',
+                      t.loans.payment.summary.total(
+                        amount: '$currencySymbol${NumberFormat('#,##0.00').format(originalAmount)}',
+                      ),
                       style: const TextStyle(
                         color: Color(0xFFEA580C), // text-orange-600
                         fontSize: 18,
@@ -90,14 +96,18 @@ class LoanPaymentSummaryCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Paid: $currencySymbol${NumberFormat('#,##0.00').format(paidAmount)}',
+                t.loans.payment.summary.paid(
+                  amount: '$currencySymbol${NumberFormat('#,##0.00').format(paidAmount)}',
+                ),
                 style: const TextStyle(
                   color: Color(0xFFC2410C), // text-orange-700
                   fontSize: 12,
                 ),
               ),
               Text(
-                'Remaining: $currencySymbol${NumberFormat('#,##0.00').format(remainingAmount)}',
+                t.loans.payment.summary.remainingLabel(
+                  amount: '$currencySymbol${NumberFormat('#,##0.00').format(remainingAmount)}',
+                ),
                 style: const TextStyle(
                   color: Color(0xFFC2410C), // text-orange-700
                   fontSize: 12,
@@ -132,7 +142,7 @@ class LoanPaymentSummaryCard extends StatelessWidget {
           
           // Progress percentage and due date
           Text(
-            '${progressPercentage.toStringAsFixed(0)}% paid • Due: ${DateFormat('MMM d, yyyy').format(nextDueDate)}',
+            '${t.loans.payment.summary.paid(amount: '${progressPercentage.toStringAsFixed(0)}%')} • ${t.loans.card.due(date: DateFormat.yMMMd(TranslationProvider.of(context).flutterLocale.languageCode).format(nextDueDate))}',
             style: const TextStyle(
               color: Color(0xFFEA580C), // text-orange-600
               fontSize: 12,

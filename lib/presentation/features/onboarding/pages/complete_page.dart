@@ -4,6 +4,7 @@ import 'dart:async';
 import '../theme/onboarding_theme.dart';
 import '../../../core/atoms/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class CompletePage extends StatefulWidget {
   const CompletePage({Key? key}) : super(key: key);
@@ -83,7 +84,7 @@ class _CompletePageState extends State<CompletePage>
 
               // Título
               StaggeredTextAnimation(
-                text: '¡Estás listo para despegar!', // Emoji eliminado
+                text: t.onboarding.complete.title, 
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -97,8 +98,7 @@ class _CompletePageState extends State<CompletePage>
 
               // Descripción
               StaggeredTextAnimation(
-                text:
-                    'Registra tu primera transacción y mira cómo sube tu probabilidad de éxito 📈',
+                text: t.onboarding.complete.subtitle,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w400,
@@ -148,9 +148,9 @@ class _CompletePageState extends State<CompletePage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Probabilidad de lograr tu meta',
-            style: TextStyle(
+          Text(
+            t.onboarding.complete.stats.title,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -158,14 +158,14 @@ class _CompletePageState extends State<CompletePage>
           ),
           const SizedBox(height: 24),
           _buildProbabilityBar(
-            label: 'Antes de MoneyT',
+            label: t.onboarding.complete.stats.before,
             value: _beforeAnimation.value,
             color: Colors.grey[400]!,
             backgroundColor: Colors.black.withOpacity(0.2),
           ),
           const SizedBox(height: 20),
           _buildProbabilityBar(
-            label: 'Con MoneyT',
+            label: t.onboarding.complete.stats.after,
             value: _afterAnimation.value,
             color: const Color(0xFF34D399), // emerald-400
             backgroundColor: Colors.black.withOpacity(0.2),

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Card de estadísticas de backups basado en backup_list.html
 /// 
@@ -51,7 +52,7 @@ class BackupStatisticsCard extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  'Backup Statistics',
+                  t.backups.stats.title,
                   style: const TextStyle(
                     fontSize: 16, // HTML: text-base
                     fontWeight: FontWeight.w600, // HTML: font-semibold
@@ -68,13 +69,13 @@ class BackupStatisticsCard extends StatelessWidget {
             child: Column(
               children: [
                 // ✅ CORREGIDO: Usar ?? para manejar valores null
-                _buildStatRow('Total Backups', stats['totalBackups'] ?? '0'),
+                _buildStatRow(t.backups.stats.totalBackups, stats['totalBackups'] ?? '0'),
                 const SizedBox(height: 12), // HTML: space-y-3
-                _buildStatRow('Total Size', stats['totalSize'] ?? '0 MB'),
+                _buildStatRow(t.backups.stats.totalSize, stats['totalSize'] ?? '0 MB'),
                 const SizedBox(height: 12),
-                _buildStatRow('Oldest Backup', stats['oldestBackup'] ?? 'N/A'),
+                _buildStatRow(t.backups.stats.oldest, stats['oldestBackup'] ?? 'N/A'),
                 const SizedBox(height: 12),
-                _buildStatRow('Latest Backup', stats['latestBackup'] ?? 'N/A'),
+                _buildStatRow(t.backups.stats.latest, stats['latestBackup'] ?? 'N/A'),
                 
                 // Auto Backup Status
                 Container(
@@ -90,9 +91,9 @@ class BackupStatisticsCard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Auto Backup Status',
-                        style: TextStyle(
+                       Text(
+                        t.backups.stats.autoBackupStatus,
+                        style: const TextStyle(
                           fontSize: 14, // HTML: text-sm
                           color: Color(0xFF475569), // HTML: text-slate-600
                         ),
@@ -108,9 +109,9 @@ class BackupStatisticsCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8), // HTML: gap-2
-                          const Text(
-                            'Active',
-                            style: TextStyle(
+                           Text(
+                            t.backups.stats.active,
+                            style: const TextStyle(
                               fontSize: 14, // HTML: text-sm
                               fontWeight: FontWeight.w500, // HTML: font-medium
                               color: Color(0xFF059669), // HTML: text-green-600

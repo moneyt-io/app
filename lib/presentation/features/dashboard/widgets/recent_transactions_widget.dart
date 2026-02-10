@@ -7,6 +7,7 @@ import '../../../core/atoms/widget_card_header.dart';
 import '../../../navigation/app_routes.dart';
 import '../../../navigation/navigation_service.dart';
 import '../../transactions/transaction_provider.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 /// Widget de transacciones recientes para dashboard basado en dashboard_main.html
 ///
@@ -45,8 +46,8 @@ class RecentTransactionsWidget extends StatelessWidget {
           // Header
           WidgetCardHeader(
             icon: Icons.receipt_long,
-            title: 'Recent Transactions',
-            subtitle: 'Last 5 transactions',
+            title: t.dashboard.transactions.title,
+            subtitle: t.dashboard.transactions.subtitle,
             onTap: () => NavigationService.navigateTo(AppRoutes.transactions),
             iconColor: const Color(0xFF7C3AED), // HTML: text-violet-600
             iconBackgroundColor: const Color(0xFFEDE9FE), // HTML: bg-violet-100
@@ -71,7 +72,7 @@ class RecentTransactionsWidget extends StatelessWidget {
                     const SizedBox(height: 8), // HTML: pt-2
                     Center(
                       child: Text(
-                        '+${transactions.length - 5} more transactions',
+                        t.dashboard.transactions.more(n: transactions.length - 5),
                         style: const TextStyle(
                           fontSize: 12, // HTML: text-xs
                           color: Color(0xFF64748B), // HTML: text-slate-500
@@ -215,18 +216,18 @@ class RecentTransactionsWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'No recent transactions',
-              style: TextStyle(
+            Text(
+              t.dashboard.transactions.empty,
+              style: const TextStyle(
                 fontSize: 14, // HTML: text-sm
                 fontWeight: FontWeight.w500, // HTML: font-medium
                 color: Color(0xFF374151), // HTML: text-slate-700
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Your transactions will appear here',
-              style: TextStyle(
+            Text(
+              t.dashboard.transactions.emptySubtitle,
+              style: const TextStyle(
                 fontSize: 12, // HTML: text-xs
                 color: Color(0xFF64748B), // HTML: text-slate-500
               ),

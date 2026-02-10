@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Card de balance total con gradiente basado en wallet_list.html
 /// 
@@ -50,7 +51,7 @@ class TotalBalanceCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Total Balance',
+                t.dashboard.balance.total,
                 style: TextStyle(
                   fontSize: 14, // HTML: text-sm
                   fontWeight: FontWeight.w500, // HTML: font-medium
@@ -123,6 +124,6 @@ class TotalBalanceCard extends StatelessWidget {
     final prefix = isPositive ? '+' : '';
     final formattedGrowth = monthlyGrowth.abs().toStringAsFixed(2);
     
-    return '${prefix}\$${formattedGrowth} this month';
+    return '${prefix}\$${formattedGrowth} ${t.dashboard.balance.thisMonth}';
   }
 }

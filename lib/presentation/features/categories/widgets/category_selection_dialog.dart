@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/l10n/generated/strings.g.dart';
 import '../../../core/molecules/form_action_bar.dart';
 
 // TODO: This should be moved to a shared theme file
@@ -129,14 +130,14 @@ class _CategorySelectionDialogState extends State<CategorySelectionDialog> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Select category',
+                  children: [
+                    Text(t.components.categorySelection.title,
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                             color: _slate800)),
                     SizedBox(height: 4),
-                    Text('Choose a category for this transaction',
+                    Text(t.components.categorySelection.subtitle,
                         style: TextStyle(fontSize: 14, color: _slate500)),
                   ],
                 ),
@@ -147,7 +148,7 @@ class _CategorySelectionDialogState extends State<CategorySelectionDialog> {
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'Search categories',
+                    hintText: t.components.categorySelection.searchPlaceholder,
                     hintStyle: const TextStyle(color: _slate500),
                     prefixIcon: const Icon(Icons.search, color: _slate500),
                     filled: true,

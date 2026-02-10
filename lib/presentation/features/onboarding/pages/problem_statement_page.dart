@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/onboarding_theme.dart';
 import '../widgets/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
+import '../../../core/l10n/generated/strings.g.dart'; // ✅ CORREGIDO
 
 class ProblemStatementPage extends StatelessWidget {
   const ProblemStatementPage({Key? key}) : super(key: key);
@@ -38,7 +39,7 @@ class ProblemStatementPage extends StatelessWidget {
 
               // Problem Statement
               StaggeredTextAnimation(
-                text: '¿Te preocupa no saber\na dónde va tu dinero? 💭',
+                text: t.onboarding.problemStatement.title, // ✅ LOCALIZADO
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -52,7 +53,7 @@ class ProblemStatementPage extends StatelessWidget {
 
               // Empathetic message
               StaggeredTextAnimation(
-                text: 'Tranquilo, no eres el único, y hay solución.',
+                text: t.onboarding.problemStatement.subtitle, // ✅ LOCALIZADO
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w400,
@@ -69,7 +70,6 @@ class ProblemStatementPage extends StatelessWidget {
                 ),
                 delay: const Duration(milliseconds: 600),
               ),
-
               const Spacer(),
 
               // El botón es manejado por OnboardingScreen.

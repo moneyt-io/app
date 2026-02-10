@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../atoms/category_type_button.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Filtro de tipo de categoría que usa botones atomizados
 /// 
@@ -20,7 +21,7 @@ class CategoryTypeFilter extends StatelessWidget {
       children: [
         // Income Button
         CategoryTypeButton(
-          text: 'Income',
+          text: t.transactions.types.income,
           icon: Icons.trending_up,
           isSelected: selectedType == 'I',
           onPressed: () => onTypeChanged('I'),
@@ -33,7 +34,7 @@ class CategoryTypeFilter extends StatelessWidget {
         
         // Expense Button  
         CategoryTypeButton(
-          text: 'Expense',
+          text: t.transactions.types.expense,
           icon: Icons.trending_down,
           isSelected: selectedType == 'E',
           onPressed: () => onTypeChanged('E'),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class QuickAmountButtons extends StatelessWidget {
   final double remainingAmount;
@@ -21,14 +22,18 @@ class QuickAmountButtons extends StatelessWidget {
     return Row(
       children: [
         _buildQuickButton(
-          label: 'Full Payment ($currencySymbol${NumberFormat('#,##0.00').format(fullAmount)})',
+          label: t.loans.payment.quick.full(
+            amount: '$currencySymbol${NumberFormat('#,##0.00').format(fullAmount)}',
+          ),
           amount: fullAmount,
           color: const Color(0xFF16A34A), // green-600
           backgroundColor: const Color(0xFFDCFCE7), // green-100
         ),
         const SizedBox(width: 8),
         _buildQuickButton(
-          label: 'Half ($currencySymbol${NumberFormat('#,##0.00').format(halfAmount)})',
+          label: t.loans.payment.quick.half(
+            amount: '$currencySymbol${NumberFormat('#,##0.00').format(halfAmount)}',
+          ),
           amount: halfAmount,
           color: const Color(0xFF2563EB), // blue-600
           backgroundColor: const Color(0xFFDBEAFE), // blue-100

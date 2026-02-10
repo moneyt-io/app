@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../domain/entities/loan_contact_summary.dart';
 import '../../../core/atoms/app_avatar.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class LoanContactCard extends StatelessWidget {
   final LoanContactSummary summary;
@@ -30,7 +31,7 @@ class LoanContactCard extends StatelessWidget {
         isLent ? const Color(0xFFFED7AA) : const Color(0xFFE9D5FF);
     final Color chipFgColor =
         isLent ? const Color(0xFFC2410C) : const Color(0xFF7C3AED);
-    final String chipLabel = isLent ? 'You lent' : 'You borrowed';
+    final String chipLabel = isLent ? t.loans.card.lent : t.loans.card.borrowed;
 
     return Container(
       margin:
@@ -134,7 +135,7 @@ class LoanContactCard extends StatelessWidget {
                       // Bottom row: Loan count and Due date
                       if (isHistoryView)
                         Text(
-                          '${summary.totalLoanCount ?? 0} transacciones realizadas',
+                          t.loans.card.transactions(n: summary.totalLoanCount ?? 0),
                           style: const TextStyle(
                             color: Color(0xFF64748B), // text-slate-500
                             fontSize: 14, // text-sm
@@ -146,7 +147,7 @@ class LoanContactCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '${summary.activeLoanCount} active loan${summary.activeLoanCount == 1 ? '' : 's'}',
+                              t.loans.card.multiple(n: summary.activeLoanCount),
                               style: const TextStyle(
                                 color: Color(0xFF64748B), // text-slate-500
                                 fontSize: 14, // text-sm
@@ -182,7 +183,7 @@ class LoanContactCard extends StatelessWidget {
   Widget _buildDueDateStatus(BuildContext context) {
     if (summary.isOverdue) {
       return Text(
-        'Overdue ${summary.overdueDays} days',
+        t.loans.card.overdue(n: summary.overdueDays),
         style: const TextStyle(
           color: Color(0xFFEF4444), // text-red-500
           fontSize: 12, // text-xs
@@ -194,7 +195,8 @@ class LoanContactCard extends StatelessWidget {
 
     if (summary.nextDueDate != null) {
       return Text(
-        'Due: ${DateFormat('MMM dd, yyyy').format(summary.nextDueDate!)}',
+        t.loans.card.due(
+            date: DateFormat('MMM dd, yyyy').format(summary.nextDueDate!)),
         style: const TextStyle(
           color: Color(0xFF94A3B8), // text-slate-400
           fontSize: 12, // text-xs

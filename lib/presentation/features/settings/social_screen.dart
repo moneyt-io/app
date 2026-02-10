@@ -6,6 +6,8 @@ import '../../core/atoms/app_version_footer.dart';
 import '../../core/molecules/settings_card.dart';
 import '../../core/molecules/settings_item.dart';
 
+import 'package:moneyt_pfm/presentation/core/l10n/generated/strings.g.dart';
+
 /// Pantalla de redes sociales y contacto basada en social.html
 /// 
 /// HTML Reference:
@@ -23,7 +25,7 @@ class SocialScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC), // HTML: bg-slate-50
       
       appBar: AppAppBar(
-        title: 'Contact & Social',
+        title: t.settings.social.title,
         type: AppAppBarType.blur, // HTML: bg-slate-50/80 backdrop-blur-md
         leading: AppAppBarLeading.back,
         onLeadingPressed: () => Navigator.of(context).pop(),
@@ -61,9 +63,9 @@ class SocialScreen extends StatelessWidget {
                   
                   const SizedBox(height: 16), // HTML: mb-4
                   
-                  const Text(
-                    'Follow MoneyT',
-                    style: TextStyle(
+                  Text(
+                    t.settings.social.follow,
+                    style: const TextStyle(
                       fontSize: 20, // HTML: text-xl
                       fontWeight: FontWeight.bold, // HTML: font-bold
                       color: Color(0xFF1E293B), // HTML: text-slate-800
@@ -72,9 +74,9 @@ class SocialScreen extends StatelessWidget {
                   
                   const SizedBox(height: 8), // HTML: mb-2
                   
-                  const Text(
-                    'Stay connected with us on social media for updates, tips, and community discussions.',
-                    style: TextStyle(
+                  Text(
+                    t.settings.social.description,
+                    style: const TextStyle(
                       fontSize: 14, // HTML: text-sm
                       color: Color(0xFF64748B), // HTML: text-slate-500
                       height: 1.5, // HTML: leading-relaxed
@@ -87,13 +89,13 @@ class SocialScreen extends StatelessWidget {
             
             // Social Networks Section
             SettingsCard(
-              title: 'Social Networks',
+              title: t.settings.social.networks,
               children: [
                 // GitHub
                 SettingsItem(
                   icon: Icons.code, // ✅ CORREGIDO: Ícono más representativo para GitHub
-                  title: 'GitHub',
-                  subtitle: 'View source code and contribute',
+                  title: t.settings.social.github,
+                  subtitle: t.settings.social.githubSubtitle,
                   backgroundColor: const Color(0xFF1F2937), // HTML: bg-gray-900
                   iconColor: Colors.white,
                   trailing: const Icon(
@@ -106,8 +108,8 @@ class SocialScreen extends StatelessWidget {
                 // LinkedIn
                 SettingsItem(
                   icon: Icons.business_center, // ✅ CORREGIDO: Ícono más representativo para LinkedIn
-                  title: 'LinkedIn',
-                  subtitle: 'Professional updates and insights',
+                  title: t.settings.social.linkedin,
+                  subtitle: t.settings.social.linkedinSubtitle,
                   backgroundColor: const Color(0xFF1D4ED8), // HTML: bg-blue-700
                   iconColor: Colors.white,
                   trailing: const Icon(
@@ -120,8 +122,8 @@ class SocialScreen extends StatelessWidget {
                 // X (Twitter)
                 SettingsItem(
                   icon: Icons.message, // ✅ CORREGIDO: Ícono más representativo para X/Twitter
-                  title: 'X (Twitter)',
-                  subtitle: 'Latest news and announcements',
+                  title: t.settings.social.twitter,
+                  subtitle: t.settings.social.twitterSubtitle,
                   backgroundColor: Colors.black, // HTML: bg-black
                   iconColor: Colors.white,
                   trailing: const Icon(
@@ -134,8 +136,8 @@ class SocialScreen extends StatelessWidget {
                 // Reddit
                 SettingsItem(
                   icon: Icons.reddit, // ✅ CORREGIDO: Ícono específico de Reddit
-                  title: 'Reddit',
-                  subtitle: 'Join the community discussions',
+                  title: t.settings.social.reddit,
+                  subtitle: t.settings.social.redditSubtitle,
                   backgroundColor: const Color(0xFFEA580C), // HTML: bg-orange-600
                   iconColor: Colors.white,
                   trailing: const Icon(
@@ -148,8 +150,8 @@ class SocialScreen extends StatelessWidget {
                 // Discord
                 SettingsItem(
                   icon: Icons.chat_bubble, // ✅ CORREGIDO: Ícono más representativo para Discord
-                  title: 'Discord',
-                  subtitle: 'Join the community discussions',
+                  title: t.settings.social.discord,
+                  subtitle: t.settings.social.discordSubtitle,
                   backgroundColor: const Color(0xFF4F46E5), // HTML: bg-indigo-600
                   iconColor: Colors.white,
                   trailing: const Icon(
@@ -163,12 +165,12 @@ class SocialScreen extends StatelessWidget {
             
             // Contact Section
             SettingsCard(
-              title: 'Contact',
+              title: t.settings.social.contact,
               children: [
                 // Email Support
                 SettingsItem(
                   icon: Icons.mail,
-                  title: 'Email Support',
+                  title: t.settings.social.email,
                   subtitle: 'support@moneyt.io',
                   backgroundColor: const Color(0xFF3B82F6), // HTML: bg-blue-500
                   iconColor: Colors.white,
@@ -182,7 +184,7 @@ class SocialScreen extends StatelessWidget {
                 // Official Website
                 SettingsItem(
                   icon: Icons.language,
-                  title: 'Official Website',
+                  title: t.settings.social.website,
                   subtitle: 'moneyt.io',
                   backgroundColor: const Color(0xFF10B981), // HTML: bg-green-500
                   iconColor: Colors.white,
@@ -224,29 +226,29 @@ class SocialScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.share,
                           color: Colors.white,
                           size: 24,
                         ),
-                        SizedBox(width: 12), // HTML: gap-3
+                        const SizedBox(width: 12), // HTML: gap-3
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Share MoneyT',
-                                style: TextStyle(
+                                t.settings.info.share,
+                                style: const TextStyle(
                                   fontSize: 16, // HTML: text-base
                                   fontWeight: FontWeight.w600, // HTML: font-semibold
                                   color: Colors.white,
                                 ),
                               ),
                               Text(
-                                'Tell your friends about the app',
-                                style: TextStyle(
+                                t.settings.info.shareSubtitle,
+                                style: const TextStyle(
                                   fontSize: 14, // HTML: text-sm
                                   color: Color(0xFFE5E7EB), // HTML: opacity-90 white
                                 ),

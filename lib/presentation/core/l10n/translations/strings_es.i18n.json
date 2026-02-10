@@ -19,7 +19,64 @@
     "remove": "Quitar",
     "moreOptions": "Más opciones",
     "addToFavorites": "Agregar a favoritos",
-    "removeFromFavorites": "Quitar de favoritos"
+    "removeFromFavorites": "Eliminar de favoritos",
+    "today": "Hoy",
+    "yesterday": "Ayer"
+  },
+  "components": {
+    "dateSelection": {
+      "title": "Seleccionar fecha",
+      "subtitle": "Elige la fecha de la transacción",
+      "selectedDate": "Fecha seleccionada",
+      "confirm": "Seleccionar"
+    },
+    "selection": {
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "select": "Seleccionar"
+    },
+    "contactSelection": {
+      "title": "Seleccionar contacto",
+      "subtitle": "Elige con quién es esta transacción",
+      "searchPlaceholder": "Buscar contactos",
+      "noContact": "Sin contacto",
+      "noContactDetails": "Transacción sin contacto específico",
+      "allContacts": "Todos los contactos",
+      "create": "Crear nuevo contacto"
+    },
+    "categorySelection": {
+      "title": "Seleccionar categoría",
+      "subtitle": "Elige una categoría para esta transacción",
+      "searchPlaceholder": "Buscar categorías"
+    },
+    "currencySelection": {
+      "title": "Seleccionar moneda",
+      "subtitle": "Elige la moneda para esta cuenta",
+      "searchPlaceholder": "Buscar monedas"
+    },
+    "accountSelection": {
+      "title": "Seleccionar cuenta",
+      "subtitle": "Elige una cuenta para esta transacción",
+      "searchPlaceholder": "Buscar cuentas",
+      "wallets": "Billeteras",
+      "creditCards": "Tarjetas de Crédito",
+      "selectAccount": "Seleccionar cuenta",
+      "confirm": "Confirmar"
+    },
+    "parentWalletSelection": {
+      "title": "Seleccionar billetera padre",
+      "subtitle": "Elige una billetera padre para organizar esta cuenta",
+      "searchPlaceholder": "Buscar billeteras",
+      "noParent": "Sin billetera padre",
+      "createRoot": "Crear como billetera principal",
+      "available": "Billeteras disponibles"
+    },
+    "walletTypes": {
+      "checking": "Corriente",
+      "savings": "Ahorros",
+      "cash": "Efectivo",
+      "creditCard": "Tarjeta de Crédito"
+    }
   },
   "navigation": {
     "home": "Inicio",
@@ -33,10 +90,127 @@
     "backups": "Respaldos"
   },
   "transactions": {
+    "title": "Transacciones",
     "types": {
+      "all": "Todas",
       "income": "Ingreso",
       "expense": "Gasto",
       "transfer": "Transferencia"
+    },
+    "filter": {
+      "title": "Filtrar Transacciones",
+      "date": "Fecha",
+      "categories": "Categorías",
+      "accounts": "Cuentas",
+      "contacts": "Contactos",
+      "amount": "Monto",
+      "apply": "Aplicar filtros",
+      "clear": "Limpiar filtros",
+      "add": "Agregar filtro",
+      "minAmount": "Monto Mínimo",
+      "maxAmount": "Monto Máximo",
+      "selectDate": "Seleccionar fecha",
+      "selectCategory": "Seleccionar categoría",
+      "selectAccount": "Seleccionar cuenta",
+      "selectContact": "Seleccionar contacto",
+      "quickFilters": "Filtros rápidos",
+      "ranges": {
+        "thisMonth": "Mes Actual",
+        "lastMonth": "Mes Anterior",
+        "thisYear": "Año Actual",
+        "lastYear": "Año Anterior"
+      },
+      "customRange": "Rango de fechas",
+      "startDate": "Desde",
+      "endDate": "Hasta",
+      "active": "Filtros activos",
+      "subtitles": {
+        "income": "Dinero recibido",
+        "expense": "Dinero gastado",
+        "transfer": "Dinero movido"
+      }
+    },
+    "form": {
+      "newTitle": "Nueva Transacción",
+      "editTitle": "Editar Transacción",
+      "amount": "Monto",
+      "type": "Tipo de transacción",
+      "amountRequired": "Monto requerido",
+      "date": "Fecha",
+      "account": "Cuenta",
+      "toAccount": "Cuenta Destino",
+      "category": "Categoría",
+      "contact": "Contacto",
+      "contactOptional": "Contacto (opcional)",
+      "description": "Descripción",
+      "descriptionOptional": "Descripción opcional",
+      "selectAccount": "Seleccionar cuenta",
+      "selectDestination": "Seleccionar destino",
+      "selectCategory": "Seleccionar categoría",
+      "selectContact": "Seleccionar contacto",
+      "saveSuccess": "Transacción guardada exitosamente",
+      "updateSuccess": "Transacción actualizada exitosamente",
+      "saveError": "Error al guardar transacción",
+      "share": "Compartir",
+      "created": "Transacción creada exitosamente"
+    },
+    "errors": {
+      "load": "Error al cargar las transacciones"
+    },
+    "empty": {
+      "title": "No hay transacciones",
+      "message": "No se encontraron transacciones con los filtros aplicados",
+      "clearFilters": "Limpiar filtros"
+    },
+    "list": {
+      "count": "$n transacciones"
+    },
+    "detail": {
+      "title": "Detalle de Transacción",
+      "delete": "Eliminar Transacción",
+      "deleteConfirmation": "¿Estás seguro? Esta acción no se puede deshacer.",
+      "deleted": "Transacción eliminada",
+      "duplicate": "Duplicar",
+      "duplicateNotImplemented": "Duplicar no implementado",
+      "edit": "Editar",
+      "errorLoad": "Error al cargar los detalles de la transacción.",
+      "errorPrepareEdit": "Error al preparar la edición: $error",
+      "errorDelete": "Error al eliminar: $error",
+      "category": "Categoría",
+      "account": "Cuenta",
+      "contact": "Contacto",
+      "description": "Descripción",
+      "transferDetails": "Detalles de Transferencia",
+      "from": "Desde",
+      "to": "Hacia",
+      "unknownAccount": "Cuenta desconocida",
+      "errorUrl": "No se pudo abrir $url",
+      "date": "Fecha",
+      "time": "Hora"
+    },
+    "share": {
+      "title": "Compartir Transacción",
+      "copyText": "Copiar Texto",
+      "shareButton": "Compartir",
+      "shareMessage": "Aquí está mi recibo de transacción:",
+      "copied": "¡Detalles copiados al portapapeles!",
+      "errorImage": "Error al compartir imagen: $error",
+      "paymentMethod": "Método de Pago",
+      "receiptTitle": "Recibo de Transacción",
+      "poweredBy": "Impulsado por MoneyT • moneyt.io",
+      "generatedOn": "Generado el $date",
+      "receipt": {
+        "title": "--- Detalle de Transacción ---",
+        "amount": "Monto: $amount",
+        "description": "Descripción: $description",
+        "category": "Categoría: $category",
+        "date": "Fecha: $date",
+        "time": "Hora: $time",
+        "wallet": "Cuenta: $wallet",
+        "contact": "Contacto: $contact",
+        "id": "ID Transacción: $id",
+        "separator": "--------------------------"
+      }
     }
   },
   "contacts": {
@@ -51,11 +225,14 @@
     "confirmDelete": "¿Estás seguro de eliminar",
     "contactDeleted": "Contacto eliminado exitosamente",
     "errorDeleting": "Error al eliminar contacto",
+    "noSearchResults": "Sin resultados",
+    "noContactsMatch": "No hay contactos que coincidan con \"$query\". Intenta con otro término.",
     "errorLoading": "Error al cargar contactos",
     "contactSaved": "Contacto guardado exitosamente",
     "errorSaving": "Error al guardar contacto",
     "noContactInfo": "Sin información de contacto",
     "importContact": "Importar contacto",
+    "importContacts": "Importar contactos",
     "importContactSoon": "Función de importar contacto próximamente",
     "fields": {
       "name": "Nombre",
@@ -77,13 +254,687 @@
     }
   },
   "errors": {
-    "loadingAccounts": "Error al cargar las cuentas: {error}",
+    "loadingAccounts": "Error al cargar las cuentas: $error",
     "unexpected": "Error inesperado"
   },
   "settings": {
-    "appearance": "Apariencia",
-    "darkTheme": "Tema oscuro",
-    "lightTheme": "Tema claro",
-    "systemTheme": "Tema del sistema"
+    "title": "Configuración",
+    "account": {
+      "title": "Cuenta",
+      "profile": "Perfil",
+      "profileSubtitle": "Gestiona la información de tu cuenta"
+    },
+    "appearance": {
+      "title": "Apariencia",
+      "darkMode": "Modo oscuro",
+      "darkModeSubtitle": "Cambiar a tema oscuro",
+      "language": "Idioma",
+      "darkTheme": "Tema oscuro",
+      "lightTheme": "Tema claro",
+      "systemTheme": "Tema del sistema"
+    },
+    "data": {
+      "title": "Datos y Almacenamiento",
+      "backup": "Copia de seguridad",
+      "backupSubtitle": "Gestiona tus copias de seguridad"
+    },
+    "info": {
+      "title": "Información",
+      "contact": "Contacto y Redes",
+      "contactSubtitle": "Obtén soporte y síguenos en línea",
+      "privacy": "Política de privacidad",
+      "privacySubtitle": "Lee nuestra política de privacidad",
+      "share": "Compartir MoneyT",
+      "shareSubtitle": "Cuéntale a tus amigos sobre la app"
+    },
+    "logout": {
+      "button": "Cerrar sesión",
+      "dialogTitle": "Cerrar sesión",
+      "dialogMessage": "¿Estás seguro de que quieres cerrar sesión?",
+      "cancel": "Cancelar",
+      "confirm": "Cerrar sesión"
+    },
+    "social": {
+      "title": "Contacto y Redes",
+      "follow": "Sigue a MoneyT",
+      "description": "Mantente conectado con nosotros en redes sociales para actualizaciones y consejos.",
+      "networks": "Redes Sociales",
+      "github": "GitHub",
+      "githubSubtitle": "Ver código fuente y contribuir",
+      "linkedin": "LinkedIn",
+      "linkedinSubtitle": "Actualizaciones profesionales",
+      "twitter": "X (Twitter)",
+      "twitterSubtitle": "Últimas noticias y anuncios",
+      "reddit": "Reddit",
+      "redditSubtitle": "Únete a las discusiones",
+      "discord": "Discord",
+      "discordSubtitle": "Chat con la comunidad",
+      "contact": "Contacto",
+      "email": "Soporte por Email",
+      "website": "Sitio Web Oficial"
+    },
+    "language": {
+      "title": "Idioma",
+      "available": "IDIOMAS DISPONIBLES",
+      "apply": "Aplicar Idioma"
+    },
+    "messages": {
+      "profileComingSoon": "Pantalla de perfil próximamente",
+      "privacyError": "No se pudo abrir la política de privacidad",
+      "logoutComingSoon": "Función de cerrar sesión próximamente"
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Bienvenido a MoneyT 👋",
+      "subtitle": "Controla tu dinero en minutos ✨"
+    },
+    "problemStatement": {
+      "title": "¿Sientes que el dinero se te escapa?",
+      "subtitle": "No estás solo. El 70% de las personas no sabe en qué se va su ingreso."
+    },
+    "specificProblem": {
+      "title": "¿Qué es lo que más te cuesta?",
+      "options": {
+        "debts": "Deudas y préstamos",
+        "savings": "No poder ahorrar",
+        "unknown": "No saber en qué gasté",
+        "chaos": "Caos financiero"
+      }
+    },
+    "personalGoal": {
+      "title": "¿Cuál es tu meta principal?",
+      "options": {
+        "debtFree": "Salir de deudas",
+        "saveTrip": "Ahorrar para viaje/auto",
+        "invest": "Comenzar a invertir",
+        "peace": "Tranquilidad financiera"
+      }
+    },
+    "solutionPreview": {
+      "title": "MoneyT te da claridad",
+      "subtitle": "Ve todas tus cuentas, deudas y gastos en un solo lugar. Sin excels, sin estrés.",
+      "benefits": {
+        "visualize": "Visualiza todos tus gastos en tiempo real",
+        "goals": "Establece metas y sigue tu progreso",
+        "smart": "Toma decisiones financieras inteligentes"
+      }
+    },
+    "currentMethod": {
+      "title": "¿Cómo llevas tus cuentas hoy?",
+      "subtitle": "Selecciona la opción que mejor te describe.",
+      "options": {
+        "excel": "Excel / Hojas de cálculo",
+        "notebook": "Cuaderno / Notas",
+        "mental": "Memoria (Mental)",
+        "none": "No llevo control"
+      }
+    },
+    "featuresShowcase": {
+      "title": "Funciones disponibles y en desarrollo ✨",
+      "subtitle": "Transacciones listas para usar. Más funciones en camino.",
+      "available": "DISPONIBLE AHORA",
+      "comingSoon": "PRÓXIMAMENTE",
+      "features": {
+        "income": "Ingresos",
+        "expense": "Egresos",
+        "transfer": "Transfer",
+        "loans": "Préstamos",
+        "goals": "Metas",
+        "budgets": "Presupuestos",
+        "investments": "Inversiones",
+        "cloud": "MoneyT Cloud",
+        "openBanking": "Open Banking"
+      }
+    },
+    "complete": {
+      "title": "¡Estás listo para despegar! 🚀",
+      "subtitle": "Registra tu primera transacción y mira cómo sube tu probabilidad de éxito 📈",
+      "stats": {
+        "title": "Probabilidad de éxito",
+        "before": "Antes de MoneyT",
+        "after": "Con MoneyT"
+      }
+    },
+    "buttons": {
+      "start": "Comenzar ahora 🚀",
+      "fixIt": "Solucionalo hoy ⚡",
+      "actionContinue": "Continuar",
+      "setGoal": "Fijar mi meta 🎯",
+      "wantControl": "¡Quiero este control!",
+      "great": "¡Genial, vamos a verlo!",
+      "firstTransaction": "Registrar mi primera transacción ➕",
+      "skip": "Saltar"
+    }
+  },
+  "dashboard": {
+    "greeting": "Bienvenido a MoneyT",
+    "balance": {
+      "total": "Balance Total",
+      "income": "INGRESOS",
+      "expenses": "GASTOS",
+      "thisMonth": "este mes"
+    },
+    "actions": {
+      "income": "Ingreso",
+      "expense": "Gasto",
+      "transfer": "Transferencia",
+      "all": "Ver todos"
+    },
+    "wallets": {
+      "title": "Cuentas",
+      "count": "$n cuentas",
+      "more": "+$n cuentas más",
+      "viewDetails": "Ver detalles de $name"
+    },
+    "transactions": {
+      "title": "Transacciones Recientes",
+      "subtitle": "Últimas 5 transacciones",
+      "empty": "No hay transacciones recientes",
+      "emptySubtitle": "Tus transacciones aparecerán aquí",
+      "more": "+$n transacciones más"
+    },
+    "customize": "Personalizar",
+    "widgets": {
+      "balance": {
+        "title": "Balance Total",
+        "description": "Muestra tu estado financiero general"
+      },
+      "quickActions": {
+        "title": "Acciones Rápidas",
+        "description": "Acceso rápido a transacciones comunes"
+      },
+      "wallets": {
+        "title": "Cuentas",
+        "description": "Resumen de tus cuentas"
+      },
+      "loans": {
+        "title": "Préstamos",
+        "description": "Rastrea dinero prestado"
+      },
+      "transactions": {
+        "title": "Transacciones Recientes",
+        "description": "Última actividad financiera"
+      },
+      "chartAccounts": {
+        "title": "Plan de Cuentas",
+        "description": "Resumen de estructura de cuentas"
+      },
+      "creditCards": {
+        "title": "Tarjetas de Crédito",
+        "description": "Balances y límites de tarjetas"
+      },
+      "settings": {
+        "title": "Personalizar Dashboard",
+        "subtitle": "Organiza y gestiona los widgets de tu inicio.",
+        "reset": {
+          "button": "Restaurar diseño por defecto",
+          "dialogTitle": "Restaurar diseño",
+          "dialogContent": "¿Restaurar el dashboard al diseño por defecto? Esto devolverá todos los widgets a su posición original.",
+          "cancel": "Cancelar",
+          "confirm": "Restaurar",
+          "success": "Diseño restaurado por defecto"
+        },
+        "saveSuccess": "¡Cambios guardados exitosamente!",
+        "saveError": "Error al guardar cambios: $error",
+        "saving": "Guardando...",
+        "save": "Guardar Cambios"
+      }
+    }
+  },
+  "wallets": {
+    "title": "Billeteras",
+    "empty": {
+      "title": "No hay billeteras",
+      "message": "Añade tu primera billetera para comenzar a rastrear tus finanzas.",
+      "action": "Crear Billetera"
+    },
+    "filter": {
+      "active": "Activas",
+      "archived": "Archivadas",
+      "all": "Todas"
+    },
+    "form": {
+      "newTitle": "Nueva billetera",
+      "editTitle": "Editar billetera",
+      "name": "Nombre de billetera",
+      "namePlaceholder": "Ingresa el nombre de la billetera",
+      "nameRequired": "El nombre es requerido",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción opcional para esta billetera",
+      "currency": "Moneda",
+      "parent": "Billetera padre (opcional)",
+      "parentEmpty": "No hay billeteras disponibles como padre",
+      "chartAccount": "Cuenta contable asociada",
+      "chartAccountLocked": "La cuenta contable no puede ser modificada",
+      "createSuccess": "Billetera creada con éxito",
+      "updateSuccess": "Billetera actualizada con éxito",
+      "loadParentError": "Error al cargar billeteras padre: $error",
+      "loadChartAccountError": "Error al cargar cuenta contable: $error"
+    },
+    "delete": {
+      "dialogTitle": "Eliminar billetera",
+      "dialogMessage": "¿Estás seguro de eliminar $name?",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar",
+      "success": "Billetera eliminada con éxito",
+      "error": "Error al eliminar: $error"
+    },
+    "errors": {
+      "load": "Error al cargar las billeteras",
+      "retry": "Reintentar",
+      "comingSoon": "$name próximamente"
+    },
+    "subtitle": {
+      "mainAccount": "Cuenta principal",
+      "cashDigital": "Efectivo y digital",
+      "count": {
+        "one": "$n billetera",
+        "other": "$n billeteras"
+      },
+      "account": "Cuenta",
+      "physicalCash": "Efectivo físico",
+      "digitalWallet": "Billetera digital"
+    },
+    "options": {
+      "viewTransactions": "Ver transacciones",
+      "viewTransactionsSubtitle": "Ver todas las transacciones",
+      "transferFunds": "Transferir fondos",
+      "transferFundsSubtitle": "Mover dinero entre billeteras",
+      "editWallet": "Editar billetera",
+      "editWalletSubtitle": "Modificar detalles",
+      "duplicateWallet": "Duplicar billetera",
+      "duplicateWalletSubtitle": "Crear copia de esta billetera",
+      "archiveWallet": "Archivar billetera",
+      "archiveWalletSubtitle": "Ocultar de la vista principal",
+      "deleteWallet": "Eliminar billetera",
+      "deleteWalletSubtitle": "Eliminar permanentemente",
+      "defaultTitle": "Billetera"
+    }
+  },
+  "loans": {
+    "title": "Préstamos",
+    "filter": {
+      "pending": "Pendientes",
+      "lent": "Presté",
+      "borrowed": "Me prestaron",
+      "all": "Todos",
+      "active": "Préstamos Activos",
+      "history": "Historial Completo"
+    },
+    "summary": {
+      "lent": "Prestaste",
+      "borrowed": "Te prestaron",
+      "pending": "$n pendientes"
+    },
+    "card": {
+      "lent": "Prestaste",
+      "borrowed": "Te prestaron",
+      "multiple": "$n préstamos activos"
+    },
+    "form": {
+      "newTitle": "Nuevo Préstamo",
+      "editTitle": "Editar Préstamo",
+      "type": "Tipo de préstamo",
+      "lend": "Yo presto",
+      "borrow": "Me prestan",
+      "contact": "Contacto",
+      "contactPlaceholder": "Seleccionar contacto",
+      "account": "Desde cuenta",
+      "accountPlaceholder": "Seleccionar cuenta",
+      "amount": "Monto",
+      "description": "Descripción",
+      "date": "Fecha",
+      "dueDate": "Fecha límite",
+      "selectDate": "Seleccionar fecha",
+      "optional": "(Opcional)",
+      "createTransaction": "Crear registro de transacción",
+      "recordAutomatically": "Registrar transacción automáticamente",
+      "transactionCategory": "Categoría de transacción",
+      "category": "Categoría",
+      "categoryPlaceholder": "Seleccionar categoría",
+      "save": "Guardar Préstamo",
+      "successCreate": "Préstamo creado con éxito",
+      "successUpdate": "Préstamo actualizado con éxito",
+      "contactRequired": "El contacto es obligatorio",
+      "accountRequired": "La cuenta es obligatoria",
+      "amountRequired": "El monto es obligatorio"
+    },
+    "detail": {
+        "remaining": "Restante",
+        "paid": "Pagado",
+        "history": "Historial de Pagos",
+        "viewHistory": "Ver Historial Completo",
+        "pay": "Registrar Pago",
+        "activeSummary": "Resumen Activo",
+        "activeLent": "Has Prestado (Activo)",
+        "activeBorrowed": "Te Han Prestado (Activo)",
+        "activeNet": "Posición Neta (Activa)"
+    },
+    "share": {
+      "title": "Compartir Préstamo",
+      "contactTitle": "Compartir Préstamos",
+      "button": "Compartir",
+      "copy": "Copiar Texto",
+      "message": "Aquí está mi estado de cuenta del préstamo:",
+      "contactMessage": "Resumen de Préstamos con $name:",
+      "error": "Error al compartir imagen: $error",
+      "contactCopied": "¡Resumen copiado al portapapeles!",
+      "activeLoans": "Préstamos Activos ($n):",
+      "loanItem": "• $description: $amount (Fecha: $date) - $percent% pagado",
+      "loanStatement": "MoneyT - Estado de Cuenta",
+      "loanSummary": "MoneyT - Resumen de Préstamos",
+      "personalLoan": "Préstamo Personal",
+      "remaining": "Saldo Restante: $amount",
+      "remainingLabel": "Saldo Restante",
+      "original": "de $amount original",
+      "progress": "Progreso: $percent% Pagado",
+      "progressLabel": "Progreso de Pago",
+      "paidSuffix": "Pagado",
+      "date": "Fecha: $date",
+      "dateLabel": "Fecha del Préstamo",
+      "contact": "Contacto: $name",
+      "contactLabel": "Contacto",
+      "generated": "Generado el $date",
+      "generatedLabel": "Generado el $date",
+      "totalActive": "Total Activos: $n préstamos",
+      "active": "activos",
+      "poweredBy": "Desarrollado por MoneyT • moneyt.io",
+      "copied": "¡Detalles copiados al portapapeles!",
+      "netBalance": "Balance Neto: $amount ($status)",
+      "netBalanceLabel": "Balance Neto",
+      "owed": "Te deben",
+      "owe": "Debes",
+      "lent": "Prestaste: $amount",
+      "lentLabel": "Prestaste",
+      "borrowed": "Pediste: $amount",
+      "borrowedLabel": "Pediste",
+      "contactSummary": "$name - Resumen de Préstamos"
+    },
+    "payment": {
+      "title": "Registrar Pago",
+      "amount": "Monto del Pago",
+      "amountPlaceholder": "0.00",
+      "amountRequired": "El monto es requerido",
+      "invalidAmount": "Ingresa un monto válido",
+      "exceedsBalance": "El monto no puede exceder el saldo restante",
+      "date": "Fecha de Pago",
+      "account": "Recibido en cuenta",
+      "selectAccount": "Seleccionar cuenta",
+      "details": "Detalles del pago",
+      "detailsPlaceholder": "Agregar notas (opcional)",
+      "success": "Pago registrado con éxito",
+      "error": "Error al registrar pago: $error",
+      "errorAmount": "Ingresa un monto de pago válido",
+      "errorAccount": "Por favor selecciona una cuenta",
+      "errorLoading": "Error al cargar datos: $error",
+      "summary": {
+        "title": "Resumen del pago",
+        "defaultTitle": "Préstamo",
+        "amount": "Monto del pago",
+        "remaining": "Saldo restante",
+        "progress": "Nuevo progreso",
+        "description": "$loan a $contact",
+        "unknownContact": "Contacto Desconocido",
+        "total": "$amount total",
+        "paid": "Pagado: $amount",
+        "remainingLabel": "Restante: $amount"
+      },
+      "quick": {
+        "full": "Pago Completo ($amount)",
+        "half": "Mitad ($amount)"
+      }
+    },
+    "contactDetail": {
+      "titleWith": "Préstamos con $name"
+    },
+    "given": "Préstamo otorgado",
+    "received": "Préstamo recibido",
+    "summary": {
+      "netBalance": "BALANCE NETO",
+      "activeLoans": "PRÉSTAMOS ACTIVOS",
+      "noActive": "Sin préstamos activos",
+      "lent": "$n prestados",
+      "borrowed": "$n recibidos",
+      "pending": "$n pendientes"
+    },
+    "card": {
+      "lent": "Has prestado",
+      "borrowed": "Te han prestado",
+      "active": "$n activos",
+      "multiple": "$n préstamos",
+      "transactions": "$n transacciones",
+      "overdue": "Vencido por $n días",
+      "due": "Vence $date"
+    },
+    "filter": {
+      "active": "Préstamos Activos",
+      "history": "Historial",
+      "all": "Todos",
+      "pending": "Pendientes",
+      "lent": "Prestados",
+      "borrowed": "Recibidos"
+    },
+    "history": {
+      "title": "Historial de Préstamos",
+      "section": "Historial completo",
+      "totalLoaned": "Total prestado",
+      "noLoans": "No se encontraron préstamos con este filtro.",
+      "filter": {
+        "all": "Todos",
+        "lent": "Prestados",
+        "borrowed": "Recibidos",
+        "completed": "Completados",
+        "title": "Filtrar Historial",
+        "reset": "Restablecer",
+        "apply": "Aplicar Filtros",
+        "dateRange": "Rango de Fechas",
+        "amountRange": "Rango de Montos",
+        "startDate": "Fecha Inicio",
+        "endDate": "Fecha Fin",
+        "select": "Seleccionar"
+      },
+      "headers": {
+        "lent": "Préstamos Otorgados",
+        "borrowed": "Préstamos Recibidos",
+        "completed": "Préstamos Completados",
+        "active": "Préstamos Activos",
+        "cancelled": "Préstamos Cancelados",
+        "writtenOff": "Préstamos Anulados"
+      },
+      "item": {
+        "defaultTitle": "Préstamo",
+        "date": "Fecha: $date",
+        "lent": "Prestado",
+        "borrowed": "Recibido",
+        "status": {
+          "completed": "Completado",
+          "active": "Activo",
+          "cancelled": "Cancelado",
+          "writtenOff": "Anulado"
+        }
+      },
+      "summary": {
+        "title": "Resumen Histórico",
+        "viewDetails": "Ver Detalles",
+        "hideDetails": "Ocultar Detalles",
+        "outstandingLent": "Pendiente de Cobro",
+        "outstandingBorrowed": "Pendiente de Pago",
+        "netPosition": "Posición Neta (Activa)",
+        "totalLent": "Total Prestado Histórico",
+        "totalBorrowed": "Total Recibido Histórico",
+        "totalRepaidToYou": "Total Reembolsado a Ti",
+        "totalYouRepaid": "Total que Reembolsaste",
+        "totalLoans": "Total de Préstamos",
+        "completedLoans": "Préstamos Completados"
+      }
+    },
+    "detail": {
+      "title": "Detalles del Préstamo",
+      "deleteTitle": "Eliminar Préstamo",
+      "deleteMessage": "¿Estás seguro de que deseas eliminar este préstamo?",
+      "deleteSuccess": "Préstamo eliminado exitosamente",
+      "deleteError": "Error al eliminar el préstamo: $error",
+      "notFound": "Préstamo no encontrado",
+      "progress": "Progreso del Préstamo",
+      "info": "Información del Préstamo",
+      "pay": "Pagar",
+      "viewHistory": "Ver Historial Completo",
+      "original": "Original: $amount",
+      "section": "Información del Préstamo",
+      "activeSummary": "Resumen Activo",
+      "activeLent": "Prestaste (Activo)",
+      "activeBorrowed": "Te Prestaron (Activo)",
+      "activeNet": "Posición Neta (Activa)",
+      "activeTotal": "Total Préstamos Activos",
+      "startDate": "Inicio del Préstamo",
+      "dueDate": "Fecha de Vencimiento",
+      "type": {
+        "label": "Tipo de Préstamo",
+        "personal": "Préstamo Personal",
+        "borrowed": "Préstamo Recibido",
+        "auto": "Préstamo Automotriz",
+        "mortgage": "Hipoteca",
+        "student": "Préstamo Estudiantil"
+      },
+      "payment": {
+        "history": "Historial de Pagos",
+        "date": "Pago el $date",
+        "transactionId": "ID Transacción: $id",
+        "paid": "$amount pagado",
+        "remaining": "$amount restante"
+      }
+    },
+    "item": {
+      "due": "Vence: $date",
+      "paidAmount": "Pagado: $amount",
+      "remaining": "Restante: $amount",
+      "percentPaid": "$percent% pagado"
+    },
+    "section": {
+      "activeLoans": "Préstamos Activos",
+      "loansCount": "$n préstamos"
+    },
+    "empty": {
+        "title": "No hay préstamos activos",
+        "message": "Comienza a llevar el registro de tus préstamos.",
+        "action": "Agregar Préstamo"
+    }
+  },
+  "categories": {
+    "title": "Categorías",
+    "form": {
+        "newTitle": "Nueva Categoría",
+        "editTitle": "Editar Categoría",
+        "name": "Nombre de categoría",
+        "namePlaceholder": "Ingresa el nombre de la categoría",
+        "nameRequired": "El nombre es requerido",
+        "parent": "Categoría Padre (Opcional)",
+        "noParent": "Sin categoría padre",
+        "asSubcategory": "Se creará como subcategoría",
+        "asRoot": "Se creará como categoría principal",
+        "active": "Categoría Activa",
+        "activeDescription": "Habilitar esta categoría para nuevas transacciones",
+        "selectIcon": "Seleccionar Icono",
+        "selectColor": "Seleccionar Color",
+        "saveSuccess": "Categoría guardada exitosamente",
+        "saveError": "Error al guardar categoría: $error"
+    },
+    "parentSelection": {
+        "title": "Seleccionar Categoría Padre",
+        "subtitle": "Toca para seleccionar una categoría padre",
+        "noParent": "Sin categoría padre"
+    },
+    "incomeCategory": "Categoría de ingreso",
+    "expenseCategory": "Categoría de gasto"
+  },
+  "backups": {
+    "title": "Copia de Seguridad",
+    "menu": {
+      "settings": "Configuración de copia de seguridad",
+      "comingSoon": "Configuración de copia de seguridad próximamente"
+    },
+    "filters": {
+      "all": "Todos",
+      "auto": "Auto",
+      "manual": "Manual",
+      "thisMonth": "Este Mes",
+      "lastMonth": "Mes Pasado",
+      "thisYear": "Este Año",
+      "lastYear": "Año Pasado"
+    },
+    "status": {
+      "loading": "Cargando...",
+      "error": "Error al cargar copias de seguridad",
+      "empty": "No se encontraron copias de seguridad",
+      "emptyAction": "Crea tu primera copia de seguridad usando el botón +",
+      "success": "Éxito",
+      "created": "Copia de seguridad creada con éxito",
+      "createError": "Error al crear copia: $error",
+      "restoreError": "Error al restaurar copia: $error",
+      "deleteError": "Error al eliminar copia: $error"
+    },
+    "actions": {
+      "create": "Crear Copia",
+      "import": "Importar Copia",
+      "restore": "Restaurar",
+      "delete": "Eliminar",
+      "share": "Compartir",
+      "cancel": "Cancelar",
+      "retry": "Reintentar",
+      "ok": "OK"
+    },
+    "dialogs": {
+      "info": {
+        "title": "Información de Copia",
+        "file": "Archivo:",
+        "size": "Tamaño:",
+        "created": "Creado:",
+        "transactions": "Transacciones:"
+      },
+      "restore": {
+        "title": "Restaurar Copia",
+        "content": "¿Estás seguro de que deseas restaurar desde \"$file\"? La base de datos actual será reemplazada.",
+        "success": "Restauración iniciada. La aplicación podría necesitar reiniciarse."
+      },
+      "delete": {
+        "title": "Eliminar Copia",
+        "content": "¿Estás seguro de que deseas eliminar el archivo \"$file\"? Esta acción no se puede deshacer.",
+        "success": "Copia de seguridad eliminada."
+      }
+    },
+    "stats": {
+      "title": "Estadísticas de Copias",
+      "totalBackups": "Total de Copias",
+      "totalSize": "Tamaño Total",
+      "oldest": "Copia Más Antigua",
+      "latest": "Copia Más Reciente",
+      "autoBackupStatus": "Estado de Copia Auto",
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "options": {
+        "restore": {
+          "title": "Restaurar copia",
+          "subtitle": "Reemplazar datos actuales con esta copia"
+        },
+        "share": {
+            "title": "Compartir copia",
+            "subtitle": "Enviar archivo a otro dispositivo"
+        },
+        "delete": {
+            "title": "Eliminar copia",
+            "subtitle": "Esta acción no se puede deshacer"
+        },
+        "latestBadge": "Reciente",
+        "latestFile": "Copia más reciente",
+        "backupFile": "Archivo de copia"
+    },
+    "format": {
+      "auto": "Copia Auto - $date",
+      "manual": "Copia Manual - $date",
+      "initial": "Copia Inicial",
+      "generic": "Copia - $date"
+    }
   }
 }

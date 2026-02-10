@@ -13,6 +13,7 @@ import '../../../domain/entities/contact.dart';
 import '../../../domain/entities/loan_entry.dart';
 import '../../../domain/usecases/loan_usecases.dart';
 import '../../core/atoms/app_app_bar.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import '../../core/molecules/form_action_bar.dart';
 import '../../core/molecules/contact_loan_summary_card.dart';
 
@@ -84,28 +85,40 @@ class _LoanContactShareScreenState extends State<LoanContactShareScreen> {
   }
 
   String _buildShareText() {
+    final locale = TranslationProvider.of(context).flutterLocale.languageCode;
     final currencyFormat =
-        NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
-    final dateFormat = DateFormat('MMM dd, yyyy');
+        NumberFormat.currency(locale: locale, symbol: '\$', decimalDigits: 2);
+    final dateFormat = DateFormat.yMMMd(locale);
+
+    final netStatus = _netBalance >= 0
+        ? t.loans.share.owed
+        : t.loans.share.owe;
 
     final details = [
-      'MoneyT - Loan Summary',
+      t.loans.share.loanSummary,
       '',
-      '${widget.contact.name} - Loan Summary',
+      t.loans.share.contactSummary(name: widget.contact.name),
       '',
-      'Net Balance: ${_netBalance >= 0 ? "+" : ""}${currencyFormat.format(_netBalance)} (${_netBalance >= 0 ? "You are owed" : "You owe"})',
+      t.loans.share.netBalance(
+          amount:
+              "${_netBalance >= 0 ? "+" : ""}${currencyFormat.format(_netBalance)}",
+          status: netStatus),
       '',
-      'You Lent: ${currencyFormat.format(_totalLent)}',
-      'You Borrowed: ${currencyFormat.format(_totalBorrowed)}',
+      t.loans.share.lent(amount: currencyFormat.format(_totalLent)),
+      t.loans.share.borrowed(amount: currencyFormat.format(_totalBorrowed)),
       '',
-      'Active Loans (${_activeLoans.length}):',
+      t.loans.share.activeLoans(n: _activeLoans.length),
       ..._activeLoans.map((loan) {
         final percentPaid = (loan.totalPaid / loan.amount * 100).clamp(0, 100);
-        return '• ${loan.description ?? 'Loan'}: ${currencyFormat.format(loan.amount)} (Date: ${dateFormat.format(loan.date)}) - ${percentPaid.toStringAsFixed(0)}% paid';
+        return t.loans.share.loanItem(
+            description: loan.description ?? t.loans.share.personalLoan,
+            amount: currencyFormat.format(loan.amount),
+            date: dateFormat.format(loan.date),
+            percent: percentPaid.toStringAsFixed(0));
       }),
       '',
-      'Generated on ${dateFormat.format(DateTime.now())}',
-      'Powered by MoneyT • moneyt.io',
+      t.loans.share.generated(date: dateFormat.format(DateTime.now())),
+      t.loans.share.poweredBy,
     ];
 
     return details.join('\n');
@@ -114,7 +127,7 @@ class _LoanContactShareScreenState extends State<LoanContactShareScreen> {
   void _copyToClipboard() {
     Clipboard.setData(ClipboardData(text: _buildShareText()));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Loan summary copied to clipboard!')),
+      SnackBar(content: Text(t.loans.share.contactCopied)),
     );
   }
 
@@ -130,11 +143,12 @@ class _LoanContactShareScreenState extends State<LoanContactShareScreen> {
 
       await Share.shareXFiles(
         [XFile(imagePath.path)],
-        text: 'Loan Summary with ${widget.contact.name}:',
+        text: t.loans.share.contactMessage(name: widget.contact.name),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error sharing image: ${e.toString()}')),
+        SnackBar(
+            content: Text(t.loans.share.error(error: e.toString()))),
       );
     }
   }
@@ -144,7 +158,7 @@ class _LoanContactShareScreenState extends State<LoanContactShareScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // slate-50
       appBar: AppAppBar(
-        title: 'Share Contact Loans',
+        title: t.loans.share.contactTitle,
         type: AppAppBarType.blur,
         onLeadingPressed: () => Navigator.of(context).pop(),
       ),
@@ -167,8 +181,8 @@ class _LoanContactShareScreenState extends State<LoanContactShareScreen> {
       bottomNavigationBar: FormActionBar(
         onCancel: _copyToClipboard,
         onSave: _shareAsImage,
-        cancelText: 'Copy Text',
-        saveText: 'Share',
+        cancelText: t.loans.share.copy,
+        saveText: t.loans.share.button,
       ),
     );
   }

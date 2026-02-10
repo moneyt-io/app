@@ -5,6 +5,7 @@ import '../../core/molecules/widget_config_item.dart';
 import '../../core/molecules/sticky_action_footer.dart';
 import '../../core/organisms/draggable_widget_list.dart';
 import '../../navigation/navigation_service.dart';
+import '../../core/l10n/generated/strings.g.dart';
 
 /// Pantalla de configuración de widgets del dashboard
 /// Basada en dashboard_widgets.html
@@ -81,14 +82,14 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reset to Default Layout'),
-        content: const Text(
-          'Reset dashboard to default layout? This will restore all widgets to their original positions.',
+        title: Text(t.dashboard.widgets.settings.reset.dialogTitle),
+        content: Text(
+          t.dashboard.widgets.settings.reset.dialogContent,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(t.dashboard.widgets.settings.reset.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -98,13 +99,13 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
                 _hasChanges = true;
               });
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Dashboard reset to default layout!'),
-                  backgroundColor: Color(0xFF16A34A),
+                SnackBar(
+                  content: Text(t.dashboard.widgets.settings.reset.success),
+                  backgroundColor: const Color(0xFF16A34A),
                 ),
               );
             },
-            child: const Text('Reset'),
+            child: Text(t.dashboard.widgets.settings.reset.confirm),
           ),
         ],
       ),
@@ -129,9 +130,9 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Changes saved successfully!'),
-            backgroundColor: Color(0xFF16A34A),
+          SnackBar(
+            content: Text(t.dashboard.widgets.settings.saveSuccess),
+            backgroundColor: const Color(0xFF16A34A),
           ),
         );
 
@@ -148,7 +149,7 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error saving changes: $e'),
+            content: Text(t.dashboard.widgets.settings.saveError(error: e.toString())),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -162,7 +163,7 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
       backgroundColor: const Color(0xFFF8FAFC), // HTML: bg-slate-50
 
       appBar: AppAppBar(
-        title: 'Dashboard Widgets',
+        title: t.dashboard.widgets.settings.title,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.back,
         onLeadingPressed: () => NavigationService.goBack(),
@@ -187,7 +188,7 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
 
                   // Reset Button
                   AppButton(
-                    text: 'Reset to Default Layout',
+                    text: t.dashboard.widgets.settings.reset.button,
                     onPressed: _resetToDefault,
                     type: AppButtonType.outlined,
                     icon: Icons.refresh,
@@ -202,7 +203,7 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
 
           // Sticky Footer
           StickyActionFooter(
-            primaryText: _isSaving ? 'Saving...' : 'Save Changes',
+            primaryText: _isSaving ? t.dashboard.widgets.settings.saving : t.dashboard.widgets.settings.save,
             onPrimaryPressed: _saveChanges,
             isLoading: _isSaving,
             isPrimaryEnabled: _hasChanges && !_isSaving,

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../domain/entities/loan_detail.dart';
 import '../../../core/molecules/info_card.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class LoanPaymentHistoryCard extends StatelessWidget {
   final List<LoanDetail> payments;
@@ -16,7 +17,7 @@ class LoanPaymentHistoryCard extends StatelessWidget {
     }
 
     return InfoCard(
-      title: 'Payment History',
+      title: t.loans.detail.payment.history,
       child: Column(
         children: payments.map((payment) {
           final isLast = payment == payments.last;
@@ -32,7 +33,7 @@ class LoanPaymentHistoryCard extends StatelessWidget {
   Widget _buildPaymentRow(LoanDetail payment) {
     final currencyFormat =
         NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
-    final dateFormat = DateFormat('MMMM d, yyyy');
+    final dateFormat = DateFormat('MMMM d, yyyy', LocaleSettings.currentLocale.languageCode);
 
     return Row(
       children: [
@@ -57,7 +58,7 @@ class LoanPaymentHistoryCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Payment on ${dateFormat.format(payment.createdAt)}',
+                t.loans.detail.payment.date(date: dateFormat.format(payment.createdAt)),
                 style: const TextStyle(
                   color: Color(0xFF111827), // slate-900
                   fontSize: 14,
@@ -66,7 +67,7 @@ class LoanPaymentHistoryCard extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                'Transaction ID: ${payment.transactionId}',
+                t.loans.detail.payment.transactionId(id: payment.transactionId),
                 style: const TextStyle(
                   color: Color(0xFF64748B), // slate-500
                   fontSize: 12,

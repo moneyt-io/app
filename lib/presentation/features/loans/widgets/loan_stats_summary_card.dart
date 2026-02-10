@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class LoanStatsSummaryCard extends StatelessWidget {
   final double activeLentAmount;
@@ -49,9 +50,9 @@ class LoanStatsSummaryCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Text(
-                  'Active Summary',
-                  style: TextStyle(
+                Text(
+                  t.loans.detail.activeSummary,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF1E293B), // text-slate-800
@@ -68,7 +69,7 @@ class LoanStatsSummaryCard extends StatelessWidget {
               children: [
                 // You Lent (Active)
                 _buildStatRow(
-                  'You Lent (Active)',
+                  t.loans.detail.activeLent,
                   activeLentAmount,
                   const Color(0xFFEA580C), // text-orange-600
                 ),
@@ -77,7 +78,7 @@ class LoanStatsSummaryCard extends StatelessWidget {
                 
                 // You Borrowed (Active)
                 _buildStatRow(
-                  'You Borrowed (Active)',
+                  t.loans.detail.activeBorrowed,
                   activeBorrowedAmount,
                   const Color(0xFF9333EA), // text-purple-600
                 ),
@@ -96,8 +97,8 @@ class LoanStatsSummaryCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Net Position (Active)',
+                    Text(
+                      t.loans.detail.activeNet,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -123,9 +124,9 @@ class LoanStatsSummaryCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Total Active Loans',
-                      style: TextStyle(
+                    Text(
+                      t.loans.detail.activeTotal,
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Color(0xFF64748B), // text-slate-600
                       ),

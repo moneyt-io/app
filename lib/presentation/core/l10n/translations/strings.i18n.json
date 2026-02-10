@@ -10,7 +10,73 @@
     "edit": "Edit",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "search": "Search",
+    "clearSearch": "Clear search",
+    "viewAll": "View all",
+    "retry": "Retry",
+    "add": "Add",
+    "remove": "Remove",
+    "moreOptions": "More options",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites",
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "components": {
+    "dateSelection": {
+      "title": "Select date",
+      "subtitle": "Choose transaction date",
+      "selectedDate": "Selected Date",
+      "confirm": "Select"
+    },
+    "selection": {
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "select": "Select"
+    },
+    "contactSelection": {
+      "title": "Select contact",
+      "subtitle": "Choose whom this transaction is with",
+      "searchPlaceholder": "Search contacts",
+      "noContact": "No contact",
+      "noContactDetails": "Transaction without specific contact",
+      "allContacts": "All Contacts",
+      "create": "Create new contact"
+    },
+    "categorySelection": {
+      "title": "Select category",
+      "subtitle": "Choose a category for this transaction",
+      "searchPlaceholder": "Search categories"
+    },
+    "currencySelection": {
+      "title": "Select currency",
+      "subtitle": "Choose the currency for this wallet",
+      "searchPlaceholder": "Search currencies"
+    },
+    "accountSelection": {
+      "title": "Select account",
+      "subtitle": "Choose an account for this transaction",
+      "searchPlaceholder": "Search accounts",
+      "wallets": "Wallets",
+      "creditCards": "Credit Cards",
+      "selectAccount": "Select account",
+      "confirm": "Confirm"
+    },
+    "parentWalletSelection": {
+      "title": "Select parent wallet",
+      "subtitle": "Choose a parent wallet to organize this wallet under another one",
+      "searchPlaceholder": "Search wallets",
+      "noParent": "No parent wallet",
+      "createRoot": "Create as a root wallet",
+      "available": "Available Wallets"
+    },
+    "walletTypes": {
+      "checking": "Checking",
+      "savings": "Savings",
+      "cash": "Cash",
+      "creditCard": "Credit Card"
+    }
   },
   "navigation": {
     "home": "Home",
@@ -24,19 +90,871 @@
     "backups": "Backups"
   },
   "transactions": {
+    "title": "Transactions",
     "types": {
+      "all": "All",
       "income": "Income",
       "expense": "Expense",
       "transfer": "Transfer"
+    },
+    "filter": {
+      "title": "Filter Transactions",
+      "date": "Date",
+      "categories": "Categories",
+      "accounts": "Accounts",
+      "contacts": "Contacts",
+      "amount": "Amount",
+      "apply": "Apply filters",
+      "clear": "Clear filters",
+      "add": "Add filter",
+      "minAmount": "Min Amount",
+      "maxAmount": "Max Amount",
+      "selectDate": "Select date",
+      "selectCategory": "Select category",
+      "selectAccount": "Select account",
+      "selectContact": "Select contact",
+      "quickFilters": "Quick filters",
+      "ranges": {
+        "thisMonth": "This Month",
+        "lastMonth": "Last Month",
+        "thisYear": "This Year",
+        "lastYear": "Last Year"
+      },
+      "customRange": "Custom Date Range",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "active": "Active Filters",
+      "subtitles": {
+        "income": "Money received",
+        "expense": "Money spent",
+        "transfer": "Money moved"
+      }
+    },
+    "form": {
+      "newTitle": "New Transaction",
+      "editTitle": "Edit Transaction",
+      "amount": "Amount",
+      "type": "Transaction type",
+      "amountRequired": "Amount is required",
+      "date": "Date",
+      "account": "Account",
+      "toAccount": "To Account",
+      "category": "Category",
+      "contact": "Contact",
+      "contactOptional": "Contact (optional)",
+      "description": "Description",
+      "descriptionOptional": "Optional description",
+      "selectAccount": "Select account",
+      "selectDestination": "Select destination",
+      "selectCategory": "Select category",
+      "selectContact": "Select contact",
+      "saveSuccess": "Transaction saved successfully",
+      "updateSuccess": "Transaction updated successfully",
+      "saveError": "Error saving transaction",
+      "share": "Share",
+      "created": "Transaction created successfully"
+    },
+    "errors": {
+      "load": "Error loading transactions"
+    },
+    "empty": {
+      "title": "No transactions",
+      "message": "No transactions found with applied filters",
+      "clearFilters": "Clear filters"
+    },
+    "list": {
+      "count": "$n transactions"
+    },
+    "detail": {
+      "title": "Transaction Details",
+      "delete": "Delete Transaction",
+      "deleteConfirmation": "Are you sure? This action cannot be undone.",
+      "deleted": "Transaction deleted",
+      "duplicate": "Duplicate",
+      "duplicateNotImplemented": "Duplicate not implemented yet",
+      "edit": "Edit",
+      "errorLoad": "Error loading transaction details",
+      "errorPrepareEdit": "Error preparing edit: $error",
+      "errorDelete": "Error deleting: $error",
+      "category": "Category",
+      "account": "Account",
+      "contact": "Contact",
+      "description": "Description",
+      "transferDetails": "Transfer Details",
+      "from": "From",
+      "to": "To",
+      "unknownAccount": "Unknown Account",
+      "errorUrl": "Could not open $url",
+      "date": "Date",
+      "time": "Time"
+    },
+    "share": {
+      "title": "Share Transaction",
+      "copyText": "Copy Text",
+      "shareButton": "Share",
+      "shareMessage": "Here is my transaction receipt:",
+      "copied": "Transaction details copied to clipboard!",
+      "paymentMethod": "Payment Method",
+      "receiptTitle": "Transaction Receipt",
+      "poweredBy": "Powered by MoneyT • moneyt.io",
+      "errorImage": "Error sharing image: $error",
+      "receipt": {
+        "title": "--- Transaction Details ---",
+        "amount": "Amount: $amount",
+        "description": "Description: $description",
+        "category": "Category: $category",
+        "date": "Date: $date",
+        "time": "Time: $time",
+        "wallet": "Wallet: $wallet",
+        "contact": "Contact: $contact",
+        "id": "Transaction ID: $id",
+        "separator": "--------------------------"
+      },
+      "generatedOn": "Generated on $date"
+    }
+  },
+  "contacts": {
+    "title": "Contacts",
+    "addContact": "Add Contact",
+    "editContact": "Edit Contact",
+    "newContact": "New contact",
+    "noContacts": "No contacts",
+    "noContactsMessage": "Add your first contact with the \"+\" button",
+    "searchContacts": "Search contacts",
+    "deleteContact": "Delete contact",
+    "confirmDelete": "Are you sure you want to delete",
+    "contactDeleted": "Contact deleted successfully",
+    "errorDeleting": "Error deleting contact",
+    "noSearchResults": "No search results",
+    "noContactsMatch": "No contacts match \"$query\". Try a different search term.",
+    "errorLoading": "Error loading contacts",
+    "contactSaved": "Contact saved successfully",
+    "errorSaving": "Error saving contact",
+    "noContactInfo": "No contact information",
+    "importContact": "Import contact",
+    "importContacts": "Import contacts",
+    "importContactSoon": "Import contact functionality coming soon",
+    "fields": {
+      "name": "Name",
+      "fullName": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "notes": "Notes"
+    },
+    "placeholders": {
+      "enterFullName": "Enter full name",
+      "enterPhone": "Enter phone number",
+      "enterEmail": "Enter email address"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "invalidEmail": "Invalid email",
+      "invalidPhone": "Invalid phone number"
     }
   },
   "errors": {
-    "loadingAccounts": "Error loading accounts: {error}"
+    "loadingAccounts": "Error loading accounts: $error",
+    "unexpected": "Unexpected error"
   },
   "settings": {
-    "appearance": "Appearance",
-    "darkTheme": "Dark theme",
-    "lightTheme": "Light theme",
-    "systemTheme": "System theme"
+    "title": "Settings",
+    "account": {
+      "title": "Account",
+      "profile": "Profile",
+      "profileSubtitle": "Manage your account information"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "darkMode": "Dark mode",
+      "darkModeSubtitle": "Switch to dark theme",
+      "language": "Language",
+      "darkTheme": "Dark theme",
+      "lightTheme": "Light theme",
+      "systemTheme": "System theme"
+    },
+    "data": {
+      "title": "Data & Storage",
+      "backup": "Database backup",
+      "backupSubtitle": "Manage your data backups"
+    },
+    "info": {
+      "title": "Information",
+      "contact": "Contact & Social",
+      "contactSubtitle": "Get support and follow us online",
+      "privacy": "Privacy policy",
+      "privacySubtitle": "Read our privacy policy",
+      "share": "Share MoneyT",
+      "shareSubtitle": "Tell your friends about the app"
+    },
+    "logout": {
+      "button": "Sign out",
+      "dialogTitle": "Sign out",
+      "dialogMessage": "Are you sure you want to sign out of your account?",
+      "cancel": "Cancel",
+      "confirm": "Sign out"
+    },
+    "social": {
+      "title": "Contact & Social",
+      "follow": "Follow MoneyT",
+      "description": "Stay connected with us on social media for updates, tips, and community discussions.",
+      "networks": "Social Networks",
+      "github": "GitHub",
+      "githubSubtitle": "View source code and contribute",
+      "linkedin": "LinkedIn",
+      "linkedinSubtitle": "Professional updates and insights",
+      "twitter": "X (Twitter)",
+      "twitterSubtitle": "Latest news and announcements",
+      "reddit": "Reddit",
+      "redditSubtitle": "Join the community discussions",
+      "discord": "Discord",
+      "discordSubtitle": "Join the community discussions",
+      "contact": "Contact",
+      "email": "Email Support",
+      "website": "Official Website"
+    },
+    "language": {
+      "title": "Language",
+      "available": "AVAILABLE LANGUAGES",
+      "apply": "Apply Language"
+    },
+    "messages": {
+      "profileComingSoon": "Profile screen coming soon",
+      "privacyError": "Could not open privacy policy",
+      "logoutComingSoon": "Sign out functionality coming soon"
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to MoneyT 👋",
+      "subtitle": "Control your money in minutes ✨"
+    },
+    "problemStatement": {
+      "title": "Do you feel like money slips through your fingers?",
+      "subtitle": "You're not alone. 70% of people don't know where their income goes."
+    },
+    "specificProblem": {
+      "title": "What's harder for you?",
+      "options": {
+        "debts": "Debts and loans",
+        "savings": "Not being able to save",
+        "unknown": "Not knowing where I spent it",
+        "chaos": "Financial chaos"
+      }
+    },
+    "personalGoal": {
+      "title": "What's your main goal?",
+      "options": {
+        "debtFree": "Be debt free",
+        "saveTrip": "Save for a trip/car",
+        "invest": "Start investing",
+        "peace": "Financial peace of mind"
+      }
+    },
+    "solutionPreview": {
+      "title": "MoneyT gives you clarity",
+      "subtitle": "See all your accounts, debts, and expenses in one place. No spreadsheets, no stress.",
+      "benefits": {
+        "visualize": "Visualize all your expenses in real time",
+        "goals": "Set goals and track your progress",
+        "smart": "Make smart financial decisions"
+      }
+    },
+    "currentMethod": {
+      "title": "How do you manage your money today?",
+      "subtitle": "Select the option that best describes you.",
+      "options": {
+        "excel": "Excel / Spreadsheets",
+        "notebook": "Notebook",
+        "mental": "Mental notes",
+        "none": "I don't track anything"
+      }
+    },
+    "featuresShowcase": {
+      "title": "Available and coming soon features ✨",
+      "subtitle": "Transactions ready to use. More features on the way.",
+      "available": "AVAILABLE NOW",
+      "comingSoon": "COMING SOON",
+      "features": {
+        "income": "Income",
+        "expense": "Expense",
+        "transfer": "Transfer",
+        "loans": "Loans",
+        "goals": "Goals",
+        "budgets": "Budgets",
+        "investments": "Investments",
+        "cloud": "MoneyT Cloud",
+        "openBanking": "Open Banking"
+      }
+    },
+    "complete": {
+      "title": "You're ready for takeoff! 🚀",
+      "subtitle": "Record your first transaction and watch your success probability soar 📈",
+      "stats": {
+        "title": "Success Probability",
+        "before": "Before MoneyT",
+        "after": "With MoneyT"
+      }
+    },
+    "buttons": {
+      "start": "Start now 🚀",
+      "fixIt": "Fix it today ⚡",
+      "actionContinue": "Continue",
+      "setGoal": "Set my goal 🎯",
+      "wantControl": "I want this control!",
+      "great": "Great, let's see it!",
+      "firstTransaction": "Record my first transaction ➕",
+      "skip": "Skip"
+    }
+  },
+  "dashboard": {
+    "greeting": "Welcome to MoneyT",
+    "balance": {
+      "total": "Total Balance",
+      "income": "INCOME",
+      "expenses": "EXPENSES",
+      "thisMonth": "this month"
+    },
+    "actions": {
+      "income": "Income",
+      "expense": "Expense",
+      "transfer": "Transfer",
+      "all": "All"
+    },
+    "wallets": {
+      "title": "Wallets",
+      "count": "$n accounts",
+      "more": "+$n more accounts",
+      "viewDetails": "View $name details"
+    },
+    "transactions": {
+      "title": "Recent Transactions",
+      "subtitle": "Last 5 transactions",
+      "empty": "No recent transactions",
+      "emptySubtitle": "Your transactions will appear here",
+      "more": "+$n more transactions"
+    },
+    "customize": "Customize",
+    "widgets": {
+      "balance": {
+        "title": "Total Balance",
+        "description": "Shows your overall financial status"
+      },
+      "quickActions": {
+        "title": "Quick Actions",
+        "description": "Fast access to common transactions"
+      },
+      "wallets": {
+        "title": "Wallets",
+        "description": "Overview of your accounts"
+      },
+      "loans": {
+        "title": "Loans",
+        "description": "Track borrowed and lent money"
+      },
+      "transactions": {
+        "title": "Recent Transactions",
+        "description": "Latest financial activity"
+      },
+      "chartAccounts": {
+        "title": "Chart of Accounts",
+        "description": "Account structure overview"
+      },
+      "creditCards": {
+        "title": "Credit Cards",
+        "description": "Credit card balances and limits"
+      },
+      "settings": {
+        "title": "Customize Dashboard",
+        "subtitle": "Organize and manage your home screen widgets.",
+        "reset": {
+          "button": "Reset to Default Layout",
+          "dialogTitle": "Reset to Default Layout",
+          "dialogContent": "Reset dashboard to default layout? This will restore all widgets to their original positions.",
+          "cancel": "Cancel",
+          "confirm": "Reset",
+          "success": "Layout reset to default"
+        },
+        "saveSuccess": "Changes saved successfully!",
+        "saveError": "Error saving changes: $error",
+        "saving": "Saving...",
+        "save": "Save Changes"
+      }
+    }
+  },
+  "wallets": {
+    "title": "Wallets",
+    "empty": {
+      "title": "No wallets found",
+      "message": "Add your first wallet to start tracking your finances.",
+      "action": "Create Wallet"
+    },
+    "filter": {
+      "active": "Active",
+      "archived": "Archived",
+      "all": "All"
+    },
+    "form": {
+      "newTitle": "New wallet",
+      "editTitle": "Edit wallet",
+      "name": "Wallet name",
+      "namePlaceholder": "Enter wallet name",
+      "nameRequired": "Name is required",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional description for this wallet",
+      "currency": "Currency",
+      "parent": "Parent wallet (optional)",
+      "parentEmpty": "No wallets available as parent",
+      "chartAccount": "Associated chart account",
+      "chartAccountLocked": "Chart account cannot be changed",
+      "createSuccess": "Wallet created successfully",
+      "updateSuccess": "Wallet updated successfully",
+      "loadParentError": "Error loading parent wallets: $error",
+      "loadChartAccountError": "Error loading chart account: $error"
+    },
+    "delete": {
+      "dialogTitle": "Delete wallet",
+      "dialogMessage": "Are you sure you want to delete $name?",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "success": "Wallet deleted successfully",
+      "error": "Error deleting wallet: $error"
+    },
+    "errors": {
+      "load": "Error loading wallets",
+      "retry": "Retry",
+      "comingSoon": "$name coming soon"
+    },
+    "subtitle": {
+      "mainAccount": "Main account",
+      "cashDigital": "Cash & digital",
+      "count": {
+        "one": "$n wallet",
+        "other": "$n wallets"
+      },
+      "account": "Account",
+      "physicalCash": "Physical cash",
+      "digitalWallet": "Digital wallet"
+    },
+    "options": {
+      "viewTransactions": "View transactions",
+      "viewTransactionsSubtitle": "See all transactions for this wallet",
+      "transferFunds": "Transfer funds",
+      "transferFundsSubtitle": "Move money between wallets",
+      "editWallet": "Edit wallet",
+      "editWalletSubtitle": "Modify wallet details",
+      "duplicateWallet": "Duplicate wallet",
+      "duplicateWalletSubtitle": "Create a copy of this wallet",
+      "archiveWallet": "Archive wallet",
+      "archiveWalletSubtitle": "Hide wallet from main view",
+      "deleteWallet": "Delete wallet",
+      "deleteWalletSubtitle": "Permanently remove this wallet",
+      "defaultTitle": "Wallet"
+    }
+  },
+  "loans": {
+    "title": "Loans",
+    "filter": {
+      "pending": "Pending",
+      "lent": "Lent",
+      "borrowed": "Borrowed",
+      "all": "All",
+      "active": "Active Loans",
+      "history": "All History"
+    },
+    "summary": {
+      "lent": "You Lent",
+      "borrowed": "You Borrowed",
+      "pending": "$n pending"
+    },
+    "card": {
+      "lent": "You lent",
+      "borrowed": "You borrowed",
+      "multiple": "$n active loans",
+      "overdue": "Overdue $n days",
+      "due": "Due: $date",
+      "transactions": "$n transactions"
+    },
+    "form": {
+      "newTitle": "New Loan",
+      "editTitle": "Edit Loan",
+      "type": "Loan type",
+      "lend": "I Lend",
+      "borrow": "I Borrow",
+      "contact": "Contact",
+      "contactPlaceholder": "Select a contact",
+      "account": "From Account",
+      "accountPlaceholder": "Select an account",
+      "amount": "Amount",
+      "description": "Description",
+      "date": "Loan date",
+      "dueDate": "Due date",
+      "selectDate": "Select date",
+      "optional": "(Optional)",
+      "createTransaction": "Create transaction record",
+      "recordAutomatically": "Record transaction automatically",
+      "transactionCategory": "Transaction category",
+      "category": "Category",
+      "categoryPlaceholder": "Select a category",
+      "save": "Save Loan",
+      "successCreate": "Loan created successfully",
+      "successUpdate": "Loan updated successfully",
+      "contactRequired": "Contact is required",
+      "accountRequired": "Account is required",
+      "amountRequired": "Amount is required"
+    },
+    "detail": {
+      "title": "Loan Details",
+      "remaining": "Remaining",
+      "paid": "Paid",
+      "history": "Payment History",
+      "viewHistory": "View Complete Loan History",
+      "pay": "Register Payment",
+      "activeSummary": "Active Summary",
+      "activeLent": "You Lent (Active)",
+      "activeBorrowed": "You Borrowed (Active)",
+      "activeNet": "Net Position (Active)",
+      "deleteTitle": "Delete Loan",
+      "deleteMessage": "Are you sure you want to delete this loan? This action cannot be undone.",
+      "deleteSuccess": "Loan deleted successfully",
+      "deleteError": "Error deleting loan: $error",
+      "notFound": "Loan not found",
+      "loading": "Loading contact...",
+      "lenderInfo": "Lender Info"
+    },
+    "history": {
+      "title": "Loan History",
+      "filter": {
+        "all": "All",
+        "lent": "Lent",
+        "borrowed": "Borrowed",
+        "completed": "Completed"
+      }
+    },
+    "contactDetail": {
+      "titleWith": "Loans with $name"
+    },
+    "share": {
+      "title": "Share Loan",
+      "contactTitle": "Share Contact Loans",
+      "button": "Share",
+      "copy": "Copy Text",
+      "message": "Here is my loan statement:",
+      "contactMessage": "Loan Summary with $name:",
+      "error": "Error sharing image: $error",
+      "contactCopied": "Loan summary copied to clipboard!",
+      "activeLoans": "Active Loans ($n):",
+      "loanItem": "• $description: $amount (Date: $date) - $percent% paid",
+      "loanStatement": "MoneyT - Loan Statement",
+      "loanSummary": "MoneyT - Loan Summary",
+      "personalLoan": "Personal Loan",
+      "remaining": "Remaining Balance: $amount",
+      "remainingLabel": "Remaining Balance",
+      "original": "of $amount original",
+      "progress": "Payment Progress: $percent% Paid",
+      "progressLabel": "Payment Progress",
+      "paidSuffix": "Paid",
+      "date": "Loan Date: $date",
+      "dateLabel": "Loan Date",
+      "contact": "Contact: $name",
+      "contactLabel": "Contact",
+      "generated": "Generated on $date",
+      "generatedLabel": "Generated on $date",
+      "totalActive": "Total Active: $n loans",
+      "active": "active",
+      "poweredBy": "Powered by MoneyT • moneyt.io",
+      "copied": "Loan details copied to clipboard!",
+      "netBalance": "Net Balance: $amount ($status)",
+      "netBalanceLabel": "Net Balance",
+      "owed": "You are owed",
+      "owe": "You owe",
+      "lent": "You Lent: $amount",
+      "lentLabel": "You Lent",
+      "borrowed": "You Borrowed: $amount",
+      "borrowedLabel": "You Borrowed",
+      "contactSummary": "$name - Loan Summary"
+    },
+    "payment": {
+      "title": "Record Payment",
+      "amount": "Payment amount",
+      "amountPlaceholder": "0.00",
+      "amountRequired": "Payment amount is required",
+      "invalidAmount": "Please enter a valid amount",
+      "exceedsBalance": "Amount cannot exceed remaining balance",
+      "date": "Payment date",
+      "account": "Received in account",
+      "selectAccount": "Select account",
+      "details": "Payment details",
+      "detailsPlaceholder": "Add notes about this payment (optional)",
+      "success": "Payment recorded successfully",
+      "error": "Error recording payment: $error",
+      "errorAmount": "Please enter a valid payment amount",
+      "errorAccount": "Please select an account",
+      "errorLoading": "Error loading data: $error",
+      "summary": {
+        "title": "Payment summary",
+        "defaultTitle": "Loan",
+        "amount": "Payment amount",
+        "remaining": "Remaining balance",
+        "progress": "New progress",
+        "description": "$loan to $contact",
+        "unknownContact": "Unknown Contact",
+        "total": "$amount total",
+        "paid": "Paid: $amount",
+        "remainingLabel": "Remaining: $amount"
+      },
+      "quick": {
+        "full": "Full Payment ($amount)",
+        "half": "Half ($amount)"
+      }
+    },
+    "given": "Loan Given",
+    "received": "Loan Received",
+    "summary": {
+      "netBalance": "NET BALANCE",
+      "activeLoans": "ACTIVE LOANS",
+      "noActive": "No active loans",
+      "lent": "$n lent",
+      "borrowed": "$n borrowed",
+      "pending": "$n pending"
+    },
+    "card": {
+      "lent": "You Lent",
+      "borrowed": "You Borrowed",
+      "active": "$n active",
+      "multiple": "$n loans",
+      "transactions": "$n transactions",
+      "overdue": "Overdue by $n days",
+      "due": "Due $date"
+    },
+    "filter": {
+      "active": "Active Loans",
+      "history": "History",
+      "all": "All",
+      "pending": "Pending",
+      "lent": "Lent",
+      "borrowed": "Borrowed"
+    },
+    "history": {
+      "title": "Loan History",
+      "section": "Complete loan history",
+      "totalLoaned": "Total loaned",
+      "noLoans": "No loans found for this filter.",
+      "filter": {
+        "all": "All",
+        "lent": "Lent",
+        "borrowed": "Borrowed",
+        "completed": "Completed",
+        "title": "Filter Loan History",
+        "reset": "Reset",
+        "apply": "Apply Filters",
+        "dateRange": "Date Range",
+        "amountRange": "Amount Range",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "select": "Select"
+      },
+      "headers": {
+        "lent": "Lent Loans",
+        "borrowed": "Borrowed Loans",
+        "completed": "Completed Loans",
+        "active": "Active Loans",
+        "cancelled": "Cancelled Loans",
+        "writtenOff": "Written Off Loans"
+      },
+      "item": {
+        "defaultTitle": "Loan",
+        "date": "Date: $date",
+        "lent": "Lent",
+        "borrowed": "Borrowed",
+        "status": {
+          "completed": "Completed",
+          "active": "Active",
+          "cancelled": "Cancelled",
+          "writtenOff": "Written Off"
+        }
+      },
+      "summary": {
+        "title": "History Summary",
+        "viewDetails": "View Details",
+        "hideDetails": "Hide Details",
+        "outstandingLent": "Currently Outstanding",
+        "outstandingBorrowed": "You Currently Owe",
+        "netPosition": "Net Position (Active)",
+        "totalLent": "Total Ever Lent",
+        "totalBorrowed": "Total Ever Borrowed",
+        "totalRepaidToYou": "Total Repaid to You",
+        "totalYouRepaid": "Total You Repaid",
+        "totalLoans": "Total Loans",
+        "completedLoans": "Completed Loans"
+      }
+    },
+    "detail": {
+      "title": "Loan Details",
+      "deleteTitle": "Delete Loan",
+      "deleteMessage": "Are you sure you want to delete this loan?",
+      "deleteSuccess": "Loan deleted successfully",
+      "deleteError": "Error deleting loan: $error",
+      "notFound": "Loan not found",
+      "progress": "Loan Progress",
+      "info": "Loan Information",
+      "pay": "Pay",
+      "viewHistory": "View Complete History",
+      "original": "Original: $amount",
+      "section": "Loan Details",
+      "activeSummary": "Active Summary",
+      "activeLent": "You Lent (Active)",
+      "activeBorrowed": "You Borrowed (Active)",
+      "activeNet": "Net Position (Active)",
+      "activeTotal": "Total Active Loans",
+      "startDate": "Loan Start",
+      "dueDate": "Due Date",
+      "type": {
+        "label": "Loan Type",
+        "personal": "Personal Loan",
+        "borrowed": "Borrowed Loan",
+        "auto": "Auto Loan",
+        "mortgage": "Mortgage",
+        "student": "Student Loan"
+      },
+      "payment": {
+        "history": "Payment History",
+        "date": "Payment on $date",
+        "transactionId": "Transaction ID: $id",
+        "paid": "$amount paid",
+        "remaining": "$amount remaining"
+      }
+    },
+    "item": {
+      "due": "Due: $date",
+      "paidAmount": "Paid: $amount",
+      "remaining": "Remaining: $amount",
+      "percentPaid": "$percent% paid"
+    },
+    "section": {
+      "activeLoans": "Active Loans",
+      "loansCount": "$n loans"
+    },
+    "empty": {
+        "title": "No loans active",
+        "message": "Start tracking money you lent or borrowed.",
+        "action": "Add Loan"
+    }
+  },
+  "categories": {
+    "title": "Categories",
+    "form": {
+        "newTitle": "New Category",
+        "editTitle": "Edit Category",
+        "name": "Category Name",
+        "namePlaceholder": "Enter category name",
+        "nameRequired": "Category name is required",
+        "parent": "Parent Category (Optional)",
+        "noParent": "No parent category",
+        "asSubcategory": "Will be created as subcategory",
+        "asRoot": "Will be created as root category",
+        "active": "Active Category",
+        "activeDescription": "Enable this category for new transactions",
+        "selectIcon": "Select Icon",
+        "selectColor": "Select Color",
+        "saveSuccess": "Category saved successfully",
+        "saveError": "Error saving category: $error"
+    },
+    "parentSelection": {
+        "title": "Select Parent Category",
+        "subtitle": "Tap to select a parent category",
+        "noParent": "No parent category"
+    },
+    "incomeCategory": "Income category",
+    "expenseCategory": "Expense category"
+  },
+  "backups": {
+    "title": "Database Backup",
+    "menu": {
+      "settings": "Backup settings",
+      "comingSoon": "Backup settings coming soon"
+    },
+    "filters": {
+      "all": "All",
+      "auto": "Auto",
+      "manual": "Manual",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "thisYear": "This Year",
+      "lastYear": "Last Year"
+    },
+    "status": {
+      "loading": "Loading...",
+      "error": "Error loading backups",
+      "empty": "No backups found",
+      "emptyAction": "Create your first backup using the + button",
+      "success": "Success",
+      "created": "Backup created successfully",
+      "createError": "Error creating backup: $error",
+      "restoreError": "Error restoring backup: $error",
+      "deleteError": "Error deleting backup: $error"
+    },
+    "actions": {
+      "create": "Create Backup",
+      "import": "Import Backup",
+      "restore": "Restore",
+      "delete": "Delete",
+      "share": "Share",
+      "cancel": "Cancel",
+      "retry": "Retry",
+      "ok": "OK"
+    },
+    "dialogs": {
+      "info": {
+        "title": "Backup Information",
+        "file": "File:",
+        "size": "Size:",
+        "created": "Created:",
+        "transactions": "Transactions:"
+      },
+      "restore": {
+        "title": "Restore Backup",
+        "content": "Are you sure you want to restore from \"$file\"? The current database will be replaced.",
+        "success": "Restore initiated. The application might need to restart."
+      },
+      "delete": {
+        "title": "Delete Backup",
+        "content": "Are you sure you want to delete file \"$file\"? This action cannot be undone.",
+        "success": "Backup deleted."
+      }
+    },
+    "stats": {
+      "title": "Backup Statistics",
+      "totalBackups": "Total Backups",
+      "totalSize": "Total Size",
+      "oldest": "Oldest Backup",
+      "latest": "Latest Backup",
+      "autoBackupStatus": "Auto Backup Status",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "options": {
+        "restore": {
+          "title": "Restore backup",
+          "subtitle": "Replace current data with this backup"
+        },
+        "share": {
+            "title": "Share backup",
+            "subtitle": "Send this backup file to another device"
+        },
+        "delete": {
+            "title": "Delete backup",
+            "subtitle": "This action cannot be undone"
+        },
+        "latestBadge": "Latest",
+        "latestFile": "Latest backup",
+        "backupFile": "Backup file"
+    },
+    "format": {
+      "auto": "Auto Backup - $date",
+      "manual": "Manual Backup - $date",
+      "initial": "Initial Backup",
+      "generic": "Backup - $date"
+    }
   }
 }

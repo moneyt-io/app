@@ -8,6 +8,7 @@ import '../../core/molecules/backup_statistics_card.dart'; // ✅ AGREGADO: Impo
 import '../../core/atoms/app_app_bar.dart'; // ✅ AGREGADO: Import del AppBar
 import '../../core/organisms/app_drawer.dart'; // ✅ AGREGADO: Import del drawer
 import '../../core/design_system/tokens/app_colors.dart'; // ✅ AGREGADO: Import de colores
+import '../../core/l10n/generated/strings.g.dart';
 
 class BackupScreen extends StatefulWidget {
   const BackupScreen({super.key});
@@ -44,7 +45,7 @@ class _BackupScreenState extends State<BackupScreen> {
       
       // ✅ CORREGIDO: Usar AppAppBar con blur effect
       appBar: AppAppBar(
-        title: 'Database Backup',
+        title: t.backups.title,
         type: AppAppBarType.blur, // HTML: bg-slate-50/80 backdrop-blur-md
         leading: AppAppBarLeading.drawer,
         actions: [AppAppBarAction.menu], // HTML: settings button
@@ -81,13 +82,13 @@ class _BackupScreenState extends State<BackupScreen> {
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
-                            _buildDateFilter('This Month'),
+                            _buildDateFilter(t.backups.filters.thisMonth),
                             const SizedBox(width: 8),
-                            _buildDateFilter('Last Month'),
+                            _buildDateFilter(t.backups.filters.lastMonth),
                             const SizedBox(width: 8),
-                            _buildDateFilter('This Year'),
+                            _buildDateFilter(t.backups.filters.thisYear),
                             const SizedBox(width: 8),
-                            _buildDateFilter('Last Year'),
+                            _buildDateFilter(t.backups.filters.lastYear),
                           ],
                         ),
                       ),
@@ -230,22 +231,22 @@ class _BackupScreenState extends State<BackupScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Backup Information'),
+          title: Text(t.backups.dialogs.info.title),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('File: ${backupFile.path.split('/').last}'),
-              Text('Size: ${(backupFile.lengthSync() / (1024 * 1024)).toStringAsFixed(2)} MB'),
-              Text('Created: ${backupFile.lastModifiedSync()}'),
+              Text('${t.backups.dialogs.info.file} ${backupFile.path.split('/').last}'),
+              Text('${t.backups.dialogs.info.size} ${(backupFile.lengthSync() / (1024 * 1024)).toStringAsFixed(2)} MB'),
+              Text('${t.backups.dialogs.info.created} ${backupFile.lastModifiedSync()}'),
               // ✅ CORREGIDO: Usar placeholder para transaction count
-              Text('Transactions: ${_getPlaceholderTransactionCount(backupFile)}'),
+              Text('${t.backups.dialogs.info.transactions} ${_getPlaceholderTransactionCount(backupFile)}'),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              child: Text(t.backups.actions.ok),
             ),
           ],
         ),
@@ -282,7 +283,7 @@ class _BackupScreenState extends State<BackupScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Error al cargar backups',
+              t.backups.status.error,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
@@ -292,7 +293,7 @@ class _BackupScreenState extends State<BackupScreen> {
               onPressed: () {
                 context.read<BackupProvider>().loadBackups();
               },
-              child: const Text('Reintentar'),
+              child: Text(t.backups.actions.retry),
             ),
           ],
         ),
@@ -301,25 +302,25 @@ class _BackupScreenState extends State<BackupScreen> {
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.backup_outlined,
               size: 64,
               color: Colors.grey,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              'No backups found',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              t.backups.status.empty,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              'Create your first backup using the + button',
+              t.backups.status.emptyAction,
               textAlign: TextAlign.center,
             ),
           ],
@@ -330,8 +331,8 @@ class _BackupScreenState extends State<BackupScreen> {
 
   void _navigateToBackupSettings() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Backup settings coming soon'),
+      SnackBar(
+        content: Text(t.backups.menu.comingSoon),
         backgroundColor: AppColors.primaryBlue,
       ),
     );
@@ -353,12 +354,12 @@ class _BackupScreenState extends State<BackupScreen> {
     if (mounted) {
        if (createdFile != null) {
         scaffoldMessenger.showSnackBar(
-          const SnackBar(content: Text('Copia de seguridad creada con éxito.')),
+          SnackBar(content: Text(t.backups.status.created)),
         );
       } else if (backupProvider.errorMessage != null) {
         scaffoldMessenger.showSnackBar(
           SnackBar(
-            content: Text('Error al crear: ${backupProvider.errorMessage}'),
+            content: Text(t.backups.status.createError(error: backupProvider.errorMessage!)),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -373,15 +374,15 @@ class _BackupScreenState extends State<BackupScreen> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Restaurar Copia de Seguridad'),
-          content: Text('¿Estás seguro de que deseas restaurar desde "${backupFile.path.split(Platform.pathSeparator).last}"? La base de datos actual será reemplazada.'),
+          title: Text(t.backups.dialogs.restore.title),
+          content: Text(t.backups.dialogs.restore.content(file: backupFile.path.split(Platform.pathSeparator).last)),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancelar'),
+              child: Text(t.backups.actions.cancel),
               onPressed: () => Navigator.of(dialogContext).pop(false),
             ),
             TextButton(
-              child: Text('Restaurar', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              child: Text(t.backups.actions.restore, style: TextStyle(color: Theme.of(context).colorScheme.error)),
               onPressed: () => Navigator.of(dialogContext).pop(true),
             ),
           ],
@@ -394,12 +395,12 @@ class _BackupScreenState extends State<BackupScreen> {
        if (mounted) {
           if (success) {
             scaffoldMessenger.showSnackBar(
-              const SnackBar(content: Text('Restauración iniciada. La aplicación podría necesitar reiniciarse.')),
+              SnackBar(content: Text(t.backups.dialogs.restore.success)),
             );
           } else if (backupProvider.errorMessage != null) {
             scaffoldMessenger.showSnackBar(
               SnackBar(
-                content: Text('Error al restaurar: ${backupProvider.errorMessage}'),
+                content: Text(t.backups.status.restoreError(error: backupProvider.errorMessage!)),
                 backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
@@ -415,15 +416,15 @@ class _BackupScreenState extends State<BackupScreen> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Eliminar Copia de Seguridad'),
-          content: Text('¿Estás seguro de que deseas eliminar el archivo "${backupFile.path.split(Platform.pathSeparator).last}"? Esta acción no se puede deshacer.'),
+          title: Text(t.backups.dialogs.delete.title),
+          content: Text(t.backups.dialogs.delete.content(file: backupFile.path.split(Platform.pathSeparator).last)),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancelar'),
+              child: Text(t.backups.actions.cancel),
               onPressed: () => Navigator.of(dialogContext).pop(false),
             ),
             TextButton(
-              child: Text('Eliminar', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              child: Text(t.backups.actions.delete, style: TextStyle(color: Theme.of(context).colorScheme.error)),
               onPressed: () => Navigator.of(dialogContext).pop(true),
             ),
           ],
@@ -436,12 +437,12 @@ class _BackupScreenState extends State<BackupScreen> {
        if (mounted) {
           if (backupProvider.errorMessage == null) {
             scaffoldMessenger.showSnackBar(
-              const SnackBar(content: Text('Copia de seguridad eliminada.')),
+              SnackBar(content: Text(t.backups.dialogs.delete.success)),
             );
           } else {
             scaffoldMessenger.showSnackBar(
               SnackBar(
-                content: Text('Error al eliminar: ${backupProvider.errorMessage}'),
+                content: Text(t.backups.status.deleteError(error: backupProvider.errorMessage!)),
                 backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );

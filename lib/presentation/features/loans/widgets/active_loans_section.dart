@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../domain/entities/loan_contact_summary.dart';
 import '../../../core/design_system/tokens/app_dimensions.dart';
 import '../../../core/design_system/tokens/app_colors.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 import 'loan_contact_card.dart';
 
 class ActiveLoansSection extends StatelessWidget {
@@ -36,7 +37,7 @@ class ActiveLoansSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isHistoryView ? 'All History' : 'Active Loans',
+                isHistoryView ? t.loans.filter.history : t.loans.filter.active,
                 style: textTheme.titleMedium?.copyWith(
                   color: AppColors.slate800,
                   fontWeight: FontWeight.w600,
@@ -44,7 +45,7 @@ class ActiveLoansSection extends StatelessWidget {
               ),
               if (!isHistoryView)
                 Text(
-                  '$totalPendingLoans pending',
+                  t.loans.summary.pending(n: totalPendingLoans),
                   style: textTheme.bodyMedium?.copyWith(
                     color: AppColors.slate500,
                   ),

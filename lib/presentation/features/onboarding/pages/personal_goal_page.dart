@@ -2,15 +2,26 @@ import 'package:flutter/material.dart';
 import '../theme/onboarding_theme.dart';
 import '../widgets/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
+import '../../../core/l10n/generated/strings.g.dart'; // ✅ CORREGIDO
 
 enum PersonalGoal {
-  saveForTravel('save_travel', 'Ahorrar para viajar ✈️'),    // ✅ ELIMINADO: número ①
-  payDebts('pay_debts', 'Pagar deudas 📉'),                  // ✅ ELIMINADO: número ②
-  seeNumbers('see_numbers', 'Solo quiero ver mis números 👀'); // ✅ ELIMINADO: número ③
+  saveForTravel('save_travel'),
+  payDebts('pay_debts'),
+  seeNumbers('see_numbers');
 
-  const PersonalGoal(this.key, this.label);
+  const PersonalGoal(this.key);
   final String key;
-  final String label;
+  
+  String get label {
+    switch (this) {
+      case PersonalGoal.saveForTravel:
+        return t.onboarding.personalGoal.options.saveTrip;
+      case PersonalGoal.payDebts:
+        return t.onboarding.personalGoal.options.debtFree;
+      case PersonalGoal.seeNumbers:
+        return t.onboarding.personalGoal.options.peace; // O usa una clave más específica si es necesario
+    }
+  }
 }
 
 class PersonalGoalPage extends StatefulWidget {
@@ -72,7 +83,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage>
               
               // Question
               StaggeredTextAnimation(
-                text: '¿Cuál es tu meta para los próximos 3 meses? 🎯',
+                text: t.onboarding.personalGoal.title, // ✅ LOCALIZADO
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -86,7 +97,7 @@ class _PersonalGoalPageState extends State<PersonalGoalPage>
               
               // Subtitle
               StaggeredTextAnimation(
-                text: 'Selecciona la que te motive más.',
+                text: t.common.moreOptions, // ✅ LOCALIZADO (o usa uno más específico si existe)
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w400,  // ✅ AGREGADO: Ligeramente más pesado que normal

@@ -42,7 +42,10 @@ void main() async {
 
   await initializeDateFormatting('es_ES', null);
 
-  LocaleSettings.setLocale(AppLocale.es);
+  // Inicialización inteligente del idioma
+  // 1. Detecta el idioma del dispositivo
+  // 2. Si no está soportado, usa el fallback (Inglés/Base)
+  LocaleSettings.useDeviceLocale();
 
   await initializeDependencies();
 

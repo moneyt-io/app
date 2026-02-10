@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Enum para tipos de filtro de wallets basado en wallet_list.html
 enum WalletFilterType { all, active, archived }
@@ -31,7 +32,7 @@ class WalletTypeFilter extends StatelessWidget {
           child: _buildFilterButton(
             type: WalletFilterType.all,
             icon: Icons.account_balance_wallet,
-            label: 'All',
+            label: t.wallets.filter.all,
             isActive: selectedType == WalletFilterType.all,
           ),
         ),
@@ -40,7 +41,7 @@ class WalletTypeFilter extends StatelessWidget {
           child: _buildFilterButton(
             type: WalletFilterType.active,
             icon: Icons.visibility,
-            label: 'Active',
+            label: t.wallets.filter.active,
             isActive: selectedType == WalletFilterType.active,
           ),
         ),
@@ -49,7 +50,7 @@ class WalletTypeFilter extends StatelessWidget {
           child: _buildFilterButton(
             type: WalletFilterType.archived,
             icon: Icons.archive,
-            label: 'Archived',
+            label: t.wallets.filter.archived,
             isActive: selectedType == WalletFilterType.archived,
           ),
         ),

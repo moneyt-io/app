@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../domain/entities/loan_entry.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class LoanProgressCard extends StatelessWidget {
   final LoanEntry loan;
@@ -41,9 +42,9 @@ class LoanProgressCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Loan Progress',
-                style: TextStyle(
+              Text(
+                t.loans.detail.progress,
+                style: const TextStyle(
                   color: Color(0xFF374151), // text-slate-700
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -93,14 +94,14 @@ class LoanProgressCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '$currencySymbol${NumberFormat('#,##0').format(paidAmount)} paid',
+                t.loans.detail.payment.paid(amount: '$currencySymbol${NumberFormat('#,##0').format(paidAmount)}'),
                 style: const TextStyle(
                   color: Color(0xFF64748B), // text-slate-500
                   fontSize: 12,
                 ),
               ),
               Text(
-                '$currencySymbol${NumberFormat('#,##0').format(remainingAmount)} remaining',
+                t.loans.detail.payment.remaining(amount: '$currencySymbol${NumberFormat('#,##0').format(remainingAmount)}'),
                 style: const TextStyle(
                   color: Color(0xFF64748B), // text-slate-500
                   fontSize: 12,

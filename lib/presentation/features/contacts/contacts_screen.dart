@@ -436,13 +436,13 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Widget _buildEmptyState() {
     return EmptyState(
       icon: Icons.contacts_outlined,
-      title: _searchQuery.isEmpty ? 'No contacts found' : 'No search results',
+      title: _searchQuery.isEmpty ? t.contacts.noContacts : t.contacts.noSearchResults,
       message: _searchQuery.isEmpty
-          ? 'Add your first contact to get started managing your connections'
-          : 'No contacts match "$_searchQuery". Try a different search term.',
+          ? t.contacts.noContactsMessage
+          : t.contacts.noContactsMatch(query: _searchQuery),
       action: _searchQuery.isNotEmpty
           ? AppButton(
-              text: 'Clear search',
+              text: t.common.clearSearch,
               onPressed: () {
                 _searchController.clear();
                 _handleSearch('');
@@ -450,11 +450,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
               },
               type: AppButtonType.text,
             )
-          : AppButton(
-              text: 'Add contact',
-              onPressed: () => _navigateToContactForm(),
-              type: AppButtonType.filled,
-            ),
+          : null, // Eliminado el botón "Add contact" cuando está vacío, el FAB es suficiente
     );
   }
 

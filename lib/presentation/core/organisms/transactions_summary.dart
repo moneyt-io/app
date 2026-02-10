@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../molecules/transaction_summary_card.dart';
+import '../l10n/generated/strings.g.dart';
 
 class TransactionsSummary extends StatelessWidget {
   final double totalIncome;
@@ -21,7 +22,7 @@ class TransactionsSummary extends StatelessWidget {
       summaryWidgets.add(
         Expanded(
           child: TransactionSummaryCard(
-            title: 'Income',
+            title: t.transactions.types.income,
             icon: Icons.trending_up,
             amount: totalIncome,
             backgroundColor: const Color(0xFF22C55E), // green-500
@@ -37,7 +38,7 @@ class TransactionsSummary extends StatelessWidget {
       summaryWidgets.add(
         Expanded(
           child: TransactionSummaryCard(
-            title: 'Expense',
+            title: t.transactions.types.expense,
             icon: Icons.trending_down,
             amount: totalExpense,
             backgroundColor: const Color(0xFFEF4444), // red-500
@@ -53,7 +54,7 @@ class TransactionsSummary extends StatelessWidget {
       summaryWidgets.add(
         Expanded(
           child: TransactionSummaryCard(
-            title: 'Transfer',
+            title: t.transactions.types.transfer,
             icon: Icons.swap_horiz,
             amount: totalTransfer,
             backgroundColor: const Color(0xFF3B82F6), // blue-500

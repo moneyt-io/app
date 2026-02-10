@@ -13,6 +13,7 @@ import '../../../domain/entities/contact.dart';
 import '../../../domain/entities/loan_entry.dart';
 import '../../../domain/usecases/contact_usecases.dart';
 import '../../core/atoms/app_app_bar.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import '../../core/molecules/form_action_bar.dart';
 import '../../core/molecules/loan_statement_card.dart';
 
@@ -64,25 +65,31 @@ class _LoanDetailShareScreenState extends State<LoanDetailShareScreen> {
   }
 
   String _buildShareText() {
+    final locale = TranslationProvider.of(context).flutterLocale.languageCode;
     final currencyFormat =
-        NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
-    final dateFormat = DateFormat('MMM dd, yyyy');
-    final generationTimeFormat = DateFormat('MMM dd, yyyy \'at\' hh:mm a');
+        NumberFormat.currency(locale: locale, symbol: '\$', decimalDigits: 2);
+    final dateFormat = DateFormat.yMMMd(locale);
+    final generationTimeFormat = DateFormat.yMMMd(locale).add_jm();
 
     final details = [
-      'MoneyT - Loan Statement',
+      t.loans.share.loanStatement,
       '',
-      widget.loan.description ?? 'Personal Loan',
+      widget.loan.description ?? t.loans.share.personalLoan,
       '',
-      'Remaining Balance: ${currencyFormat.format(widget.loan.outstandingBalance)}',
-      'of ${currencyFormat.format(widget.loan.amount)} original',
-      'Payment Progress: ${(widget.loan.totalPaid / widget.loan.amount * 100).toStringAsFixed(0)}% Paid',
+      t.loans.share.remaining(
+          amount: currencyFormat.format(widget.loan.outstandingBalance)),
+      t.loans.share
+          .original(amount: currencyFormat.format(widget.loan.amount)),
+      t.loans.share.progress(
+          percent: (widget.loan.totalPaid / widget.loan.amount * 100)
+              .toStringAsFixed(0)),
       '',
-      'Loan Date: ${dateFormat.format(widget.loan.date)}',
-      if (_contact != null) 'Contact: ${_contact!.name}',
+      t.loans.share.date(date: dateFormat.format(widget.loan.date)),
+      if (_contact != null) t.loans.share.contact(name: _contact!.name),
       '',
-      'Generated on ${generationTimeFormat.format(DateTime.now())}',
-      'Powered by MoneyT • moneyt.io',
+      t.loans.share.generated(
+          date: generationTimeFormat.format(DateTime.now())),
+      t.loans.share.poweredBy,
     ];
 
     return details.join('\n');
@@ -91,7 +98,7 @@ class _LoanDetailShareScreenState extends State<LoanDetailShareScreen> {
   void _copyToClipboard() {
     Clipboard.setData(ClipboardData(text: _buildShareText()));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Loan details copied to clipboard!')),
+      SnackBar(content: Text(t.loans.share.copied)),
     );
   }
 
@@ -107,11 +114,12 @@ class _LoanDetailShareScreenState extends State<LoanDetailShareScreen> {
 
       await Share.shareXFiles(
         [XFile(imagePath.path)],
-        text: 'Here is my loan statement:',
+        text: t.loans.share.message,
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error sharing image: ${e.toString()}')),
+        SnackBar(
+            content: Text(t.loans.share.error(error: e.toString()))),
       );
     }
   }
@@ -121,7 +129,7 @@ class _LoanDetailShareScreenState extends State<LoanDetailShareScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // slate-50
       appBar: AppAppBar(
-        title: 'Share Loan',
+        title: t.loans.share.title,
         type: AppAppBarType.blur,
         onLeadingPressed: () => Navigator.of(context).pop(),
       ),
@@ -145,8 +153,8 @@ class _LoanDetailShareScreenState extends State<LoanDetailShareScreen> {
       bottomNavigationBar: FormActionBar(
         onCancel: _copyToClipboard,
         onSave: _shareAsImage,
-        cancelText: 'Copy Text',
-        saveText: 'Share',
+        cancelText: t.loans.share.copy,
+        saveText: t.loans.share.button,
       ),
     );
   }

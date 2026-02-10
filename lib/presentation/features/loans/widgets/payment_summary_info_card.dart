@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class PaymentSummaryInfoCard extends StatelessWidget {
   final double paymentAmount;
@@ -27,9 +28,9 @@ class PaymentSummaryInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Payment summary',
-            style: TextStyle(
+          Text(
+            t.loans.payment.summary.title,
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Color(0xFF374151), // text-slate-700
@@ -39,19 +40,19 @@ class PaymentSummaryInfoCard extends StatelessWidget {
           Column(
             children: [
               _buildSummaryRow(
-                'Payment amount',
+                t.loans.payment.summary.amount,
                 '$currencySymbol${NumberFormat('#,##0.00').format(paymentAmount)}',
                 const Color(0xFF111827), // text-slate-900
               ),
               const SizedBox(height: 8),
               _buildSummaryRow(
-                'Remaining balance',
+                t.loans.payment.summary.remaining,
                 '$currencySymbol${NumberFormat('#,##0.00').format(remainingBalance)}',
                 const Color(0xFFEA580C), // text-orange-600
               ),
               const SizedBox(height: 8),
               _buildSummaryRow(
-                'New progress',
+                t.loans.payment.summary.progress,
                 '${newProgressPercentage.toStringAsFixed(0)}%',
                 const Color(0xFF16A34A), // text-green-600
               ),

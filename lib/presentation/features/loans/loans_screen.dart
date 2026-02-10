@@ -20,6 +20,7 @@ import '../../navigation/app_routes.dart';
 import '../../navigation/navigation_service.dart';
 import 'loan_contact_detail_screen.dart';
 import '../../core/design_system/tokens/app_dimensions.dart';
+import '../../core/l10n/generated/strings.g.dart';
 
 enum LoanTypeFilter { pending, lent, borrowed, all }
 
@@ -163,7 +164,7 @@ class _LoansScreenState extends State<LoansScreen> {
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppAppBar(
-        title: 'Loans',
+        title: t.loans.title,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.drawer,
         onLeadingPressed: () => _scaffoldKey.currentState?.openDrawer(),
@@ -185,11 +186,11 @@ class _LoansScreenState extends State<LoansScreen> {
                   children: [
                     FilterChipGroup<LoanTypeFilter>(
                       selectedValue: _selectedFilter,
-                      filters: const {
-                        LoanTypeFilter.pending: 'Pending',
-                        LoanTypeFilter.lent: 'Lent',
-                        LoanTypeFilter.borrowed: 'Borrowed',
-                        LoanTypeFilter.all: 'All',
+                      filters: {
+                        LoanTypeFilter.pending: t.loans.filter.pending,
+                        LoanTypeFilter.lent: t.loans.filter.lent,
+                        LoanTypeFilter.borrowed: t.loans.filter.borrowed,
+                        LoanTypeFilter.all: t.loans.filter.all,
                       },
                       icons: const {
                         LoanTypeFilter.pending: Icons.hourglass_top_outlined,
@@ -256,7 +257,7 @@ class _LoansScreenState extends State<LoansScreen> {
       floatingActionButton: ExpandableFab(
         actions: [
           FabAction(
-            label: 'Lend',
+            label: t.loans.form.lend,
             icon: Icons.trending_up,
             backgroundColor: const Color(0xFF22C55E),
             onPressed: () => NavigationService.navigateTo(
@@ -265,7 +266,7 @@ class _LoansScreenState extends State<LoansScreen> {
             ),
           ),
           FabAction(
-            label: 'Borrow',
+            label: t.loans.form.borrow,
             icon: Icons.trending_down,
             backgroundColor: const Color(0xFFEF4444),
             onPressed: () => NavigationService.navigateTo(
@@ -289,14 +290,14 @@ class _LoansScreenState extends State<LoansScreen> {
                 size: AppDimensions.spacing48,
                 color: Theme.of(context).colorScheme.error),
             SizedBox(height: AppDimensions.spacing16),
-            Text('Error loading loans',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(t.common.error,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: AppDimensions.spacing8),
             Text(error),
             SizedBox(height: AppDimensions.spacing24),
             ElevatedButton(
               onPressed: _loadData,
-              child: const Text('Retry'),
+              child: Text(t.common.retry),
             ),
           ],
         ),
@@ -307,10 +308,10 @@ class _LoansScreenState extends State<LoansScreen> {
   Widget _buildEmptyState() {
     return EmptyState(
       icon: Icons.account_balance_outlined,
-      title: 'No loans found',
-      message: 'No loans match the applied filters',
+      title: t.loans.empty.title,
+      message: t.loans.empty.message,
       action: AppButton(
-        text: 'Clear filters',
+        text: t.common.clearSearch, // Usando clearSearch como "Clear filters"
         onPressed: () {
           setState(() {
             _selectedFilter = LoanTypeFilter.pending;

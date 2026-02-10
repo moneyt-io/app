@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'dart:ui'; // ✅ AGREGADO: Import para ImageFilter
 import '../../core/atoms/app_app_bar.dart';
 import '../../core/providers/language_provider.dart';
-import '../../core/l10n/generated/strings.g.dart' show AppLocale, LocaleSettings; // ✅ CORREGIDO: Agregar LocaleSettings al import
+import '../../core/l10n/generated/strings.g.dart'; // ✅ CORREGIDO: Importar todo para tener acceso a 't'
 
 /// Pantalla de selección de idioma basada en language.html
 /// 
@@ -56,7 +56,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
       
       // ✅ AppBar con blur effect exacto del HTML
       appBar: AppAppBar(
-        title: 'Language',
+        title: t.settings.language.title,
         type: AppAppBarType.blur, // HTML: bg-slate-50/80 backdrop-blur-md
         leading: AppAppBarLeading.back,
         onLeadingPressed: () => Navigator.of(context).pop(),
@@ -114,7 +114,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
             child: Row(
               children: [
                 Text(
-                  'AVAILABLE LANGUAGES',
+                  t.settings.language.available,
                   style: const TextStyle(
                     fontSize: 12, // HTML: text-sm
                     fontWeight: FontWeight.w600, // HTML: font-semibold
@@ -282,7 +282,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                 letterSpacing: -0.1, // HTML: tracking-tight
               ),
             ),
-            child: const Text('Apply Language'),
+            child: Text(t.settings.language.apply),
           ),
         ),
       ),

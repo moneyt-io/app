@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/chart_account.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Item de wallet expandible con tree view basado en wallet_list.html
 /// 
@@ -292,8 +293,10 @@ class WalletTreeItem extends StatelessWidget {
 
   String _getWalletSubtitle() {
     final childCount = childWallets.length;
-    final type = parentWallet.name.toLowerCase().contains('personal') ? 'Cash & digital' : 'Main account';
-    return '$type • $childCount wallet${childCount != 1 ? 's' : ''}';
+    final type = parentWallet.name.toLowerCase().contains('personal') 
+        ? t.wallets.subtitle.cashDigital 
+        : t.wallets.subtitle.mainAccount;
+    return '$type • ${t.wallets.subtitle.count(n: childCount)}';
   }
 
   // Child wallet helpers
@@ -346,11 +349,11 @@ class WalletTreeItem extends StatelessWidget {
     } else if (name.contains('emergency')) {
       return '****8901';
     } else if (name.contains('cash')) {
-      return 'Physical cash';
+      return t.wallets.subtitle.physicalCash;
     } else if (name.contains('paypal')) {
-      return 'Digital wallet';
+      return t.wallets.subtitle.digitalWallet;
     }
-    return 'Account';
+    return t.wallets.subtitle.account;
   }
 
   /// Formatea el balance con comas

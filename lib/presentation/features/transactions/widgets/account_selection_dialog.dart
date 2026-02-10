@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/l10n/generated/strings.g.dart';
 import '../../../../domain/services/balance_calculation_service.dart';
 import '../../../core/molecules/form_action_bar.dart';
 import '../../../core/organisms/account_selector_modal.dart'
@@ -143,14 +144,14 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Select account',
+                  children: [
+                    Text(t.components.accountSelection.title,
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                             color: _slate800)),
                     SizedBox(height: 4),
-                    Text('Choose where this transaction will be recorded',
+                    Text(t.components.accountSelection.subtitle,
                         style: TextStyle(fontSize: 14, color: _slate500)),
                   ],
                 ),
@@ -161,7 +162,7 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'Search accounts',
+                    hintText: t.components.accountSelection.searchPlaceholder,
                     hintStyle: const TextStyle(color: _slate500),
                     prefixIcon: const Icon(Icons.search, color: _slate500),
                     filled: true,
@@ -196,7 +197,7 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
               FormActionBar(
                 onCancel: () => Navigator.of(context).pop(),
                 onSave: () => Navigator.of(context).pop(_selectedAccount),
-                saveText: 'Select',
+                saveText: t.components.selection.select,
                 enabled: _selectedAccount != null,
               )
             ],
@@ -213,7 +214,7 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
     final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$');
 
     if (wallets.isNotEmpty) {
-      listItems.add(_buildSectionHeader('Wallets'));
+      listItems.add(_buildSectionHeader(t.components.accountSelection.wallets));
 
       final childrenByParentId = <int, List<SelectableAccount>>{};
       wallets.where((w) => w.parentAccountId != null).forEach((child) {
@@ -275,7 +276,7 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
     }
 
     if (creditCards.isNotEmpty) {
-      listItems.add(_buildSectionHeader('Credit Cards'));
+      listItems.add(_buildSectionHeader(t.components.accountSelection.creditCards));
       for (final account in creditCards) {
         final availableCredit = _balances[account.id] ?? 0.0;
         final details = 'Available: ${currencyFormat.format(availableCredit)}';

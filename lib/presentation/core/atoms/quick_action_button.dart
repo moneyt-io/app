@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Tipos de acciones rápidas disponibles
 enum QuickActionType {
@@ -127,13 +128,13 @@ class QuickActionButton extends StatelessWidget {
   String _getLabel() {
     switch (type) {
       case QuickActionType.expense:
-        return 'Expense';
+        return t.dashboard.actions.expense;
       case QuickActionType.income:
-        return 'Income';
+        return t.dashboard.actions.income;
       case QuickActionType.transfer:
-        return 'Transfer';
+        return t.dashboard.actions.transfer;
       case QuickActionType.all:
-        return 'All';
+        return t.dashboard.actions.all;
     }
   }
 }

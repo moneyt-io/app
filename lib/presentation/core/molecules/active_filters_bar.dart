@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/strings.g.dart';
 
 class ActiveFilter {
   final String key;
@@ -77,7 +78,7 @@ class ActiveFiltersBar extends StatelessWidget {
     return TextButton.icon(
       onPressed: onAddFilter,
       icon: const Icon(Icons.add, size: 16),
-      label: const Text('Add Filter'),
+      label: Text(t.transactions.filter.add),
       style: TextButton.styleFrom(
         foregroundColor: Colors.grey[600],
         textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),

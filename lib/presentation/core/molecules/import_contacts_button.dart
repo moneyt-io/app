@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../design_system/tokens/app_dimensions.dart';
 import '../design_system/tokens/app_colors.dart';
-import '../l10n/l10n_helper.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Import contacts button que match exactamente el diseño HTML
 /// 
@@ -60,7 +60,7 @@ class ImportContactsButton extends StatelessWidget {
                 
                 // Text (exacto del HTML)
                 Text(
-                  'Import contacts', // HTML: "Import contacts"
+                  t.contacts.importContacts, // HTML: "Import contacts"
                   style: textTheme.bodyLarge?.copyWith(
                     fontSize: 16, // HTML: text-base
                     fontWeight: FontWeight.w500, // HTML: font-medium

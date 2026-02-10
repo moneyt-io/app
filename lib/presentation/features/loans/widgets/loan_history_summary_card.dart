@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../domain/entities/loan_entry.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class LoanHistorySummaryCard extends StatefulWidget {
   final List<LoanEntry> loans;
@@ -59,16 +60,16 @@ class _LoanHistorySummaryCardState extends State<LoanHistorySummaryCard> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
-            'History Summary',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+          Text(
+            t.loans.history.summary.title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
           ),
           InkWell(
             onTap: () => setState(() => _isExpanded = !_isExpanded),
             child: Row(
               children: [
                 Text(
-                  _isExpanded ? 'Hide Details' : 'View Details',
+                  _isExpanded ? t.loans.history.summary.hideDetails : t.loans.history.summary.viewDetails,
                   style: const TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(width: 4),
@@ -85,13 +86,13 @@ class _LoanHistorySummaryCardState extends State<LoanHistorySummaryCard> {
     final netPosition = summary['outstandingLent']! - summary['outstandingBorrowed']!;
     return Column(
       children: [
-        _buildStatRow('Currently Outstanding', summary['outstandingLent']!, const Color(0xFFEA580C), format),
+        _buildStatRow(t.loans.history.summary.outstandingLent, summary['outstandingLent']!, const Color(0xFFEA580C), format),
         const SizedBox(height: 12),
-        _buildStatRow('You Currently Owe', summary['outstandingBorrowed']!, const Color(0xFF9333EA), format),
+        _buildStatRow(t.loans.history.summary.outstandingBorrowed, summary['outstandingBorrowed']!, const Color(0xFF9333EA), format),
         const SizedBox(height: 16),
         Container(height: 1, color: const Color(0xFFE2E8F0)), // Divider
         const SizedBox(height: 16),
-        _buildNetPositionRow('Net Position (Active)', netPosition, format),
+        _buildNetPositionRow(t.loans.history.summary.netPosition, netPosition, format),
       ],
     );
   }
@@ -103,19 +104,19 @@ class _LoanHistorySummaryCardState extends State<LoanHistorySummaryCard> {
         children: [
           Container(height: 1, color: const Color(0xFFE2E8F0)), // Divider
           const SizedBox(height: 16),
-          _buildStatRow('Total Ever Lent', summary['totalLent']!, const Color(0xFFEA580C), format),
+          _buildStatRow(t.loans.history.summary.totalLent, summary['totalLent']!, const Color(0xFFEA580C), format),
           const SizedBox(height: 12),
-          _buildStatRow('Total Ever Borrowed', summary['totalBorrowed']!, const Color(0xFF9333EA), format),
+          _buildStatRow(t.loans.history.summary.totalBorrowed, summary['totalBorrowed']!, const Color(0xFF9333EA), format),
           const SizedBox(height: 12),
-          _buildStatRow('Total Repaid to You', summary['totalRepaidToYou']!, const Color(0xFF16A34A), format),
+          _buildStatRow(t.loans.history.summary.totalRepaidToYou, summary['totalRepaidToYou']!, const Color(0xFF16A34A), format),
           const SizedBox(height: 12),
-          _buildStatRow('Total You Repaid', summary['totalYouRepaid']!, const Color(0xFF16A34A), format),
+          _buildStatRow(t.loans.history.summary.totalYouRepaid, summary['totalYouRepaid']!, const Color(0xFF16A34A), format),
           const SizedBox(height: 16),
           Container(height: 1, color: const Color(0xFFE2E8F0)), // Divider
           const SizedBox(height: 16),
-          _buildStatRow('Total Loans', summary['totalLoans']!, const Color(0xFF0F172A), format, isInt: true),
+          _buildStatRow(t.loans.history.summary.totalLoans, summary['totalLoans']!, const Color(0xFF0F172A), format, isInt: true),
           const SizedBox(height: 12),
-          _buildStatRow('Completed Loans', summary['completedLoans']!, const Color(0xFF16A34A), format, isInt: true),
+          _buildStatRow(t.loans.history.summary.completedLoans, summary['completedLoans']!, const Color(0xFF16A34A), format, isInt: true),
         ],
       ),
     );

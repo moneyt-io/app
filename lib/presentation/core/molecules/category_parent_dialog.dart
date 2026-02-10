@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../domain/entities/category.dart';
 import '../design_system/tokens/app_colors.dart';
 import '../molecules/dialog_action_bar.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Diálogo de selección de categoría padre basado en category_dialog_parent.html
 /// 
@@ -142,7 +143,7 @@ class _CategoryParentDialogState extends State<CategoryParentDialog> {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'Select parent category',
+                              t.categories.parentSelection.title,
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -154,7 +155,7 @@ class _CategoryParentDialogState extends State<CategoryParentDialog> {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'Choose a parent category or leave empty for root level',
+                              t.categories.parentSelection.subtitle,
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Color(0xFF64748B),
@@ -202,9 +203,9 @@ class _CategoryParentDialogState extends State<CategoryParentDialog> {
                                     _searchQuery = value;
                                   });
                                 },
-                                decoration: const InputDecoration(
-                                  hintText: 'Search categories',
-                                  hintStyle: TextStyle(
+                                decoration: InputDecoration(
+                                  hintText: t.common.search,
+                                  hintStyle: const TextStyle(
                                     color: Color(0xFF64748B),
                                     fontSize: 14,
                                   ),
@@ -235,8 +236,8 @@ class _CategoryParentDialogState extends State<CategoryParentDialog> {
                             icon: Icons.folder_open,
                             iconColor: const Color(0xFF64748B),
                             backgroundColor: const Color(0xFFF1F5F9),
-                            title: 'No parent category',
-                            subtitle: 'Create as a root category',
+                            title: t.categories.parentSelection.noParent,
+                            subtitle: t.categories.form.asRoot,
                             isSelected: _selectedParent == null,
                             onTap: () {
                               setState(() {
@@ -251,7 +252,7 @@ class _CategoryParentDialogState extends State<CategoryParentDialog> {
                               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                               color: const Color(0xFFF8FAFC),
                               child: Text(
-                                widget.documentTypeId == 'I' ? 'Income Categories' : 'Expense Categories',
+                                widget.documentTypeId == 'I' ? t.transactions.types.income : t.transactions.types.expense,
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
@@ -268,7 +269,7 @@ class _CategoryParentDialogState extends State<CategoryParentDialog> {
                                 iconColor: _getCategoryColor(category),
                                 backgroundColor: _getCategoryColor(category).withOpacity(0.1),
                                 title: category.name,
-                                subtitle: '${widget.documentTypeId == 'I' ? 'Income' : 'Expense'} • ${_getSubcategoryCount(category)} subcategories',
+                                subtitle: '${widget.documentTypeId == 'I' ? t.transactions.types.income : t.transactions.types.expense} • ${_getSubcategoryCount(category)}',
                                 isSelected: _selectedParent?.id == category.id,
                                 onTap: () {
                                   setState(() {
@@ -286,8 +287,8 @@ class _CategoryParentDialogState extends State<CategoryParentDialog> {
                     DialogActionBar(
                       onCancel: () => Navigator.of(context).pop(),
                       onConfirm: () => Navigator.of(context).pop(_selectedParent),
-                      cancelText: 'Cancel',
-                      confirmText: 'Select',
+                      cancelText: t.common.cancel,
+                      confirmText: t.components.selection.select,
                       isLoading: false,
                       enabled: true,
                     ),

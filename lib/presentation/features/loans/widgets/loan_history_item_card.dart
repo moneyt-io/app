@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../domain/entities/loan_entry.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class LoanHistoryItemCard extends StatelessWidget {
   final LoanEntry loan;
@@ -16,7 +17,7 @@ class LoanHistoryItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
-    final dateFormat = DateFormat('MMM dd, yyyy');
+    final dateFormat = DateFormat('MMM dd, yyyy', LocaleSettings.currentLocale.languageCode);
 
     final statusDetails = _getStatusDetails(loan.status);
 
@@ -84,7 +85,7 @@ class LoanHistoryItemCard extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            loan.description ?? 'Loan',
+            loan.description ?? t.loans.history.item.defaultTitle,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             overflow: TextOverflow.ellipsis,
           ),
@@ -103,7 +104,7 @@ class LoanHistoryItemCard extends StatelessWidget {
         Icon(Icons.calendar_today, size: 12, color: Colors.grey.shade600),
         const SizedBox(width: 4),
         Text(
-          'Date: ${dateFormat.format(loan.date)}',
+          t.loans.history.item.date(date: dateFormat.format(loan.date)),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade700),
         ),
       ],
@@ -126,7 +127,7 @@ class LoanHistoryItemCard extends StatelessWidget {
         ),
         const Spacer(),
         Text(
-          loan.isLend ? 'Lent' : 'Borrowed',
+          loan.isLend ? t.loans.history.item.lent : t.loans.history.item.borrowed,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade500),
         ),
       ],
@@ -136,13 +137,13 @@ class LoanHistoryItemCard extends StatelessWidget {
   Map<String, dynamic> _getStatusDetails(LoanStatus status) {
     switch (status) {
       case LoanStatus.paid:
-        return {'icon': Icons.check_circle, 'color': Colors.green.shade600, 'text': 'Completed'};
+        return {'icon': Icons.check_circle, 'color': Colors.green.shade600, 'text': t.loans.history.item.status.completed};
       case LoanStatus.active:
-        return {'icon': Icons.hourglass_empty, 'color': Colors.blue.shade600, 'text': 'Active'};
+        return {'icon': Icons.hourglass_empty, 'color': Colors.blue.shade600, 'text': t.loans.history.item.status.active};
       case LoanStatus.cancelled:
-        return {'icon': Icons.cancel, 'color': Colors.red.shade600, 'text': 'Cancelled'};
+        return {'icon': Icons.cancel, 'color': Colors.red.shade600, 'text': t.loans.history.item.status.cancelled};
       case LoanStatus.writtenOff:
-        return {'icon': Icons.archive, 'color': Colors.orange.shade800, 'text': 'Written Off'};
+        return {'icon': Icons.archive, 'color': Colors.orange.shade800, 'text': t.loans.history.item.status.writtenOff};
     }
   }
 }

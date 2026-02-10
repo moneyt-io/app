@@ -2,15 +2,23 @@ import 'package:flutter/material.dart';
 import '../theme/onboarding_theme.dart';
 import '../widgets/animated_feature_icon.dart';
 import '../widgets/staggered_text_animation.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 enum CurrentMethod {
-  excel('excel', 'En una hoja de Excel 📊'), // ✅ ELIMINADO: número ①
-  notebook('notebook', 'En un cuaderno 📒'), // ✅ ELIMINADO: número ②
-  none('none', 'No las llevo 🙈'); // ✅ ELIMINADO: número ③
+  excel,
+  notebook,
+  none;
 
-  const CurrentMethod(this.key, this.label);
-  final String key;
-  final String label;
+  String get label {
+    switch (this) {
+      case CurrentMethod.excel:
+        return t.onboarding.currentMethod.options.excel;
+      case CurrentMethod.notebook:
+        return t.onboarding.currentMethod.options.notebook;
+      case CurrentMethod.none:
+        return t.onboarding.currentMethod.options.none;
+    }
+  }
 }
 
 class CurrentMethodPage extends StatefulWidget {
@@ -72,7 +80,7 @@ class _CurrentMethodPageState extends State<CurrentMethodPage>
 
               // Question
               StaggeredTextAnimation(
-                text: 'Llevo mis cuentas… 📝',
+                text: t.onboarding.currentMethod.title,
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -86,7 +94,7 @@ class _CurrentMethodPageState extends State<CurrentMethodPage>
 
               // Subtitle
               StaggeredTextAnimation(
-                text: 'Selecciona tu método actual.',
+                text: t.onboarding.currentMethod.subtitle,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/design_system/tokens/app_dimensions.dart';
 import '../../../core/design_system/tokens/app_colors.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class LoanSummaryCards extends StatelessWidget {
   final double? totalLent;
@@ -39,7 +40,7 @@ class LoanSummaryCards extends StatelessWidget {
 
     final lentCard = totalLent != null
         ? _LoanSummaryCard(
-            title: 'You Lent',
+            title: t.loans.card.lent,
             amount: totalLent!,
             peopleCount: lentToPeople ?? 0,
             icon: Icons.call_made,
@@ -50,7 +51,7 @@ class LoanSummaryCards extends StatelessWidget {
 
     final borrowedCard = totalBorrowed != null
         ? _LoanSummaryCard(
-            title: 'You Borrowed',
+            title: t.loans.card.borrowed,
             amount: totalBorrowed!,
             peopleCount: borrowedFromPeople ?? 0,
             icon: Icons.call_received,

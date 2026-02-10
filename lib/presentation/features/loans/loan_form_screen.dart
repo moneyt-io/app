@@ -15,6 +15,7 @@ import '../../core/atoms/app_app_bar.dart';
 import '../../core/atoms/app_floating_label_field.dart';
 import '../../core/atoms/app_floating_label_selector.dart';
 import '../../core/molecules/form_action_bar.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import '../contacts/widgets/contact_selection_dialog.dart' as contact_dialog;
 import '../categories/widgets/category_selection_dialog.dart' as cat_dialog;
 import '../../core/molecules/date_selection_dialog.dart';
@@ -144,7 +145,7 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar datos: ${e.toString()}')),
+          SnackBar(content: Text('Error: ${e.toString()}')),
         );
       }
     } finally {
@@ -159,7 +160,7 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // bg-slate-50
       appBar: AppAppBar(
-        title: isEditing ? 'Edit Loan' : 'New loan',
+        title: isEditing ? t.loans.form.editTitle : t.loans.form.newTitle,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.close,
         onLeadingPressed: () => Navigator.of(context).pop(),
@@ -196,17 +197,17 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
         AppFloatingLabelField(
           controller: _amountController,
           focusNode: _amountFocusNode,
-          label: 'Amount',
+          label: t.loans.form.amount,
           placeholder: '0.00',
           prefixIcon: Icons.attach_money,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Amount is required';
+              return t.loans.form.amountRequired;
             }
             final amount = double.tryParse(value);
             if (amount == null || amount <= 0) {
-              return 'Please enter a valid amount';
+              return 'Enter valid amount'; // TODO: Localize generic validation
             }
             return null;
           },
@@ -219,9 +220,9 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
 
         // Contact Selector
         AppFloatingLabelSelector(
-          label: 'Contact',
+          label: t.loans.form.contact,
           icon: Icons.person_outline,
-          value: _selectedContact?.name ?? 'Select contact',
+          value: _selectedContact?.name ?? t.loans.form.contactPlaceholder,
           onTap: _selectContact,
           hasValue: _selectedContact != null,
           iconColor: const Color(0xFF64748B), // slate-500
@@ -234,9 +235,9 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
           Padding(
             padding: const EdgeInsets.only(bottom: 24.0),
             child: AppFloatingLabelSelector(
-              label: 'Wallet',
+              label: t.loans.form.account,
               icon: Icons.account_balance_wallet_outlined,
-              value: _selectedAccount?.name ?? 'Select wallet',
+              value: _selectedAccount?.name ?? t.loans.form.accountPlaceholder,
               onTap: _showAccountSelector,
               hasValue: _selectedAccount != null,
               iconColor: const Color(0xFF2563EB), // blue-600
@@ -247,8 +248,8 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
         // Description
         AppFloatingLabelField(
           controller: _descriptionController,
-          label: 'Description',
-          placeholder: 'Add loan notes or reason',
+          label: t.loans.form.description,
+          placeholder: t.loans.form.description,
           maxLines: 3,
           textInputAction: TextInputAction.newline,
         ),
@@ -268,22 +269,22 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Expanded(
+                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Create transaction',
-                          style: TextStyle(
+                          t.loans.form.createTransaction,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF1E40AF), // text-blue-800
                           ),
                         ),
-                        SizedBox(height: 2),
-                        Text(
-                          'Record this loan as a transaction',
-                          style: TextStyle(
+                        const SizedBox(height: 2),
+                         Text(
+                          t.loans.form.recordAutomatically,
+                          style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFF2563EB), // text-blue-600
                           ),
@@ -359,7 +360,7 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      _selectedCategory?.name ?? 'Select category',
+                      _selectedCategory?.name ?? t.loans.form.categoryPlaceholder,
                       style: TextStyle(
                         fontSize: 14, // text-sm
                         fontWeight: FontWeight.w500,
@@ -385,9 +386,9 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             color: const Color(0xFFEFF6FF), // Match background to hide border
-            child: const Text(
-              'Transaction category',
-              style: TextStyle(
+            child: Text(
+              t.loans.form.transactionCategory,
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF1D4ED8), // text-blue-700
@@ -403,9 +404,9 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Loan type',
-          style: TextStyle(
+        Text(
+          t.loans.form.type,
+          style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: Color(0xFF334155), // text-slate-700
@@ -417,7 +418,7 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
             Expanded(
               child: _buildLoanTypeButton(
                 type: 'L',
-                label: 'Lend Money',
+                label: t.loans.form.lend,
                 icon: Icons.call_made,
                 isSelected: _documentType == 'L',
               ),
@@ -426,7 +427,7 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
             Expanded(
               child: _buildLoanTypeButton(
                 type: 'B',
-                label: 'Borrowed Money',
+                label: t.loans.form.borrow,
                 icon: Icons.call_received,
                 isSelected: _documentType == 'B',
               ),
@@ -498,7 +499,7 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
       children: [
         Expanded(
           child: AppFloatingLabelSelector(
-            label: 'Loan date',
+            label: t.loans.form.date,
             icon: Icons.calendar_today_outlined,
             value: DateFormat('MMM dd, yyyy').format(_selectedDate),
             onTap: () => _selectDate(isLoanDate: true),
@@ -509,11 +510,11 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
         const SizedBox(width: 16),
         Expanded(
           child: AppFloatingLabelSelector(
-            label: 'Due date',
+            label: t.loans.form.dueDate,
             icon: Icons.schedule_outlined,
             value: _selectedDueDate != null
                 ? DateFormat('MMM dd, yyyy').format(_selectedDueDate!)
-                : 'Select date',
+                : t.loans.form.selectDate,
             onTap: () => _selectDate(isLoanDate: false),
             hasValue: _selectedDueDate != null,
             iconColor: const Color(0xFF2563EB),

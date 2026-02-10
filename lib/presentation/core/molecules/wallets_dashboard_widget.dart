@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/wallet.dart';
 import '../atoms/widget_card_header.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Widget de wallets para dashboard basado en dashboard_main.html
 ///
@@ -50,8 +51,8 @@ class WalletsDashboardWidget extends StatelessWidget {
           // Header
           WidgetCardHeader(
             icon: Icons.account_balance_wallet,
-            title: 'Wallets',
-            subtitle: '$totalCount accounts',
+            title: t.dashboard.wallets.title,
+            subtitle: t.dashboard.wallets.count(n: totalCount),
             onTap: onHeaderTap,
             iconColor: const Color(0xFF2563EB), // HTML: text-blue-600
             iconBackgroundColor: const Color(0xFFDBEAFE), // HTML: bg-blue-100
@@ -70,7 +71,7 @@ class WalletsDashboardWidget extends StatelessWidget {
                   const SizedBox(height: 8), // HTML: pt-2
                   Center(
                     child: Text(
-                      '+${totalCount - 3} more accounts',
+                      t.dashboard.wallets.more(n: totalCount - 3),
                       style: const TextStyle(
                         fontSize: 12, // HTML: text-xs
                         color: Color(0xFF64748B), // HTML: text-slate-500

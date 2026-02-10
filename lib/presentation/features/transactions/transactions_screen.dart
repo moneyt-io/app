@@ -23,6 +23,7 @@ import '../../core/organisms/transactions_summary.dart';
 import '../../../domain/services/balance_calculation_service.dart';
 import 'package:get_it/get_it.dart';
 import '../../core/molecules/active_filters_bar.dart';
+import '../../core/l10n/generated/strings.g.dart';
 
 enum TransactionTypeFilter { all, expense, income, transfer }
 
@@ -181,7 +182,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppAppBar(
-        title: 'Transactions',
+        title: t.transactions.title,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.drawer,
         onLeadingPressed: () => _scaffoldKey.currentState?.openDrawer(),
@@ -205,11 +206,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       selectedValue: _filterModel.transactionTypes.isEmpty
                           ? TransactionTypeFilter.all
                           : _filterModel.transactionTypes.first.toFilterType(),
-                      filters: const {
-                        TransactionTypeFilter.all: 'All',
-                        TransactionTypeFilter.income: 'Income',
-                        TransactionTypeFilter.expense: 'Expense',
-                        TransactionTypeFilter.transfer: 'Transfer',
+                      filters: {
+                        TransactionTypeFilter.all: t.transactions.types.all,
+                        TransactionTypeFilter.income: t.transactions.types.income,
+                        TransactionTypeFilter.expense: t.transactions.types.expense,
+                        TransactionTypeFilter.transfer: t.transactions.types.transfer,
                       },
                       icons: const {
                         TransactionTypeFilter.all: Icons.receipt_long,
@@ -284,7 +285,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                               final transactionsForDate =
                                   groupedTransactions[dateKey]!;
                               final displayDate =
-                                  DateFormat('EEEE, d MMMM yyyy', 'es_ES')
+                                  DateFormat('EEEE, d MMMM yyyy', t.$meta.locale.languageCode)
                                       .format(DateTime.parse(dateKey));
 
                               return Column(
@@ -305,7 +306,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                                     fontWeight:
                                                         FontWeight.w600)),
                                         Text(
-                                            '${transactionsForDate.length} transactions',
+                                            t.transactions.list.count(n: transactionsForDate.length),
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodySmall
@@ -350,21 +351,21 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       floatingActionButton: ExpandableFab(
         actions: [
           FabAction(
-              label: 'Income',
+              label: t.transactions.types.income,
               icon: Icons.trending_up,
               backgroundColor: const Color(0xFF22C55E),
               onPressed: () => NavigationService.navigateTo(
                   AppRoutes.transactionForm,
                   arguments: {'initialType': 'I'})),
           FabAction(
-              label: 'Expense',
+              label: t.transactions.types.expense,
               icon: Icons.trending_down,
               backgroundColor: const Color(0xFFEF4444),
               onPressed: () => NavigationService.navigateTo(
                   AppRoutes.transactionForm,
                   arguments: {'initialType': 'E'})),
           FabAction(
-              label: 'Transfer',
+              label: t.transactions.types.transfer,
               icon: Icons.swap_horiz,
               backgroundColor: const Color(0xFF3B82F6),
               onPressed: () => NavigationService.navigateTo(
@@ -386,15 +387,15 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 size: AppDimensions.spacing48,
                 color: Theme.of(context).colorScheme.error),
             SizedBox(height: AppDimensions.spacing16),
-            Text('Error al cargar las transacciones',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(t.transactions.errors.load,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: AppDimensions.spacing8),
             Text(error),
             SizedBox(height: AppDimensions.spacing24),
             ElevatedButton(
               onPressed: () =>
                   context.read<TransactionProvider>().loadInitialData(),
-              child: const Text('Reintentar'),
+              child: Text(t.common.retry),
             ),
           ],
         ),
@@ -405,10 +406,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   Widget _buildEmptyState() {
     return EmptyState(
       icon: Icons.receipt_long_outlined,
-      title: 'No hay transacciones',
-      message: 'No se encontraron transacciones con los filtros aplicados',
+      title: t.transactions.empty.title,
+      message: t.transactions.empty.message,
       action: AppButton(
-        text: 'Limpiar filtros',
+        text: t.transactions.empty.clearFilters,
         onPressed: () {
           setState(() {
             _filterModel = TransactionFilterModel.initial();

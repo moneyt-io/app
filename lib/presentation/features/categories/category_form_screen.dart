@@ -10,6 +10,7 @@ import '../../core/molecules/category_icon_picker.dart';
 import '../../core/molecules/category_color_picker.dart';
 import '../../core/molecules/category_type_filter.dart';
 import '../../core/molecules/category_parent_dialog.dart'; // ✅ AGREGADO: Import del diálogo
+import '../../core/l10n/generated/strings.g.dart';
 
 class CategoryFormScreen extends StatefulWidget {
   final Category? category;
@@ -91,7 +92,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
 
   String? _validateName(String? value) {
     if (value?.trim().isEmpty == true) {
-      return 'Category name is required';
+      return t.categories.form.nameRequired;
     }
     return null;
   }
@@ -130,7 +131,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error saving category: $e'),
+            content: Text(t.categories.form.saveError(error: e)),
             backgroundColor: Colors.red,
           ),
         );
@@ -154,7 +155,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
       backgroundColor: const Color(0xFFF8FAFC),
       
       appBar: AppAppBar(
-        title: _isEditing ? 'Edit Category' : 'New Category',
+        title: _isEditing ? t.categories.form.editTitle : t.categories.form.newTitle,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.close,
         onLeadingPressed: () => Navigator.of(context).pop(),
@@ -188,8 +189,8 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                     // Category Name
                     AppFloatingLabelField(
                       controller: _nameController,
-                      label: 'Category Name',
-                      placeholder: 'Enter category name',
+                      label: t.categories.form.name,
+                      placeholder: t.categories.form.namePlaceholder,
                       validator: _validateName,
                       textCapitalization: TextCapitalization.words,
                     ),
@@ -198,7 +199,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                     
                     // Parent Category Selector
                     Text(
-                      'Parent Category (Optional)',
+                      t.categories.form.parent,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -250,7 +251,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      _selectedParent?.name ?? 'No parent category',
+                                      _selectedParent?.name ?? t.categories.form.noParent,
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
@@ -259,8 +260,8 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                                     ),
                                     Text(
                                       _selectedParent != null 
-                                          ? 'Will be created as subcategory'
-                                          : 'Will be created as root category',
+                                          ? t.categories.form.asSubcategory
+                                          : t.categories.form.asRoot,
                                       style: const TextStyle(
                                         fontSize: 14,
                                         color: Color(0xFF64748B),
@@ -324,7 +325,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Active Category',
+                                t.categories.form.active,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -332,7 +333,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                                 ),
                               ),
                               Text(
-                                'Enable this category for new transactions',
+                                t.categories.form.activeDescription,
                                 style: const TextStyle(
                                   fontSize: 14,
                                   color: Color(0xFF6B7280),

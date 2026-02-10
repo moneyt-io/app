@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/category.dart';
 import '../molecules/category_options_dialog.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Tarjeta de categoría expandible basada en category_list.html
 /// 
@@ -340,7 +341,9 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
 
   String _getSubtitle(Category category) {
     // Subtítulo para la categoría o subcategoría
-    return category.documentTypeId == 'I' ? 'Income category' : 'Expense category';
+    return category.documentTypeId == 'I' 
+        ? t.categories.incomeCategory 
+        : t.categories.expenseCategory;
   }
 }
 

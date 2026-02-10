@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'backup_options_dialog.dart'; // ✅ Import de la molécula extraída
+import '../l10n/generated/strings.g.dart';
 
 /// Item de backup individual basado en backup_list.html
 class BackupListItem extends StatelessWidget {
@@ -84,7 +85,7 @@ class BackupListItem extends StatelessWidget {
                       
                       // Created date
                       Text(
-                        'Created: ${_formatCreatedDate(fileStats['created'])}',
+                        '${t.backups.dialogs.info.created} ${_formatCreatedDate(fileStats['created'])}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color(0xFF64748B),
@@ -95,7 +96,7 @@ class BackupListItem extends StatelessWidget {
                       
                       // Size and transactions info
                       Text(
-                        'Size: ${_formatFileSize(fileStats['size'])} • ${_getTransactionCount()} transactions',
+                        '${t.backups.dialogs.info.size} ${_formatFileSize(fileStats['size'])} • ${_getTransactionCount()} ${t.backups.dialogs.info.transactions}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color(0xFF64748B),
@@ -111,17 +112,17 @@ class BackupListItem extends StatelessWidget {
                             color: const Color(0xFFDCFCE7),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.circle,
                                 size: 6,
                                 color: Color(0xFF4ADE80),
                               ),
-                              SizedBox(width: 4),
+                              const SizedBox(width: 4),
                               Text(
-                                'Latest',
+                                t.backups.options.latestBadge,
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
@@ -220,26 +221,24 @@ class BackupListItem extends StatelessWidget {
 
   String _getBackupTitle(String fileName) {
     final now = DateTime.now();
-    final monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
+    // Use proper date formatting
+    final formattedDate = DateFormat('MMMM yyyy', t.$meta.locale.languageCode).format(now);
     
     if (fileName.toLowerCase().contains('auto')) {
-      return 'Auto Backup - ${monthNames[now.month - 1]} ${now.year}';
+      return t.backups.format.auto(date: formattedDate);
     } else if (fileName.toLowerCase().contains('manual')) {
-      return 'Manual Backup - ${monthNames[now.month - 1]}';
+      return t.backups.format.manual(date: formattedDate);
     } else if (fileName.toLowerCase().contains('initial')) {
-      return 'Initial Backup - September';
+      return t.backups.format.initial;
     } else {
-      return 'Backup - ${monthNames[now.month - 1]} ${now.year}';
+      return t.backups.format.generic(date: formattedDate);
     }
   }
 
   String _formatCreatedDate(DateTime? date) {
     if (date == null) return 'Unknown';
     
-    final formatter = DateFormat('MMM dd, yyyy \'at\' h:mm a');
+    final formatter = DateFormat.yMMMMd(t.$meta.locale.languageCode).add_jm();
     return formatter.format(date);
   }
 

@@ -18,6 +18,7 @@ import '../../core/molecules/wallet_type_filter.dart';
 import '../../core/organisms/app_drawer.dart';
 import '../../navigation/app_routes.dart';
 import '../../navigation/navigation_service.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import '../../core/organisms/sliver_filter_header_delegate.dart';
 import 'wallet_provider.dart';
 
@@ -64,15 +65,15 @@ class _WalletsScreenState extends State<WalletsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar billetera'),
-        content: Text('¿Estás seguro de eliminar ${wallet.name}?'),
+        title: Text(t.wallets.delete.dialogTitle),
+        content: Text(t.wallets.delete.dialogMessage(name: wallet.name)),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar')),
+              child: Text(t.wallets.delete.cancel)),
           TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Eliminar')),
+              child: Text(t.wallets.delete.confirm)),
         ],
       ),
     );
@@ -82,14 +83,14 @@ class _WalletsScreenState extends State<WalletsScreen> {
         await walletProvider.deleteWallet(wallet.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Billetera eliminada con éxito')),
+            SnackBar(content: Text(t.wallets.delete.success)),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text('Error al eliminar: $e'),
+                content: Text(t.wallets.delete.error(error: e.toString())),
                 backgroundColor: Theme.of(context).colorScheme.error),
           );
         }
@@ -105,7 +106,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppAppBar(
-        title: 'Wallets',
+        title: t.wallets.title,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.drawer,
         onLeadingPressed: () => _scaffoldKey.currentState?.openDrawer(),
@@ -240,7 +241,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
       // TODO: Implement other options
       default:
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${option.name} coming soon')),
+          SnackBar(content: Text(t.wallets.errors.comingSoon(name: option.name))),
         );
     }
   }
@@ -248,10 +249,10 @@ class _WalletsScreenState extends State<WalletsScreen> {
   Widget _buildEmptyState() {
     return EmptyState(
       icon: Icons.account_balance_wallet_outlined,
-      title: 'No hay billeteras',
-      message: 'Añade tu primera billetera para comenzar.',
+      title: t.wallets.empty.title,
+      message: t.wallets.empty.message,
       action: AppButton(
-        text: 'Crear billetera',
+        text: t.wallets.empty.action,
         onPressed: () => _navigateToWalletForm(),
         type: AppButtonType.filled,
       ),
@@ -267,13 +268,13 @@ class _WalletsScreenState extends State<WalletsScreen> {
           children: [
             const Icon(Icons.error_outline, size: 48, color: Colors.red),
             const SizedBox(height: 16),
-            const Text('Error al cargar las billeteras',
-                style: TextStyle(fontSize: 18)),
+            Text(t.wallets.errors.load,
+                style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
             Text(error, textAlign: TextAlign.center),
             const SizedBox(height: 16),
             AppButton(
-              text: 'Reintentar',
+              text: t.wallets.errors.retry,
               onPressed: () =>
                   Provider.of<WalletProvider>(context, listen: false)
                       .loadInitialData(),

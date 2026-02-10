@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Opciones disponibles en el diálogo de backup
 enum BackupOption {
@@ -118,7 +119,7 @@ class BackupOptionsDialog extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        isLatest ? 'Latest backup' : 'Backup file',
+                        isLatest ? t.backups.options.latestFile : t.backups.options.backupFile,
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color(0xFF64748B),
@@ -139,14 +140,14 @@ class BackupOptionsDialog extends StatelessWidget {
               children: [
                 _buildOptionItem(
                   icon: Icons.restore,
-                  title: 'Restore backup',
-                  subtitle: 'Replace current data with this backup',
+                  title: t.backups.options.restore.title,
+                  subtitle: t.backups.options.restore.subtitle,
                   onTap: () => _handleOptionTap(context, BackupOption.restore),
                 ),
                 _buildOptionItem(
                   icon: Icons.share,
-                  title: 'Share backup',
-                  subtitle: 'Send this backup file to another device',
+                  title: t.backups.options.share.title,
+                  subtitle: t.backups.options.share.subtitle,
                   onTap: () => _handleOptionTap(context, BackupOption.share),
                 ),
                 
@@ -158,8 +159,8 @@ class BackupOptionsDialog extends StatelessWidget {
                 
                 _buildOptionItem(
                   icon: Icons.delete,
-                  title: 'Delete backup',
-                  subtitle: 'This action cannot be undone',
+                  title: t.backups.options.delete.title,
+                  subtitle: t.backups.options.delete.subtitle,
                   onTap: () => _handleOptionTap(context, BackupOption.delete),
                   isDestructive: true,
                 ),

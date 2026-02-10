@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/wallet.dart';
 import '../atoms/app_search_field.dart';
+import '../l10n/generated/strings.g.dart';
 import 'dialog_action_bar.dart';
 
 /// Diálogo de selección de parent wallet basado en wallet_dialog_parent.html
@@ -139,7 +140,7 @@ class _ParentWalletSelectionDialogState extends State<ParentWalletSelectionDialo
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'Select parent wallet',
+                              t.components.parentWalletSelection.title,
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -151,7 +152,7 @@ class _ParentWalletSelectionDialogState extends State<ParentWalletSelectionDialo
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'Choose a parent wallet to organize this wallet under another one',
+                              t.components.parentWalletSelection.subtitle,
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Color(0xFF64748B),
@@ -174,7 +175,7 @@ class _ParentWalletSelectionDialogState extends State<ParentWalletSelectionDialo
                       ),
                       child: AppSearchField(
                         controller: _searchController,
-                        hintText: 'Search wallets',
+                        hintText: t.components.parentWalletSelection.searchPlaceholder,
                         onChanged: (value) {
                           setState(() {
                             _searchQuery = value;
@@ -199,8 +200,8 @@ class _ParentWalletSelectionDialogState extends State<ParentWalletSelectionDialo
                             icon: Icons.folder_open,
                             iconColor: const Color(0xFF64748B),
                             backgroundColor: const Color(0xFFF1F5F9),
-                            title: 'No parent wallet',
-                            subtitle: 'Create as a root wallet',
+                            title: t.components.parentWalletSelection.noParent,
+                            subtitle: t.components.parentWalletSelection.createRoot,
                             isSelected: _selectedWallet == null,
                             onTap: () {
                               setState(() {
@@ -215,7 +216,7 @@ class _ParentWalletSelectionDialogState extends State<ParentWalletSelectionDialo
                               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                               color: const Color(0xFFF8FAFC),
                               child: Text(
-                                'Available Wallets',
+                                t.components.parentWalletSelection.available,
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
@@ -249,8 +250,8 @@ class _ParentWalletSelectionDialogState extends State<ParentWalletSelectionDialo
                     DialogActionBar(
                       onCancel: () => Navigator.of(context).pop(),
                       onConfirm: () => Navigator.of(context).pop(_selectedWallet),
-                      cancelText: 'Cancel',
-                      confirmText: 'Select',
+                      cancelText: t.common.cancel,
+                      confirmText: t.components.selection.select,
                       isLoading: false,
                       enabled: true,
                     ),

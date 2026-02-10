@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Header de saludo personalizado basado en dashboard_main.html
 ///
@@ -61,9 +62,9 @@ class GreetingHeader extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Bienvenido a MoneyT',
-                        style: TextStyle(
+                      Text(
+                        t.dashboard.greeting,
+                        style: const TextStyle(
                           fontSize: 18, // HTML: text-lg
                           fontWeight: FontWeight.w600, // HTML: font-semibold
                           color: Color(0xFF0F172A), // HTML: text-slate-900

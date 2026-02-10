@@ -22,6 +22,7 @@ import 'package:moneyt_pfm/presentation/features/categories/widgets/category_sel
 import 'package:moneyt_pfm/presentation/features/contacts/widgets/contact_selection_dialog.dart'
     as contact_dialog;
 import 'package:moneyt_pfm/presentation/core/molecules/date_selection_dialog.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 import '../models/transaction_filter_model.dart';
 import 'account_selection_dialog.dart';
 import '../../../core/molecules/transaction_type_selection_item.dart';
@@ -131,19 +132,19 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
   }
 
   Widget _buildQuickDateFilters() {
-    const Map<QuickDateFilter, String> filterLabels = {
-      QuickDateFilter.thisMonth: 'This Month',
-      QuickDateFilter.lastMonth: 'Last Month',
-      QuickDateFilter.thisYear: 'This Year',
-      QuickDateFilter.lastYear: 'Last Year',
+    final Map<QuickDateFilter, String> filterLabels = {
+      QuickDateFilter.thisMonth: t.transactions.filter.ranges.thisMonth,
+      QuickDateFilter.lastMonth: t.transactions.filter.ranges.lastMonth,
+      QuickDateFilter.thisYear: t.transactions.filter.ranges.thisYear,
+      QuickDateFilter.lastYear: t.transactions.filter.ranges.lastYear,
     };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Quick date filters',
-          style: TextStyle(
+        Text(
+          t.transactions.filter.quickFilters,
+          style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: Color(0xFF334155), // slate-700
@@ -281,9 +282,9 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Transaction type',
-          style: TextStyle(
+        Text(
+          t.transactions.form.type,
+          style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: Color(0xFF334155), // slate-700
@@ -298,8 +299,8 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
           child: Column(
             children: [
               TransactionTypeSelectionItem(
-                title: 'Income',
-                subtitle: 'Money received',
+                title: t.transactions.types.income,
+                subtitle: t.transactions.filter.subtitles.income,
                 icon: Icons.trending_up,
                 iconColor: const Color(0xFF16A34A), // green-600
                 iconBackgroundColor: const Color(0xFFDCFCE7), // green-100
@@ -311,8 +312,8 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
               ),
               const Divider(height: 1, color: Color(0xFFE2E8F0)), // slate-200
               TransactionTypeSelectionItem(
-                title: 'Expense',
-                subtitle: 'Money spent',
+                title: t.transactions.types.expense,
+                subtitle: t.transactions.filter.subtitles.expense,
                 icon: Icons.trending_down,
                 iconColor: const Color(0xFFDC2626), // red-600
                 iconBackgroundColor: const Color(0xFFFEE2E2), // red-100
@@ -325,8 +326,8 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
               ),
               const Divider(height: 1, color: Color(0xFFE2E8F0)), // slate-200
               TransactionTypeSelectionItem(
-                title: 'Transfer',
-                subtitle: 'Money moved',
+                title: t.transactions.types.transfer,
+                subtitle: t.transactions.filter.subtitles.transfer,
                 icon: Icons.swap_horiz,
                 iconColor: const Color(0xFF2563EB), // blue-600
                 iconBackgroundColor: const Color(0xFFDBEAFE), // blue-100
@@ -360,9 +361,9 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Active filters',
-            style: TextStyle(
+          Text(
+            t.transactions.filter.active,
+            style: const TextStyle(
               color: Color(0xFF1E40AF), // blue-800
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -412,7 +413,7 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
       child: Scaffold(
         backgroundColor: const Color(0xFFF8FAFC),
         appBar: AppAppBar(
-          title: 'Filters',
+          title: t.transactions.filter.title,
           type: AppAppBarType.blur,
           leading: AppAppBarLeading.close,
           onLeadingPressed: () => Navigator.of(context).pop(),
@@ -427,9 +428,9 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
                       children: [
                         _buildQuickDateFilters(),
                         const SizedBox(height: 24),
-                        const Text(
-                          'Custom date range',
-                          style: TextStyle(
+                        Text(
+                          t.transactions.filter.customRange,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: Color(0xFF334155), // slate-700
@@ -441,12 +442,12 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
                           children: [
                             Expanded(
                               child: AppFloatingLabelSelector(
-                                label: 'Desde',
+                                label: t.transactions.filter.startDate,
                                 icon: Icons.calendar_today_outlined,
                                 value: _currentFilter.startDate != null
-                                    ? DateFormat.yMMMMd('es_ES')
+                                    ? DateFormat.yMMMMd(t.$meta.locale.languageCode)
                                         .format(_currentFilter.startDate!)
-                                    : 'Seleccionar',
+                                    : t.transactions.filter.selectDate,
                                 onTap: () async {
                                   final newStartDate =
                                       await DateSelectionDialog.show(
@@ -478,12 +479,12 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
                             const SizedBox(width: 16),
                             Expanded(
                               child: AppFloatingLabelSelector(
-                                label: 'Hasta',
+                                label: t.transactions.filter.endDate,
                                 icon: Icons.calendar_today_outlined,
                                 value: _currentFilter.endDate != null
-                                    ? DateFormat.yMMMMd('es_ES')
+                                    ? DateFormat.yMMMMd(t.$meta.locale.languageCode)
                                         .format(_currentFilter.endDate!)
-                                    : 'Seleccionar',
+                                    : t.transactions.filter.selectDate,
                                 onTap: () async {
                                   final newEndDate =
                                       await DateSelectionDialog.show(
@@ -519,9 +520,9 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
                         Column(
                           children: [
                             AppFloatingLabelSelector(
-                              label: 'Category',
+                              label: t.transactions.filter.categories,
                               icon: Icons.category_outlined,
-                              value: _currentFilter.category?.name ?? 'All',
+                              value: _currentFilter.category?.name ?? t.transactions.types.all,
                               onTap: _selectCategory,
                               hasValue: _currentFilter.category != null,
                               iconColor: const Color(0xFF64748B), // slate-500
@@ -530,9 +531,9 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
                             ),
                             const SizedBox(height: 16),
                             AppFloatingLabelSelector(
-                              label: 'Account',
+                              label: t.transactions.filter.accounts,
                               icon: Icons.account_balance_wallet_outlined,
-                              value: _currentFilter.account?.name ?? 'All',
+                              value: _currentFilter.account?.name ?? t.transactions.types.all,
                               onTap: _selectAccount,
                               hasValue: _currentFilter.account != null,
                               iconColor: const Color(0xFF2563EB), // blue-600
@@ -541,9 +542,9 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
                             ),
                             const SizedBox(height: 16),
                             AppFloatingLabelSelector(
-                              label: 'Contact',
+                              label: t.transactions.filter.contacts,
                               icon: Icons.person_outline,
-                              value: _currentFilter.contact?.name ?? 'All',
+                              value: _currentFilter.contact?.name ?? t.transactions.types.all,
                               onTap: _selectContact,
                               hasValue: _currentFilter.contact != null,
                               iconColor: const Color(0xFF64748B), // slate-500
@@ -553,9 +554,9 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        const Text(
-                          'Amount range',
-                          style: TextStyle(
+                        Text(
+                          t.transactions.filter.amount,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: Color(0xFF334155), // slate-700
@@ -567,7 +568,7 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
                             Expanded(
                               child: AppFloatingLabelField(
                                 controller: _minAmountController,
-                                label: 'Min amount',
+                                label: t.transactions.filter.minAmount,
                                 placeholder: '0.00',
                                 prefixIcon: Icons.attach_money,
                                 keyboardType:
@@ -584,7 +585,7 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
                             Expanded(
                               child: AppFloatingLabelField(
                                 controller: _maxAmountController,
-                                label: 'Max amount',
+                                label: t.transactions.filter.maxAmount,
                                 placeholder: '999.99',
                                 prefixIcon: Icons.attach_money,
                                 keyboardType:
@@ -610,8 +611,8 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
                     onCancel: () => setState(() =>
                         _currentFilter = TransactionFilterModel.initial()),
                     onSave: () => Navigator.of(context).pop(_currentFilter),
-                    cancelText: 'Clear All',
-                    saveText: 'Apply Filters',
+                    cancelText: t.transactions.filter.clear,
+                    saveText: t.transactions.filter.apply,
                   ),
                 ],
               ),

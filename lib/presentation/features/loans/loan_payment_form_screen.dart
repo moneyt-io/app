@@ -11,6 +11,7 @@ import '../../../domain/usecases/credit_card_usecases.dart';
 import '../../../domain/usecases/transaction_usecases.dart';
 import '../../core/atoms/app_app_bar.dart';
 import '../../core/molecules/date_selection_dialog.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import '../transactions/widgets/account_selection_dialog.dart';
 import '../../core/organisms/account_selector_modal.dart'
     show SelectableAccount;
@@ -181,13 +182,13 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_paymentAmount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid payment amount')),
+        SnackBar(content: Text(t.loans.payment.errorAmount)),
       );
       return;
     }
     if (_selectedAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an account')),
+        SnackBar(content: Text(t.loans.payment.errorAccount)),
       );
       return;
     }
@@ -210,14 +211,15 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment recorded successfully')),
+          SnackBar(content: Text(t.loans.payment.success)),
         );
         Navigator.of(context).pop(true); // Return true to indicate success
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error recording payment: ${e.toString()}')),
+          SnackBar(
+              content: Text(t.loans.payment.error(error: e.toString()))),
         );
       }
     } finally {
@@ -244,7 +246,7 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // bg-slate-50
       appBar: AppAppBar(
-        title: 'Record Payment',
+        title: t.loans.payment.title,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.close,
         onLeadingPressed: () => Navigator.of(context).pop(),
@@ -275,23 +277,23 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
                     child: AppFloatingLabelField(
                       controller: _amountController,
                       focusNode: _amountFocusNode,
-                      label: 'Payment amount',
-                      placeholder: '0.00',
+                      label: t.loans.payment.amount,
+                      placeholder: t.loans.payment.amountPlaceholder,
                       prefixIcon: Icons.attach_money,
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [CurrencyInputFormatter()],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Payment amount is required';
+                          return t.loans.payment.amountRequired;
                         }
                         final amount =
                             double.tryParse(value.replaceAll(',', ''));
                         if (amount == null || amount <= 0) {
-                          return 'Please enter a valid amount';
+                          return t.loans.payment.invalidAmount;
                         }
                         if (amount > widget.loan.outstandingBalance) {
-                          return 'Amount cannot exceed remaining balance';
+                          return t.loans.payment.exceedsBalance;
                         }
                         return null;
                       },
@@ -315,9 +317,9 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: AppFloatingLabelSelector(
-                      label: 'Payment date',
+                      label: t.loans.payment.date,
                       icon: Icons.calendar_today,
-                      value: DateFormat('MMMM d, yyyy').format(_selectedDate),
+                      value: DateFormat.yMMMMd(TranslationProvider.of(context).flutterLocale.languageCode).format(_selectedDate),
                       onTap: _selectDate,
                       iconColor: const Color(0xFF2563EB),
                       iconBackgroundColor: const Color(0xFFDBEAFE),
@@ -330,9 +332,9 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: AppFloatingLabelSelector(
-                      label: 'Received in account',
+                      label: t.loans.payment.account,
                       icon: Icons.account_balance,
-                      value: _selectedAccount?.name ?? 'Select account',
+                      value: _selectedAccount?.name ?? t.loans.payment.selectAccount,
                       onTap: _selectWallet,
                       hasValue: _selectedAccount != null,
                       iconColor: const Color(0xFF2563EB),
@@ -348,8 +350,8 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
                     child: AppFloatingLabelField(
                       controller: _detailsController,
                       focusNode: _detailsFocusNode,
-                      label: 'Payment details',
-                      placeholder: 'Add notes about this payment (optional)',
+                      label: t.loans.payment.details,
+                      placeholder: t.loans.payment.detailsPlaceholder,
                       maxLines: 3,
                     ),
                   ),

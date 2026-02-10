@@ -4,6 +4,7 @@ import '../../../domain/entities/credit_card.dart';
 import '../atoms/app_button.dart';
 import '../molecules/search_field.dart';
 import '../design_system/theme/app_dimensions.dart';
+import '../l10n/generated/strings.g.dart';
 
 /// Modelo para representar una cuenta seleccionable
 /// (ya sea wallet o tarjeta de crédito)
@@ -72,15 +73,15 @@ class SelectableAccount {
 /// Modal para seleccionar una cuenta (wallet o tarjeta de crédito)
 class AccountSelectorModal extends StatefulWidget {
   final List<SelectableAccount> accounts;
-  final String title;
-  final String confirmButtonText;
+  final String? title;
+  final String? confirmButtonText;
   final SelectableAccount? initialSelection;
   
   const AccountSelectorModal({
     Key? key,
     required this.accounts,
-    this.title = 'Seleccionar cuenta',
-    this.confirmButtonText = 'Confirmar',
+    this.title,
+    this.confirmButtonText,
     this.initialSelection,
   }) : super(key: key);
   
@@ -88,8 +89,8 @@ class AccountSelectorModal extends StatefulWidget {
   static Future<SelectableAccount?> show({
     required BuildContext context,
     required List<SelectableAccount> accounts,
-    String title = 'Seleccionar cuenta',
-    String confirmButtonText = 'Confirmar',
+    String? title,
+    String? confirmButtonText,
     SelectableAccount? initialSelection,
   }) async {
     return await showModalBottomSheet<SelectableAccount>(
@@ -151,8 +152,8 @@ class _AccountSelectorModalState extends State<AccountSelectorModal> {
     }
     
     return {
-      'Billeteras': wallets,
-      'Tarjetas de Crédito': creditCards,
+      t.components.accountSelection.wallets: wallets,
+      t.components.accountSelection.creditCards: creditCards,
     };
   }
   
@@ -188,7 +189,7 @@ class _AccountSelectorModalState extends State<AccountSelectorModal> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.title,
+                  widget.title ?? t.components.accountSelection.selectAccount,
                   style: textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -211,7 +212,7 @@ class _AccountSelectorModalState extends State<AccountSelectorModal> {
             ),
             child: SearchField(
               controller: _searchController,
-              hintText: 'Buscar cuentas...',
+              hintText: t.components.accountSelection.searchPlaceholder,
               onChanged: (value) {
                 setState(() {
                   _searchQuery = value;
@@ -227,7 +228,7 @@ class _AccountSelectorModalState extends State<AccountSelectorModal> {
                   child: Padding(
                     padding: EdgeInsets.all(AppDimensions.spacing24),
                     child: Text(
-                      'No se encontraron cuentas',
+                      'No accounts found',
                       style: textTheme.bodyLarge?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -271,7 +272,7 @@ class _AccountSelectorModalState extends State<AccountSelectorModal> {
             child: Padding(
               padding: EdgeInsets.all(AppDimensions.spacing16),
               child: AppButton(
-                text: widget.confirmButtonText,
+                text: widget.confirmButtonText ?? t.components.accountSelection.confirm,
                 onPressed: _selectedAccount != null
                   ? () => Navigator.of(context).pop(_selectedAccount)
                   : null,
