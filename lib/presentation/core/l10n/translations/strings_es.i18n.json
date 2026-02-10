@@ -87,7 +87,14 @@
     "categories": "Categorías",
     "loans": "Préstamos",
     "charts": "Plan de Cuentas",
-    "backups": "Respaldos"
+    "backups": "Respaldos",
+    "creditCards": "Tarjetas de Crédito",
+    "sections": {
+      "operations": "OPERACIONES",
+      "financialTools": "HERRAMIENTAS FINANCIERAS",
+      "management": "GESTIÓN",
+      "advanced": "AVANZADO"
+    }
   },
   "transactions": {
     "title": "Transacciones",

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:provider/provider.dart';
-import '../../../domain/entities/user_entity.dart';
-import '../../features/auth/auth_provider.dart';
 import '../design_system/tokens/app_dimensions.dart';
 import '../design_system/tokens/app_colors.dart';
 import '../l10n/l10n_helper.dart';
@@ -59,12 +56,8 @@ class _AppDrawerState extends State<AppDrawer> {
       width: 320, // HTML: w-80 (320px)
       child: Column(
         children: [
-          // ✅ Header Section - User Profile
-          Consumer<AuthProvider>(
-            builder: (context, authProvider, child) {
-              return _buildUserProfileHeader(context, authProvider);
-            },
-          ),
+          // ✅ Header Section - App Branding (Replaces User Profile for now)
+          _buildAppHeader(context),
 
           // ✅ Navigation Section - Scrollable
           Expanded(
@@ -106,9 +99,8 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  /// Header con perfil de usuario (replica HTML exactamente)
-  Widget _buildUserProfileHeader(
-      BuildContext context, AuthProvider authProvider) {
+  /// Header con branding de la App (reemplaza User Profile por ahora)
+  Widget _buildAppHeader(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
         border: Border(
@@ -121,129 +113,60 @@ class _AppDrawerState extends State<AppDrawer> {
       child: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(AppDimensions.spacing24),
-          child: Material(
-            color: const Color(0xFFF8FAFC), // bg-slate-50
-            borderRadius: BorderRadius.circular(12), // rounded-xl
-            child: InkWell(
-              onTap: () {
-                if (authProvider.isGuest) {
-                  // Si es invitado, cerrar drawer y navegar a la pantalla de login/auth
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pushNamed(AppRoutes.login);
-                } else {
-                  // TODO: Implementar dropdown para usuario logueado (ej: ver perfil, cerrar sesión)
-                }
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: EdgeInsets.all(AppDimensions.spacing12),
-                child: Row(
+          child: Row(
+            children: [
+              // App Logo/Icon
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x1A3B82F6), // blue shadow
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.savings_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+
+              SizedBox(width: AppDimensions.spacing12),
+
+              // App Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Avatar del usuario
-                    _buildAvatar(authProvider.currentUser),
-
-                    SizedBox(width: AppDimensions.spacing12),
-
-                    // Información del usuario
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            authProvider.isGuest
-                                ? 'Invitado'
-                                : authProvider.currentUser?.displayName ??
-                                    'Usuario',
-                            style: const TextStyle(
-                              color: Color(0xFF1E293B), // text-slate-800
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              height: 1.2,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            authProvider.isGuest
-                                ? 'Iniciar sesión'
-                                : authProvider.currentUser?.email ?? '',
-                            style: const TextStyle(
-                              color: Color(0xFF64748B), // text-slate-500
-                              fontSize: 13,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                    const Text(
+                      'MoneyT', // App Name
+                      style: TextStyle(
+                        color: Color(0xFF1E293B), // text-slate-800
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2,
                       ),
                     ),
-
-                    // Ícono de expansión
-                    const Icon(
-                      Icons.expand_more,
-                      color: Color(0xFF94A3B8), // text-slate-400
-                      size: 18,
+                    Text(
+                      t.app.description, // Branding Slogan
+                      style: const TextStyle(
+                        color: Color(0xFF64748B), // text-slate-500
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
         ),
-      ),
-    );
-  }
-
-  /// Construye el avatar del usuario, mostrando su foto o un ícono por defecto.
-  Widget _buildAvatar(UserEntity? user) {
-    final photoUrl = user?.photoUrl;
-
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white,
-          width: 2,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 4,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: photoUrl != null && photoUrl.isNotEmpty
-            ? Image.network(
-                photoUrl,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, progress) {
-                  return progress == null
-                      ? child
-                      : const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2));
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return _defaultAvatarIcon(); // Fallback en caso de error
-                },
-              )
-            : _defaultAvatarIcon(), // Ícono por defecto si no hay foto
-      ),
-    );
-  }
-
-  /// Ícono de avatar por defecto
-  Widget _defaultAvatarIcon() {
-    return Container(
-      color: AppColors.primaryBlue,
-      child: const Icon(
-        Icons.person,
-        color: Colors.white,
-        size: 24,
       ),
     );
   }
@@ -265,7 +188,7 @@ class _AppDrawerState extends State<AppDrawer> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('OPERACIONES'), // ✅ TRADUCIDO
+        _buildSectionHeader(t.navigation.sections.operations),
         SizedBox(height: AppDimensions.spacing4),
         _buildNavItem(
           context: context,
@@ -294,7 +217,7 @@ class _AppDrawerState extends State<AppDrawer> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('HERRAMIENTAS FINANCIERAS'), // ✅ TRADUCIDO
+        _buildSectionHeader(t.navigation.sections.financialTools),
         SizedBox(height: AppDimensions.spacing4),
         _buildNavItem(
           context: context,
@@ -304,16 +227,18 @@ class _AppDrawerState extends State<AppDrawer> {
           route: AppRoutes.wallets,
           currentRoute: currentRoute,
         ),
+        // Hidden until feature is ready
+        /*
         SizedBox(height: AppDimensions.spacing4),
         _buildNavItem(
           context: context,
           icon: Icons.credit_card_outlined,
           activeIcon: Icons.credit_card,
-          title:
-              'Tarjetas de Crédito', // ✅ TRADUCIDO (creditCards no existe en navegación)
+          title: t.navigation.creditCards,
           route: AppRoutes.creditCards,
           currentRoute: currentRoute,
         ),
+        */
       ],
     );
   }
@@ -323,7 +248,7 @@ class _AppDrawerState extends State<AppDrawer> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('GESTIÓN'), // ✅ TRADUCIDO
+        _buildSectionHeader(t.navigation.sections.management),
         SizedBox(height: AppDimensions.spacing4),
         _buildNavItem(
           context: context,
@@ -351,7 +276,7 @@ class _AppDrawerState extends State<AppDrawer> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('AVANZADO'), // ✅ TRADUCIDO
+        _buildSectionHeader(t.navigation.sections.advanced),
         SizedBox(height: AppDimensions.spacing4),
 
         // Botón expandible de Accounting

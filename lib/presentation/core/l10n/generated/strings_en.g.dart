@@ -184,6 +184,11 @@ class AppStringsNavigationEn {
 
 	/// en: 'Backups'
 	String get backups => 'Backups';
+
+	/// en: 'Credit Cards'
+	String get creditCards => 'Credit Cards';
+
+	late final AppStringsNavigationSectionsEn sections = AppStringsNavigationSectionsEn.internal(_root);
 }
 
 // Path: transactions
@@ -631,6 +636,27 @@ class AppStringsComponentsWalletTypesEn {
 
 	/// en: 'Credit Card'
 	String get creditCard => 'Credit Card';
+}
+
+// Path: navigation.sections
+class AppStringsNavigationSectionsEn {
+	AppStringsNavigationSectionsEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'OPERATIONS'
+	String get operations => 'OPERATIONS';
+
+	/// en: 'FINANCIAL TOOLS'
+	String get financialTools => 'FINANCIAL TOOLS';
+
+	/// en: 'MANAGEMENT'
+	String get management => 'MANAGEMENT';
+
+	/// en: 'ADVANCED'
+	String get advanced => 'ADVANCED';
 }
 
 // Path: transactions.types
@@ -3325,6 +3351,11 @@ extension on AppStrings {
 			case 'navigation.loans': return 'Loans';
 			case 'navigation.charts': return 'Chart of Accounts';
 			case 'navigation.backups': return 'Backups';
+			case 'navigation.creditCards': return 'Credit Cards';
+			case 'navigation.sections.operations': return 'OPERATIONS';
+			case 'navigation.sections.financialTools': return 'FINANCIAL TOOLS';
+			case 'navigation.sections.management': return 'MANAGEMENT';
+			case 'navigation.sections.advanced': return 'ADVANCED';
 			case 'transactions.title': return 'Transactions';
 			case 'transactions.types.all': return 'All';
 			case 'transactions.types.income': return 'Income';

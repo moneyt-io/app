@@ -125,6 +125,8 @@ class _AppStringsNavigationEs extends AppStringsNavigationEn {
 	@override String get loans => 'Préstamos';
 	@override String get charts => 'Plan de Cuentas';
 	@override String get backups => 'Respaldos';
+	@override String get creditCards => 'Tarjetas de Crédito';
+	@override late final _AppStringsNavigationSectionsEs sections = _AppStringsNavigationSectionsEs._(_root);
 }
 
 // Path: transactions
@@ -420,6 +422,19 @@ class _AppStringsComponentsWalletTypesEs extends AppStringsComponentsWalletTypes
 	@override String get savings => 'Ahorros';
 	@override String get cash => 'Efectivo';
 	@override String get creditCard => 'Tarjeta de Crédito';
+}
+
+// Path: navigation.sections
+class _AppStringsNavigationSectionsEs extends AppStringsNavigationSectionsEn {
+	_AppStringsNavigationSectionsEs._(AppStringsEs root) : this._root = root, super.internal(root);
+
+	final AppStringsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get operations => 'OPERACIONES';
+	@override String get financialTools => 'HERRAMIENTAS FINANCIERAS';
+	@override String get management => 'GESTIÓN';
+	@override String get advanced => 'AVANZADO';
 }
 
 // Path: transactions.types
@@ -1956,6 +1971,11 @@ extension on AppStringsEs {
 			case 'navigation.loans': return 'Préstamos';
 			case 'navigation.charts': return 'Plan de Cuentas';
 			case 'navigation.backups': return 'Respaldos';
+			case 'navigation.creditCards': return 'Tarjetas de Crédito';
+			case 'navigation.sections.operations': return 'OPERACIONES';
+			case 'navigation.sections.financialTools': return 'HERRAMIENTAS FINANCIERAS';
+			case 'navigation.sections.management': return 'GESTIÓN';
+			case 'navigation.sections.advanced': return 'AVANZADO';
 			case 'transactions.title': return 'Transacciones';
 			case 'transactions.types.all': return 'Todas';
 			case 'transactions.types.income': return 'Ingreso';

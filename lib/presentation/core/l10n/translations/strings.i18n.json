@@ -87,7 +87,14 @@
     "categories": "Categories",
     "loans": "Loans",
     "charts": "Chart of Accounts",
-    "backups": "Backups"
+    "backups": "Backups",
+    "creditCards": "Credit Cards",
+    "sections": {
+      "operations": "OPERATIONS",
+      "financialTools": "FINANCIAL TOOLS",
+      "management": "MANAGEMENT",
+      "advanced": "ADVANCED"
+    }
   },
   "transactions": {
     "title": "Transactions",

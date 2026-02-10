@@ -171,14 +171,14 @@ class SocialScreen extends StatelessWidget {
                 SettingsItem(
                   icon: Icons.mail,
                   title: t.settings.social.email,
-                  subtitle: 'support@moneyt.io',
+                  subtitle: 'admin@moneyt.io',
                   backgroundColor: const Color(0xFF3B82F6), // HTML: bg-blue-500
                   iconColor: Colors.white,
                   trailing: const Icon(
                     Icons.open_in_new,
                     color: Color(0xFF9CA3AF),
                   ),
-                  onTap: () => _openEmail('support@moneyt.io'),
+                  onTap: () => _openEmail('admin@moneyt.io'),
                 ),
                 
                 // Official Website

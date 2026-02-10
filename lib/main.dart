@@ -43,9 +43,8 @@ void main() async {
   await initializeDateFormatting('es_ES', null);
 
   // Inicialización inteligente del idioma
-  // 1. Detecta el idioma del dispositivo
-  // 2. Si no está soportado, usa el fallback (Inglés/Base)
-  LocaleSettings.useDeviceLocale();
+  // Se maneja mas abajo usando SharedPreferences
+  // LocaleSettings.useDeviceLocale();
 
   await initializeDependencies();
 
@@ -58,6 +57,23 @@ void main() async {
   await _initializeCriticalData();
 
   final prefs = await SharedPreferences.getInstance();
+
+  // ✅ CORREGIDO: Cargar idioma guardado ANTES de iniciar la app
+  final savedLanguage = prefs.getString('selected_language');
+  if (savedLanguage != null) {
+    try {
+      final locale = AppLocale.values.firstWhere(
+        (l) => l.languageCode == savedLanguage,
+        orElse: () => AppLocale.es,
+      );
+      LocaleSettings.setLocale(locale);
+    } catch (_) {
+      LocaleSettings.useDeviceLocale();
+    }
+  } else {
+    // Si no hay preferencia guardada, usar idioma del dispositivo
+    LocaleSettings.useDeviceLocale();
+  }
 
   runApp(
     MultiProvider(

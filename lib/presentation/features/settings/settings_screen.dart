@@ -135,6 +135,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            /*
             // Account Section
             SettingsCard(
               title: t.settings.account.title,
@@ -153,11 +154,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ],
             ),
+            */
 
             // Appearance Section
             SettingsCard(
               title: t.settings.appearance.title,
               children: [
+                /*
                 // Dark Mode Toggle
                 Consumer<ThemeProvider>(
                   builder: (context, themeProvider, child) {
@@ -216,6 +219,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                   },
                 ),
+                */
                 
                 // Language
                 Consumer<LanguageProvider>(
@@ -288,6 +292,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
 
+            /*
             // Logout Section (sin header)
             Container(
               margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -313,6 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
+            */
 
             // ✅ CORREGIDO: Usar AppVersionFooter sin build number para consistencia
             const AppVersionFooter(
