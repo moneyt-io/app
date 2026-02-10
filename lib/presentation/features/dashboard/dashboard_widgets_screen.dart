@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/atoms/app_app_bar.dart';
 import '../../core/atoms/app_button.dart';
 import '../../core/molecules/widget_config_item.dart';
@@ -28,24 +30,60 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
   }
 
   /// Carga la configuración inicial de widgets
-  void _loadWidgetConfiguration() {
-    // TODO: Cargar desde SharedPreferences o servicio
-    _widgets = [
-      const WidgetConfig(
-          type: DashboardWidgetType.balance, enabled: true, order: 1),
-      const WidgetConfig(
-          type: DashboardWidgetType.quickActions, enabled: true, order: 2),
-      const WidgetConfig(
-          type: DashboardWidgetType.wallets, enabled: true, order: 3),
-      const WidgetConfig(
-          type: DashboardWidgetType.loans, enabled: true, order: 4),
-      const WidgetConfig(
-          type: DashboardWidgetType.transactions, enabled: true, order: 5),
-      const WidgetConfig(
-          type: DashboardWidgetType.chartAccounts, enabled: false, order: 6),
-      const WidgetConfig(
-          type: DashboardWidgetType.creditCards, enabled: false, order: 7),
-    ];
+  Future<void> _loadWidgetConfiguration() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? configString = prefs.getString('dashboard_widgets_config');
+
+    // Tipos permitidos
+    final validTypes = {
+      DashboardWidgetType.balance,
+      DashboardWidgetType.quickActions,
+      DashboardWidgetType.wallets,
+      DashboardWidgetType.transactions,
+    };
+
+    if (configString != null) {
+      try {
+        final List<dynamic> jsonList = jsonDecode(configString);
+        setState(() {
+          _widgets = jsonList
+              .map((item) => WidgetConfig(
+                    type: DashboardWidgetType.values.firstWhere(
+                        (e) => e.toString() == item['type'],
+                        orElse: () => DashboardWidgetType.balance),
+                    enabled: item['enabled'],
+                    order: item['order'],
+                  ))
+              .where((w) => validTypes.contains(w.type))
+              .toList();
+          
+          // Ordenar por orden guardado
+          _widgets.sort((a, b) => a.order.compareTo(b.order));
+        });
+        
+        // Si se filtraron widgets, guardar la configuración limpia
+        if (_widgets.length != jsonList.length) {
+          _autoSave();
+        }
+        return;
+      } catch (e) {
+        debugPrint('Error parsing widget config: $e');
+      }
+    }
+
+    // Configuración por defecto si no hay guardada o error
+    setState(() {
+      _widgets = [
+        const WidgetConfig(
+            type: DashboardWidgetType.balance, enabled: true, order: 1),
+        const WidgetConfig(
+            type: DashboardWidgetType.quickActions, enabled: true, order: 2),
+        const WidgetConfig(
+            type: DashboardWidgetType.wallets, enabled: true, order: 3),
+        const WidgetConfig(
+            type: DashboardWidgetType.transactions, enabled: true, order: 4),
+      ];
+    });
   }
 
   /// Maneja el reordenamiento de widgets
@@ -61,9 +99,8 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
       for (int i = 0; i < _widgets.length; i++) {
         _widgets[i] = _widgets[i].copyWith(order: i + 1);
       }
-
-      _hasChanges = true;
     });
+    _autoSave();
   }
 
   /// Maneja el toggle de un widget
@@ -72,88 +109,27 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
       final index = _widgets.indexWhere((w) => w.type == type);
       if (index != -1) {
         _widgets[index] = _widgets[index].copyWith(enabled: enabled);
-        _hasChanges = true;
       }
     });
+    _autoSave();
   }
 
-  /// Resetea a la configuración por defecto
-  void _resetToDefault() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.dashboard.widgets.settings.reset.dialogTitle),
-        content: Text(
-          t.dashboard.widgets.settings.reset.dialogContent,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.dashboard.widgets.settings.reset.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              setState(() {
-                _loadWidgetConfiguration();
-                _hasChanges = true;
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(t.dashboard.widgets.settings.reset.success),
-                  backgroundColor: const Color(0xFF16A34A),
-                ),
-              );
-            },
-            child: Text(t.dashboard.widgets.settings.reset.confirm),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Guarda los cambios
-  Future<void> _saveChanges() async {
-    setState(() {
-      _isSaving = true;
-    });
-
+  /// Guarda los cambios automáticamente
+  Future<void> _autoSave() async {
     try {
-      // TODO: Guardar en SharedPreferences o servicio
-      await Future.delayed(
-          const Duration(milliseconds: 800)); // Simular guardado
+      final prefs = await SharedPreferences.getInstance();
+      
+      final List<Map<String, dynamic>> jsonList = _widgets
+          .map((item) => {
+                'type': item.type.toString(),
+                'enabled': item.enabled,
+                'order': item.order,
+              })
+          .toList();
 
-      if (mounted) {
-        setState(() {
-          _hasChanges = false;
-          _isSaving = false;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(t.dashboard.widgets.settings.saveSuccess),
-            backgroundColor: const Color(0xFF16A34A),
-          ),
-        );
-
-        // Regresar al dashboard después de un momento
-        Future.delayed(const Duration(milliseconds: 500), () {
-          NavigationService.goBack();
-        });
-      }
+      await prefs.setString('dashboard_widgets_config', jsonEncode(jsonList));
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(t.dashboard.widgets.settings.saveError(error: e.toString())),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
+      debugPrint('Error auto-saving widget config: $e');
     }
   }
 
@@ -166,7 +142,8 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
         title: t.dashboard.widgets.settings.title,
         type: AppAppBarType.blur,
         leading: AppAppBarLeading.back,
-        onLeadingPressed: () => NavigationService.goBack(),
+        // Always pass true so the home screen reloads the widgets configuration on return
+        onLeadingPressed: () => Navigator.of(context).pop(true),
       ),
 
       body: Column(
@@ -185,28 +162,9 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
                   ),
 
                   const SizedBox(height: 24), // HTML: mt-6
-
-                  // Reset Button
-                  AppButton(
-                    text: t.dashboard.widgets.settings.reset.button,
-                    onPressed: _resetToDefault,
-                    type: AppButtonType.outlined,
-                    icon: Icons.refresh,
-                    isFullWidth: true,
-                  ),
-
-                  const SizedBox(height: 100), // Space for sticky footer
                 ],
               ),
             ),
-          ),
-
-          // Sticky Footer
-          StickyActionFooter(
-            primaryText: _isSaving ? t.dashboard.widgets.settings.saving : t.dashboard.widgets.settings.save,
-            onPrimaryPressed: _saveChanges,
-            isLoading: _isSaving,
-            isPrimaryEnabled: _hasChanges && !_isSaving,
           ),
         ],
       ),
