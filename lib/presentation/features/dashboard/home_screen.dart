@@ -116,8 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       // 1. Verificar si el usuario ya tiene una suscripción activa.
-      final isSubscribed =
-          Superwall.shared.subscriptionStatus is SubscriptionStatusActive;
+      final isSubscribed = GetIt.instance<PaywallService>().isPremiumNotifier.value;
       if (isSubscribed) {
         print(' HomeScreen: User is already subscribed. Skipping paywall.');
         return;
@@ -346,12 +345,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: const Color(0xFFF8FAFC).withOpacity(0.8),
                       child: SafeArea(
                         bottom: false,
-                        child: GreetingHeader(
-                          onMenuPressed: () {
-                            _scaffoldKey.currentState?.openDrawer();
-                          },
-                          onStarPressed: () {
-                            _triggerPaywall();
+                        child: ValueListenableBuilder<bool>(
+                          valueListenable: GetIt.instance<PaywallService>().isPremiumNotifier,
+                          builder: (context, isPremium, _) {
+                            return GreetingHeader(
+                              isPremium: isPremium,
+                              onMenuPressed: () {
+                                _scaffoldKey.currentState?.openDrawer();
+                              },
+                              onStarPressed: () {
+                                _triggerPaywall();
+                              },
+                            );
                           },
                         ),
                       ),

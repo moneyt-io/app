@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -15,6 +16,8 @@ class PaywallService implements SuperwallDelegate {
       ? dotenv.env['SUPERWALL_KEY_IOS'] ?? ''
       : dotenv.env['SUPERWALL_KEY_ANDROID'] ?? '';
 
+  // ✅ AGREGADO: Notifier para el estado de suscripción
+  final ValueNotifier<bool> isPremiumNotifier = ValueNotifier(false);
 
   /// Inicializa Superwall y establece este servicio como el delegado.
   Future<void> init() async {
@@ -23,6 +26,12 @@ class PaywallService implements SuperwallDelegate {
       await Superwall.configure(_apiKey);
       // La asignación del delegate se hace a través de la instancia compartida.
       Superwall.shared.setDelegate(this); // ✅ CORRECCIÓN FINAL
+      
+      // ✅ Inicializar estado escuchando el stream
+      Superwall.shared.subscriptionStatus.listen((status) {
+        _updateSubscriptionStatus(status);
+      });
+      
       print('✅ PaywallService: Superwall configured successfully.');
     } catch (e) {
       print('❌ PaywallService: Error configuring Superwall: $e');
@@ -82,6 +91,15 @@ class PaywallService implements SuperwallDelegate {
   void subscriptionStatusDidChange(SubscriptionStatus newValue) {
     // ✅ CORREGIDO: Usar .toString() para obtener la representación de la clase.
     print(' PaywallService: Subscription status changed: ${newValue.toString()}');
+    _updateSubscriptionStatus(newValue);
+  }
+
+  void _updateSubscriptionStatus(SubscriptionStatus status) {
+    final isPremium = status is SubscriptionStatusActive;
+    if (isPremiumNotifier.value != isPremium) {
+      isPremiumNotifier.value = isPremium;
+      print('⭐️ PaywallService: Premium status updated to $isPremium');
+    }
   }
 
   @override

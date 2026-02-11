@@ -74,7 +74,9 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
       final categoriesResult = await _categoryUseCases.getAllCategories();
       final contactsResult = await _contactUseCases.getAllContacts();
 
-      final walletsMap = {for (var wallet in walletsResult) wallet.id: wallet};
+      // Only show active wallets
+      final activeWallets = walletsResult.where((w) => w.active).toList();
+      final walletsMap = {for (var wallet in activeWallets) wallet.id: wallet};
 
       if (mounted) {
         setState(() {

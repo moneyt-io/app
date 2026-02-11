@@ -132,200 +132,215 @@ class _SettingsScreenState extends State<SettingsScreen> {
       
       drawer: const AppDrawer(),
       
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            /*
-            // Account Section
-            SettingsCard(
-              title: t.settings.account.title,
-              children: [
-                SettingsItem(
-                  icon: Icons.person,
-                  title: t.settings.account.profile,
-                  subtitle: t.settings.account.profileSubtitle,
-                  backgroundColor: const Color(0xFFDBEAFE), // HTML: bg-blue-100
-                  iconColor: const Color(0xFF2563EB), // HTML: text-blue-600
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: Color(0xFF9CA3AF), // HTML: text-slate-400
-                  ),
-                  onTap: _navigateToProfile,
-                ),
-              ],
-            ),
-            */
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  children: [
+                    /*
+                    // Account Section
+                    SettingsCard(
+                      title: t.settings.account.title,
+                      children: [
+                        SettingsItem(
+                          icon: Icons.person,
+                          title: t.settings.account.profile,
+                          subtitle: t.settings.account.profileSubtitle,
+                          backgroundColor: const Color(0xFFDBEAFE), // HTML: bg-blue-100
+                          iconColor: const Color(0xFF2563EB), // HTML: text-blue-600
+                          trailing: const Icon(
+                            Icons.chevron_right,
+                            color: Color(0xFF9CA3AF), // HTML: text-slate-400
+                          ),
+                          onTap: _navigateToProfile,
+                        ),
+                      ],
+                    ),
+                    */
 
-            // Appearance Section
-            SettingsCard(
-              title: t.settings.appearance.title,
-              children: [
-                /*
-                // Dark Mode Toggle
-                Consumer<ThemeProvider>(
-                  builder: (context, themeProvider, child) {
-                    return Container(
-                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                      child: Row(
-                        children: [
-                          // Icon
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFF3E8FF), // HTML: bg-purple-100
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.dark_mode,
-                              color: Color(0xFF7C3AED), // HTML: text-purple-600
-                              size: 24,
-                            ),
-                          ),
-                          
-                          const SizedBox(width: 16),
-                          
-                          // Content
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  t.settings.appearance.darkMode,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF1E293B),
+                    // Appearance Section
+                    SettingsCard(
+                      title: t.settings.appearance.title,
+                      children: [
+                        /*
+                        // Dark Mode Toggle
+                        Consumer<ThemeProvider>(
+                          builder: (context, themeProvider, child) {
+                            return Container(
+                              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                              child: Row(
+                                children: [
+                                  // Icon
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFF3E8FF), // HTML: bg-purple-100
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.dark_mode,
+                                      color: Color(0xFF7C3AED), // HTML: text-purple-600
+                                      size: 24,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  t.settings.appearance.darkModeSubtitle,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Color(0xFF64748B),
+                                  
+                                  const SizedBox(width: 16),
+                                  
+                                  // Content
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          t.settings.appearance.darkMode,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Color(0xFF1E293B),
+                                          ),
+                                        ),
+                                        Text(
+                                          t.settings.appearance.darkModeSubtitle,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Color(0xFF64748B),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                  
+                                  // Switch
+                                  DarkModeSwitch(
+                                    value: themeProvider.isDarkMode,
+                                    onChanged: (value) => themeProvider.toggleTheme(),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        */
+                        
+                        // Language
+                        Consumer<LanguageProvider>(
+                          builder: (context, languageProvider, child) {
+                            return SettingsItem(
+                              icon: Icons.language,
+                              title: t.settings.appearance.language,
+                              subtitle: languageProvider.getCurrentLanguageName(), // ✅ CORREGIDO: Dinámico
+                              backgroundColor: const Color(0xFFFED7AA),
+                              iconColor: const Color(0xFFEA580C),
+                              trailing: const Icon(
+                                Icons.chevron_right,
+                                color: Color(0xFF9CA3AF),
+                              ),
+                              onTap: _navigateToLanguage,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+
+                    // Data & Storage Section
+                    SettingsCard(
+                      title: t.settings.data.title,
+                      children: [
+                        SettingsItem(
+                          icon: Icons.backup,
+                          title: t.settings.data.backup,
+                          subtitle: t.settings.data.backupSubtitle,
+                          backgroundColor: const Color(0xFFA7F3D0), // HTML: bg-cyan-100
+                          iconColor: const Color(0xFF059669), // HTML: text-cyan-600
+                          trailing: const Icon(
+                            Icons.chevron_right,
+                            color: Color(0xFF9CA3AF),
                           ),
-                          
-                          // Switch
-                          DarkModeSwitch(
-                            value: themeProvider.isDarkMode,
-                            onChanged: (value) => themeProvider.toggleTheme(),
+                          onTap: _navigateToBackups,
+                        ),
+                      ],
+                    ),
+
+                    // Information Section
+                    SettingsCard(
+                      title: t.settings.info.title,
+                      children: [
+                        SettingsItem(
+                          icon: Icons.share,
+                          title: t.settings.info.contact,
+                          subtitle: t.settings.info.contactSubtitle,
+                          backgroundColor: const Color(0xFFFCE7F3), // HTML: bg-pink-100
+                          iconColor: const Color(0xFFDB2777), // HTML: text-pink-600
+                          trailing: const Icon(
+                            Icons.chevron_right,
+                            color: Color(0xFF9CA3AF),
+                          ),
+                          onTap: _navigateToSocial,
+                        ),
+                        
+                        SettingsItem(
+                          icon: Icons.policy,
+                          title: t.settings.info.privacy,
+                          subtitle: t.settings.info.privacySubtitle,
+                          backgroundColor: const Color(0xFFF1F5F9), // HTML: bg-slate-100
+                          iconColor: const Color(0xFF475569), // HTML: text-slate-600
+                          trailing: const Icon(
+                            Icons.open_in_new,
+                            color: Color(0xFF9CA3AF),
+                          ),
+                          onTap: _openPrivacyPolicy,
+                        ),
+                      ],
+                    ),
+
+                    /*
+                    // Logout Section (sin header)
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x0A000000),
+                            blurRadius: 2,
+                            offset: Offset(0, 1),
                           ),
                         ],
                       ),
-                    );
-                  },
-                ),
-                */
-                
-                // Language
-                Consumer<LanguageProvider>(
-                  builder: (context, languageProvider, child) {
-                    return SettingsItem(
-                      icon: Icons.language,
-                      title: t.settings.appearance.language,
-                      subtitle: languageProvider.getCurrentLanguageName(), // ✅ CORREGIDO: Dinámico
-                      backgroundColor: const Color(0xFFFED7AA),
-                      iconColor: const Color(0xFFEA580C),
-                      trailing: const Icon(
-                        Icons.chevron_right,
-                        color: Color(0xFF9CA3AF),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        child: SettingsItem(
+                          icon: Icons.logout,
+                          title: 'Sign out',
+                          subtitle: 'Log out of your account',
+                          isDestructive: true,
+                          onTap: _showSignOutDialog,
+                        ),
                       ),
-                      onTap: _navigateToLanguage,
-                    );
-                  },
-                ),
-              ],
-            ),
+                    ),
+                    */
 
-            // Data & Storage Section
-            SettingsCard(
-              title: t.settings.data.title,
-              children: [
-                SettingsItem(
-                  icon: Icons.backup,
-                  title: t.settings.data.backup,
-                  subtitle: t.settings.data.backupSubtitle,
-                  backgroundColor: const Color(0xFFA7F3D0), // HTML: bg-cyan-100
-                  iconColor: const Color(0xFF059669), // HTML: text-cyan-600
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                  onTap: _navigateToBackups,
-                ),
-              ],
-            ),
+                    const Spacer(),
 
-            // Information Section
-            SettingsCard(
-              title: t.settings.info.title,
-              children: [
-                SettingsItem(
-                  icon: Icons.share,
-                  title: t.settings.info.contact,
-                  subtitle: t.settings.info.contactSubtitle,
-                  backgroundColor: const Color(0xFFFCE7F3), // HTML: bg-pink-100
-                  iconColor: const Color(0xFFDB2777), // HTML: text-pink-600
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                  onTap: _navigateToSocial,
-                ),
-                
-                SettingsItem(
-                  icon: Icons.policy,
-                  title: t.settings.info.privacy,
-                  subtitle: t.settings.info.privacySubtitle,
-                  backgroundColor: const Color(0xFFF1F5F9), // HTML: bg-slate-100
-                  iconColor: const Color(0xFF475569), // HTML: text-slate-600
-                  trailing: const Icon(
-                    Icons.open_in_new,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                  onTap: _openPrivacyPolicy,
-                ),
-              ],
-            ),
-
-            /*
-            // Logout Section (sin header)
-            Container(
-              margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x0A000000),
-                    blurRadius: 2,
-                    offset: Offset(0, 1),
-                  ),
-                ],
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                child: SettingsItem(
-                  icon: Icons.logout,
-                  title: 'Sign out',
-                  subtitle: 'Log out of your account',
-                  isDestructive: true,
-                  onTap: _showSignOutDialog,
+                    // ✅ CORREGIDO: Usar AppVersionFooter sin build number para consistencia
+                    const AppVersionFooter(
+                      showBuildNumber: false, // Consistente con app_drawer.html
+                    ),
+                    
+                    const SizedBox(height: 16),
+                  ],
                 ),
               ),
             ),
-            */
-
-            // ✅ CORREGIDO: Usar AppVersionFooter sin build number para consistencia
-            const AppVersionFooter(
-              showBuildNumber: false, // Consistente con app_drawer.html
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

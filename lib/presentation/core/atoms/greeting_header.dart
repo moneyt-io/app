@@ -21,10 +21,12 @@ class GreetingHeader extends StatelessWidget {
     Key? key,
     required this.onMenuPressed,
     required this.onStarPressed,
+    this.isPremium = false, // ✅ AGREGADO: Estado de suscripción
   }) : super(key: key);
 
   final VoidCallback onMenuPressed;
   final VoidCallback onStarPressed;
+  final bool isPremium;
 
   @override
   Widget build(BuildContext context) {
@@ -95,13 +97,20 @@ class GreetingHeader extends StatelessWidget {
                   onTap: onStarPressed,
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
-                    width: 40,
-                    height: 40,
-                    child: const Icon(
-                      Icons.star,
-                      color: Color(0xFFEAB308), // amber-500
-                      size: 28,
-                    ),
+                     width: 40,
+                     height: 40,
+                     alignment: Alignment.center,
+                     child: isPremium
+                         ? const Icon(
+                             Icons.star,
+                             color: Color(0xFFEAB308), // amber-500 filled
+                             size: 28,
+                           )
+                         : const Icon(
+                             Icons.star_border_rounded, // border with rounded corners looks better
+                             color: Color(0xFFEAB308), // amber-500 outline
+                             size: 28,
+                           ),
                   ),
                 ),
               ),

@@ -134,8 +134,11 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
 
       final Map<int, SelectableAccount> accountsMap = {};
       for (final wallet in wallets) {
-        accountsMap[wallet.id] = SelectableAccount.fromWallet(wallet,
-            balance: 0, accountNumber: '1234');
+        // Filter out archived wallets
+        if (wallet.active) {
+          accountsMap[wallet.id] = SelectableAccount.fromWallet(wallet,
+              balance: 0, accountNumber: '1234');
+        }
       }
 
       setState(() {

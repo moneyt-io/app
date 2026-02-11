@@ -362,21 +362,7 @@ class WalletOptionsDialog extends StatelessWidget {
     //} else {
       parts.add(t.wallets.options.defaultTitle);
     //}
-    
-    // Placeholder para número de cuenta (basado en el nombre)
-    final name = wallet.name.toLowerCase();
-    if (name.contains('checking')) {
-      parts.add('****4567');
-    } else if (name.contains('savings') || name.contains('emergency')) {
-      parts.add('****8901');
-    } else if (name.contains('cash')) {
-      parts.add('Physical cash');
-    } else if (name.contains('paypal')) {
-      parts.add('Digital wallet');
-    } else {
-      parts.add('Account');
-    }
-    
+        
     // Balance formateado
     parts.add('\$${balance.toStringAsFixed(2)}');
     

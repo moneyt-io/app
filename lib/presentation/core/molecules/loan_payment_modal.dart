@@ -46,7 +46,7 @@ class _LoanPaymentModalState extends State<LoanPaymentModal> {
       final walletUseCases = GetIt.instance<WalletUseCases>();
       final wallets = await walletUseCases.getAllWallets();
       setState(() {
-        _wallets = wallets;
+        _wallets = wallets.where((w) => w.active).toList();
         if (_wallets.isNotEmpty) {
           _selectedWallet = _wallets.first;
         }

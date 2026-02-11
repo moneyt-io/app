@@ -94,9 +94,9 @@ class BackupListItem extends StatelessWidget {
                       
                       const SizedBox(height: 2),
                       
-                      // Size and transactions info
+                      // Size info
                       Text(
-                        '${t.backups.dialogs.info.size} ${_formatFileSize(fileStats['size'])} • ${_getTransactionCount()} ${t.backups.dialogs.info.transactions}',
+                         '${t.backups.dialogs.info.size} ${_formatFileSize(fileStats['size'])}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color(0xFF64748B),
@@ -249,20 +249,6 @@ class BackupListItem extends StatelessWidget {
       return '${(bytes / 1024).toStringAsFixed(1)} KB';
     } else {
       return '$bytes B';
-    }
-  }
-
-  String _getTransactionCount() {
-    final fileName = backupFile.path.toLowerCase();
-    
-    if (fileName.contains('auto') || isLatest) {
-      return '1,247';
-    } else if (fileName.contains('manual')) {
-      return '1,089';
-    } else if (fileName.contains('initial')) {
-      return '654';
-    } else {
-      return '923';
     }
   }
 

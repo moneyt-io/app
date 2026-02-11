@@ -170,8 +170,13 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       final Map<int, SelectableAccount> accountsMap = {};
       // TODO: Fetch real balance and account numbers from use cases
       for (final wallet in walletsResult) {
-        accountsMap[wallet.id] = SelectableAccount.fromWallet(wallet,
-            balance: 0, accountNumber: '1234');
+        // Filter out archived wallets, UNLESS it's the wallet of the transaction being edited
+        // Note: TransactionEntity uses accountId for the wallet ID
+        final isTransactionWallet = widget.transaction?.accountId == wallet.id;
+        if (wallet.active || (isEditing && isTransactionWallet)) {
+          accountsMap[wallet.id] = SelectableAccount.fromWallet(wallet,
+              balance: 0, accountNumber: '1234');
+        }
       }
       for (final card in creditCardResult) {
         // The key for credit cards should be unique and not overlap with wallets.

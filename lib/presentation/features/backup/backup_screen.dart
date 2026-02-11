@@ -1,10 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart'; // ✅ AGREGADO: Para compartir
+import 'package:intl/intl.dart'; // ✅ AGREGADO: Para formatear fecha al compartir
 import 'backup_provider.dart';
 import '../../core/molecules/backup_list_item.dart'; // ✅ CORREGIDO: Usar molecules en lugar de organisms
 import '../../core/molecules/backup_filter_tabs.dart'; // ✅ AGREGADO: Import de filter tabs
 import '../../core/molecules/backup_statistics_card.dart'; // ✅ AGREGADO: Import de statistics
+import '../../core/atoms/expandable_fab.dart'; // ✅ AGREGADO: Import de ExpandableFab
 import '../../core/atoms/app_app_bar.dart'; // ✅ AGREGADO: Import del AppBar
 import '../../core/organisms/app_drawer.dart'; // ✅ AGREGADO: Import del drawer
 import '../../core/design_system/tokens/app_colors.dart'; // ✅ AGREGADO: Import de colores
@@ -47,10 +50,9 @@ class _BackupScreenState extends State<BackupScreen> {
       appBar: AppAppBar(
         title: t.backups.title,
         type: AppAppBarType.blur, // HTML: bg-slate-50/80 backdrop-blur-md
-        leading: AppAppBarLeading.drawer,
-        actions: [AppAppBarAction.menu], // HTML: settings button
-        onLeadingPressed: _openDrawer,
-        onActionsPressed: [_navigateToBackupSettings],
+        leading: AppAppBarLeading.back, // ✅ CAMBIO: Botón de regresar
+        actions: const [AppAppBarAction.none],
+        onLeadingPressed: () => Navigator.pop(context),
       ),
       
       drawer: const AppDrawer(),
@@ -130,21 +132,19 @@ class _BackupScreenState extends State<BackupScreen> {
         ],
       ),
       
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: () => _importBackupFromFile(context),
-            heroTag: 'import_backup_fab',
-            backgroundColor: AppColors.success,
-            child: const Icon(Icons.upload_file, size: 32),
-          ),
-          const SizedBox(height: 16),
-          FloatingActionButton(
-            onPressed: () => _createNewBackup(context),
-            heroTag: 'create_backup_fab',
+      floatingActionButton: ExpandableFab(
+        actions: [
+          FabAction(
+            label: t.backups.actions.create,
+            icon: Icons.add, // Más limpio que backup
             backgroundColor: AppColors.primaryBlue,
-            child: const Icon(Icons.backup, size: 32),
+            onPressed: () => _createNewBackup(context),
+          ),
+          FabAction(
+            label: t.backups.actions.import,
+            icon: Icons.upload_file,
+            backgroundColor: const Color(0xFF64748B), // Slate 500 para acción secundaria
+            onPressed: () => _importBackupFromFile(context),
           ),
         ],
       ),
@@ -209,7 +209,7 @@ class _BackupScreenState extends State<BackupScreen> {
               isLatest: isLatest,
               onRestore: () => _restoreBackup(context, provider, backupFile),
               onDelete: () => _deleteBackup(context, provider, backupFile),
-              onShare: () => provider.shareBackup(backupFile),
+              onShare: () => _shareBackup(backupFile),
               onGetMetadata: () => _showBackupMetadata(context, provider, backupFile),
             ),
           );
@@ -223,50 +223,164 @@ class _BackupScreenState extends State<BackupScreen> {
     );
   }
 
-  /// ✅ AGREGADO: Mostrar metadatos del backup
+  /// ✅ AGREGADO: Mostrar metadatos del backup con BottomSheet
   Future<void> _showBackupMetadata(BuildContext context, BackupProvider provider, File backupFile) async {
-    final metadata = await provider.getBackupMetadata(backupFile);
+    final fileName = backupFile.path.split(Platform.pathSeparator).last;
+    // Formato de tamaño mejorado
+    final bytes = backupFile.lengthSync();
+    String fileSize;
+    if (bytes < 1024) {
+      fileSize = '$bytes B';
+    } else if (bytes < 1024 * 1024) {
+      fileSize = '${(bytes / 1024).toStringAsFixed(1)} KB';
+    } else {
+      fileSize = '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
+    }
     
-    if (mounted && metadata != null) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(t.backups.dialogs.info.title),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('${t.backups.dialogs.info.file} ${backupFile.path.split('/').last}'),
-              Text('${t.backups.dialogs.info.size} ${(backupFile.lengthSync() / (1024 * 1024)).toStringAsFixed(2)} MB'),
-              Text('${t.backups.dialogs.info.created} ${backupFile.lastModifiedSync()}'),
-              // ✅ CORREGIDO: Usar placeholder para transaction count
-              Text('${t.backups.dialogs.info.transactions} ${_getPlaceholderTransactionCount(backupFile)}'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(t.backups.actions.ok),
+    final dateStr = DateFormat.yMMMd().add_jm().format(backupFile.lastModifiedSync());
+
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            
+            // Header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.description_outlined, color: AppColors.primaryBlue, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        t.backups.dialogs.info.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      Text(
+                        t.backups.title,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                  color: Colors.grey[500],
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 32),
+
+            // Info Items
+            _buildMetadataItem(Icons.insert_drive_file_outlined, t.backups.dialogs.info.file, fileName),
+            const SizedBox(height: 20),
+            _buildMetadataItem(Icons.sd_storage_outlined, t.backups.dialogs.info.size, fileSize),
+             const SizedBox(height: 20),
+            _buildMetadataItem(Icons.calendar_today_outlined, t.backups.dialogs.info.created, dateStr),
+            
+            const SizedBox(height: 40),
+            
+            // Actions
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryBlue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: Text(t.backups.actions.ok),
+              ),
             ),
           ],
         ),
-      );
-    }
+      ),
+    );
   }
 
-  /// ✅ AGREGADO: Placeholder para transaction count basado en el nombre del archivo
-  String _getPlaceholderTransactionCount(File backupFile) {
-    final fileName = backupFile.path.toLowerCase();
-    
-    if (fileName.contains('auto') || fileName.contains('latest')) {
-      return '1,247';
-    } else if (fileName.contains('manual')) {
-      return '1,089';
-    } else if (fileName.contains('initial')) {
-      return '654';
-    } else {
-      return '923';
-    }
+  Widget _buildMetadataItem(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9), // slate-100
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 20, color: const Color(0xFF64748B)), // slate-500
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF64748B), // slate-500
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF0F172A), // slate-900
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildErrorState(String error) {
@@ -360,6 +474,40 @@ class _BackupScreenState extends State<BackupScreen> {
         scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(t.backups.status.createError(error: backupProvider.errorMessage!)),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  // --- Métodos de Gestión de Archivos ---
+
+  Future<void> _shareBackup(File backupFile) async {
+    try {
+      if (!await backupFile.exists()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.backups.status.createError(error: 'File not found'))),
+          );
+        }
+        return;
+      }
+      
+      final box = context.findRenderObject() as RenderBox?;
+      final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(backupFile.lastModifiedSync());
+
+      await Share.shareXFiles(
+        [XFile(backupFile.path)],
+        subject: 'Copia de seguridad MoneyT',
+        text: 'Adjunto mi copia de seguridad de MoneyT del $dateStr.',
+        sharePositionOrigin: box != null ? box.localToGlobal(Offset.zero) & box.size : null,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al compartir: ${e.toString()}'),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
