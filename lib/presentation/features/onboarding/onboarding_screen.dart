@@ -32,12 +32,51 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   int _currentPage = 0;
   bool _showSkipButton = true;
+  
+  // ✅ NUEVO: Estado levantado (Lifted State) para persistencia de selección
+  PainPoint? _selectedPainPoint;
+  PersonalGoal? _selectedGoal;
+  CurrentMethod? _selectedMethod;
 
   // Notificador para que las páginas hijas controlen el estado del botón
   final ValueNotifier<bool> _isButtonEnabled = ValueNotifier(true);
-
-  late final List<Widget> _pages;
-  // late final List<String> _buttonLabels; // ❌ ELIMINADO para usar getter dinámico
+  
+  // ✅ MOVIDO: Getter para _pages que usa el estado
+  List<Widget> get _pages => [
+    WelcomePage(),
+    ProblemStatementPage(),
+    SpecificProblemPage(
+      // Ya no pasamos ValueNotifier, pasamos estado y callback
+      selectedPainPoint: _selectedPainPoint,
+      onPainPointSelected: (painPoint) {
+        setState(() {
+          _selectedPainPoint = painPoint;
+          _isButtonEnabled.value = true;
+        });
+      },
+    ),
+    PersonalGoalPage(
+      selectedGoal: _selectedGoal,
+      onGoalSelected: (goal) {
+        setState(() {
+          _selectedGoal = goal;
+          _isButtonEnabled.value = true;
+        });
+      },
+    ),
+    SolutionPreviewPage(),
+    CurrentMethodPage(
+      selectedMethod: _selectedMethod,
+      onMethodSelected: (method) {
+        setState(() {
+          _selectedMethod = method;
+          _isButtonEnabled.value = true;
+        });
+      },
+    ),
+    FeatureShowcaseSimplePage(),
+    CompletePage(),
+  ];
 
   @override
   void initState() {
@@ -49,21 +88,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-
-    _pages = [
-      WelcomePage(),
-      ProblemStatementPage(),
-      SpecificProblemPage(isButtonEnabled: _isButtonEnabled),
-      PersonalGoalPage(isButtonEnabled: _isButtonEnabled),
-      SolutionPreviewPage(),
-      CurrentMethodPage(isButtonEnabled: _isButtonEnabled),
-      FeatureShowcaseSimplePage(),
-      CompletePage(),
-    ];
-
-    // _buttonLabels se elimina porque necesitamos que sea reactivo al idioma
-    // Usaremos _getButtonLabel(_currentPage) en su lugar o reconstruiremos labels en build
-
+    
     // Iniciar animación del botón skip
     _skipButtonController.forward();
   }
@@ -150,13 +175,24 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       _currentPage = page;
       _showSkipButton = page < _pages.length - 1;
 
-      // Resetear el estado del botón a habilitado por defecto en las páginas que no lo gestionan
-      if (page == 0 || page == 1 || page == 4 || page == 6 || page == 7) {
-        _isButtonEnabled.value = true;
-      } else {
-        // Para las páginas interactivas, se deshabilita hasta que el usuario seleccione algo
-        _isButtonEnabled.value = false;
+      // ✅ LOGICA CORREGIDA: Verificar si ya hay una selección previa
+      bool shouldEnable = true;
+      
+      switch (page) {
+        case 2: // SpecificProblemPage
+          shouldEnable = _selectedPainPoint != null;
+          break;
+        case 3: // PersonalGoalPage
+          shouldEnable = _selectedGoal != null;
+          break;
+        case 5: // CurrentMethodPage
+          shouldEnable = _selectedMethod != null;
+          break;
+        default:
+          shouldEnable = true;
       }
+      
+      _isButtonEnabled.value = shouldEnable;
     });
   }
 
@@ -216,24 +252,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       ),
                     ),
 
-                    // Skip button
-                    AnimatedOpacity(
-                      opacity: _showSkipButton ? 1.0 : 0.0,
-                      duration: OnboardingTheme.elementEntrance,
-                      child: _showSkipButton
-                          ? TextButton(
-                              onPressed: _skipOnboarding,
-                              child: Text( // ✅ CORREGIDO: const eliminado
-                                t.onboarding.buttons.skip,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            )
-                          : const SizedBox(width: 48),
-                    ),
+                    // Skip button eliminated
+                    const SizedBox(width: 48),
                   ],
                 ),
               ),

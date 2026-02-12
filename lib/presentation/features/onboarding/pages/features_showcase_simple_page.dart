@@ -41,15 +41,21 @@ class FeatureShowcaseSimplePage extends StatelessWidget {
       iconColor: const Color(0xFF2563EB), // blue-600
       backgroundColor: const Color(0xFFDBEAFE), // blue-100
     ),
-  ];
-
-  // Features en desarrollo
-  List<FeatureItem> get developmentFeatures => [
     FeatureItem(
       icon: Icons.account_balance,
       title: t.onboarding.featuresShowcase.features.loans,
       iconColor: const Color(0xFF7C3AED), // violet-600
       backgroundColor: const Color(0xFFEDE9FE), // violet-100
+    ),
+  ];
+
+  // Features en desarrollo
+  List<FeatureItem> get developmentFeatures => [
+    FeatureItem(
+      icon: Icons.auto_awesome, 
+      title: "AI Chat",
+      iconColor: const Color(0xFF9333EA), // purple-600
+      backgroundColor: const Color(0xFFF3E8FF), // purple-100
     ),
     FeatureItem(
       icon: Icons.flag,
@@ -188,6 +194,7 @@ class FeatureShowcaseSimplePage extends StatelessWidget {
 
   Widget _buildFeatureGrid(
       List<FeatureItem> features, bool isAvailable, Duration delay) {
+    final gridItems = _padFeaturesForCentering(features);
     return GridView.builder(
       shrinkWrap: true, // ✅ CRÍTICO: Permite que el grid se ajuste al contenido
       physics:
@@ -198,13 +205,31 @@ class FeatureShowcaseSimplePage extends StatelessWidget {
         crossAxisSpacing: 12, // ✅ REDUCIDO: De 16 a 12
         mainAxisSpacing: 12, // ✅ REDUCIDO: De 16 a 12
       ),
-      itemCount: features.length,
+      itemCount: gridItems.length,
       itemBuilder: (context, index) {
-        final feature = features[index];
+        final feature = gridItems[index];
+        if (feature == null) {
+          return const SizedBox.shrink();
+        }
         return _buildFeatureCard(feature, isAvailable,
             Duration(milliseconds: delay.inMilliseconds + (index * 100)));
       },
     );
+  }
+
+  List<FeatureItem?> _padFeaturesForCentering(List<FeatureItem> features) {
+    final items = List<FeatureItem?>.from(features);
+    final remainder = items.length % 3;
+
+    // If the last row would have a single item, center it in the middle column.
+    if (remainder == 1 && items.length > 1) {
+      final last = items.removeLast();
+      items.add(null);
+      items.add(last);
+      items.add(null);
+    }
+
+    return items;
   }
 
   Widget _buildFeatureCard(

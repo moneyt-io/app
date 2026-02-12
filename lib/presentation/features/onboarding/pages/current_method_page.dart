@@ -21,36 +21,18 @@ enum CurrentMethod {
   }
 }
 
-class CurrentMethodPage extends StatefulWidget {
+class CurrentMethodPage extends StatelessWidget {
   const CurrentMethodPage({
     Key? key,
-    required this.isButtonEnabled,
+    required this.selectedMethod,
+    required this.onMethodSelected,
   }) : super(key: key);
 
-  final ValueNotifier<bool> isButtonEnabled;
-
-  @override
-  State<CurrentMethodPage> createState() => _CurrentMethodPageState();
-}
-
-class _CurrentMethodPageState extends State<CurrentMethodPage>
-    with AutomaticKeepAliveClientMixin {
-  CurrentMethod? _selectedMethod;
-
-  void _selectMethod(CurrentMethod method) {
-    setState(() {
-      _selectedMethod = method;
-    });
-    // Notificar al padre que el botón puede ser habilitado
-    widget.isButtonEnabled.value = true;
-  }
-
-  @override
-  bool get wantKeepAlive => true; // Mantener el estado de la página
+  final CurrentMethod? selectedMethod;
+  final ValueChanged<CurrentMethod> onMethodSelected;
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Necesario para AutomaticKeepAliveClientMixin
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -136,14 +118,14 @@ class _CurrentMethodPageState extends State<CurrentMethodPage>
   }
 
   Widget _buildMethodOption(CurrentMethod method) {
-    final isSelected = _selectedMethod == method;
+    final isSelected = selectedMethod == method;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _selectMethod(method),
+          onTap: () => onMethodSelected(method),
           borderRadius: BorderRadius.circular(16),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),

@@ -8,12 +8,14 @@ part 'contact_dao.g.dart';
 class ContactDao extends DatabaseAccessor<AppDatabase> with _$ContactDaoMixin {
   ContactDao(AppDatabase db) : super(db);
 
-  Future<List<Contacts>> getAllContacts() => select(contact).get();
+  Future<List<Contacts>> getAllContacts() => 
+      (select(contact)..orderBy([(t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)])).get();
   
   Future<Contacts?> getContactById(int id) =>
       (select(contact)..where((t) => t.id.equals(id))).getSingleOrNull();
 
-  Stream<List<Contacts>> watchAllContacts() => select(contact).watch();
+  Stream<List<Contacts>> watchAllContacts() => 
+      (select(contact)..orderBy([(t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)])).watch();
   
   Stream<Contacts> watchContactById(int id) =>
       (select(contact)..where((t) => t.id.equals(id))).watchSingle();

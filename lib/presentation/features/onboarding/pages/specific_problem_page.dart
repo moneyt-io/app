@@ -25,36 +25,18 @@ enum PainPoint {
   }
 }
 
-class SpecificProblemPage extends StatefulWidget {
+class SpecificProblemPage extends StatelessWidget {
   const SpecificProblemPage({
     Key? key,
-    required this.isButtonEnabled,
+    required this.selectedPainPoint,
+    required this.onPainPointSelected,
   }) : super(key: key);
 
-  final ValueNotifier<bool> isButtonEnabled;
-
-  @override
-  State<SpecificProblemPage> createState() => _SpecificProblemPageState();
-}
-
-class _SpecificProblemPageState extends State<SpecificProblemPage>
-    with AutomaticKeepAliveClientMixin {
-  PainPoint? _selectedPainPoint;
-
-  void _selectPainPoint(PainPoint painPoint) {
-    setState(() {
-      _selectedPainPoint = painPoint;
-    });
-    // Notificar al padre que el botón puede ser habilitado
-    widget.isButtonEnabled.value = true;
-  }
-
-  @override
-  bool get wantKeepAlive => true; // Mantener el estado de la página
+  final PainPoint? selectedPainPoint;
+  final ValueChanged<PainPoint> onPainPointSelected;
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Necesario para AutomaticKeepAliveClientMixin
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -138,14 +120,14 @@ class _SpecificProblemPageState extends State<SpecificProblemPage>
   }
 
   Widget _buildPainPointOption(PainPoint painPoint) {
-    final isSelected = _selectedPainPoint == painPoint;
+    final isSelected = selectedPainPoint == painPoint;
     
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _selectPainPoint(painPoint),
+          onTap: () => onPainPointSelected(painPoint),
           borderRadius: BorderRadius.circular(16),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),

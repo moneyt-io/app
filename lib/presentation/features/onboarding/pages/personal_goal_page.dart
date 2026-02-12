@@ -24,36 +24,18 @@ enum PersonalGoal {
   }
 }
 
-class PersonalGoalPage extends StatefulWidget {
+class PersonalGoalPage extends StatelessWidget {
   const PersonalGoalPage({
     Key? key,
-    required this.isButtonEnabled,
+    required this.selectedGoal,
+    required this.onGoalSelected,
   }) : super(key: key);
 
-  final ValueNotifier<bool> isButtonEnabled;
-
-  @override
-  State<PersonalGoalPage> createState() => _PersonalGoalPageState();
-}
-
-class _PersonalGoalPageState extends State<PersonalGoalPage>
-    with AutomaticKeepAliveClientMixin {
-  PersonalGoal? _selectedGoal;
-
-  void _selectGoal(PersonalGoal goal) {
-    setState(() {
-      _selectedGoal = goal;
-    });
-    // Notificar al padre que el botón puede ser habilitado
-    widget.isButtonEnabled.value = true;
-  }
-
-  @override
-  bool get wantKeepAlive => true; // Mantener el estado de la página
+  final PersonalGoal? selectedGoal;
+  final ValueChanged<PersonalGoal> onGoalSelected;
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Necesario para AutomaticKeepAliveClientMixin
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -137,14 +119,14 @@ class _PersonalGoalPageState extends State<PersonalGoalPage>
   }
 
   Widget _buildGoalOption(PersonalGoal goal) {
-    final isSelected = _selectedGoal == goal;
+    final isSelected = selectedGoal == goal;
     
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _selectGoal(goal),
+          onTap: () => onGoalSelected(goal),
           borderRadius: BorderRadius.circular(16),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),

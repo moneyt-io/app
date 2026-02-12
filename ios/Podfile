@@ -48,6 +48,15 @@ post_install do |installer|
   # Fix: Add GoogleService-Info.plist to the project references if missing
   require 'xcodeproj'
   project = Xcodeproj::Project.open('Runner.xcodeproj')
+  
+  # M1/M2/M3 Fix: Ensure arm64 is supported for Simulator
+  project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings.delete 'EXCLUDED_ARCHS'
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386'
+    end
+  end
+
   runner_target = project.targets.find { |t| t.name == 'Runner' }
   group = project.main_group.find_subpath('Runner', true)
   
@@ -55,8 +64,10 @@ post_install do |installer|
     puts "Fixing: Adding GoogleService-Info.plist to Xcode project..."
     file_ref = group.new_reference('GoogleService-Info.plist')
     runner_target.resources_build_phase.add_file_reference(file_ref)
-    project.save
   end
+
+  # Save changes to the Runner project
+  project.save
 end
 
 

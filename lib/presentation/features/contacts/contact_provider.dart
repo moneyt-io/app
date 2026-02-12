@@ -56,6 +56,7 @@ class ContactProvider extends ChangeNotifier {
     try {
       final createdContact = await _contactUseCases.createContact(contact);
       _allContacts.add(createdContact);
+      _sortContacts();
       _applySearch();
       notifyListeners();
       return true;
@@ -73,6 +74,7 @@ class ContactProvider extends ChangeNotifier {
       final index = _allContacts.indexWhere((c) => c.id == contact.id);
       if (index != -1) {
         _allContacts[index] = contact;
+        _sortContacts();
         _applySearch();
         notifyListeners();
       }
@@ -108,6 +110,11 @@ class ContactProvider extends ChangeNotifier {
   }
 
   // Métodos privados
+  void _sortContacts() {
+    _allContacts.sort((a, b) => 
+        a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+  }
+
   void _applySearch() {
     if (_searchQuery.isEmpty) {
       _filteredContacts = List.from(_allContacts);

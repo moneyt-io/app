@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/l10n/generated/strings.g.dart';
 import '../../../core/molecules/form_action_bar.dart';
+import '../contact_form_screen.dart';
+import '../contact_provider.dart';
 
 // TODO: This should be moved to a shared theme file
 const Color _primaryBlue = Color(0xFF0C7FF2);
@@ -65,15 +68,17 @@ class _ContactSelectionDialogState extends State<ContactSelectionDialog> {
   final _searchController = TextEditingController();
   late SelectableContact? _selectedContact;
   List<SelectableContact> _filteredContacts = [];
+  List<SelectableContact> _allContacts = [];
 
   // Special ID for the 'No contact' option
-  final String _noContactId = 'no_contact';
+  // final String _noContactId = 'no_contact'; // Ya no se usa
 
   @override
   void initState() {
     super.initState();
     _selectedContact = widget.initialSelection;
-    _filteredContacts = widget.contacts;
+    _allContacts = List.from(widget.contacts);
+    _filteredContacts = _allContacts;
     _searchController.addListener(_filterContacts);
   }
 
@@ -87,10 +92,52 @@ class _ContactSelectionDialogState extends State<ContactSelectionDialog> {
   void _filterContacts() {
     final query = _searchController.text.toLowerCase();
     setState(() {
-      _filteredContacts = widget.contacts.where((contact) {
+      _filteredContacts = _allContacts.where((contact) {
         return contact.name.toLowerCase().contains(query);
       }).toList();
     });
+  }
+
+  Future<void> _refreshContactsFromProvider() async {
+    try {
+      final provider = context.read<ContactProvider>();
+      // Ensure we have ALL contacts, not just filtered ones from provider search
+      // provider.contacts returns filtered. We need to reset provider search?
+      // Or we can assume that if we just created one, it's there.
+      // Better: Use internal knowledge of provider or just map what's available.
+      
+      // If we are in this dialog, likely the provider isn't being searched simultaneously by another view.
+      // However, let's just use what checks out.
+      
+      // Map domain contacts to SelectableContact
+      final updatedList = provider.contacts.map((c) => SelectableContact(
+        id: c.id.toString(),
+        name: c.name,
+        details: c.phone ?? c.email,
+        // avatarUrl: c.avatarUrl, // If domain has it
+      )).toList();
+
+      if (updatedList.isNotEmpty) {
+        // Find the new contact (assuming highest ID)
+        SelectableContact? newContact;
+        try {
+          final maxId = provider.contacts
+              .map((c) => c.id)
+              .reduce((curr, next) => curr > next ? curr : next);
+          newContact = updatedList.firstWhere((c) => c.id == maxId.toString());
+        } catch (_) {}
+
+        setState(() {
+          _allContacts = updatedList;
+          if (newContact != null) {
+            _selectedContact = newContact;
+          }
+          _filterContacts(); // Re-apply current search if any
+        });
+      }
+    } catch (e) {
+      debugPrint('Error refreshing contacts: $e');
+    }
   }
 
   @override
@@ -125,7 +172,7 @@ class _ContactSelectionDialogState extends State<ContactSelectionDialog> {
                 onCancel: () => Navigator.of(context).pop(),
                 onSave: () => Navigator.of(context).pop(_selectedContact),
                 saveText: t.components.selection.select,
-                enabled: _selectedContact != null,
+                enabled: true, // Siempre habilitado
               )
             ],
           ),
@@ -204,29 +251,30 @@ class _ContactSelectionDialogState extends State<ContactSelectionDialog> {
   List<Widget> _buildContactList() {
     final List<Widget> listItems = [];
 
-    // 'No Contact' option
-    listItems.add(_ContactListItem(
-      contact: SelectableContact(
-        id: _noContactId,
-        name: t.components.contactSelection.noContact,
-        details: t.components.contactSelection.noContactDetails,
-      ),
-      isSelected: _selectedContact?.id == _noContactId,
-      onTap: () => setState(() => _selectedContact =
-          SelectableContact(id: _noContactId, name: t.components.contactSelection.noContact)),
-      isSpecial: true,
-    ));
-
-    // TODO: Implement logic for 'Recent' contacts
     if (_filteredContacts.isNotEmpty) {
-      listItems.add(_buildSectionHeader(t.components.contactSelection.allContacts));
-      for (final contact in _filteredContacts) {
-        listItems.add(_ContactListItem(
-          contact: contact,
-          isSelected: _selectedContact?.id == contact.id,
-          onTap: () => setState(() => _selectedContact = contact),
-        ));
-      }
+      // Agrupar contactos si no hay búsqueda (o la hay, puedes decidir si mantener grupos en búsqueda o no)
+      // Normalmente se mantiene la agrupación alfabética.
+      final groupedContacts = _groupContactsByLetter(_filteredContacts);
+      
+      groupedContacts.forEach((letter, contacts) {
+        // Cabecera de grupo
+        listItems.add(_buildSectionHeader(letter));
+        
+        // Items del grupo
+        for (final contact in contacts) {
+           listItems.add(_ContactListItem(
+            contact: contact,
+            isSelected: _selectedContact?.id == contact.id,
+            onTap: () {
+              if (_selectedContact?.id == contact.id) {
+                 setState(() => _selectedContact = null);
+              } else {
+                 setState(() => _selectedContact = contact);
+              }
+            },
+          ));
+        }
+      });
     }
 
     // 'Create New Contact' button
@@ -237,8 +285,19 @@ class _ContactSelectionDialogState extends State<ContactSelectionDialog> {
           icon: const Icon(Icons.add_circle, color: _blue600),
           label: Text(t.components.contactSelection.create,
               style: const TextStyle(color: _blue600, fontWeight: FontWeight.w600)),
-          onPressed: () {
-            // TODO: Navigate to contact creation screen
+          onPressed: () async {
+            // Navigate to contact creation screen
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ContactFormScreen(),
+              ),
+            );
+
+            // If a contact was created (result is true)
+            if (result == true && mounted) {
+              await _refreshContactsFromProvider();
+            }
           },
           style: TextButton.styleFrom(
             backgroundColor: _blue50,
@@ -253,6 +312,34 @@ class _ContactSelectionDialogState extends State<ContactSelectionDialog> {
     );
 
     return listItems;
+  }
+
+  Map<String, List<SelectableContact>> _groupContactsByLetter(List<SelectableContact> contacts) {
+    final Map<String, List<SelectableContact>> grouped = {};
+
+    for (final contact in contacts) {
+      final firstLetter = contact.name.isNotEmpty
+          ? contact.name[0].toUpperCase()
+          : '#';
+
+      if (!grouped.containsKey(firstLetter)) {
+        grouped[firstLetter] = [];
+      }
+      grouped[firstLetter]!.add(contact);
+    }
+    
+    // Convertir a Map ordenado (TreeMap logic simple)
+    // Ordenamos las claves (letras)
+    final sortedKeys = grouped.keys.toList()..sort();
+    
+    final Map<String, List<SelectableContact>> sortedGrouped = {};
+    for (final key in sortedKeys) {
+      // Los contactos ya deberían venir ordenados del provider/DAO, pero no hace daño asegurar
+      // grouped[key]!.sort((a, b) => a.name.compareTo(b.name)); 
+      sortedGrouped[key] = grouped[key]!;
+    }
+
+    return sortedGrouped;
   }
 
   Widget _buildSectionHeader(String title) {
