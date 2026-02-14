@@ -39,8 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final _balanceCalculationService =
       GetIt.instance<BalanceCalculationService>();
 
-  double _income = 0.0;
-  double _expenses = 0.0;
   bool _isBalanceVisible = true;
   List<WidgetConfig> _widgetConfigs = []; // Stores widget configuration
 
@@ -49,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        _calculateMonthlySummary();
+        // Ensure widgets config is loaded
         _loadWidgetConfiguration(); // Load widgets on init
       }
     });
@@ -139,26 +137,6 @@ class _HomeScreenState extends State<HomeScreen> {
     print('Paywall event registered');
   }
 
-  void _calculateMonthlySummary() {
-    final transactionProvider = context.read<TransactionProvider>();
-    final now = DateTime.now();
-    final transactions = transactionProvider.transactions
-        .where((t) => t.date.year == now.year && t.date.month == now.month)
-        .toList();
-
-    final income =
-        _balanceCalculationService.calculateTotalIncome(transactions);
-    final expenses =
-        _balanceCalculationService.calculateTotalExpense(transactions);
-
-    if (mounted) {
-      setState(() {
-        _income = income;
-        _expenses = expenses;
-      });
-    }
-  }
-
   void _navigateToTransactionForm({String type = 'E'}) {
     NavigationService.navigateTo(AppRoutes.transactionForm, arguments: {
       'initialType': type,
@@ -225,11 +203,20 @@ class _HomeScreenState extends State<HomeScreen> {
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF8FAFC), // HTML: bg-slate-50
       drawer: const AppDrawer(),
-      body: Consumer<WalletProvider>(
-        builder: (context, walletProvider, child) {
+      body: Consumer2<WalletProvider, TransactionProvider>(
+        builder: (context, walletProvider, transactionProvider, child) {
           if (walletProvider.isLoading) {
             return _buildLoadingState();
           }
+
+          // Calcular resumen mensual dinámicamente
+          final now = DateTime.now();
+          final currentMonthTransactions = transactionProvider.transactions
+              .where((t) => t.date.year == now.year && t.date.month == now.month)
+              .toList();
+          
+          final income = _balanceCalculationService.calculateTotalIncome(currentMonthTransactions);
+          final expenses = _balanceCalculationService.calculateTotalExpense(currentMonthTransactions);
 
           // Map wallets to display items
           final walletItems = walletProvider.wallets
@@ -264,8 +251,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               BalanceSummaryWidget(
                                 totalBalance: _calculateActiveTotalBalance(
                                     walletProvider), // ✅ Usando cálculo filtrado
-                                income: _income,
-                                expenses: _expenses,
+                                income: income,
+                                expenses: expenses,
                                 isBalanceVisible: _isBalanceVisible,
                                 onVisibilityToggle: () {
                                   setState(() {

@@ -573,6 +573,7 @@ class _AppStringsTransactionsDetailEs extends AppStringsTransactionsDetailEn {
 	@override String errorUrl({required Object url}) => 'No se pudo abrir ${url}';
 	@override String get date => 'Fecha';
 	@override String get time => 'Hora';
+	@override String get loanLinkedWarning => 'Esta transacción está vinculada a un préstamo y gestionada automáticamente.';
 }
 
 // Path: transactions.share
@@ -2070,6 +2071,7 @@ extension on AppStringsEs {
 			case 'transactions.detail.errorUrl': return ({required Object url}) => 'No se pudo abrir ${url}';
 			case 'transactions.detail.date': return 'Fecha';
 			case 'transactions.detail.time': return 'Hora';
+			case 'transactions.detail.loanLinkedWarning': return 'Esta transacción está vinculada a un préstamo y gestionada automáticamente.';
 			case 'transactions.share.title': return 'Compartir Transacción';
 			case 'transactions.share.copyText': return 'Copiar Texto';
 			case 'transactions.share.shareButton': return 'Compartir';

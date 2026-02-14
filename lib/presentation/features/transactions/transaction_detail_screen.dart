@@ -14,6 +14,7 @@ import '../../../domain/usecases/category_usecases.dart';
 import '../../../domain/usecases/contact_usecases.dart';
 import '../../../domain/usecases/transaction_usecases.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
+import '../../../domain/usecases/loan_usecases.dart';
 import '../../core/atoms/app_app_bar.dart';
 import '../../core/atoms/detail_action_chip.dart';
 import '../../core/molecules/info_card.dart';
@@ -42,12 +43,14 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
   final _walletUseCases = GetIt.instance<WalletUseCases>();
   final _contactUseCases = GetIt.instance<ContactUseCases>();
   final _transactionUseCases = GetIt.instance<TransactionUseCases>();
+  final _loanUseCases = GetIt.instance<LoanUseCases>();
 
   Category? _category;
   Wallet? _wallet;
   Wallet? _targetWallet;
   Contact? _contact;
   bool _isLoading = true;
+  bool _isLoanTransaction = false;
 
   @override
   void initState() {
@@ -80,8 +83,20 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
       }
 
       if (transaction.contactId != null) {
-        _contact =
-            await _contactUseCases.getContactById(transaction.contactId!);
+        try {
+          _contact =
+              await _contactUseCases.getContactById(transaction.contactId!);
+        } catch (_) {
+          // Si el contacto no se encuentra (ej. eliminado físicamente pero aún referenciado),
+          // simplemente lo ignoramos y no mostramos error.
+          _contact = null;
+        }
+      }
+
+      // Check if this transaction is linked to a loan
+      final relatedLoan = await _loanUseCases.getLoanByTransactionId(transaction.id);
+      if (relatedLoan != null) {
+        _isLoanTransaction = true;
       }
     } catch (e) {
       if (mounted) {
@@ -154,9 +169,46 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
   }
 
   Future<void> _duplicateTransaction() async {
-    // Lógica para duplicar - Placeholder
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.transactions.detail.duplicateNotImplemented)));
+    setState(() => _isLoading = true);
+
+    try {
+      // 1. Obtener la entidad completa usando ID
+      final TransactionEntity? transactionEntity = await _transactionUseCases
+          .getTransactionEntityById(widget.transaction.id);
+
+      if (!mounted) return;
+
+      if (transactionEntity == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(t.transactions.detail.errorLoad),
+              backgroundColor: Colors.red),
+        );
+        return;
+      }
+
+      // 2. Navegar al formulario indicando que es duplicado
+      NavigationService.navigateTo(
+        AppRoutes.transactionForm,
+        arguments: {
+          'transaction': transactionEntity,
+          'initialType': transactionEntity.type,
+          'isDuplicate': true, // FLAG IMPORTANTE
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Error al preparar duplicado: ${e.toString()}'),
+              backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   Future<void> _deleteTransaction() async {
@@ -253,6 +305,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
               padding: EdgeInsets.zero,
               children: [
                 _buildSummaryCard(transaction),
+                if (_isLoanTransaction) _buildLoanLockInfo(),
                 _buildQuickActions(),
                 if (_category != null) _buildCategoryInfo(),
                 _buildAccountInfo(transaction),
@@ -357,6 +410,8 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
   }
 
   Widget _buildQuickActions() {
+    if (_isLoanTransaction) return const SizedBox.shrink();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -488,6 +543,8 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
   }
 
   Widget _buildDeleteButton() {
+    if (_isLoanTransaction) return const SizedBox.shrink();
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: TextButton.icon(
@@ -501,6 +558,30 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoanLockInfo() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF7ED), // orange-50
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFFED7AA)), // orange-200
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.lock_outline, color: Color(0xFFEA580C)), // orange-600
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              t.transactions.detail.loanLinkedWarning,
+              style: const TextStyle(color: Color(0xFF9A3412), fontSize: 13), // orange-800
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -193,7 +193,8 @@
       "unknownAccount": "Cuenta desconocida",
       "errorUrl": "No se pudo abrir $url",
       "date": "Fecha",
-      "time": "Hora"
+      "time": "Hora",
+      "loanLinkedWarning": "Esta transacción está vinculada a un préstamo y gestionada automáticamente."
     },
     "share": {
       "title": "Compartir Transacción",

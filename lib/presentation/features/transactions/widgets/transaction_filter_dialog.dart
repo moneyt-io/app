@@ -274,9 +274,22 @@ class _TransactionFilterDialogState extends State<TransactionFilterDialog> {
         : null;
     final result = await contact_dialog.ContactSelectionDialog.show(context,
         contacts: selectableContacts, initialSelection: currentSelection);
+    
+    // Refresh contacts list to ensure any new contact is available
+    if (mounted) {
+      final freshContacts = await _contactUseCases.getAllContacts();
+      setState(() {
+        _contacts = freshContacts;
+      });
+    }
+
     if (result != null) {
-      setState(() => _currentFilter = _currentFilter.copyWith(
-          contact: _contacts.firstWhere((c) => c.id.toString() == result.id)));
+      try {
+        setState(() => _currentFilter = _currentFilter.copyWith(
+            contact: _contacts.firstWhere((c) => c.id.toString() == result.id)));
+      } catch (e) {
+          debugPrint('Could not find selected contact in refreshed list: $e');
+      }
     }
   }
 

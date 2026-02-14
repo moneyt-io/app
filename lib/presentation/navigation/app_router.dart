@@ -118,6 +118,7 @@ class AppRouter {
           builder: (_) => TransactionFormScreen(
             transaction: args?['transaction'],
             initialType: args?['initialType'],
+            isDuplicate: args?['isDuplicate'] ?? false,
           ),
           settings: settings,
         );

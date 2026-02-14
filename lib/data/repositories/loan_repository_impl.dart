@@ -122,7 +122,7 @@ class LoanRepositoryImpl implements LoanRepository {
 
   @override
   Future<void> deleteLoan(int id) async {
-    await _loanDao.softDeleteLoan(id);
+    await _loanDao.deleteLoan(id);
   }
 
   @override

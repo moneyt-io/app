@@ -8,6 +8,7 @@ import '../../../domain/entities/contact.dart';
 import '../../../domain/usecases/contact_usecases.dart';
 import '../../core/atoms/app_app_bar.dart';
 import '../../core/l10n/generated/strings.g.dart';
+import '../../core/molecules/confirm_delete_dialog.dart';
 import 'loan_provider.dart';
 import 'loan_payment_form_screen.dart';
 import 'widgets/loan_detail_summary_card.dart';
@@ -60,23 +61,12 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
   }
 
   Future<void> _deleteLoan(LoanEntry loan) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await ConfirmDeleteDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.loans.detail.deleteTitle),
-        content: Text(t.loans.detail.deleteMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(t.common.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(t.common.delete,
-                style: const TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+      title: t.loans.detail.deleteTitle,
+      message: t.loans.detail.deleteMessage,
+      confirmText: t.common.delete,
+      cancelText: t.common.cancel,
     );
 
     if (confirmed == true) {

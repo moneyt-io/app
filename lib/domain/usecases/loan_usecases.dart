@@ -15,6 +15,7 @@ import '../validators/loan_validators.dart';
 import '../exceptions/loan_exceptions.dart';
 import '../helpers/accounting_helpers.dart';
 import '../services/balance_calculation_service.dart'; // AGREGADO
+import 'package:moneyt_pfm/presentation/core/l10n/generated/strings.g.dart';
 
 @injectable
 class LoanUseCases {
@@ -44,6 +45,23 @@ class LoanUseCases {
   Future<LoanEntry?> getLoanById(int id) => _loanRepository.getLoanById(id);
 
   Stream<List<LoanEntry>> watchAllLoans() => _loanRepository.watchAllLoans();
+
+  /// Busca si existe algún préstamo vinculado a una transacción específica
+  /// Esto es útil para bloquear la edición/eliminación de transacciones automáticas
+  Future<LoanEntry?> getLoanByTransactionId(int transactionId) async {
+    // Nota: Idealmente esto debería ser una consulta SQL directa en el repositorio
+    // pero para mantener la arquitectura actual sin tocar la capa de datos (DAOs),
+    // podemos filtrar en memoria ya que getAllLoans trae los detalles.
+    final loans = await _loanRepository.getAllLoans();
+    
+    try {
+      return loans.firstWhere((loan) => 
+        loan.details.any((detail) => detail.transactionId == transactionId)
+      );
+    } catch (_) {
+      return null;
+    }
+  }
 
   // ========== CREAR PRÉSTAMOS OTORGADOS (LEND) ==========
 
@@ -122,7 +140,7 @@ class LoanUseCases {
     // 3. Crear transacción
     final transaction = await _transactionRepository.createExpenseTransaction(
       date: date,
-      description: 'Préstamo otorgado a ${contact.name}',
+      description: '${t.loans.given}: ${contact.name}',
       amount: amount,
       currencyId: currencyId,
       categoryId: 0, // No aplica categoría para préstamos
@@ -232,7 +250,7 @@ class LoanUseCases {
     final transaction =
         await _transactionRepository.createCreditCardExpenseTransaction(
       date: date,
-      description: 'Préstamo otorgado a ${contact.name}',
+      description: '${t.loans.given}: ${contact.name}',
       amount: amount,
       currencyId: currencyId,
       creditCardId: creditCardId,
@@ -319,7 +337,7 @@ class LoanUseCases {
     final transaction =
         await _transactionRepository.createLendFromServiceTransaction(
       date: date,
-      description: 'Préstamo otorgado a ${contact.name}',
+      description: '${t.loans.given}: ${contact.name}',
       amount: amount,
       currencyId: currencyId,
       categoryId: incomeCategoryId,
@@ -424,7 +442,7 @@ class LoanUseCases {
     // 3. Crear transacción
     final transaction = await _transactionRepository.createIncomeTransaction(
       date: date,
-      description: 'Préstamo recibido de ${contact.name}',
+      description: '${t.loans.received}: ${contact.name}',
       amount: amount,
       currencyId: currencyId,
       walletId: walletId,
@@ -512,7 +530,7 @@ class LoanUseCases {
     final transaction =
         await _transactionRepository.createBorrowFromServiceTransaction(
       date: date,
-      description: 'Préstamo recibido de ${contact.name}',
+      description: '${t.loans.received}: ${contact.name}',
       amount: amount,
       currencyId: currencyId,
       categoryId: expenseCategoryId,

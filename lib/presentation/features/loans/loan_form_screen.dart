@@ -568,12 +568,42 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
       initialSelection: currentSelection,
     );
 
+    // Refresh contacts list to ensure any new contact is available
+    if (mounted) {
+      final contactUseCases = GetIt.instance<ContactUseCases>();
+      final freshContacts = await contactUseCases.getAllContacts();
+      setState(() {
+        _contacts = freshContacts;
+      });
+    }
+
     if (result != null) {
       setState(() {
-        _selectedContact = _contacts.firstWhere(
-          (c) => c.id.toString() == result.id,
-        );
+        try {
+          _selectedContact = _contacts.firstWhere(
+            (c) => c.id.toString() == result.id,
+          );
+        } catch (e) {
+          debugPrint('Could not find selected contact in refreshed list: $e');
+        }
       });
+    } else {
+      // Si el usuario borró la selección (result es null), limpiamos _selectedContact
+      // Pero el diálogo actual no retorna null explícitamente para limpiar, sino para "cancelar".
+      // La lógica del diálogo es: return null si cancela o cierra.
+      // Si el usuario deselecciona, deberíamos manejarlo.
+      // En la última modificación del diálogo:
+      // if (isSelected) setState(() => _selectedContact = null);
+      // onSave: () => Navigator.of(context).pop(_selectedContact),
+      // Si _selectedContact es null, retorna null.
+      
+      // Existe ambigüedad entre "Cancelar" (back button/tap outside) y "Guardar nada" (selección vacía).
+      // El showModalBottomSheet retorna null si se cierra por tap outside.
+      // Si el usuario pulsa "Seleccionar" con selección vacía, retorna null.
+      // Deberíamos asumir que si el usuario guardó una selección vacía, quiere borrar el contacto.
+      // PERO no podemos distinguir entre "cancelar" y "guardar vacío" fácilmente con el diseño actual del showModalBottomSheet (que retorna null al cancelar).
+      // Por ahora, asumiré que si retorna, intentamos seleccionar. Si es null, NO HACEMOS NADA para evitar borrar accidentalmente al cancelar.
+      // (Para deseleccionar explícitamente se necesitaría un indicador específico).
     }
   }
 

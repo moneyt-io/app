@@ -193,7 +193,8 @@
       "unknownAccount": "Unknown Account",
       "errorUrl": "Could not open $url",
       "date": "Date",
-      "time": "Time"
+      "time": "Time",
+      "loanLinkedWarning": "This transaction is linked to a loan and managed automatically."
     },
     "share": {
       "title": "Share Transaction",

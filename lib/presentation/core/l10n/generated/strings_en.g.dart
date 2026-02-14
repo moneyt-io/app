@@ -941,6 +941,9 @@ class AppStringsTransactionsDetailEn {
 
 	/// en: 'Time'
 	String get time => 'Time';
+
+	/// en: 'This transaction is linked to a loan and managed automatically.'
+	String get loanLinkedWarning => 'This transaction is linked to a loan and managed automatically.';
 }
 
 // Path: transactions.share
@@ -3458,6 +3461,7 @@ extension on AppStrings {
 			case 'transactions.detail.errorUrl': return ({required Object url}) => 'Could not open ${url}';
 			case 'transactions.detail.date': return 'Date';
 			case 'transactions.detail.time': return 'Time';
+			case 'transactions.detail.loanLinkedWarning': return 'This transaction is linked to a loan and managed automatically.';
 			case 'transactions.share.title': return 'Share Transaction';
 			case 'transactions.share.copyText': return 'Copy Text';
 			case 'transactions.share.shareButton': return 'Share';

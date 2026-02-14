@@ -79,18 +79,23 @@ class LoanDao extends DatabaseAccessor<AppDatabase> with _$LoanDaoMixin {
   Future<bool> updateLoan(LoanEntriesCompanion entry) =>
       update(loanEntry).replace(entry);
 
-  Future<int> deleteLoan(int id) =>
-      (delete(loanEntry)..where((t) => t.id.equals(id))).go();
+  Future<void> deleteLoan(int id) {
+    return transaction(() async {
+      // 1. Obtener los IDs de transacciones asociadas a través de los detalles
+      final details = await (select(loanDetail)..where((t) => t.loanId.equals(id))).get();
+      final transactionIds = details.map((d) => d.transactionId).toList();
 
-  // Soft delete
-  Future<bool> softDeleteLoan(int id) async {
-    final companion = LoanEntriesCompanion(
-      id: Value(id),
-      active: const Value(false),
-      deletedAt: Value(DateTime.now()),
-      updatedAt: Value(DateTime.now()),
-    );
-    return update(loanEntry).replace(companion);
+      // 2. Eliminar detalles del préstamo
+      await (delete(loanDetail)..where((t) => t.loanId.equals(id))).go();
+
+      // 3. Eliminar el préstamo
+      await (delete(loanEntry)..where((t) => t.id.equals(id))).go();
+
+      // 4. Eliminar las transacciones asociadas
+      if (transactionIds.isNotEmpty) {
+        await (delete(db.transactionEntry)..where((t) => t.id.isIn(transactionIds))).go();
+      }
+    });
   }
 
   // CRUD Operations para Details

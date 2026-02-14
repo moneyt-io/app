@@ -39,11 +39,13 @@ import '../../core/l10n/generated/strings.g.dart';
 class TransactionFormScreen extends StatefulWidget {
   final TransactionEntity? transaction;
   final String initialType;
+  final bool isDuplicate;
 
   const TransactionFormScreen({
     Key? key,
     this.transaction,
     required this.initialType,
+    this.isDuplicate = false,
   }) : super(key: key);
 
   @override
@@ -85,7 +87,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   bool get isTransfer => _selectedType == 'T';
   bool get isExpense => _selectedType == 'E';
   bool get isIncome => _selectedType == 'I';
-  bool get isEditing => widget.transaction != null;
+  bool get isEditing => widget.transaction != null && !widget.isDuplicate;
 
   @override
   void initState() {
@@ -111,6 +113,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   }
 
   Future<void> _startInitialSelectionFlow() async {
+    // If it is a duplication, we do not want to open selectors, 
+    // simply focus amount or leave it ready to save.
+    if (widget.isDuplicate) return;
+
     // 1. Show source account selector.
     await _showAccountSelector(isSource: true);
     if (!mounted || _selectedAccount == null) return;
@@ -227,11 +233,14 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   }
 
   void _initializeFormData() {
-    if (isEditing) {
+    if (widget.transaction != null) {
       final t = widget.transaction!;
       _amountController.text = t.amount.abs().toString();
       _descriptionController.text = t.description ?? '';
-      _selectedDate = t.transactionDate;
+      
+      // If duplicating, use current date, otherwise use transaction date
+      _selectedDate = widget.isDuplicate ? DateTime.now() : t.transactionDate;
+      
       _selectedCategoryId = t.categoryId;
       _selectedContactId = t.contactId;
 
@@ -314,6 +323,15 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       contacts: selectableContacts,
       initialSelection: currentSelection,
     );
+
+    // Refresh contacts list to ensure any new contact is available
+    if (mounted) {
+      final contactUseCases = GetIt.instance<ContactUseCases>();
+      final freshContacts = await contactUseCases.getAllContacts();
+      setState(() {
+        _contacts = freshContacts;
+      });
+    }
 
     if (result != null) {
       setState(() {
