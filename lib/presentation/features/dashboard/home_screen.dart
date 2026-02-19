@@ -109,21 +109,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // AÑADIDO: Método para mostrar la paywall si el usuario no está suscrito.
   Future<void> _showPaywallIfNeeded() async {
-    // Se espera un momento para no interferir con la animación de entrada.
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Esperar un momento para no interferir con la animación de entrada.
+    await Future.delayed(const Duration(milliseconds: 800));
 
     try {
-      // 1. Verificar si el usuario ya tiene una suscripción activa.
+      // isPremiumNotifier ya tiene el valor correcto porque PaywallService.init()
+      // espera activamente el primer estado de Superwall antes de retornar.
       final isSubscribed = GetIt.instance<PaywallService>().isPremiumNotifier.value;
       if (isSubscribed) {
         print(' HomeScreen: User is already subscribed. Skipping paywall.');
         return;
       }
 
-      // 3. Si no está suscrito y el widget está montado, mostrar el paywall.
       if (mounted) {
-        print(
-            ' HomeScreen: User is not subscribed. Triggering paywall...');
+        print(' HomeScreen: User is not subscribed. Triggering paywall...');
         _triggerPaywall();
       }
     } catch (e) {

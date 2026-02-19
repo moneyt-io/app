@@ -22,15 +22,23 @@ class PaywallService implements SuperwallDelegate {
   /// Inicializa Superwall y establece este servicio como el delegado.
   Future<void> init() async {
     try {
-      // La configuración es estática.
       await Superwall.configure(_apiKey);
-      // La asignación del delegate se hace a través de la instancia compartida.
-      Superwall.shared.setDelegate(this); // ✅ CORRECCIÓN FINAL
+      Superwall.shared.setDelegate(this);
       
-      // ✅ Inicializar estado escuchando el stream
+      // Escucha cambios futuros de suscripción (ej. compra dentro de la sesión)
       Superwall.shared.subscriptionStatus.listen((status) {
         _updateSubscriptionStatus(status);
       });
+
+      // Leer el estado ACTUAL directamente (no del stream, que solo emite en cambios).
+      // getSubscriptionStatus() consulta a StoreKit/Play Billing y retorna el valor real.
+      try {
+        final currentStatus = await Superwall.shared.getSubscriptionStatus();
+        _updateSubscriptionStatus(currentStatus);
+        print('✅ PaywallService: Initial subscription status: $currentStatus (isPremium: ${isPremiumNotifier.value})');
+      } catch (e) {
+        print('⚠️ PaywallService: Could not resolve initial subscription status: $e');
+      }
       
       print('✅ PaywallService: Superwall configured successfully.');
     } catch (e) {

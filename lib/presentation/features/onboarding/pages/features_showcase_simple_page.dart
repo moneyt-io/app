@@ -221,12 +221,12 @@ class FeatureShowcaseSimplePage extends StatelessWidget {
     final items = List<FeatureItem?>.from(features);
     final remainder = items.length % 3;
 
-    // If the last row would have a single item, center it in the middle column.
-    if (remainder == 1 && items.length > 1) {
-      final last = items.removeLast();
-      items.add(null);
-      items.add(last);
-      items.add(null);
+    // If the last row is incomplete, pad with nulls to fill the row (left-aligned).
+    if (remainder != 0) {
+      final padding = 3 - remainder;
+      for (int i = 0; i < padding; i++) {
+        items.add(null);
+      }
     }
 
     return items;

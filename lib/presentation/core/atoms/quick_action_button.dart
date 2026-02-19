@@ -37,27 +37,38 @@ class QuickActionButton extends StatelessWidget {
         onTap: onPressed,
         borderRadius: BorderRadius.circular(12),
         splashColor: _getHoverColor(),
-        child: Container(
-          padding: const EdgeInsets.all(16), // HTML: p-4
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                _getIcon(),
-                size: 32, // HTML: text-2xl
-                color: _getIconColor(),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Si el ancho disponible es menor a 70px, ocultar el texto
+            // para evitar que salte de línea y se vea mal.
+            final showLabel = constraints.maxWidth >= 70;
+            return Container(
+              padding: const EdgeInsets.all(16), // HTML: p-4
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _getIcon(),
+                    size: 32, // HTML: text-2xl
+                    color: _getIconColor(),
+                  ),
+                  if (showLabel) ...[
+                    const SizedBox(height: 8), // HTML: gap-2
+                    Text(
+                      _getLabel(),
+                      style: TextStyle(
+                        fontSize: 12, // HTML: text-xs
+                        fontWeight: FontWeight.w500, // HTML: font-medium
+                        color: _getTextColor(),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
               ),
-              const SizedBox(height: 8), // HTML: gap-2
-              Text(
-                _getLabel(),
-                style: TextStyle(
-                  fontSize: 12, // HTML: text-xs
-                  fontWeight: FontWeight.w500, // HTML: font-medium
-                  color: _getTextColor(),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
