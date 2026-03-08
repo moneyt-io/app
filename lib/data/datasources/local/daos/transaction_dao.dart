@@ -50,6 +50,29 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
             ..orderBy([(t) => OrderingTerm.desc(t.date)]))
           .get();
 
+  // Optimización: Cálculo agrupado para balances en BD (muy rápido)
+  Future<Map<int, double>> getWalletBalances() async {
+    final query = customSelect(
+      '''
+      SELECT d.payment_id,
+             SUM(CASE WHEN d.flow_id = 'T' THEN d.amount ELSE -d.amount END) as balance
+      FROM transaction_detail d
+      INNER JOIN transaction_entry e ON d.transaction_id = e.id
+      WHERE d.payment_type_id = 'W' AND e.active = 1 AND d.payment_id IS NOT NULL
+      GROUP BY d.payment_id
+      '''
+    );
+
+    final result = await query.get();
+    final Map<int, double> balances = {};
+    for (final row in result) {
+      final paymentId = row.read<int>('payment_id');
+      final balance = row.read<double>('balance');
+      balances[paymentId] = balance;
+    }
+    return balances;
+  }
+
   Future<List<TransactionEntries>> getTransactionsByDateRange(
           DateTime startDate, DateTime endDate) =>
       (select(transactionEntry)

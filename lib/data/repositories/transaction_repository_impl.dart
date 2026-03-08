@@ -98,6 +98,11 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
+  Future<Map<int, double>> getWalletBalances() async {
+    return await _transactionDao.getWalletBalances();
+  }
+
+  @override
   Future<TransactionEntry> createTransaction(
     TransactionEntry transaction,
     List<TransactionDetail> details,

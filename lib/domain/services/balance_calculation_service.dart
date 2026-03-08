@@ -12,7 +12,24 @@ class BalanceCalculationService {
 
   BalanceCalculationService(this._transactionRepository, this._creditCardRepository);
 
-  /// Calcula el balance actual de un wallet basado en transacciones
+  /// Calcula el balance general de todos los wallets usando SQL optimizado
+  Future<Map<int, double>> calculateAllWalletBalances() async {
+    try {
+      final balances = await _transactionRepository.getWalletBalances();
+      
+      // Aplicar redondeo a todos los balances
+      final Map<int, double> roundedBalances = {};
+      balances.forEach((id, balance) {
+        roundedBalances[id] = double.parse(balance.toStringAsFixed(2)) + 0.0;
+      });
+      
+      return roundedBalances;
+    } catch (e) {
+      return {};
+    }
+  }
+
+  /// Calcula el balance actual de un wallet basado en transacciones (Para una en específico - Menos eficiente)
   Future<double> calculateWalletBalance(int walletId) async {
     try {
       final transactions = await _transactionRepository

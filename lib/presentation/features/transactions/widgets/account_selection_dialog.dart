@@ -72,14 +72,18 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
 
   Future<void> _loadBalances() async {
     setState(() => _isLoadingBalances = true);
+    
+    // Optimizacion: Usar la consulta masiva en lugar de iterar N veces
+    final allWalletBalances = await _balanceService.calculateAllWalletBalances();
     final balanceMap = <int, double>{};
+    
     for (final account in widget.accounts) {
       if (account.isCreditCard) {
         final availableCredit = await _balanceService.calculateAvailableCreditFromId(account.id);
         balanceMap[account.id] = availableCredit;
       } else {
-        final balance = await _balanceService.calculateWalletBalance(account.id);
-        balanceMap[account.id] = balance;
+        // En lugar de ir a base de datos, usamos el mapa recien traido
+        balanceMap[account.id] = allWalletBalances[account.id] ?? 0.0;
       }
     }
     if (mounted) {

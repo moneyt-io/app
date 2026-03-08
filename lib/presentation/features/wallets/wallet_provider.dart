@@ -48,10 +48,15 @@ class WalletProvider with ChangeNotifier {
   }
 
   Future<void> _loadWalletBalances() async {
-    final Map<int, double> individualBalances = {};
+    // Optimización: Un solo viaje a base de datos
+    final Map<int, double> individualBalances = 
+        await _balanceService.calculateAllWalletBalances();
+        
+    // Asegurar que las wallets que no tienen transacciones aparezcan con 0.0
     for (final wallet in _wallets) {
-      final balance = await _balanceService.calculateWalletBalance(wallet.id);
-      individualBalances[wallet.id] = balance;
+      if (!individualBalances.containsKey(wallet.id)) {
+        individualBalances[wallet.id] = 0.0;
+      }
     }
 
     final Map<int, double> consolidatedBalances = Map.from(individualBalances);

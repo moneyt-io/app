@@ -11,8 +11,9 @@ abstract class TransactionRepository {
   Future<List<TransactionEntry>> getTransactionsByType(String documentTypeId);
   Stream<List<TransactionEntry>> watchAllTransactions();
   Future<List<TransactionEntry>> getTransactionsByDateRange(DateTime startDate, DateTime endDate);
-  
-  // CRUD Operations
+    // Optimización de balance general
+  Future<Map<int, double>> getWalletBalances();
+    // CRUD Operations
   Future<TransactionEntry> createTransaction(TransactionEntry transaction, List<TransactionDetail> details);
   Future<void> updateTransaction(TransactionEntity transaction);
   @Deprecated('Use updateTransaction with TransactionEntity instead')
