@@ -24,32 +24,37 @@ class NumberFormatter {
 
   static final NumberFormat _numberFormatter = NumberFormat.decimalPattern('es_CO');
 
+  /// Sanea el double eliminando errores de precisión decimal y matando el -0.0
+  static double _sanitize(double value) {
+    return double.parse(value.toStringAsFixed(2)) + 0.0;
+  }
+
   /// Formatea un número como moneda sin decimales
   /// 
   /// Ejemplo: 1500000 -> "$1.500.000"
   static String formatCurrency(double amount) {
-    return _currencyFormatter.format(amount);
+    return _currencyFormatter.format(_sanitize(amount));
   }
 
   /// Formatea un número como moneda con decimales
   /// 
   /// Ejemplo: 1500000.50 -> "$1.500.000,50"
   static String formatCurrencyWithDecimals(double amount) {
-    return _currencyWithDecimalsFormatter.format(amount);
+    return _currencyWithDecimalsFormatter.format(_sanitize(amount));
   }
 
   /// Formatea un número como porcentaje
   /// 
   /// Ejemplo: 0.15 -> "15%"
   static String formatPercentage(double value) {
-    return _percentFormatter.format(value);
+    return _percentFormatter.format(_sanitize(value));
   }
 
   /// Formatea un número con separadores de miles
   /// 
   /// Ejemplo: 1500000 -> "1.500.000"
   static String formatNumber(double number) {
-    return _numberFormatter.format(number);
+    return _numberFormatter.format(_sanitize(number));
   }
 
   /// Formatea un número entero con separadores de miles
@@ -81,13 +86,16 @@ class NumberFormatter {
   /// 
   /// Retorna información sobre si el monto es positivo, negativo o neutro
   static AmountDisplayInfo getAmountDisplayInfo(double amount) {
-    if (amount > 0) {
+    // Sanitizamos
+    final double cleanAmount = _sanitize(amount);
+
+    if (cleanAmount > 0) {
       return AmountDisplayInfo(
         isPositive: true,
         isNegative: false,
         isNeutral: false,
       );
-    } else if (amount < 0) {
+    } else if (cleanAmount < 0) {
       return AmountDisplayInfo(
         isPositive: false,
         isNegative: true,

@@ -261,19 +261,36 @@ class _WalletsScreenState extends State<WalletsScreen> {
       }
     }).toList();
 
-    if (matchingWallets.isEmpty) {
-      return SliverFillRemaining(child: _buildEmptyState());
+    // 2. Determinar qué wallets vamos a mostrar
+    final Set<int> idsToDisplay = {};
+    
+    // Solo agregamos a los padres si tienen hijos coincidentes, O si son billeteras independientes
+    for (var wallet in provider.wallets) {
+      if (wallet.parentId == null) {
+        // Es un padre (o cuenta root independiente)
+        final allChildren = provider.wallets.where((w) => w.parentId == wallet.id).toList();
+        
+        if (allChildren.isEmpty) {
+          // Billetera independiente sin hijos: se muestra solo si coincide con el filtro
+          if (matchingWallets.any((w) => w.id == wallet.id)) {
+            idsToDisplay.add(wallet.id);
+          }
+        } else {
+          // Es un padre de grupo: se muestra SOLAMENTE si tiene algún hijo que coincida con el filtro
+          final matchingChildren = allChildren.where((child) => matchingWallets.any((mw) => mw.id == child.id)).toList();
+          
+          if (matchingChildren.isNotEmpty) {
+            idsToDisplay.add(wallet.id); // Mostrar al padre (incluso si no coincidia su propio 'active')
+            for (var child in matchingChildren) {
+              idsToDisplay.add(child.id); // Mostrar a los hijos coincidentes
+            }
+          }
+        }
+      }
     }
 
-    // 2. Expandir selección para incluir padres necesarios
-    // Si una wallet hija coincide, su padre DEBE mostrarse para mantener la jerarquía
-    // aunque no coincida directamente con el filtro (Ej: Padre activo con hijo archivado)
-    final Set<int> idsToDisplay = matchingWallets.map((w) => w.id).toSet();
-    
-    for (var wallet in matchingWallets) {
-      if (wallet.parentId != null) {
-        idsToDisplay.add(wallet.parentId!);
-      }
+    if (idsToDisplay.isEmpty) {
+      return SliverFillRemaining(child: _buildEmptyState());
     }
 
     final filteredWallets = provider.wallets
@@ -294,12 +311,25 @@ class _WalletsScreenState extends State<WalletsScreen> {
         ...walletTree.entries.map((entry) {
           final parentWallet = entry.key;
           final childWallets = entry.value;
+
+          // 3. Calcular el balance del padre basado SOLO en los hijos visibles y su propio balance
+          double ownBalance = provider.walletBalances[parentWallet.id] ?? 0.0;
+          final allChildrenForMath = provider.wallets.where((w) => w.parentId == parentWallet.id);
+          for (var c in allChildrenForMath) {
+            ownBalance -= (provider.walletBalances[c.id] ?? 0.0);
+          }
+          
+          double visibleParentBalance = ownBalance;
+          for (var c in childWallets) {
+            visibleParentBalance += (provider.walletBalances[c.id] ?? 0.0);
+          }
+
           return WalletTreeItem(
             parentWallet: parentWallet,
             childWallets: childWallets,
             chartAccount: _chartAccountsMap[parentWallet.chartAccountId],
             isExpanded: _expandedWallets[parentWallet.id] ?? false,
-            parentBalance: provider.walletBalances[parentWallet.id] ?? 0.0,
+            parentBalance: visibleParentBalance,
             childBalances: {
               for (var child in childWallets)
                 child.id: provider.walletBalances[child.id] ?? 0.0

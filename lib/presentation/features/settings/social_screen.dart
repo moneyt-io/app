@@ -118,48 +118,6 @@ class SocialScreen extends StatelessWidget {
                   ),
                   onTap: () => _openUrl('https://www.linkedin.com/company/moneyt-io'),
                 ),
-                
-                // X (Twitter)
-                SettingsItem(
-                  icon: Icons.message, // ✅ CORREGIDO: Ícono más representativo para X/Twitter
-                  title: t.settings.social.twitter,
-                  subtitle: t.settings.social.twitterSubtitle,
-                  backgroundColor: Colors.black, // HTML: bg-black
-                  iconColor: Colors.white,
-                  trailing: const Icon(
-                    Icons.open_in_new,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                  onTap: () => _openUrl('https://twitter.com/moneyt_app'),
-                ),
-                
-                // Reddit
-                SettingsItem(
-                  icon: Icons.reddit, // ✅ CORREGIDO: Ícono específico de Reddit
-                  title: t.settings.social.reddit,
-                  subtitle: t.settings.social.redditSubtitle,
-                  backgroundColor: const Color(0xFFEA580C), // HTML: bg-orange-600
-                  iconColor: Colors.white,
-                  trailing: const Icon(
-                    Icons.open_in_new,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                  onTap: () => _openUrl('https://www.reddit.com/r/moneyt_io'),
-                ),
-                
-                // Discord
-                SettingsItem(
-                  icon: Icons.chat_bubble, // ✅ CORREGIDO: Ícono más representativo para Discord
-                  title: t.settings.social.discord,
-                  subtitle: t.settings.social.discordSubtitle,
-                  backgroundColor: const Color(0xFF4F46E5), // HTML: bg-indigo-600
-                  iconColor: Colors.white,
-                  trailing: const Icon(
-                    Icons.open_in_new,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                  onTap: () => _openUrl('https://discord.gg/moneyt'),
-                ),
               ],
             ),
             
@@ -202,63 +160,67 @@ class SocialScreen extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(16, 24, 16, 0), // HTML: mt-6 px-4
               child: Material(
                 color: Colors.transparent,
-                child: InkWell(
-                  onTap: _shareApp,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16), // HTML: px-4 py-4
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8), // HTML: rounded-lg
-                      gradient: const LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        colors: [
-                          Color(0xFF3B82F6), // HTML: from-blue-500
-                          Color(0xFF9333EA), // HTML: to-purple-600
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1), // HTML: shadow-lg
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.share,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 12), // HTML: gap-3
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                t.settings.info.share,
-                                style: const TextStyle(
-                                  fontSize: 16, // HTML: text-base
-                                  fontWeight: FontWeight.w600, // HTML: font-semibold
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                t.settings.info.shareSubtitle,
-                                style: const TextStyle(
-                                  fontSize: 14, // HTML: text-sm
-                                  color: Color(0xFFE5E7EB), // HTML: opacity-90 white
-                                ),
-                              ),
+                child: Builder(
+                  builder: (context) {
+                    return InkWell(
+                      onTap: () => _shareApp(context),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16), // HTML: px-4 py-4
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8), // HTML: rounded-lg
+                          gradient: const LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              Color(0xFF3B82F6), // HTML: from-blue-500
+                              Color(0xFF9333EA), // HTML: to-purple-600
                             ],
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1), // HTML: shadow-lg
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.share,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            const SizedBox(width: 12), // HTML: gap-3
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    t.settings.info.share,
+                                    style: const TextStyle(
+                                      fontSize: 16, // HTML: text-base
+                                      fontWeight: FontWeight.w600, // HTML: font-semibold
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    t.settings.info.shareSubtitle,
+                                    style: const TextStyle(
+                                      fontSize: 14, // HTML: text-sm
+                                      color: Color(0xFFE5E7EB), // HTML: opacity-90 white
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -299,11 +261,15 @@ class SocialScreen extends StatelessWidget {
   }
 
   /// Comparte la app usando el API nativo de compartir
-  Future<void> _shareApp() async {
+  Future<void> _shareApp(BuildContext context) async {
+    final box = context.findRenderObject() as RenderBox?;
     try {
       await Share.share(
         'Check out MoneyT, the best app for managing your personal finances! https://moneyt.io',
-        subject: 'MoneyT - Personal Finance Manager',
+        // Omitimos el parámetro 'subject' porque en iOS tiende a convertir el texto en un archivo adjunto (.txt) o fallar.
+        sharePositionOrigin: box != null 
+            ? box.localToGlobal(Offset.zero) & box.size 
+            : null,
       );
     } catch (e) {
       debugPrint('Error sharing app: $e');

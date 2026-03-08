@@ -34,7 +34,8 @@ class BalanceCalculationService {
         }
       }
 
-      return balance;
+      // Redondeo natural a 2 decimales para eliminar residuos de punto flotante de Dart
+      return double.parse(balance.toStringAsFixed(2)) + 0.0;
     } catch (e) {
       // En caso de error, retornar 0
       return 0.0;
@@ -64,7 +65,8 @@ class BalanceCalculationService {
         }
       }
 
-      return usedBalance;
+      // Redondeo natural a 2 decimales para eliminar residuos de punto flotante de Dart
+      return double.parse(usedBalance.toStringAsFixed(2)) + 0.0;
     } catch (e) {
       // En caso de error, retornar 0
       return 0.0;
