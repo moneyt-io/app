@@ -495,12 +495,11 @@ class _BackupScreenState extends State<BackupScreen> {
       }
       
       final box = context.findRenderObject() as RenderBox?;
-      final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(backupFile.lastModifiedSync());
-
+      
+      // ✅ FIX: Solo enviar el archivo para evitar que Android sobrescriba el nombre
+      // o que iOS genere un documento .txt adicional con el texto adjunto.
       await Share.shareXFiles(
         [XFile(backupFile.path)],
-        subject: 'Copia de seguridad MoneyT',
-        text: 'Adjunto mi copia de seguridad de MoneyT del $dateStr.',
         sharePositionOrigin: box != null ? box.localToGlobal(Offset.zero) & box.size : null,
       );
     } catch (e) {

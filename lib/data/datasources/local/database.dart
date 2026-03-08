@@ -38,17 +38,46 @@ part 'database.g.dart';
 
 LazyDatabase _openConnection() {
   return LazyDatabase(()async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'app_database.sqlite'));
+    // 1. Obtener la ruta segura recomendada (Library/Application Support en iOS, app_flutter en Android)
+    final supportDir = await getApplicationSupportDirectory();
+    final newFile = File(p.join(supportDir.path, 'app_database.sqlite'));
+
+    // 2. Migration: Check if database exists in old path (Documents/)
+    // This safely ensures users migrating from early versions don't lose their data
+    final docDir = await getApplicationDocumentsDirectory();
+    final oldFile = File(p.join(docDir.path, 'app_database.sqlite'));
+
+    if (await oldFile.exists() && !(await newFile.exists())) {
+      print('📦 Migrating database from Documents/ to Application Support/ ...');
+      await oldFile.copy(newFile.path);
+      
+      // Attempt to clean up old files including journal/wal files SQLite creates
+      final oldDbDir = oldFile.parent;
+      final oldFiles = [
+        oldFile,
+        File(p.join(oldDbDir.path, 'app_database.sqlite-wal')),
+        File(p.join(oldDbDir.path, 'app_database.sqlite-shm'))
+      ];
+      
+      for (final f in oldFiles) {
+        if (await f.exists()) {
+          try {
+            await f.delete();
+          } catch (e) {
+            print('Warning: Could not delete old DB file: $e');
+          }
+        }
+      }
+    }
 
     // Configurar SQLite nativo
     if (Platform.isAndroid) {
       await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
     }
-    final cachebase = (await getTemporaryDirectory()).path;
-    sqlite3.tempDirectory = cachebase;
+    final cacheDir = await getTemporaryDirectory();
+    sqlite3.tempDirectory = cacheDir.path;
 
-    return NativeDatabase.createInBackground(file);
+    return NativeDatabase.createInBackground(newFile);
   });
 }
 
@@ -92,7 +121,7 @@ class AppDatabase extends _$AppDatabase {
 
   // Método necesario para backups locales
   Future<String> getDatabasePath() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
+    final dbFolder = await getApplicationSupportDirectory();
     final file = File(p.join(dbFolder.path, 'app_database.sqlite'));
     return file.path;
   }

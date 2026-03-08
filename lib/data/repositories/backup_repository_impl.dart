@@ -179,10 +179,10 @@ class BackupRepositoryImpl implements BackupRepository {
       throw Exception('El archivo de backup a compartir no existe.');
     }
     try {
+      // ✅ FIX: Solo enviar el archivo para que Android/iOS mantengan el nombre original
+      // y no generen archivos .txt extra en Drive.
       await Share.shareXFiles(
         [XFile(backupFile.path)],
-        subject: 'Copia de seguridad MoneyT',
-        text: 'Adjunto mi copia de seguridad de MoneyT del ${DateFormat('dd/MM/yyyy HH:mm').format(backupFile.lastModifiedSync())}.',
       );
     } catch (e) {
       throw Exception('Error al compartir la copia de seguridad: $e');
