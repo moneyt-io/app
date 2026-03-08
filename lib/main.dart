@@ -43,11 +43,10 @@ void main() async {
     debugPrint('PaywallService initialization failed: $e');
   }
 
-  await _initializeCriticalData();
-
   final prefs = await SharedPreferences.getInstance();
 
-  // ✅ CORREGIDO: Cargar idioma guardado ANTES de iniciar la app
+  // ✅ CORREGIDO: Cargar idioma guardado o del dispositivo ANTES de inicializar los datos base
+  // Esto asegura que los seeds (ej. billeteras, categorías) se creen en el idioma correcto
   final savedLanguage = prefs.getString('selected_language');
   if (savedLanguage != null) {
     try {
@@ -63,6 +62,8 @@ void main() async {
     // Si no hay preferencia guardada, usar idioma del dispositivo
     LocaleSettings.useDeviceLocale();
   }
+
+  await _initializeCriticalData();
 
   runApp(
     MultiProvider(

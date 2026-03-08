@@ -22,7 +22,9 @@ class DomainSeeds {
     final existingWallets = await walletUseCases.getAllWallets();
     final existingWalletNames = existingWallets.map((w) => w.name).toSet();
 
-    final String jsonString = await rootBundle.loadString('assets/seeds/$lang/wallets.json');
+    final jsonString = await _loadSeedJsonSafely(lang, 'wallets.json');
+    if (jsonString == null) return;
+
     final List<dynamic> walletsJson = json.decode(jsonString);
 
     for (var walletData in walletsJson) {
@@ -57,11 +59,35 @@ class DomainSeeds {
     final existingCategories = await categoryUseCases.getAllCategories();
     final existingCategoryNames = existingCategories.map((c) => c.name).toSet();
 
-    final String jsonString = await rootBundle.loadString('assets/seeds/$lang/categories.json');
+    final jsonString = await _loadSeedJsonSafely(lang, 'categories.json');
+    if (jsonString == null) return;
+
     final Map<String, dynamic> categoriesJson = json.decode(jsonString);
 
-    await _processCategoryType(categoriesJson['income'], 'I', existingCategoryNames, categoryUseCases);
-    await _processCategoryType(categoriesJson['expense'], 'E', existingCategoryNames, categoryUseCases);
+    await _processCategoryType(
+        categoriesJson['income'], 'I', existingCategoryNames, categoryUseCases);
+    await _processCategoryType(categoriesJson['expense'], 'E',
+        existingCategoryNames, categoryUseCases);
+  }
+
+  /// Carga de forma segura un JSON de los seeds verificando si el lenguaje está soportado.
+  /// En caso de no existir traducción para el idioma actual, hace fallback al idioma base ('en').
+  static Future<String?> _loadSeedJsonSafely(
+      String lang, String fileName) async {
+    try {
+      // Intentar cargar la ruta específica del idioma local
+      final String path = 'assets/seeds/$lang/$fileName';
+      return await rootBundle.loadString(path);
+    } catch (e) {
+      // Fallback a inglés por defecto si no existe la carpeta/archivo
+      try {
+        final String fallbackPath = 'assets/seeds/en/$fileName';
+        return await rootBundle.loadString(fallbackPath);
+      } catch (eError) {
+        print('Error loading seeds fallback: $eError');
+        return null; // El archivo tampoco está en inglés (podría ser un missing asset)
+      }
+    }
   }
 
   static Future<void> _processCategoryType(
@@ -82,7 +108,8 @@ class DomainSeeds {
           active: true,
           createdAt: DateTime.now(),
         );
-        final createdParent = await useCases.createCategory(parentCategoryEntity);
+        final createdParent =
+            await useCases.createCategory(parentCategoryEntity);
         existingNames.add(createdParent.name);
 
         // Create children categories
@@ -99,7 +126,8 @@ class DomainSeeds {
                 active: true,
                 createdAt: DateTime.now(),
               );
-              final createdChild = await useCases.createCategory(childCategoryEntity);
+              final createdChild =
+                  await useCases.createCategory(childCategoryEntity);
               existingNames.add(createdChild.name);
             }
           }

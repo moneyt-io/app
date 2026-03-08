@@ -6,7 +6,8 @@ class LanguageProvider extends ChangeNotifier {
   static const String _languageKey = 'selected_language';
   final SharedPreferences _prefs;
 
-  AppLocale _currentLocale = AppLocale.es; // Default español
+  AppLocale _currentLocale =
+      LocaleSettings.currentLocale; // Sincronizado con slang inicial
 
   LanguageProvider(this._prefs) {
     _loadSavedLanguage();
@@ -54,6 +55,10 @@ class LanguageProvider extends ChangeNotifier {
         notifyListeners();
 
         debugPrint('✅ Loaded saved language: $savedLanguageCode');
+      } else {
+        // Sincronizar con el idioma que slang haya configurado (ej: useDeviceLocale)
+        _currentLocale = LocaleSettings.currentLocale;
+        notifyListeners();
       }
     } catch (e) {
       debugPrint('❌ Error loading saved language: $e');
