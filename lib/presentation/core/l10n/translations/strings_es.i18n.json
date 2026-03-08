@@ -464,6 +464,13 @@
         "title": "Transacciones Recientes",
         "description": "Última actividad financiera"
       },
+      "categoryBreakdown": {
+        "title": "Desglose por Categoría",
+        "description": "Desglose mensual del presupuesto",
+        "empty_message": "No hay transacciones registradas este mes.",
+        "others": "Otros",
+        "back": "Atrás"
+      },
       "chartAccounts": {
         "title": "Plan de Cuentas",
         "description": "Resumen de estructura de cuentas"

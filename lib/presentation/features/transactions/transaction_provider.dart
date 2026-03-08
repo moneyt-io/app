@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../../domain/entities/transaction.dart';
 import '../../../domain/entities/transaction_entry.dart';
+import '../../../domain/entities/category.dart';
 import '../../../domain/usecases/transaction_usecases.dart';
 import '../../../domain/usecases/category_usecases.dart';
 import '../../../domain/usecases/contact_usecases.dart';
@@ -16,6 +17,7 @@ class TransactionProvider extends ChangeNotifier {
 
   // State
   List<TransactionEntry> _transactions = [];
+  Map<int, Category> _categoriesDataMap = {}; // Added to have full category objects
   Map<int, String> _categoriesMap = {};
   Map<int, String> _contactsMap = {};
   Map<int, String> _walletsMap = {};
@@ -25,6 +27,7 @@ class TransactionProvider extends ChangeNotifier {
 
   // Getters
   List<TransactionEntry> get transactions => _transactions;
+  Map<int, Category> get categoriesDataMap => _categoriesDataMap; // Added getter
   Map<int, String> get categoriesMap => _categoriesMap;
   Map<int, String> get contactsMap => _contactsMap;
   Map<int, String> get walletsMap => _walletsMap;
@@ -54,10 +57,11 @@ class TransactionProvider extends ChangeNotifier {
 
       // Assign results to state variables
       _transactions = results[0] as List<TransactionEntry>;
-      final categories = results[1] as List<dynamic>;
+      final categories = results[1] as List<Category>; // Typed as List<Category> instead of dynamic
       final contacts = results[2] as List<dynamic>;
       final wallets = results[3] as List<dynamic>;
 
+      _categoriesDataMap = {for (var c in categories) c.id: c}; // Populate full objects map
       _categoriesMap = {for (var c in categories) c.id: c.name};
       _contactsMap = {for (var c in contacts) c.id: c.name};
       _walletsMap = {for (var w in wallets) w.id: w.name};

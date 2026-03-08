@@ -40,6 +40,7 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
       DashboardWidgetType.quickActions,
       DashboardWidgetType.wallets,
       DashboardWidgetType.transactions,
+      DashboardWidgetType.categoryBreakdown,
     };
 
     if (configString != null) {
@@ -59,12 +60,23 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
           
           // Ordenar por orden guardado
           _widgets.sort((a, b) => a.order.compareTo(b.order));
+
+          // AÑADIDO: Si existe un widget válido nuevo que no está en el JSON
+          for (var type in validTypes) {
+            if (!_widgets.any((w) => w.type == type)) {
+              final isDefaultEnabled = type == DashboardWidgetType.categoryBreakdown || 
+                                       type == DashboardWidgetType.transactions;
+              _widgets.add(WidgetConfig(
+                type: type, 
+                enabled: isDefaultEnabled, 
+                order: _widgets.length + 1
+              ));
+            }
+          }
         });
         
-        // Si se filtraron widgets, guardar la configuración limpia
-        if (_widgets.length != jsonList.length) {
-          _autoSave();
-        }
+        // Si se filtraron widgets o se agregaron nuevos, guardar la configuración limpia
+        _autoSave();
         return;
       } catch (e) {
         debugPrint('Error parsing widget config: $e');
@@ -81,7 +93,9 @@ class _DashboardWidgetsScreenState extends State<DashboardWidgetsScreen> {
         const WidgetConfig(
             type: DashboardWidgetType.wallets, enabled: true, order: 3),
         const WidgetConfig(
-            type: DashboardWidgetType.transactions, enabled: true, order: 4),
+            type: DashboardWidgetType.categoryBreakdown, enabled: true, order: 4),
+        const WidgetConfig(
+            type: DashboardWidgetType.transactions, enabled: true, order: 5),
       ];
     });
   }

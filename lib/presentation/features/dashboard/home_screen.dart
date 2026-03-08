@@ -22,6 +22,7 @@ import '../../navigation/navigation_service.dart';
 import '../../navigation/app_routes.dart';
 import 'dashboard_widgets_screen.dart'; // AGREGADO: Import de la pantalla de widgets
 import 'widgets/recent_transactions_widget.dart';
+import 'widgets/category_breakdown_widget.dart'; // AÑADIDO: Donut Widget de categorias
 import '../../core/l10n/generated/strings.g.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -73,6 +74,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       order: item['order'],
                     ))
                 .toList();
+
+            // AÑADIDO: Si existe un widget nuevo en el enum que no está guardado en el JSON,
+            // lo agregamos al final para que el usuario pueda verlo/habilitarlo.
+            for (var type in DashboardWidgetType.values) {
+              if (!_widgetConfigs.any((w) => w.type == type)) {
+                // CategoryExpenses y Transactions quedan activos por defecto si son nuevos en config
+                final isDefaultEnabled = type == DashboardWidgetType.categoryBreakdown || 
+                                         type == DashboardWidgetType.transactions;
+                _widgetConfigs.add(WidgetConfig(
+                  type: type, 
+                  enabled: isDefaultEnabled, 
+                  order: _widgetConfigs.length + 1
+                ));
+              }
+            }
+
             // Sort by order
             _widgetConfigs.sort((a, b) => a.order.compareTo(b.order));
           });
@@ -94,16 +111,18 @@ class _HomeScreenState extends State<HomeScreen> {
           const WidgetConfig(
               type: DashboardWidgetType.wallets, enabled: true, order: 3),
           const WidgetConfig(
-              type: DashboardWidgetType.transactions, enabled: true, order: 4),
+              type: DashboardWidgetType.categoryBreakdown, enabled: true, order: 4),
+          const WidgetConfig(
+              type: DashboardWidgetType.transactions, enabled: true, order: 5),
           // Add others hidden by default to match DashboardWidgetsScreen default
           const WidgetConfig(
-              type: DashboardWidgetType.loans, enabled: false, order: 5),
+              type: DashboardWidgetType.loans, enabled: false, order: 6),
           const WidgetConfig(
               type: DashboardWidgetType.chartAccounts,
               enabled: false,
-              order: 6),
+              order: 7),
           const WidgetConfig(
-              type: DashboardWidgetType.creditCards, enabled: false, order: 7),
+              type: DashboardWidgetType.creditCards, enabled: false, order: 8),
         ];
       });
     }
@@ -311,6 +330,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Column(
                             children: [
                               RecentTransactionsWidget(),
+                              const SizedBox(height: 24),
+                            ],
+                          );
+                        case DashboardWidgetType.categoryBreakdown:
+                          return Column(
+                            children: [
+                              CategoryBreakdownWidget(),
                               const SizedBox(height: 24),
                             ],
                           );

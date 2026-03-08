@@ -1530,6 +1530,7 @@ class AppStringsDashboardWidgetsEn {
 	late final AppStringsDashboardWidgetsWalletsEn wallets = AppStringsDashboardWidgetsWalletsEn.internal(_root);
 	late final AppStringsDashboardWidgetsLoansEn loans = AppStringsDashboardWidgetsLoansEn.internal(_root);
 	late final AppStringsDashboardWidgetsTransactionsEn transactions = AppStringsDashboardWidgetsTransactionsEn.internal(_root);
+	late final AppStringsDashboardWidgetsCategoryBreakdownEn categoryBreakdown = AppStringsDashboardWidgetsCategoryBreakdownEn.internal(_root);
 	late final AppStringsDashboardWidgetsChartAccountsEn chartAccounts = AppStringsDashboardWidgetsChartAccountsEn.internal(_root);
 	late final AppStringsDashboardWidgetsCreditCardsEn creditCards = AppStringsDashboardWidgetsCreditCardsEn.internal(_root);
 	late final AppStringsDashboardWidgetsSettingsEn settings = AppStringsDashboardWidgetsSettingsEn.internal(_root);
@@ -2848,6 +2849,30 @@ class AppStringsDashboardWidgetsTransactionsEn {
 	String get description => 'Latest financial activity';
 }
 
+// Path: dashboard.widgets.categoryBreakdown
+class AppStringsDashboardWidgetsCategoryBreakdownEn {
+	AppStringsDashboardWidgetsCategoryBreakdownEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Category Breakdown'
+	String get title => 'Category Breakdown';
+
+	/// en: 'Current month expenses'
+	String get description => 'Current month expenses';
+
+	/// en: 'No expenses recorded this month.'
+	String get empty_message => 'No expenses recorded this month.';
+
+	/// en: 'Others'
+	String get others => 'Others';
+
+	/// en: 'Back'
+	String get back => 'Back';
+}
+
 // Path: dashboard.widgets.chartAccounts
 class AppStringsDashboardWidgetsChartAccountsEn {
 	AppStringsDashboardWidgetsChartAccountsEn.internal(this._root);
@@ -3645,6 +3670,11 @@ extension on AppStrings {
 			case 'dashboard.widgets.loans.description': return 'Track borrowed and lent money';
 			case 'dashboard.widgets.transactions.title': return 'Recent Transactions';
 			case 'dashboard.widgets.transactions.description': return 'Latest financial activity';
+			case 'dashboard.widgets.categoryBreakdown.title': return 'Category Breakdown';
+			case 'dashboard.widgets.categoryBreakdown.description': return 'Current month expenses';
+			case 'dashboard.widgets.categoryBreakdown.empty_message': return 'No expenses recorded this month.';
+			case 'dashboard.widgets.categoryBreakdown.others': return 'Others';
+			case 'dashboard.widgets.categoryBreakdown.back': return 'Back';
 			case 'dashboard.widgets.chartAccounts.title': return 'Chart of Accounts';
 			case 'dashboard.widgets.chartAccounts.description': return 'Account structure overview';
 			case 'dashboard.widgets.creditCards.title': return 'Credit Cards';

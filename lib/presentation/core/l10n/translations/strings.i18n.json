@@ -464,6 +464,13 @@
         "title": "Recent Transactions",
         "description": "Latest financial activity"
       },
+      "categoryBreakdown": {
+        "title": "Category Breakdown",
+        "description": "Current month expenses",
+        "empty_message": "No expenses recorded this month.",
+        "others": "Others",
+        "back": "Back"
+      },
       "chartAccounts": {
         "title": "Chart of Accounts",
         "description": "Account structure overview"

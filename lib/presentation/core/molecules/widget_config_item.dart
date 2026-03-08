@@ -8,6 +8,7 @@ enum DashboardWidgetType {
   balance,
   quickActions,
   wallets,
+  categoryBreakdown, // Added for category donut chart
   loans,
   transactions,
   chartAccounts,
@@ -208,6 +209,14 @@ class WidgetConfigItem extends StatelessWidget {
           icon: Icons.account_balance_wallet,
           iconColor: const Color(0xFF2563EB), // HTML: text-blue-600
           backgroundColor: const Color(0xFFDBEAFE), // HTML: bg-blue-100
+        );
+      case DashboardWidgetType.categoryBreakdown:
+        return WidgetInfo(
+          title: t.dashboard.widgets.categoryBreakdown.title,
+          description: t.dashboard.widgets.categoryBreakdown.description,
+          icon: Icons.pie_chart_rounded,
+          iconColor: const Color(0xFF6366F1), // Indigo
+          backgroundColor: const Color(0xFFE0E7FF), // HTML: bg-indigo-100
         );
       case DashboardWidgetType.loans:
         return WidgetInfo(

@@ -931,6 +931,7 @@ class _AppStringsDashboardWidgetsEs extends AppStringsDashboardWidgetsEn {
 	@override late final _AppStringsDashboardWidgetsWalletsEs wallets = _AppStringsDashboardWidgetsWalletsEs._(_root);
 	@override late final _AppStringsDashboardWidgetsLoansEs loans = _AppStringsDashboardWidgetsLoansEs._(_root);
 	@override late final _AppStringsDashboardWidgetsTransactionsEs transactions = _AppStringsDashboardWidgetsTransactionsEs._(_root);
+	@override late final _AppStringsDashboardWidgetsCategoryBreakdownEs categoryBreakdown = _AppStringsDashboardWidgetsCategoryBreakdownEs._(_root);
 	@override late final _AppStringsDashboardWidgetsChartAccountsEs chartAccounts = _AppStringsDashboardWidgetsChartAccountsEs._(_root);
 	@override late final _AppStringsDashboardWidgetsCreditCardsEs creditCards = _AppStringsDashboardWidgetsCreditCardsEs._(_root);
 	@override late final _AppStringsDashboardWidgetsSettingsEs settings = _AppStringsDashboardWidgetsSettingsEs._(_root);
@@ -1648,6 +1649,20 @@ class _AppStringsDashboardWidgetsTransactionsEs extends AppStringsDashboardWidge
 	@override String get description => 'Última actividad financiera';
 }
 
+// Path: dashboard.widgets.categoryBreakdown
+class _AppStringsDashboardWidgetsCategoryBreakdownEs extends AppStringsDashboardWidgetsCategoryBreakdownEn {
+	_AppStringsDashboardWidgetsCategoryBreakdownEs._(AppStringsEs root) : this._root = root, super.internal(root);
+
+	final AppStringsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Desglose por Categoría';
+	@override String get description => 'Desglose mensual del presupuesto';
+	@override String get empty_message => 'No hay transacciones registradas este mes.';
+	@override String get others => 'Otros';
+	@override String get back => 'Atrás';
+}
+
 // Path: dashboard.widgets.chartAccounts
 class _AppStringsDashboardWidgetsChartAccountsEs extends AppStringsDashboardWidgetsChartAccountsEn {
 	_AppStringsDashboardWidgetsChartAccountsEs._(AppStringsEs root) : this._root = root, super.internal(root);
@@ -2255,6 +2270,11 @@ extension on AppStringsEs {
 			case 'dashboard.widgets.loans.description': return 'Rastrea dinero prestado';
 			case 'dashboard.widgets.transactions.title': return 'Transacciones Recientes';
 			case 'dashboard.widgets.transactions.description': return 'Última actividad financiera';
+			case 'dashboard.widgets.categoryBreakdown.title': return 'Desglose por Categoría';
+			case 'dashboard.widgets.categoryBreakdown.description': return 'Desglose mensual del presupuesto';
+			case 'dashboard.widgets.categoryBreakdown.empty_message': return 'No hay transacciones registradas este mes.';
+			case 'dashboard.widgets.categoryBreakdown.others': return 'Otros';
+			case 'dashboard.widgets.categoryBreakdown.back': return 'Atrás';
 			case 'dashboard.widgets.chartAccounts.title': return 'Plan de Cuentas';
 			case 'dashboard.widgets.chartAccounts.description': return 'Resumen de estructura de cuentas';
 			case 'dashboard.widgets.creditCards.title': return 'Tarjetas de Crédito';
