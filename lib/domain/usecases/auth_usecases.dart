@@ -35,25 +35,6 @@ class AuthUseCases {
     }
   }
 
-  /// Inicia sesión con Google
-  Future<AuthResult> signInWithGoogle() async {
-    try {
-      print('🔐 $_logTag: Starting Google sign in...');
-      
-      final user = await _authRepository.signInWithGoogle();
-      
-      // Sincronizar con estado local
-      await AuthService.markUserAuthenticated();
-      
-      print('✅ $_logTag: Google sign in successful: ${user.email}');
-      return AuthResult.success(user);
-      
-    } catch (e) {
-      print('❌ $_logTag: Google sign in failed: $e');
-      return AuthResult.failure(_mapErrorToMessage(e.toString()));
-    }
-  }
-
   /// Inicia sesión con email y contraseña
   Future<AuthResult> signInWithEmailPassword(String email, String password) async {
     try {

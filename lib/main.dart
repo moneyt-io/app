@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:get_it/get_it.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 import 'presentation/core/providers/theme_provider.dart';
 import 'presentation/core/providers/language_provider.dart';
 import 'presentation/core/l10n/generated/strings.g.dart';
@@ -30,15 +28,6 @@ void main() async {
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
   ));
-
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } catch (e) {
-    // Log error to a crashlytics service or analytics in a real app
-    debugPrint('Firebase initialization failed: $e');
-  }
 
   await initializeDateFormatting('es_ES', null);
 

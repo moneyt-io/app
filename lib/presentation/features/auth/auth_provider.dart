@@ -59,38 +59,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Inicia sesión con Google
-  Future<bool> signInWithGoogle() async {
-    try {
-      print('🔐 $_logTag: Starting Google sign in...');
-      
-      _setLoading(true);
-      _clearError();
-      
-      final result = await _authUseCases.signInWithGoogle();
-      
-      if (result.isSuccess && result.user != null) {
-        _currentUser = result.user;
-        _isAuthenticated = true;
-        _isGuest = false;
-        
-        print('✅ $_logTag: Google sign in successful');
-        notifyListeners();
-        return true;
-      } else {
-        _setError(result.errorMessage ?? 'Error en inicio de sesión con Google');
-        return false;
-      }
-      
-    } catch (e) {
-      print('❌ $_logTag: Google sign in error: $e');
-      _setError('Error inesperado con Google Sign-In');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
   /// Inicia sesión con email y contraseña
   Future<bool> signInWithEmailPassword(String email, String password) async {
     try {

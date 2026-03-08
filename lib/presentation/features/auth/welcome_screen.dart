@@ -43,25 +43,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     }
   }
 
-  Future<void> _signInWithGoogle() async {
-    if (!_acceptedTerms) {
-      _showError('Debes aceptar los términos y condiciones');
-      return;
-    }
-
-    final authProvider = context.read<AuthProvider>(); // ✅ CORREGIDO: Usar alias correcto
-    
-    // ✅ SIMPLIFICADO: Solo hacer sign in, no enviar preferences a Firebase
-    final success = await authProvider.signInWithGoogle();
-    
-    // ✅ ELIMINADO: No guardar _acceptedMarketing en ningún lado
-    // Las preferencias solo existen durante esta sesión
-    
-    if (success && mounted) {
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
-    }
-  }
-
   Future<void> _signInWithEmail() async {
     if (!_acceptedTerms) {
       _showError('Debes aceptar los términos y condiciones');
@@ -201,16 +182,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                     
                     const SizedBox(height: 32),
-                    
-                    AppButton(
-                      text: 'Continuar con Google',
-                      onPressed: _signInWithGoogle,
-                      type: AppButtonType.outlined,
-                      isFullWidth: true,
-                      icon: Icons.g_mobiledata,
-                    ),
-                    
-                    const SizedBox(height: 16),
                     
                     AppButton(
                       text: 'Continuar con Email',

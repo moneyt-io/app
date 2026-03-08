@@ -1,8 +1,4 @@
 import 'package:get_it/get_it.dart';
-// ✅ AGREGADO: Firebase imports con alias para evitar conflictos
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 // ✅ CORREGIDO: Auth imports con alias para evitar conflicto de nombres
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/auth_usecases.dart';
@@ -25,18 +21,9 @@ final getIt = GetIt.instance;
 
 void registerDomainDependencies() {
   
-  // ✅ AGREGADO: Firebase services
-  getIt.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
-  getIt.registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
-  getIt.registerLazySingleton<GoogleSignIn>(() => GoogleSignIn());
-  
   // ✅ AGREGADO: Auth Repository
   getIt.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(
-      auth: getIt<FirebaseAuth>(),
-      firestore: getIt<FirebaseFirestore>(),
-      googleSignIn: getIt<GoogleSignIn>(),
-    ),
+    () => AuthRepositoryImpl(),
   );
   
   // ✅ AGREGADO: Auth Use Cases
