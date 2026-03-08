@@ -95,11 +95,13 @@ class _HomeScreenState extends State<HomeScreen> {
               type: DashboardWidgetType.wallets, enabled: true, order: 3),
           const WidgetConfig(
               type: DashboardWidgetType.transactions, enabled: true, order: 4),
-           // Add others hidden by default to match DashboardWidgetsScreen default
+          // Add others hidden by default to match DashboardWidgetsScreen default
           const WidgetConfig(
               type: DashboardWidgetType.loans, enabled: false, order: 5),
           const WidgetConfig(
-              type: DashboardWidgetType.chartAccounts, enabled: false, order: 6),
+              type: DashboardWidgetType.chartAccounts,
+              enabled: false,
+              order: 6),
           const WidgetConfig(
               type: DashboardWidgetType.creditCards, enabled: false, order: 7),
         ];
@@ -115,7 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       // isPremiumNotifier ya tiene el valor correcto porque PaywallService.init()
       // espera activamente el primer estado de Superwall antes de retornar.
-      final isSubscribed = GetIt.instance<PaywallService>().isPremiumNotifier.value;
+      final isSubscribed =
+          GetIt.instance<PaywallService>().isPremiumNotifier.value;
       if (isSubscribed) {
         print(' HomeScreen: User is already subscribed. Skipping paywall.');
         return;
@@ -143,14 +146,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _navigateToDashboardWidgets() async {
-    final result = await Navigator.of(context).push(
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const DashboardWidgetsScreen(),
       ),
     );
 
-    // Reload widgets if changes were made (result is true)
-    if (result == true) {
+    // Siempre recargar la configuración de widgets porque pueden haber guardado
+    // cambios por autoSave y el usuario podría usar el "Swipe to Go Back"
+    // o botón "Atrás" de hardware, devolviendo null en lugar de true.
+    if (mounted) {
       _loadWidgetConfiguration();
     }
   }
@@ -159,19 +164,19 @@ class _HomeScreenState extends State<HomeScreen> {
   double _calculateActiveTotalBalance(WalletProvider provider) {
     // 1. Obtener todas las wallets
     final allWallets = provider.wallets;
-    
+
     // 2. Filtrar solo las wallets ACTIVAS
     // Un hijo se considera activo si él mismo es activo Y su padre (si tiene) tambien es activo.
     // Sin embargo, por simplicidad y siguiendo la lógica de WalletsScreen:
     // "Active" filter sums "Own Balance" of active wallets.
-    
+
     double total = 0.0;
-    
+
     for (var wallet in allWallets) {
       if (wallet.active) {
         // Obtenemos el balance del wallet
         double balance = provider.walletBalances[wallet.id] ?? 0.0;
-        
+
         // Si es PADRE, su balance en el provider es consolidado (suma de hijos).
         // Debemos restar los hijos para obtener su "Own Balance" puro antes de sumar,
         // ya que los hijos activos se sumarán individualmente en su turno del bucle.
@@ -181,11 +186,11 @@ class _HomeScreenState extends State<HomeScreen> {
             balance -= (provider.walletBalances[child.id] ?? 0.0);
           }
         }
-        
+
         total += balance;
       }
     }
-    
+
     return total;
   }
 
@@ -211,16 +216,20 @@ class _HomeScreenState extends State<HomeScreen> {
           // Calcular resumen mensual dinámicamente
           final now = DateTime.now();
           final currentMonthTransactions = transactionProvider.transactions
-              .where((t) => t.date.year == now.year && t.date.month == now.month)
+              .where(
+                  (t) => t.date.year == now.year && t.date.month == now.month)
               .toList();
-          
-          final income = _balanceCalculationService.calculateTotalIncome(currentMonthTransactions);
-          final expenses = _balanceCalculationService.calculateTotalExpense(currentMonthTransactions);
+
+          final income = _balanceCalculationService
+              .calculateTotalIncome(currentMonthTransactions);
+          final expenses = _balanceCalculationService
+              .calculateTotalExpense(currentMonthTransactions);
 
           // Map wallets to display items
           final walletItems = walletProvider.wallets
               .where((w) =>
-                  w.parentId != null && w.active) // Show only active child accounts on dashboard
+                  w.parentId != null &&
+                  w.active) // Show only active child accounts on dashboard
               .map((wallet) => WalletDisplayItem(
                     id: wallet.id,
                     name: wallet.name,
@@ -242,7 +251,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   children: [
                     // Dynamic Widget Rendering Loop
-                    ..._widgetConfigs.where((config) => config.enabled).map((config) {
+                    ..._widgetConfigs
+                        .where((config) => config.enabled)
+                        .map((config) {
                       switch (config.type) {
                         case DashboardWidgetType.balance:
                           return Column(
@@ -272,8 +283,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     _navigateToTransactionForm(type: 'I'),
                                 onTransferPressed: () =>
                                     _navigateToTransactionForm(type: 'T'),
-                                onAllPressed: () => NavigationService.navigateTo(
-                                    AppRoutes.transactions),
+                                onAllPressed: () =>
+                                    NavigationService.navigateTo(
+                                        AppRoutes.transactions),
                               ),
                               const SizedBox(height: 24),
                             ],
@@ -282,7 +294,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Column(
                             children: [
                               WalletsDashboardWidget(
-                                wallets: walletItems.take(3).toList(), // Show first 3
+                                wallets: walletItems
+                                    .take(3)
+                                    .toList(), // Show first 3
                                 totalCount: walletProvider.wallets.length,
                                 onHeaderTap: () => NavigationService.navigateTo(
                                     AppRoutes.wallets),
@@ -301,15 +315,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           );
                         // Add handlers for other widget types if implemented in the future (loans, charts, etc.)
-                         case DashboardWidgetType.loans:
-                           // Placeholder for Loans widget
-                           return const SizedBox.shrink();
-                         case DashboardWidgetType.chartAccounts:
-                           // Placeholder for Chart Accounts widget
-                           return const SizedBox.shrink(); 
-                         case DashboardWidgetType.creditCards:
-                           // Placeholder for Credit Cards widget
-                           return const SizedBox.shrink();   
+                        case DashboardWidgetType.loans:
+                          // Placeholder for Loans widget
+                          return const SizedBox.shrink();
+                        case DashboardWidgetType.chartAccounts:
+                          // Placeholder for Chart Accounts widget
+                          return const SizedBox.shrink();
+                        case DashboardWidgetType.creditCards:
+                          // Placeholder for Credit Cards widget
+                          return const SizedBox.shrink();
                         default:
                           return const SizedBox.shrink();
                       }
@@ -332,7 +346,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: SafeArea(
                         bottom: false,
                         child: ValueListenableBuilder<bool>(
-                          valueListenable: GetIt.instance<PaywallService>().isPremiumNotifier,
+                          valueListenable: GetIt.instance<PaywallService>()
+                              .isPremiumNotifier,
                           builder: (context, isPremium, _) {
                             return GreetingHeader(
                               isPremium: isPremium,

@@ -40,7 +40,7 @@ class WidgetConfig {
 }
 
 /// Item de configuración de widget individual
-/// 
+///
 /// HTML Reference:
 /// ```html
 /// <div class="widget-item bg-white rounded-xl shadow-sm border border-slate-200 p-4">
@@ -61,6 +61,7 @@ class WidgetConfigItem extends StatelessWidget {
     Key? key,
     required this.config,
     required this.onToggle,
+    required this.index,
     this.onDragStart,
     this.onDragEnd,
     this.isDragging = false,
@@ -68,6 +69,7 @@ class WidgetConfigItem extends StatelessWidget {
 
   final WidgetConfig config;
   final ValueChanged<bool> onToggle;
+  final int index;
   final VoidCallback? onDragStart;
   final VoidCallback? onDragEnd;
   final bool isDragging;
@@ -75,11 +77,12 @@ class WidgetConfigItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final widgetInfo = _getWidgetInfo(config.type);
-    
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       transform: Matrix4.identity()
-        ..scale(isDragging ? 1.05 : 1.0),
+        ..scale(
+            isDragging ? 1.05 : 1.0, isDragging ? 1.05 : 1.0, 1.0), // Fixed
       child: Container(
         padding: const EdgeInsets.all(16), // HTML: p-4
         decoration: BoxDecoration(
@@ -88,7 +91,7 @@ class WidgetConfigItem extends StatelessWidget {
           border: Border.all(
             color: const Color(0xFFE2E8F0), // HTML: border-slate-200
           ),
-          boxShadow: isDragging 
+          boxShadow: isDragging
               ? [
                   const BoxShadow(
                     color: Color(0x40000000), // HTML: shadow-lg when dragging
@@ -113,12 +116,15 @@ class WidgetConfigItem extends StatelessWidget {
                 child: Row(
                   children: [
                     // Drag handle
-                    DragHandle(
-                      onTap: onDragStart,
+                    ReorderableDragStartListener(
+                      index: index,
+                      child: DragHandle(
+                        onTap: onDragStart,
+                      ),
                     ),
-                    
+
                     const SizedBox(width: 12), // HTML: gap-3
-                    
+
                     // Widget icon
                     Container(
                       width: 40, // HTML: h-10 w-10
@@ -133,9 +139,9 @@ class WidgetConfigItem extends StatelessWidget {
                         size: 24,
                       ),
                     ),
-                    
+
                     const SizedBox(width: 12), // HTML: gap-3
-                    
+
                     // Widget info
                     Expanded(
                       child: Column(
@@ -145,7 +151,8 @@ class WidgetConfigItem extends StatelessWidget {
                             widgetInfo.title,
                             style: const TextStyle(
                               fontSize: 16, // HTML: text-base
-                              fontWeight: FontWeight.w600, // HTML: font-semibold
+                              fontWeight:
+                                  FontWeight.w600, // HTML: font-semibold
                               color: Color(0xFF1E293B), // HTML: text-slate-800
                             ),
                           ),
@@ -162,7 +169,7 @@ class WidgetConfigItem extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Toggle switch
               ToggleSwitch(
                 value: config.enabled,
