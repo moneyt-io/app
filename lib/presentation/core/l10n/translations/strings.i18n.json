@@ -470,6 +470,7 @@
         "empty_message": "No expenses recorded this month.",
         "others": "Others",
         "back": "Back",
+        "monthlyBudget": "Monthly budget",
         "leftover": "You have $amount of income left.",
         "exceeded": "You exceeded your income by $amount.",
         "noIncome": "Expenses recorded: $amount (No income)"

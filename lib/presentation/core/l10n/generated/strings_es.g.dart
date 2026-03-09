@@ -1681,6 +1681,7 @@ class _AppStringsDashboardWidgetsCategoryBreakdownEs extends AppStringsDashboard
 	@override String get empty_message => 'No hay transacciones registradas este mes.';
 	@override String get others => 'Otros';
 	@override String get back => 'Atrás';
+	@override String get monthlyBudget => 'Presupuesto mensual';
 	@override String leftover({required Object amount}) => 'Te quedan ${amount} de ingresos.';
 	@override String exceeded({required Object amount}) => 'Has excedido tus ingresos por ${amount}.';
 	@override String noIncome({required Object amount}) => 'Gastos registrados: ${amount} (Sin ingresos)';
@@ -2298,6 +2299,7 @@ extension on AppStringsEs {
 			case 'dashboard.widgets.categoryBreakdown.empty_message': return 'No hay transacciones registradas este mes.';
 			case 'dashboard.widgets.categoryBreakdown.others': return 'Otros';
 			case 'dashboard.widgets.categoryBreakdown.back': return 'Atrás';
+			case 'dashboard.widgets.categoryBreakdown.monthlyBudget': return 'Presupuesto mensual';
 			case 'dashboard.widgets.categoryBreakdown.leftover': return ({required Object amount}) => 'Te quedan ${amount} de ingresos.';
 			case 'dashboard.widgets.categoryBreakdown.exceeded': return ({required Object amount}) => 'Has excedido tus ingresos por ${amount}.';
 			case 'dashboard.widgets.categoryBreakdown.noIncome': return ({required Object amount}) => 'Gastos registrados: ${amount} (Sin ingresos)';

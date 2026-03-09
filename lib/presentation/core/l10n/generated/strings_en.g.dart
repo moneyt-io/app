@@ -2913,6 +2913,9 @@ class AppStringsDashboardWidgetsCategoryBreakdownEn {
 	/// en: 'Back'
 	String get back => 'Back';
 
+	/// en: 'Monthly budget'
+	String get monthlyBudget => 'Monthly budget';
+
 	/// en: 'You have $amount of income left.'
 	String leftover({required Object amount}) => 'You have ${amount} of income left.';
 
@@ -3725,6 +3728,7 @@ extension on AppStrings {
 			case 'dashboard.widgets.categoryBreakdown.empty_message': return 'No expenses recorded this month.';
 			case 'dashboard.widgets.categoryBreakdown.others': return 'Others';
 			case 'dashboard.widgets.categoryBreakdown.back': return 'Back';
+			case 'dashboard.widgets.categoryBreakdown.monthlyBudget': return 'Monthly budget';
 			case 'dashboard.widgets.categoryBreakdown.leftover': return ({required Object amount}) => 'You have ${amount} of income left.';
 			case 'dashboard.widgets.categoryBreakdown.exceeded': return ({required Object amount}) => 'You exceeded your income by ${amount}.';
 			case 'dashboard.widgets.categoryBreakdown.noIncome': return ({required Object amount}) => 'Expenses recorded: ${amount} (No income)';

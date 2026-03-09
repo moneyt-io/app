@@ -114,6 +114,8 @@ class _CategoryBreakdownWidgetState extends State<CategoryBreakdownWidget> {
       future: _summaryFuture,
       builder: (context, snapshot) {
         Map<int, double> modeTotals = snapshot.data?['modeTotals'] ?? {};
+        double totalIncome = snapshot.data?['totalIncome'] ?? 0.0;
+        double totalExpense = snapshot.data?['totalExpense'] ?? 0.0;
 
         Map<int, double> parentTotals = {};
         Map<int, Map<int, double>> subcategoryTotals = {};
@@ -318,6 +320,8 @@ class _CategoryBreakdownWidgetState extends State<CategoryBreakdownWidget> {
                   ),
                 ),
               ),
+              if (totalIncome > 0) 
+                _buildBudgetBar(totalIncome, totalExpense),
             ],
           ),
         );
@@ -551,6 +555,63 @@ class _CategoryBreakdownWidgetState extends State<CategoryBreakdownWidget> {
           )
         ],
       ),
+    );
+  }
+
+  Widget _buildBudgetBar(double income, double expense) {
+    final percent = income > 0 ? (expense / income) : 0.0;
+    final percentClamped = percent.clamp(0.0, 1.0);
+    
+    // Color changes if exceeding
+    final barColor = percent > 0.9 
+        ? const Color(0xFFEF4444) // Red
+        : (percent > 0.75 
+            ? const Color(0xFFF59E0B) // Orange
+            : const Color(0xFF10B981)); // Green
+
+    return Column(
+      children: [
+        const Divider(height: 1, color: Color(0xFFE2E8F0)),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    t.dashboard.widgets.categoryBreakdown.monthlyBudget,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                  Text(
+                    '${(percent * 100).toStringAsFixed(1)}%',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: barColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: percentClamped,
+                  backgroundColor: const Color(0xFFF1F5F9),
+                  color: barColor,
+                  minHeight: 8,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
