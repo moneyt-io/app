@@ -85,13 +85,12 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
       final creditCards = await _creditCardUseCases.getAllCreditCards();
 
       final accounts = <SelectableAccount>[
-        ...wallets.map((w) => SelectableAccount.fromWallet(w)),
-        ...creditCards.map((cc) => SelectableAccount.fromCreditCard(cc)),
+          ...wallets.where((w) => w.active).map((w) => SelectableAccount.fromWallet(w)),
+          ...creditCards.where((cc) => cc.active).map((cc) => SelectableAccount.fromCreditCard(cc)),
       ];
 
       _accountsMap = {for (var acc in accounts) acc.id: acc};
 
-      // --- NEW LOGIC: Select the source account of the loan as default ---
       int? sourceAccountId;
       String? sourceAccountType;
 
