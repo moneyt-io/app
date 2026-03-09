@@ -433,6 +433,8 @@ class AppStringsCategoriesEn {
 
 	/// en: 'Expense category'
 	String get expenseCategory => 'Expense category';
+
+	late final AppStringsCategoriesReportEn report = AppStringsCategoriesReportEn.internal(_root);
 }
 
 // Path: backups
@@ -2360,6 +2362,45 @@ class AppStringsCategoriesParentSelectionEn {
 	String get noParent => 'No parent category';
 }
 
+// Path: categories.report
+class AppStringsCategoriesReportEn {
+	AppStringsCategoriesReportEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Advanced Breakdown'
+	String get title => 'Advanced Breakdown';
+
+	/// en: 'Time Filter'
+	String get timeFilter => 'Time Filter';
+
+	/// en: 'This Month'
+	String get thisMonth => 'This Month';
+
+	/// en: 'Last Month'
+	String get lastMonth => 'Last Month';
+
+	/// en: 'This Year'
+	String get thisYear => 'This Year';
+
+	/// en: 'All Time'
+	String get allTime => 'All Time';
+
+	/// en: 'Category Details'
+	String get details => 'Category Details';
+
+	/// en: 'No transactions'
+	String get noTransactions => 'No transactions';
+
+	/// en: 'Income'
+	String get income => 'Income';
+
+	/// en: 'Expenses'
+	String get expense => 'Expenses';
+}
+
 // Path: backups.menu
 class AppStringsBackupsMenuEn {
 	AppStringsBackupsMenuEn.internal(this._root);
@@ -2871,6 +2912,15 @@ class AppStringsDashboardWidgetsCategoryBreakdownEn {
 
 	/// en: 'Back'
 	String get back => 'Back';
+
+	/// en: 'You have $amount of income left.'
+	String leftover({required Object amount}) => 'You have ${amount} of income left.';
+
+	/// en: 'You exceeded your income by $amount.'
+	String exceeded({required Object amount}) => 'You exceeded your income by ${amount}.';
+
+	/// en: 'Expenses recorded: $amount (No income)'
+	String noIncome({required Object amount}) => 'Expenses recorded: ${amount} (No income)';
 }
 
 // Path: dashboard.widgets.chartAccounts
@@ -3675,6 +3725,9 @@ extension on AppStrings {
 			case 'dashboard.widgets.categoryBreakdown.empty_message': return 'No expenses recorded this month.';
 			case 'dashboard.widgets.categoryBreakdown.others': return 'Others';
 			case 'dashboard.widgets.categoryBreakdown.back': return 'Back';
+			case 'dashboard.widgets.categoryBreakdown.leftover': return ({required Object amount}) => 'You have ${amount} of income left.';
+			case 'dashboard.widgets.categoryBreakdown.exceeded': return ({required Object amount}) => 'You exceeded your income by ${amount}.';
+			case 'dashboard.widgets.categoryBreakdown.noIncome': return ({required Object amount}) => 'Expenses recorded: ${amount} (No income)';
 			case 'dashboard.widgets.chartAccounts.title': return 'Chart of Accounts';
 			case 'dashboard.widgets.chartAccounts.description': return 'Account structure overview';
 			case 'dashboard.widgets.creditCards.title': return 'Credit Cards';
@@ -3966,6 +4019,16 @@ extension on AppStrings {
 			case 'categories.parentSelection.noParent': return 'No parent category';
 			case 'categories.incomeCategory': return 'Income category';
 			case 'categories.expenseCategory': return 'Expense category';
+			case 'categories.report.title': return 'Advanced Breakdown';
+			case 'categories.report.timeFilter': return 'Time Filter';
+			case 'categories.report.thisMonth': return 'This Month';
+			case 'categories.report.lastMonth': return 'Last Month';
+			case 'categories.report.thisYear': return 'This Year';
+			case 'categories.report.allTime': return 'All Time';
+			case 'categories.report.details': return 'Category Details';
+			case 'categories.report.noTransactions': return 'No transactions';
+			case 'categories.report.income': return 'Income';
+			case 'categories.report.expense': return 'Expenses';
 			case 'backups.title': return 'Database Backup';
 			case 'backups.menu.settings': return 'Backup settings';
 			case 'backups.menu.comingSoon': return 'Backup settings coming soon';

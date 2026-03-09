@@ -205,4 +205,42 @@ class TransactionProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<Map<int, double>> getCategoryTotals(DateTime startDate, DateTime endDate, String documentTypeId) async {
+    try {
+      return await _transactionUseCases.getCategoryTotals(startDate, endDate, documentTypeId);
+    } catch (e) {
+      debugPrint('Error getting category totals: $e');
+      return {};
+    }
+  }
+
+  Stream<Map<int, double>> watchCategoryTotals(DateTime startDate, DateTime endDate, String documentTypeId) {
+    return _transactionUseCases.watchCategoryTotals(startDate, endDate, documentTypeId);
+  }
+
+  Future<Map<String, dynamic>> getCategorySummary(DateTime startDate, DateTime endDate, bool isExpenseMode) async {
+    try {
+      final modeTotals = await _transactionUseCases.getCategoryTotals(startDate, endDate, isExpenseMode ? 'E' : 'I');
+      
+      final incomeTotals = await _transactionUseCases.getCategoryTotals(startDate, endDate, 'I');
+      final double totalIncome = incomeTotals.values.fold(0.0, (a, b) => a + b);
+      
+      final expenseTotals = await _transactionUseCases.getCategoryTotals(startDate, endDate, 'E');
+      final double totalExpense = expenseTotals.values.fold(0.0, (a, b) => a + b);
+
+      return {
+        'modeTotals': modeTotals,
+        'totalIncome': totalIncome,
+        'totalExpense': totalExpense,
+      };
+    } catch (e) {
+      debugPrint('Error getting category summary: $e');
+      return {
+        'modeTotals': <int, double>{},
+        'totalIncome': 0.0,
+        'totalExpense': 0.0,
+      };
+    }
+  }
 }

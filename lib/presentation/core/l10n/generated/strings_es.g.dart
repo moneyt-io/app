@@ -296,6 +296,7 @@ class _AppStringsCategoriesEs extends AppStringsCategoriesEn {
 	@override late final _AppStringsCategoriesParentSelectionEs parentSelection = _AppStringsCategoriesParentSelectionEs._(_root);
 	@override String get incomeCategory => 'Categoría de ingreso';
 	@override String get expenseCategory => 'Categoría de gasto';
+	@override late final _AppStringsCategoriesReportEs report = _AppStringsCategoriesReportEs._(_root);
 }
 
 // Path: backups
@@ -1350,6 +1351,25 @@ class _AppStringsCategoriesParentSelectionEs extends AppStringsCategoriesParentS
 	@override String get noParent => 'Sin categoría padre';
 }
 
+// Path: categories.report
+class _AppStringsCategoriesReportEs extends AppStringsCategoriesReportEn {
+	_AppStringsCategoriesReportEs._(AppStringsEs root) : this._root = root, super.internal(root);
+
+	final AppStringsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Desglose Avanzado';
+	@override String get timeFilter => 'Filtro Temporal';
+	@override String get thisMonth => 'Este Mes';
+	@override String get lastMonth => 'Mes Pasado';
+	@override String get thisYear => 'Este Año';
+	@override String get allTime => 'Todo el Tiempo';
+	@override String get details => 'Detalle por Categorías';
+	@override String get noTransactions => 'Sin transacciones';
+	@override String get income => 'Ingresos';
+	@override String get expense => 'Gastos';
+}
+
 // Path: backups.menu
 class _AppStringsBackupsMenuEs extends AppStringsBackupsMenuEn {
 	_AppStringsBackupsMenuEs._(AppStringsEs root) : this._root = root, super.internal(root);
@@ -1657,10 +1677,13 @@ class _AppStringsDashboardWidgetsCategoryBreakdownEs extends AppStringsDashboard
 
 	// Translations
 	@override String get title => 'Desglose por Categoría';
-	@override String get description => 'Desglose mensual del presupuesto';
+	@override String get description => 'Desglose mensual';
 	@override String get empty_message => 'No hay transacciones registradas este mes.';
 	@override String get others => 'Otros';
 	@override String get back => 'Atrás';
+	@override String leftover({required Object amount}) => 'Te quedan ${amount} de ingresos.';
+	@override String exceeded({required Object amount}) => 'Has excedido tus ingresos por ${amount}.';
+	@override String noIncome({required Object amount}) => 'Gastos registrados: ${amount} (Sin ingresos)';
 }
 
 // Path: dashboard.widgets.chartAccounts
@@ -2271,10 +2294,13 @@ extension on AppStringsEs {
 			case 'dashboard.widgets.transactions.title': return 'Transacciones Recientes';
 			case 'dashboard.widgets.transactions.description': return 'Última actividad financiera';
 			case 'dashboard.widgets.categoryBreakdown.title': return 'Desglose por Categoría';
-			case 'dashboard.widgets.categoryBreakdown.description': return 'Desglose mensual del presupuesto';
+			case 'dashboard.widgets.categoryBreakdown.description': return 'Desglose mensual';
 			case 'dashboard.widgets.categoryBreakdown.empty_message': return 'No hay transacciones registradas este mes.';
 			case 'dashboard.widgets.categoryBreakdown.others': return 'Otros';
 			case 'dashboard.widgets.categoryBreakdown.back': return 'Atrás';
+			case 'dashboard.widgets.categoryBreakdown.leftover': return ({required Object amount}) => 'Te quedan ${amount} de ingresos.';
+			case 'dashboard.widgets.categoryBreakdown.exceeded': return ({required Object amount}) => 'Has excedido tus ingresos por ${amount}.';
+			case 'dashboard.widgets.categoryBreakdown.noIncome': return ({required Object amount}) => 'Gastos registrados: ${amount} (Sin ingresos)';
 			case 'dashboard.widgets.chartAccounts.title': return 'Plan de Cuentas';
 			case 'dashboard.widgets.chartAccounts.description': return 'Resumen de estructura de cuentas';
 			case 'dashboard.widgets.creditCards.title': return 'Tarjetas de Crédito';
@@ -2566,6 +2592,16 @@ extension on AppStringsEs {
 			case 'categories.parentSelection.noParent': return 'Sin categoría padre';
 			case 'categories.incomeCategory': return 'Categoría de ingreso';
 			case 'categories.expenseCategory': return 'Categoría de gasto';
+			case 'categories.report.title': return 'Desglose Avanzado';
+			case 'categories.report.timeFilter': return 'Filtro Temporal';
+			case 'categories.report.thisMonth': return 'Este Mes';
+			case 'categories.report.lastMonth': return 'Mes Pasado';
+			case 'categories.report.thisYear': return 'Este Año';
+			case 'categories.report.allTime': return 'Todo el Tiempo';
+			case 'categories.report.details': return 'Detalle por Categorías';
+			case 'categories.report.noTransactions': return 'Sin transacciones';
+			case 'categories.report.income': return 'Ingresos';
+			case 'categories.report.expense': return 'Gastos';
 			case 'backups.title': return 'Copia de Seguridad';
 			case 'backups.menu.settings': return 'Configuración de copia de seguridad';
 			case 'backups.menu.comingSoon': return 'Configuración de copia de seguridad próximamente';

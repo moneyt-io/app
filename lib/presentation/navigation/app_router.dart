@@ -21,6 +21,7 @@ import '../features/transactions/transaction_detail_screen.dart';
 import '../features/transactions/transaction_share_screen.dart';
 import '../features/categories/categories_screen.dart';
 import '../features/categories/category_form_screen.dart';
+import '../features/categories/category_report_screen.dart';
 import '../features/contacts/contacts_screen.dart';
 import '../features/contacts/contact_form_screen.dart';
 import '../features/credit_cards/credit_cards_screen.dart';
@@ -138,6 +139,12 @@ class AppRouter {
         );
 
       // ✅ AGREGADAS: Rutas de Categorías
+      case AppRoutes.categoryReport:
+        return MaterialPageRoute(
+          builder: (_) => const CategoryReportScreen(),
+          settings: settings,
+        );
+
       case AppRoutes.categories:
         return MaterialPageRoute(
           builder: (_) => const CategoriesScreen(),

@@ -466,10 +466,13 @@
       },
       "categoryBreakdown": {
         "title": "Desglose por Categoría",
-        "description": "Desglose mensual del presupuesto",
+        "description": "Desglose mensual",
         "empty_message": "No hay transacciones registradas este mes.",
         "others": "Otros",
-        "back": "Atrás"
+        "back": "Atrás",
+        "leftover": "Te quedan $amount de ingresos.",
+        "exceeded": "Has excedido tus ingresos por $amount.",
+        "noIncome": "Gastos registrados: $amount (Sin ingresos)"
       },
       "chartAccounts": {
         "title": "Plan de Cuentas",
@@ -576,22 +579,29 @@
   "loans": {
     "title": "Préstamos",
     "filter": {
-      "pending": "Pendientes",
-      "lent": "Presté",
-      "borrowed": "Me prestaron",
-      "all": "Todos",
       "active": "Préstamos Activos",
-      "history": "Historial Completo"
+      "history": "Historial",
+      "all": "Todos",
+      "pending": "Pendientes",
+      "lent": "Prestados",
+      "borrowed": "Recibidos"
     },
     "summary": {
-      "lent": "Prestaste",
-      "borrowed": "Te prestaron",
+      "netBalance": "BALANCE NETO",
+      "activeLoans": "PRÉSTAMOS ACTIVOS",
+      "noActive": "Sin préstamos activos",
+      "lent": "$n prestados",
+      "borrowed": "$n recibidos",
       "pending": "$n pendientes"
     },
     "card": {
-      "lent": "Prestaste",
-      "borrowed": "Te prestaron",
-      "multiple": "$n préstamos activos"
+      "lent": "Has prestado",
+      "borrowed": "Te han prestado",
+      "active": "$n activos",
+      "multiple": "$n préstamos",
+      "transactions": "$n transacciones",
+      "overdue": "Vencido por $n días",
+      "due": "Vence $date"
     },
     "form": {
       "newTitle": "Nuevo Préstamo",
@@ -622,15 +632,40 @@
       "amountRequired": "El monto es obligatorio"
     },
     "detail": {
-        "remaining": "Restante",
-        "paid": "Pagado",
+      "title": "Detalles del Préstamo",
+      "deleteTitle": "Eliminar Préstamo",
+      "deleteMessage": "¿Estás seguro de que deseas eliminar este préstamo?",
+      "deleteSuccess": "Préstamo eliminado exitosamente",
+      "deleteError": "Error al eliminar el préstamo: $error",
+      "notFound": "Préstamo no encontrado",
+      "progress": "Progreso del Préstamo",
+      "info": "Información del Préstamo",
+      "pay": "Pagar",
+      "viewHistory": "Ver Historial Completo",
+      "original": "Original: $amount",
+      "section": "Información del Préstamo",
+      "activeSummary": "Resumen Activo",
+      "activeLent": "Prestaste (Activo)",
+      "activeBorrowed": "Te Prestaron (Activo)",
+      "activeNet": "Posición Neta (Activa)",
+      "activeTotal": "Total Préstamos Activos",
+      "startDate": "Inicio del Préstamo",
+      "dueDate": "Fecha de Vencimiento",
+      "type": {
+        "label": "Tipo de Préstamo",
+        "personal": "Préstamo Personal",
+        "borrowed": "Préstamo Recibido",
+        "auto": "Préstamo Automotriz",
+        "mortgage": "Hipoteca",
+        "student": "Préstamo Estudiantil"
+      },
+      "payment": {
         "history": "Historial de Pagos",
-        "viewHistory": "Ver Historial Completo",
-        "pay": "Registrar Pago",
-        "activeSummary": "Resumen Activo",
-        "activeLent": "Has Prestado (Activo)",
-        "activeBorrowed": "Te Han Prestado (Activo)",
-        "activeNet": "Posición Neta (Activa)"
+        "date": "Pago el $date",
+        "transactionId": "ID Transacción: $id",
+        "paid": "$amount pagado",
+        "remaining": "$amount restante"
+      }
     },
     "share": {
       "title": "Compartir Préstamo",
@@ -711,31 +746,6 @@
     },
     "given": "Préstamo otorgado",
     "received": "Préstamo recibido",
-    "summary": {
-      "netBalance": "BALANCE NETO",
-      "activeLoans": "PRÉSTAMOS ACTIVOS",
-      "noActive": "Sin préstamos activos",
-      "lent": "$n prestados",
-      "borrowed": "$n recibidos",
-      "pending": "$n pendientes"
-    },
-    "card": {
-      "lent": "Has prestado",
-      "borrowed": "Te han prestado",
-      "active": "$n activos",
-      "multiple": "$n préstamos",
-      "transactions": "$n transacciones",
-      "overdue": "Vencido por $n días",
-      "due": "Vence $date"
-    },
-    "filter": {
-      "active": "Préstamos Activos",
-      "history": "Historial",
-      "all": "Todos",
-      "pending": "Pendientes",
-      "lent": "Prestados",
-      "borrowed": "Recibidos"
-    },
     "history": {
       "title": "Historial de Préstamos",
       "section": "Historial completo",
@@ -790,42 +800,6 @@
         "completedLoans": "Préstamos Completados"
       }
     },
-    "detail": {
-      "title": "Detalles del Préstamo",
-      "deleteTitle": "Eliminar Préstamo",
-      "deleteMessage": "¿Estás seguro de que deseas eliminar este préstamo?",
-      "deleteSuccess": "Préstamo eliminado exitosamente",
-      "deleteError": "Error al eliminar el préstamo: $error",
-      "notFound": "Préstamo no encontrado",
-      "progress": "Progreso del Préstamo",
-      "info": "Información del Préstamo",
-      "pay": "Pagar",
-      "viewHistory": "Ver Historial Completo",
-      "original": "Original: $amount",
-      "section": "Información del Préstamo",
-      "activeSummary": "Resumen Activo",
-      "activeLent": "Prestaste (Activo)",
-      "activeBorrowed": "Te Prestaron (Activo)",
-      "activeNet": "Posición Neta (Activa)",
-      "activeTotal": "Total Préstamos Activos",
-      "startDate": "Inicio del Préstamo",
-      "dueDate": "Fecha de Vencimiento",
-      "type": {
-        "label": "Tipo de Préstamo",
-        "personal": "Préstamo Personal",
-        "borrowed": "Préstamo Recibido",
-        "auto": "Préstamo Automotriz",
-        "mortgage": "Hipoteca",
-        "student": "Préstamo Estudiantil"
-      },
-      "payment": {
-        "history": "Historial de Pagos",
-        "date": "Pago el $date",
-        "transactionId": "ID Transacción: $id",
-        "paid": "$amount pagado",
-        "remaining": "$amount restante"
-      }
-    },
     "item": {
       "due": "Vence: $date",
       "paidAmount": "Pagado: $amount",
@@ -837,37 +811,49 @@
       "loansCount": "$n préstamos"
     },
     "empty": {
-        "title": "No hay préstamos activos",
-        "message": "Comienza a llevar el registro de tus préstamos.",
-        "action": "Agregar Préstamo"
+      "title": "No hay préstamos activos",
+      "message": "Comienza a llevar el registro de tus préstamos.",
+      "action": "Agregar Préstamo"
     }
   },
   "categories": {
     "title": "Categorías",
     "form": {
-        "newTitle": "Nueva Categoría",
-        "editTitle": "Editar Categoría",
-        "name": "Nombre de categoría",
-        "namePlaceholder": "Ingresa el nombre de la categoría",
-        "nameRequired": "El nombre es requerido",
-        "parent": "Categoría Padre (Opcional)",
-        "noParent": "Sin categoría padre",
-        "asSubcategory": "Se creará como subcategoría",
-        "asRoot": "Se creará como categoría principal",
-        "active": "Categoría Activa",
-        "activeDescription": "Habilitar esta categoría para nuevas transacciones",
-        "selectIcon": "Seleccionar Icono",
-        "selectColor": "Seleccionar Color",
-        "saveSuccess": "Categoría guardada exitosamente",
-        "saveError": "Error al guardar categoría: $error"
+      "newTitle": "Nueva Categoría",
+      "editTitle": "Editar Categoría",
+      "name": "Nombre de categoría",
+      "namePlaceholder": "Ingresa el nombre de la categoría",
+      "nameRequired": "El nombre es requerido",
+      "parent": "Categoría Padre (Opcional)",
+      "noParent": "Sin categoría padre",
+      "asSubcategory": "Se creará como subcategoría",
+      "asRoot": "Se creará como categoría principal",
+      "active": "Categoría Activa",
+      "activeDescription": "Habilitar esta categoría para nuevas transacciones",
+      "selectIcon": "Seleccionar Icono",
+      "selectColor": "Seleccionar Color",
+      "saveSuccess": "Categoría guardada exitosamente",
+      "saveError": "Error al guardar categoría: $error"
     },
     "parentSelection": {
-        "title": "Seleccionar Categoría Padre",
-        "subtitle": "Toca para seleccionar una categoría padre",
-        "noParent": "Sin categoría padre"
+      "title": "Seleccionar Categoría Padre",
+      "subtitle": "Toca para seleccionar una categoría padre",
+      "noParent": "Sin categoría padre"
     },
     "incomeCategory": "Categoría de ingreso",
-    "expenseCategory": "Categoría de gasto"
+    "expenseCategory": "Categoría de gasto",
+    "report": {
+      "title": "Desglose Avanzado",
+      "timeFilter": "Filtro Temporal",
+      "thisMonth": "Este Mes",
+      "lastMonth": "Mes Pasado",
+      "thisYear": "Este Año",
+      "allTime": "Todo el Tiempo",
+      "details": "Detalle por Categorías",
+      "noTransactions": "Sin transacciones",
+      "income": "Ingresos",
+      "expense": "Gastos"
+    }
   },
   "backups": {
     "title": "Copia de Seguridad",
@@ -935,21 +921,21 @@
       "inactive": "Inactivo"
     },
     "options": {
-        "restore": {
-          "title": "Restaurar copia",
-          "subtitle": "Reemplazar datos actuales con esta copia"
-        },
-        "share": {
-            "title": "Compartir copia",
-            "subtitle": "Enviar archivo a otro dispositivo"
-        },
-        "delete": {
-            "title": "Eliminar copia",
-            "subtitle": "Esta acción no se puede deshacer"
-        },
-        "latestBadge": "Reciente",
-        "latestFile": "Copia más reciente",
-        "backupFile": "Archivo de copia"
+      "restore": {
+        "title": "Restaurar copia",
+        "subtitle": "Reemplazar datos actuales con esta copia"
+      },
+      "share": {
+        "title": "Compartir copia",
+        "subtitle": "Enviar archivo a otro dispositivo"
+      },
+      "delete": {
+        "title": "Eliminar copia",
+        "subtitle": "Esta acción no se puede deshacer"
+      },
+      "latestBadge": "Reciente",
+      "latestFile": "Copia más reciente",
+      "backupFile": "Archivo de copia"
     },
     "format": {
       "auto": "Copia Auto - $date",

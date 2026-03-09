@@ -138,6 +138,69 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
   }
 
   // MÉTODOS AGREGADOS PARA SOPORTE DE TRANSACTIONREPOSITORY:
+  
+  Stream<Map<int, double>> watchCategoryTotals(
+      DateTime startDate, DateTime endDate, String documentTypeId) {
+    final query = customSelect(
+      '''
+      SELECT d.category_id, SUM(d.amount) as total
+      FROM transaction_detail d
+      INNER JOIN transaction_entry e ON d.transaction_id = e.id
+      WHERE e.date >= ? AND e.date < ? 
+        AND e.document_type_id = ?
+        AND e.active = 1
+        AND d.category_id IS NOT NULL AND d.category_id > 0
+      GROUP BY d.category_id
+      ''',
+      variables: [
+        Variable.withDateTime(startDate),
+        Variable.withDateTime(endDate),
+        Variable.withString(documentTypeId),
+      ],
+      readsFrom: {transactionEntry, transactionDetail},
+    );
+
+    return query.watch().map((rows) {
+      final Map<int, double> totals = {};
+      for (final row in rows) {
+        final categoryId = row.read<int>('category_id');
+        final total = row.read<double>('total');
+        totals[categoryId] = total;
+      }
+      return totals;
+    });
+  }
+
+  Future<Map<int, double>> getCategoryTotals(
+      DateTime startDate, DateTime endDate, String documentTypeId) async {
+    final query = customSelect(
+      '''
+      SELECT d.category_id, SUM(d.amount) as total
+      FROM transaction_detail d
+      INNER JOIN transaction_entry e ON d.transaction_id = e.id
+      WHERE e.date >= ? AND e.date < ? 
+        AND e.document_type_id = ?
+        AND e.active = 1
+        AND d.category_id IS NOT NULL AND d.category_id > 0
+      GROUP BY d.category_id
+      ''',
+      variables: [
+        Variable.withDateTime(startDate),
+        Variable.withDateTime(endDate),
+        Variable.withString(documentTypeId),
+      ],
+      readsFrom: {transactionEntry, transactionDetail},
+    );
+
+    final result = await query.get();
+    final Map<int, double> totals = {};
+    for (final row in result) {
+      final categoryId = row.read<int>('category_id');
+      final total = row.read<double>('total');
+      totals[categoryId] = total;
+    }
+    return totals;
+  }
 
   Future<List<TransactionEntries>> getTransactionsByCreditCardPayment(
       int creditCardId) async {

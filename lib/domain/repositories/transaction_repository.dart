@@ -13,6 +13,10 @@ abstract class TransactionRepository {
   Future<List<TransactionEntry>> getTransactionsByDateRange(DateTime startDate, DateTime endDate);
     // Optimización de balance general
   Future<Map<int, double>> getWalletBalances();
+  
+  // Optimización de categorías
+  Future<Map<int, double>> getCategoryTotals(DateTime startDate, DateTime endDate, String documentTypeId);
+  Stream<Map<int, double>> watchCategoryTotals(DateTime startDate, DateTime endDate, String documentTypeId);
     // CRUD Operations
   Future<TransactionEntry> createTransaction(TransactionEntry transaction, List<TransactionDetail> details);
   Future<void> updateTransaction(TransactionEntity transaction);

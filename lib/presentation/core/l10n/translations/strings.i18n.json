@@ -469,7 +469,10 @@
         "description": "Current month expenses",
         "empty_message": "No expenses recorded this month.",
         "others": "Others",
-        "back": "Back"
+        "back": "Back",
+        "leftover": "You have $amount of income left.",
+        "exceeded": "You exceeded your income by $amount.",
+        "noIncome": "Expenses recorded: $amount (No income)"
       },
       "chartAccounts": {
         "title": "Chart of Accounts",
@@ -576,25 +579,29 @@
   "loans": {
     "title": "Loans",
     "filter": {
+      "active": "Active Loans",
+      "history": "History",
+      "all": "All",
       "pending": "Pending",
       "lent": "Lent",
-      "borrowed": "Borrowed",
-      "all": "All",
-      "active": "Active Loans",
-      "history": "All History"
+      "borrowed": "Borrowed"
     },
     "summary": {
-      "lent": "You Lent",
-      "borrowed": "You Borrowed",
+      "netBalance": "NET BALANCE",
+      "activeLoans": "ACTIVE LOANS",
+      "noActive": "No active loans",
+      "lent": "$n lent",
+      "borrowed": "$n borrowed",
       "pending": "$n pending"
     },
     "card": {
-      "lent": "You lent",
-      "borrowed": "You borrowed",
-      "multiple": "$n active loans",
-      "overdue": "Overdue $n days",
-      "due": "Due: $date",
-      "transactions": "$n transactions"
+      "lent": "You Lent",
+      "borrowed": "You Borrowed",
+      "active": "$n active",
+      "multiple": "$n loans",
+      "transactions": "$n transactions",
+      "overdue": "Overdue by $n days",
+      "due": "Due $date"
     },
     "form": {
       "newTitle": "New Loan",
@@ -626,30 +633,92 @@
     },
     "detail": {
       "title": "Loan Details",
-      "remaining": "Remaining",
-      "paid": "Paid",
-      "history": "Payment History",
-      "viewHistory": "View Complete Loan History",
-      "pay": "Register Payment",
+      "deleteTitle": "Delete Loan",
+      "deleteMessage": "Are you sure you want to delete this loan?",
+      "deleteSuccess": "Loan deleted successfully",
+      "deleteError": "Error deleting loan: $error",
+      "notFound": "Loan not found",
+      "progress": "Loan Progress",
+      "info": "Loan Information",
+      "pay": "Pay",
+      "viewHistory": "View Complete History",
+      "original": "Original: $amount",
+      "section": "Loan Details",
       "activeSummary": "Active Summary",
       "activeLent": "You Lent (Active)",
       "activeBorrowed": "You Borrowed (Active)",
       "activeNet": "Net Position (Active)",
-      "deleteTitle": "Delete Loan",
-      "deleteMessage": "Are you sure you want to delete this loan? This action cannot be undone.",
-      "deleteSuccess": "Loan deleted successfully",
-      "deleteError": "Error deleting loan: $error",
-      "notFound": "Loan not found",
-      "loading": "Loading contact...",
-      "lenderInfo": "Lender Info"
+      "activeTotal": "Total Active Loans",
+      "startDate": "Loan Start",
+      "dueDate": "Due Date",
+      "type": {
+        "label": "Loan Type",
+        "personal": "Personal Loan",
+        "borrowed": "Borrowed Loan",
+        "auto": "Auto Loan",
+        "mortgage": "Mortgage",
+        "student": "Student Loan"
+      },
+      "payment": {
+        "history": "Payment History",
+        "date": "Payment on $date",
+        "transactionId": "Transaction ID: $id",
+        "paid": "$amount paid",
+        "remaining": "$amount remaining"
+      }
     },
     "history": {
       "title": "Loan History",
+      "section": "Complete loan history",
+      "totalLoaned": "Total loaned",
+      "noLoans": "No loans found for this filter.",
       "filter": {
         "all": "All",
         "lent": "Lent",
         "borrowed": "Borrowed",
-        "completed": "Completed"
+        "completed": "Completed",
+        "title": "Filter Loan History",
+        "reset": "Reset",
+        "apply": "Apply Filters",
+        "dateRange": "Date Range",
+        "amountRange": "Amount Range",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "select": "Select"
+      },
+      "headers": {
+        "lent": "Lent Loans",
+        "borrowed": "Borrowed Loans",
+        "completed": "Completed Loans",
+        "active": "Active Loans",
+        "cancelled": "Cancelled Loans",
+        "writtenOff": "Written Off Loans"
+      },
+      "item": {
+        "defaultTitle": "Loan",
+        "date": "Date: $date",
+        "lent": "Lent",
+        "borrowed": "Borrowed",
+        "status": {
+          "completed": "Completed",
+          "active": "Active",
+          "cancelled": "Cancelled",
+          "writtenOff": "Written Off"
+        }
+      },
+      "summary": {
+        "title": "History Summary",
+        "viewDetails": "View Details",
+        "hideDetails": "Hide Details",
+        "outstandingLent": "Currently Outstanding",
+        "outstandingBorrowed": "You Currently Owe",
+        "netPosition": "Net Position (Active)",
+        "totalLent": "Total Ever Lent",
+        "totalBorrowed": "Total Ever Borrowed",
+        "totalRepaidToYou": "Total Repaid to You",
+        "totalYouRepaid": "Total You Repaid",
+        "totalLoans": "Total Loans",
+        "completedLoans": "Completed Loans"
       }
     },
     "contactDetail": {
@@ -731,121 +800,6 @@
     },
     "given": "Loan Given",
     "received": "Loan Received",
-    "summary": {
-      "netBalance": "NET BALANCE",
-      "activeLoans": "ACTIVE LOANS",
-      "noActive": "No active loans",
-      "lent": "$n lent",
-      "borrowed": "$n borrowed",
-      "pending": "$n pending"
-    },
-    "card": {
-      "lent": "You Lent",
-      "borrowed": "You Borrowed",
-      "active": "$n active",
-      "multiple": "$n loans",
-      "transactions": "$n transactions",
-      "overdue": "Overdue by $n days",
-      "due": "Due $date"
-    },
-    "filter": {
-      "active": "Active Loans",
-      "history": "History",
-      "all": "All",
-      "pending": "Pending",
-      "lent": "Lent",
-      "borrowed": "Borrowed"
-    },
-    "history": {
-      "title": "Loan History",
-      "section": "Complete loan history",
-      "totalLoaned": "Total loaned",
-      "noLoans": "No loans found for this filter.",
-      "filter": {
-        "all": "All",
-        "lent": "Lent",
-        "borrowed": "Borrowed",
-        "completed": "Completed",
-        "title": "Filter Loan History",
-        "reset": "Reset",
-        "apply": "Apply Filters",
-        "dateRange": "Date Range",
-        "amountRange": "Amount Range",
-        "startDate": "Start Date",
-        "endDate": "End Date",
-        "select": "Select"
-      },
-      "headers": {
-        "lent": "Lent Loans",
-        "borrowed": "Borrowed Loans",
-        "completed": "Completed Loans",
-        "active": "Active Loans",
-        "cancelled": "Cancelled Loans",
-        "writtenOff": "Written Off Loans"
-      },
-      "item": {
-        "defaultTitle": "Loan",
-        "date": "Date: $date",
-        "lent": "Lent",
-        "borrowed": "Borrowed",
-        "status": {
-          "completed": "Completed",
-          "active": "Active",
-          "cancelled": "Cancelled",
-          "writtenOff": "Written Off"
-        }
-      },
-      "summary": {
-        "title": "History Summary",
-        "viewDetails": "View Details",
-        "hideDetails": "Hide Details",
-        "outstandingLent": "Currently Outstanding",
-        "outstandingBorrowed": "You Currently Owe",
-        "netPosition": "Net Position (Active)",
-        "totalLent": "Total Ever Lent",
-        "totalBorrowed": "Total Ever Borrowed",
-        "totalRepaidToYou": "Total Repaid to You",
-        "totalYouRepaid": "Total You Repaid",
-        "totalLoans": "Total Loans",
-        "completedLoans": "Completed Loans"
-      }
-    },
-    "detail": {
-      "title": "Loan Details",
-      "deleteTitle": "Delete Loan",
-      "deleteMessage": "Are you sure you want to delete this loan?",
-      "deleteSuccess": "Loan deleted successfully",
-      "deleteError": "Error deleting loan: $error",
-      "notFound": "Loan not found",
-      "progress": "Loan Progress",
-      "info": "Loan Information",
-      "pay": "Pay",
-      "viewHistory": "View Complete History",
-      "original": "Original: $amount",
-      "section": "Loan Details",
-      "activeSummary": "Active Summary",
-      "activeLent": "You Lent (Active)",
-      "activeBorrowed": "You Borrowed (Active)",
-      "activeNet": "Net Position (Active)",
-      "activeTotal": "Total Active Loans",
-      "startDate": "Loan Start",
-      "dueDate": "Due Date",
-      "type": {
-        "label": "Loan Type",
-        "personal": "Personal Loan",
-        "borrowed": "Borrowed Loan",
-        "auto": "Auto Loan",
-        "mortgage": "Mortgage",
-        "student": "Student Loan"
-      },
-      "payment": {
-        "history": "Payment History",
-        "date": "Payment on $date",
-        "transactionId": "Transaction ID: $id",
-        "paid": "$amount paid",
-        "remaining": "$amount remaining"
-      }
-    },
     "item": {
       "due": "Due: $date",
       "paidAmount": "Paid: $amount",
@@ -857,37 +811,49 @@
       "loansCount": "$n loans"
     },
     "empty": {
-        "title": "No loans active",
-        "message": "Start tracking money you lent or borrowed.",
-        "action": "Add Loan"
+      "title": "No loans active",
+      "message": "Start tracking money you lent or borrowed.",
+      "action": "Add Loan"
     }
   },
   "categories": {
     "title": "Categories",
     "form": {
-        "newTitle": "New Category",
-        "editTitle": "Edit Category",
-        "name": "Category Name",
-        "namePlaceholder": "Enter category name",
-        "nameRequired": "Category name is required",
-        "parent": "Parent Category (Optional)",
-        "noParent": "No parent category",
-        "asSubcategory": "Will be created as subcategory",
-        "asRoot": "Will be created as root category",
-        "active": "Active Category",
-        "activeDescription": "Enable this category for new transactions",
-        "selectIcon": "Select Icon",
-        "selectColor": "Select Color",
-        "saveSuccess": "Category saved successfully",
-        "saveError": "Error saving category: $error"
+      "newTitle": "New Category",
+      "editTitle": "Edit Category",
+      "name": "Category Name",
+      "namePlaceholder": "Enter category name",
+      "nameRequired": "Category name is required",
+      "parent": "Parent Category (Optional)",
+      "noParent": "No parent category",
+      "asSubcategory": "Will be created as subcategory",
+      "asRoot": "Will be created as root category",
+      "active": "Active Category",
+      "activeDescription": "Enable this category for new transactions",
+      "selectIcon": "Select Icon",
+      "selectColor": "Select Color",
+      "saveSuccess": "Category saved successfully",
+      "saveError": "Error saving category: $error"
     },
     "parentSelection": {
-        "title": "Select Parent Category",
-        "subtitle": "Tap to select a parent category",
-        "noParent": "No parent category"
+      "title": "Select Parent Category",
+      "subtitle": "Tap to select a parent category",
+      "noParent": "No parent category"
     },
     "incomeCategory": "Income category",
-    "expenseCategory": "Expense category"
+    "expenseCategory": "Expense category",
+    "report": {
+      "title": "Advanced Breakdown",
+      "timeFilter": "Time Filter",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "thisYear": "This Year",
+      "allTime": "All Time",
+      "details": "Category Details",
+      "noTransactions": "No transactions",
+      "income": "Income",
+      "expense": "Expenses"
+    }
   },
   "backups": {
     "title": "Database Backup",
@@ -955,21 +921,21 @@
       "inactive": "Inactive"
     },
     "options": {
-        "restore": {
-          "title": "Restore backup",
-          "subtitle": "Replace current data with this backup"
-        },
-        "share": {
-            "title": "Share backup",
-            "subtitle": "Send this backup file to another device"
-        },
-        "delete": {
-            "title": "Delete backup",
-            "subtitle": "This action cannot be undone"
-        },
-        "latestBadge": "Latest",
-        "latestFile": "Latest backup",
-        "backupFile": "Backup file"
+      "restore": {
+        "title": "Restore backup",
+        "subtitle": "Replace current data with this backup"
+      },
+      "share": {
+        "title": "Share backup",
+        "subtitle": "Send this backup file to another device"
+      },
+      "delete": {
+        "title": "Delete backup",
+        "subtitle": "This action cannot be undone"
+      },
+      "latestBadge": "Latest",
+      "latestFile": "Latest backup",
+      "backupFile": "Backup file"
     },
     "format": {
       "auto": "Auto Backup - $date",

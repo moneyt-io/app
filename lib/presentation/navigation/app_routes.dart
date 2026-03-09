@@ -23,6 +23,7 @@ class AppRoutes {
   // Categorías
   static const String categories = '/categories';
   static const String categoryForm = '/categories/form';
+  static const String categoryReport = '/categories/report';
 
   // Transacciones
   static const String transactions = '/transactions';
