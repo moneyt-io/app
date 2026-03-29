@@ -18,60 +18,72 @@ class SolutionPreviewPage extends StatelessWidget {
         ),
       ),
       child: SafeArea(
-        child: Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: OnboardingTheme.spacing32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-
-              // Animated Icon
-              AnimatedFeatureIcon(
-                icon: Icons.lightbulb,
-                backgroundColor: Colors.white.withOpacity(0.2),
-                iconColor: Colors.white,
-                size: 100,
-                animationDelay: const Duration(milliseconds: 200),
-              ),
-
-              const SizedBox(height: OnboardingTheme.spacing48),
-
-              // Solution Statement
-              StaggeredTextAnimation(
-                text: t.onboarding.solutionPreview.title, // ✅ LOCALIZADO
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  height: 1.3,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
-                delay: const Duration(milliseconds: 400),
-              ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: OnboardingTheme.spacing32),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 72),
+                      // Animated Icon
+                      AnimatedFeatureIcon(
+                        icon: Icons.lightbulb,
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                        iconColor: Colors.white,
+                        size: 100,
+                        animationDelay: const Duration(milliseconds: 200),
+                      ),
 
-              const SizedBox(height: OnboardingTheme.spacing48),
+                      const SizedBox(height: OnboardingTheme.spacing48),
 
-              // Benefits List
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                   // ✅ MEJORADO: Usando el subtitulo para el primer beneficio o dividiendo
-                  _buildBenefitItem(
-                    t.onboarding.solutionPreview.subtitle, 
-                    const Duration(milliseconds: 600),
+                      // Solution Statement
+                      StaggeredTextAnimation(
+                        text:
+                            t.onboarding.solutionPreview.title, // ✅ LOCALIZADO
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          height: 1.3,
+                        ),
+                        delay: const Duration(milliseconds: 400),
+                      ),
+
+                      const SizedBox(height: OnboardingTheme.spacing48),
+
+                      // Benefits List
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // ✅ MEJORADO: Usando el subtitulo para el primer beneficio o dividiendo
+                          _buildBenefitItem(
+                            t.onboarding.solutionPreview.subtitle,
+                            const Duration(milliseconds: 600),
+                          ),
+                          // Opcional: Agregar más claves para beneficios individuales en el archivo i18n
+                          // Por ahora reusamos el subtitulo como mensaje principal
+                        ],
+                      ),
+
+                      const SizedBox(height: OnboardingTheme.spacing48),
+
+                      // El botón es manejado por OnboardingScreen.
+                      // Este SizedBox asegura que el contenido tenga espacio suficiente en la parte inferior.
+                      const SizedBox(height: 96),
+                    ],
                   ),
-                  // Opcional: Agregar más claves para beneficios individuales en el archivo i18n
-                  // Por ahora reusamos el subtitulo como mensaje principal
-                ],
+                ),
               ),
-
-              const Spacer(),
-
-              // El botón es manejado por OnboardingScreen.
-              // Este SizedBox asegura que el contenido tenga espacio suficiente en la parte inferior.
-              const SizedBox(height: 96),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

@@ -23,71 +23,71 @@ class FeatureShowcaseSimplePage extends StatelessWidget {
 
   // Features disponibles
   List<FeatureItem> get availableFeatures => [
-    FeatureItem(
-      icon: Icons.trending_up,
-      title: t.onboarding.featuresShowcase.features.income,
-      iconColor: const Color(0xFF16A34A), // green-600
-      backgroundColor: const Color(0xFFDCFCE7), // green-100
-    ),
-    FeatureItem(
-      icon: Icons.trending_down,
-      title: t.onboarding.featuresShowcase.features.expense,
-      iconColor: const Color(0xFFDC2626), // red-600
-      backgroundColor: const Color(0xFFFEE2E2), // red-100
-    ),
-    FeatureItem(
-      icon: Icons.swap_horiz,
-      title: t.onboarding.featuresShowcase.features.transfer,
-      iconColor: const Color(0xFF2563EB), // blue-600
-      backgroundColor: const Color(0xFFDBEAFE), // blue-100
-    ),
-    FeatureItem(
-      icon: Icons.account_balance,
-      title: t.onboarding.featuresShowcase.features.loans,
-      iconColor: const Color(0xFF7C3AED), // violet-600
-      backgroundColor: const Color(0xFFEDE9FE), // violet-100
-    ),
-  ];
+        FeatureItem(
+          icon: Icons.trending_up,
+          title: t.onboarding.featuresShowcase.features.income,
+          iconColor: const Color(0xFF16A34A), // green-600
+          backgroundColor: const Color(0xFFDCFCE7), // green-100
+        ),
+        FeatureItem(
+          icon: Icons.trending_down,
+          title: t.onboarding.featuresShowcase.features.expense,
+          iconColor: const Color(0xFFDC2626), // red-600
+          backgroundColor: const Color(0xFFFEE2E2), // red-100
+        ),
+        FeatureItem(
+          icon: Icons.swap_horiz,
+          title: t.onboarding.featuresShowcase.features.transfer,
+          iconColor: const Color(0xFF2563EB), // blue-600
+          backgroundColor: const Color(0xFFDBEAFE), // blue-100
+        ),
+        FeatureItem(
+          icon: Icons.account_balance,
+          title: t.onboarding.featuresShowcase.features.loans,
+          iconColor: const Color(0xFF7C3AED), // violet-600
+          backgroundColor: const Color(0xFFEDE9FE), // violet-100
+        ),
+      ];
 
   // Features en desarrollo
   List<FeatureItem> get developmentFeatures => [
-    FeatureItem(
-      icon: Icons.auto_awesome, 
-      title: "AI Chat",
-      iconColor: const Color(0xFF9333EA), // purple-600
-      backgroundColor: const Color(0xFFF3E8FF), // purple-100
-    ),
-    FeatureItem(
-      icon: Icons.flag,
-      title: t.onboarding.featuresShowcase.features.goals,
-      iconColor: const Color(0xFFEA580C), // orange-600
-      backgroundColor: const Color(0xFFFED7AA), // orange-100
-    ),
-    FeatureItem(
-      icon: Icons.pie_chart,
-      title: t.onboarding.featuresShowcase.features.budgets,
-      iconColor: const Color(0xFF0891B2), // cyan-600
-      backgroundColor: const Color(0xFFCFFAFE), // cyan-100
-    ),
-    FeatureItem(
-      icon: Icons.trending_up_outlined,
-      title: t.onboarding.featuresShowcase.features.investments,
-      iconColor: const Color(0xFF059669), // emerald-600
-      backgroundColor: const Color(0xFFD1FAE5), // emerald-100
-    ),
-    FeatureItem(
-      icon: Icons.cloud,
-      title: t.onboarding.featuresShowcase.features.cloud,
-      iconColor: const Color(0xFF4338CA), // indigo-600
-      backgroundColor: const Color(0xFFE0E7FF), // indigo-100
-    ),
-    FeatureItem(
-      icon: Icons.link,
-      title: t.onboarding.featuresShowcase.features.openBanking,
-      iconColor: const Color(0xFFBE185D), // pink-600
-      backgroundColor: const Color(0xFFFCE7F3), // pink-100
-    ),
-  ];
+        FeatureItem(
+          icon: Icons.auto_awesome,
+          title: "AI Chat",
+          iconColor: const Color(0xFF9333EA), // purple-600
+          backgroundColor: const Color(0xFFF3E8FF), // purple-100
+        ),
+        FeatureItem(
+          icon: Icons.flag,
+          title: t.onboarding.featuresShowcase.features.goals,
+          iconColor: const Color(0xFFEA580C), // orange-600
+          backgroundColor: const Color(0xFFFED7AA), // orange-100
+        ),
+        FeatureItem(
+          icon: Icons.pie_chart,
+          title: t.onboarding.featuresShowcase.features.budgets,
+          iconColor: const Color(0xFF0891B2), // cyan-600
+          backgroundColor: const Color(0xFFCFFAFE), // cyan-100
+        ),
+        FeatureItem(
+          icon: Icons.trending_up_outlined,
+          title: t.onboarding.featuresShowcase.features.investments,
+          iconColor: const Color(0xFF059669), // emerald-600
+          backgroundColor: const Color(0xFFD1FAE5), // emerald-100
+        ),
+        FeatureItem(
+          icon: Icons.cloud,
+          title: t.onboarding.featuresShowcase.features.cloud,
+          iconColor: const Color(0xFF4338CA), // indigo-600
+          backgroundColor: const Color(0xFFE0E7FF), // indigo-100
+        ),
+        FeatureItem(
+          icon: Icons.link,
+          title: t.onboarding.featuresShowcase.features.openBanking,
+          iconColor: const Color(0xFFBE185D), // pink-600
+          backgroundColor: const Color(0xFFFCE7F3), // pink-100
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {

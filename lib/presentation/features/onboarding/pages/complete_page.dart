@@ -62,76 +62,89 @@ class _CompletePageState extends State<CompletePage>
         ),
       ),
       child: SafeArea(
-        child: Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: OnboardingTheme.spacing32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-
-              // Icono animado y coloreado
-              AnimatedFeatureIcon(
-                icon: Icons.rocket_launch,
-                backgroundColor: Colors.white, // Fondo opaco para resaltar
-                iconColor: const Color(
-                    0xFFD97706), // Naranja del gradiente de la página
-                size: 100,
-                animationDelay: const Duration(milliseconds: 200),
-              ),
-
-              const SizedBox(height: OnboardingTheme.spacing32),
-
-              // Título
-              StaggeredTextAnimation(
-                text: t.onboarding.complete.title, 
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  height: 1.3,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
-                delay: const Duration(milliseconds: 400), // Retraso ajustado
-              ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: OnboardingTheme.spacing32),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 72),
+                      // Animated Icon
+                      AnimatedFeatureIcon(
+                        icon: Icons.rocket_launch,
+                        backgroundColor:
+                            Colors.white, // Fondo opaco para resaltar
+                        iconColor: const Color(
+                            0xFFD97706), // Naranja del gradiente de la página
+                        size: 100,
+                        animationDelay: const Duration(milliseconds: 200),
+                      ),
 
-              const SizedBox(height: OnboardingTheme.spacing24),
+                      const SizedBox(height: OnboardingTheme.spacing32),
 
-              // Descripción
-              StaggeredTextAnimation(
-                text: t.onboarding.complete.subtitle,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 0.3,
-                  color: Colors.white,
-                  height: 1.4,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
+                      // Título
+                      StaggeredTextAnimation(
+                        text: t.onboarding.complete.title,
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          height: 1.3,
+                        ),
+                        delay: const Duration(
+                            milliseconds: 400), // Retraso ajustado
+                      ),
+
+                      const SizedBox(height: OnboardingTheme.spacing24),
+
+                      // Descripción
+                      StaggeredTextAnimation(
+                        text: t.onboarding.complete.subtitle,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 0.3,
+                          color: Colors.white,
+                          height: 1.4,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        delay: const Duration(milliseconds: 400),
+                      ),
+
+                      const SizedBox(height: OnboardingTheme.spacing48),
+
+                      // Infografía animada
+                      AnimatedBuilder(
+                        animation: _controller,
+                        builder: (context, child) {
+                          return _buildProbabilityInfographic();
+                        },
+                      ),
+
+                      const SizedBox(height: OnboardingTheme.spacing48),
+
+                      // Espacio para el botón centralizado
+                      const SizedBox(height: 96),
+                    ],
+                  ),
                 ),
-                delay: const Duration(milliseconds: 400),
               ),
-
-              const SizedBox(height: OnboardingTheme.spacing48),
-
-              // Infografía animada
-              AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return _buildProbabilityInfographic();
-                },
-              ),
-
-              const Spacer(),
-
-              // Espacio para el botón centralizado
-              const SizedBox(height: 96),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

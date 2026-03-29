@@ -11,7 +11,7 @@ enum PainPoint {
 
   const PainPoint(this.key);
   final String key;
- 
+
   // Getters para etiquetas dinámicas
   String get label {
     switch (this) {
@@ -46,74 +46,94 @@ class SpecificProblemPage extends StatelessWidget {
         ),
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(OnboardingTheme.spacing32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-              
-              // Animated Icon
-              AnimatedFeatureIcon(
-                icon: Icons.help_outline,
-                backgroundColor: Colors.white.withOpacity(0.2),
-                iconColor: Colors.white,
-                size: 100,
-                animationDelay: const Duration(milliseconds: 200),
-              ),
-              
-              const SizedBox(height: OnboardingTheme.spacing48),
-              
-              // Question
-              StaggeredTextAnimation(
-                text: t.onboarding.specificProblem.title, // ✅ LOCALIZADO
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  height: 1.3,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
-                delay: const Duration(milliseconds: 400),
-              ),
-              
-              const SizedBox(height: OnboardingTheme.spacing16),
-              
-              // Subtitle
-              StaggeredTextAnimation(
-                 text: t.common.moreOptions, // ✅ LOCALIZADO (o usar uno más específico si existe)
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,  // ✅ AGREGADO: Ligeramente más pesado que normal
-                  letterSpacing: 0.3,           // ✅ AGREGADO: Espaciado entre letras
-                  color: Colors.white,          // ✅ CAMBIADO: Opacidad máxima
-                  height: 1.4,                  // ✅ CAMBIADO: Espaciado más compacto
-                  shadows: [                    // ✅ AGREGADO: Sombra sutil para profundidad
-                    Shadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-                delay: const Duration(milliseconds: 600),
-              ),
-              
-              const SizedBox(height: OnboardingTheme.spacing48),
-              
-              // Pain Point Options
-              Column(
-                children: PainPoint.values.map((painPoint) => 
-                  _buildPainPointOption(painPoint)
-                ).toList(),
-              ),
-              
-              const Spacer(),
+                child: Padding(
+                  padding: const EdgeInsets.all(OnboardingTheme.spacing32),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 72),
+                      // Se eliminó el Spacer superior e inferior para evitar desbordamiento
 
-              // El botón ahora es manejado por OnboardingScreen
-              // Se deja un espacio para mantener la consistencia del layout
-              const SizedBox(height: 96),
-            ],
-          ),
+                      // Animated Icon
+                      AnimatedFeatureIcon(
+                        icon: Icons.help_outline,
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                        iconColor: Colors.white,
+                        size: 100,
+                        animationDelay: const Duration(milliseconds: 200),
+                      ),
+
+                      const SizedBox(height: OnboardingTheme.spacing48),
+
+                      // Question
+                      StaggeredTextAnimation(
+                        text:
+                            t.onboarding.specificProblem.title, // ✅ LOCALIZADO
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          height: 1.3,
+                        ),
+                        delay: const Duration(milliseconds: 400),
+                      ),
+
+                      const SizedBox(height: OnboardingTheme.spacing16),
+
+                      // Subtitle
+                      StaggeredTextAnimation(
+                        text: t.common
+                            .moreOptions, // ✅ LOCALIZADO (o usar uno más específico si existe)
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight
+                              .w400, // ✅ AGREGADO: Ligeramente más pesado que normal
+                          letterSpacing:
+                              0.3, // ✅ AGREGADO: Espaciado entre letras
+                          color: Colors.white, // ✅ CAMBIADO: Opacidad máxima
+                          height: 1.4, // ✅ CAMBIADO: Espaciado más compacto
+                          shadows: [
+                            // ✅ AGREGADO: Sombra sutil para profundidad
+                            Shadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        delay: const Duration(milliseconds: 600),
+                      ),
+
+                      const SizedBox(height: OnboardingTheme.spacing48),
+
+                      // Pain Point Options
+                      Column(
+                        children: PainPoint.values
+                            .map(
+                                (painPoint) => _buildPainPointOption(painPoint))
+                            .toList(),
+                      ),
+
+                      // Opciones de margen inferior en lugar de Spacer para evitar overflow
+                      const SizedBox(height: OnboardingTheme.spacing48),
+
+                      // El botón ahora es manejado por OnboardingScreen
+                      // Se deja un espacio para mantener la consistencia del layout
+                      const SizedBox(height: 96),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -121,7 +141,7 @@ class SpecificProblemPage extends StatelessWidget {
 
   Widget _buildPainPointOption(PainPoint painPoint) {
     final isSelected = selectedPainPoint == painPoint;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Material(
@@ -133,12 +153,12 @@ class SpecificProblemPage extends StatelessWidget {
             duration: const Duration(milliseconds: 300),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: isSelected 
+              color: isSelected
                   ? Colors.white.withOpacity(0.2)
                   : Colors.white.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected 
+                color: isSelected
                     ? Colors.white.withOpacity(0.6)
                     : Colors.white.withOpacity(0.2),
                 width: 2,
@@ -152,15 +172,13 @@ class SpecificProblemPage extends StatelessWidget {
                   height: 24,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isSelected 
-                        ? Colors.white 
-                        : Colors.transparent,
+                    color: isSelected ? Colors.white : Colors.transparent,
                     border: Border.all(
                       color: Colors.white.withOpacity(0.8),
                       width: 2,
                     ),
                   ),
-                  child: isSelected 
+                  child: isSelected
                       ? const Icon(
                           Icons.check,
                           size: 16,
@@ -175,7 +193,8 @@ class SpecificProblemPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white.withOpacity(0.95),
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
                       height: 1.5,
                     ),
                   ),
