@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'analytics_service.dart';
 
 /// Servicio para encapsular toda la lógica de Superwall.
 ///
@@ -62,12 +63,14 @@ class PaywallService implements SuperwallDelegate {
   @override
   void didDismissPaywall(PaywallInfo paywallInfo) {
     print(' PaywallService: Paywall dismissed. Info: ${paywallInfo.name}');
+    AnalyticsService().trackPaywallDismissed(paywallInfo.name ?? 'unknown');
     _navigateToNextStep();
   }
 
   @override
   void didPresentPaywall(PaywallInfo paywallInfo) {
     print(' PaywallService: Paywall presented: ${paywallInfo.name}');
+    AnalyticsService().trackPaywallViewed(paywallInfo.name ?? 'unknown');
   }
 
   @override
@@ -83,6 +86,10 @@ class PaywallService implements SuperwallDelegate {
   @override
   void handleSuperwallEvent(SuperwallEventInfo eventInfo) {
     print(' PaywallService: Superwall event: ${eventInfo.event.name}');
+    final eventName = eventInfo.event.name;
+    if (eventName != null) {
+      AnalyticsService().trackSuperwallEvent(eventName);
+    }
   }
 
   @override

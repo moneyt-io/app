@@ -16,6 +16,7 @@ import 'pages/current_method_page.dart';
 import 'pages/features_showcase_simple_page.dart';
 import 'pages/complete_page.dart';
 import '../../core/l10n/generated/strings.g.dart'; // ✅ AÑADIDO
+import '../../../../core/services/analytics_service.dart';
 
 /// Onboarding simplificado solo para demostración (frontend de venta)
 class OnboardingScreen extends StatefulWidget {
@@ -32,29 +33,40 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   int _currentPage = 0;
   bool _showSkipButton = true;
-  
-  // ✅ NUEVO: Estado levantado (Lifted State) para persistencia de selección
+
+  // Configuración remota — se carga desde PostHog al init
+  List<int> _activeSteps = [0, 1, 2, 3, 4, 5, 6, 7];
+  String _variant = 'control';
+
+  // Estado levantado para persistencia de selección
   PainPoint? _selectedPainPoint;
   PersonalGoal? _selectedGoal;
   CurrentMethod? _selectedMethod;
 
   // Notificador para que las páginas hijas controlen el estado del botón
   final ValueNotifier<bool> _isButtonEnabled = ValueNotifier(true);
-  
-  // ✅ MOVIDO: Getter para _pages que usa el estado
-  List<Widget> get _pages => [
-    WelcomePage(),
-    ProblemStatementPage(),
+
+  // Índice absoluto (0-7) de la página actualmente visible
+  int get _currentStepIndex =>
+      _currentPage < _activeSteps.length ? _activeSteps[_currentPage] : _currentPage;
+
+  // Todas las páginas posibles en orden fijo (0-7)
+  List<Widget> get _allPages => [
+    WelcomePage(),                                                    // 0
+    ProblemStatementPage(),                                           // 1
     SpecificProblemPage(
-      // Ya no pasamos ValueNotifier, pasamos estado y callback
       selectedPainPoint: _selectedPainPoint,
       onPainPointSelected: (painPoint) {
         setState(() {
           _selectedPainPoint = painPoint;
           _isButtonEnabled.value = true;
         });
+        AnalyticsService().trackOnboardingChoiceSelected(
+          stepName: 'specific_problem',
+          choice: painPoint.name,
+        );
       },
-    ),
+    ),                                                                // 2
     PersonalGoalPage(
       selectedGoal: _selectedGoal,
       onGoalSelected: (goal) {
@@ -62,9 +74,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           _selectedGoal = goal;
           _isButtonEnabled.value = true;
         });
+        AnalyticsService().trackOnboardingChoiceSelected(
+          stepName: 'personal_goal',
+          choice: goal.name,
+        );
       },
-    ),
-    SolutionPreviewPage(),
+    ),                                                                // 3
+    SolutionPreviewPage(),                                            // 4
     CurrentMethodPage(
       selectedMethod: _selectedMethod,
       onMethodSelected: (method) {
@@ -72,11 +88,21 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           _selectedMethod = method;
           _isButtonEnabled.value = true;
         });
+        AnalyticsService().trackOnboardingChoiceSelected(
+          stepName: 'current_method',
+          choice: method.name,
+        );
       },
-    ),
-    FeatureShowcaseSimplePage(),
-    CompletePage(),
+    ),                                                                // 5
+    FeatureShowcaseSimplePage(),                                      // 6
+    CompletePage(),                                                   // 7
   ];
+
+  // Páginas activas según la configuración remota
+  List<Widget> get _pages {
+    final all = _allPages;
+    return _activeSteps.map((i) => all[i]).toList();
+  }
 
   @override
   void initState() {
@@ -91,6 +117,24 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     
     // Iniciar animación del botón skip
     _skipButtonController.forward();
+
+    // Cargar configuración remota de PostHog (ya cacheada desde SplashScreen)
+    _loadOnboardingConfig();
+
+    // Trackear step 0 manualmente — onPageChanged no lo captura porque
+    // la página inicial nunca "cambia hacia ella"
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AnalyticsService().trackOnboardingStepViewed(_activeSteps[0]);
+    });
+  }
+
+  Future<void> _loadOnboardingConfig() async {
+    final config = await AnalyticsService().getOnboardingConfig();
+    if (!mounted) return;
+    setState(() {
+      _activeSteps = config.steps;
+      _variant = config.variant;
+    });
   }
 
   @override
@@ -106,6 +150,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       _completeOnboarding();
     } else {
       if (_currentPage < _pages.length - 1) {
+        AnalyticsService().trackOnboardingStepCompleted(_currentStepIndex);
         HapticFeedback.lightImpact();
         _pageController.nextPage(
           duration: const Duration(milliseconds: 300),
@@ -138,13 +183,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   void _skipOnboarding() {
     HapticFeedback.mediumImpact();
-    // ✅ CORREGIDO: Navegar a la última página en lugar de completar directamente
+    AnalyticsService().trackOnboardingSkipped(_currentStepIndex);
     _goToPage(_pages.length - 1); // Ir a la CompletePage
   }
 
   // ✅ SIMPLIFICADO: Navegación directa al Home, omitiendo Login explícito
   Future<void> _completeOnboarding() async {
     print('🎯 OnboardingScreen: Completing onboarding...');
+
+    AnalyticsService().trackOnboardingCompleted(
+      painPoint: _selectedPainPoint?.name,
+      goal: _selectedGoal?.name,
+      method: _selectedMethod?.name,
+      variant: _variant,
+    );
 
     try {
       // 1. Marcar onboarding como completado
@@ -171,14 +223,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 
   void _onPageChanged(int page) {
+    final stepIndex = page < _activeSteps.length ? _activeSteps[page] : page;
+    AnalyticsService().trackOnboardingStepViewed(stepIndex);
     setState(() {
       _currentPage = page;
       _showSkipButton = page < _pages.length - 1;
 
-      // ✅ LOGICA CORREGIDA: Verificar si ya hay una selección previa
+      // Verificar si ya hay una selección previa usando el índice absoluto
       bool shouldEnable = true;
-      
-      switch (page) {
+      switch (stepIndex) {
         case 2: // SpecificProblemPage
           shouldEnable = _selectedPainPoint != null;
           break;
@@ -191,7 +244,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         default:
           shouldEnable = true;
       }
-      
       _isButtonEnabled.value = shouldEnable;
     });
   }
@@ -288,7 +340,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         shadowColor: Colors.black.withOpacity(0.1),
                       ),
                       child: Text(
-                        _getButtonLabel(_currentPage), // ✅ AÑADIDO: Getter dinámico
+                        _getButtonLabel(_currentStepIndex),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,

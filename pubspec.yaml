@@ -37,6 +37,7 @@ dependencies:
   collection: ^1.18.0
   flutter_dotenv: ^6.0.0
   fl_chart: ^1.1.1
+  posthog_flutter: ^5.0.0
   
 dev_dependencies:
   flutter_test:

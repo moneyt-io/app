@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 // ✅ ACTUALIZADO: Imports para nuevo sistema de inicialización
 import '../../../core/services/app_initialization_service.dart';
 import '../../../core/enums/initialization_state.dart';
@@ -101,6 +102,11 @@ class _SplashScreenState extends State<SplashScreen>
           // Continuar de todos modos, mostrar error en UI si es necesario
         }
       }
+
+      // Pre-cargar feature flags para que OnboardingScreen los tenga cacheados
+      try {
+        await Posthog().reloadFeatureFlags();
+      } catch (_) {}
 
       // Navegar según el estado
       if (mounted) {
