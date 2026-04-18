@@ -88,6 +88,10 @@ PODS:
     - Flutter
     - SuperwallKit (= 4.7.0)
   - SwiftyGif (5.4.5)
+  - tiktok_events_sdk (1.1.4):
+    - Flutter
+    - TikTokBusinessSDK (~> 1.6.1)
+  - TikTokBusinessSDK (1.6.1)
   - url_launcher_ios (0.0.1):
     - Flutter
 
@@ -103,6 +107,7 @@ DEPENDENCIES:
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/darwin`)
   - superwallkit_flutter (from `.symlinks/plugins/superwallkit_flutter/ios`)
+  - tiktok_events_sdk (from `.symlinks/plugins/tiktok_events_sdk/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
@@ -115,6 +120,7 @@ SPEC REPOS:
     - Superscript
     - SuperwallKit
     - SwiftyGif
+    - TikTokBusinessSDK
 
 EXTERNAL SOURCES:
   file_picker:
@@ -139,6 +145,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqlite3_flutter_libs/darwin"
   superwallkit_flutter:
     :path: ".symlinks/plugins/superwallkit_flutter/ios"
+  tiktok_events_sdk:
+    :path: ".symlinks/plugins/tiktok_events_sdk/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
@@ -162,6 +170,8 @@ SPEC CHECKSUMS:
   SuperwallKit: 239843161a144ad08af40906ec0307779abd7d12
   superwallkit_flutter: 1a8f16ff97d3a3be52be3f6585279cd82209feb2
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
+  tiktok_events_sdk: f740cc45f8176665e62bd20026007a05c968aa6f
+  TikTokBusinessSDK: 349bb1dea1f90d01f9b39418ebe7c8eb981c04af
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
 
 PODFILE CHECKSUM: de26490a5c7cb6f9a56d81cfc36db4514a0bc22a

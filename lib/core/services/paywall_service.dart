@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'analytics_service.dart';
+import 'tiktok_service.dart';
 
 /// Servicio para encapsular toda la lógica de Superwall.
 ///
@@ -114,6 +115,9 @@ class PaywallService implements SuperwallDelegate {
     if (isPremiumNotifier.value != isPremium) {
       isPremiumNotifier.value = isPremium;
       print('⭐️ PaywallService: Premium status updated to $isPremium');
+      if (isPremium) {
+        TikTokService().trackSubscribe();
+      }
     }
   }
 

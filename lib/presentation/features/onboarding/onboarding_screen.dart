@@ -17,6 +17,7 @@ import 'pages/features_showcase_simple_page.dart';
 import 'pages/complete_page.dart';
 import '../../core/l10n/generated/strings.g.dart'; // ✅ AÑADIDO
 import '../../../../core/services/analytics_service.dart';
+import '../../../../core/services/tiktok_service.dart';
 
 /// Onboarding simplificado solo para demostración (frontend de venta)
 class OnboardingScreen extends StatefulWidget {
@@ -197,6 +198,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       method: _selectedMethod?.name,
       variant: _variant,
     );
+    TikTokService().trackOnboardingCompleted();
 
     try {
       // 1. Marcar onboarding como completado

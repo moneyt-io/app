@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSContactsUsageDescription</key>
 	<string>Esta app necesita acceso a tus contactos para importarlos a la aplicación.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>We use this to show you personalized ads and measure the effectiveness of our advertising campaigns.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>MoneyT needs access to your photos so you can attach receipts to your loans.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
