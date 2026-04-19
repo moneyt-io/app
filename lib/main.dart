@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:get_it/get_it.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'presentation/core/providers/theme_provider.dart';
 import 'presentation/core/providers/language_provider.dart';
 import 'presentation/core/providers/currency_provider.dart';
@@ -48,6 +51,17 @@ void main() async {
   }
 
   await AnalyticsService().init();
+
+  // Solicitar ATT en iOS antes de inicializar TikTok SDK (requiere IDFA)
+  if (Platform.isIOS) {
+    final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+    if (status == TrackingStatus.notDetermined) {
+      // Pequeño delay para evitar crash si la app aún no terminó de presentar su ventana
+      await Future.delayed(const Duration(milliseconds: 300));
+      await AppTrackingTransparency.requestTrackingAuthorization();
+    }
+  }
+
   await TikTokService().init();
 
   final prefs = await SharedPreferences.getInstance();

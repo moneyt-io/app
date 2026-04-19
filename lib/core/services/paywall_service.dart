@@ -86,11 +86,12 @@ class PaywallService implements SuperwallDelegate {
 
   @override
   void handleSuperwallEvent(SuperwallEventInfo eventInfo) {
-    print(' PaywallService: Superwall event: ${eventInfo.event.name}');
-    final eventName = eventInfo.event.name;
-    if (eventName != null) {
-      AnalyticsService().trackSuperwallEvent(eventName);
-    }
+    final eventName = eventInfo.event.type.name;
+    print(' PaywallService: Superwall event: $eventName');
+    AnalyticsService().trackSuperwallEvent(
+      eventName,
+      paywallName: eventInfo.event.paywallInfo?.name,
+    );
   }
 
   @override

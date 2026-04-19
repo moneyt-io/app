@@ -1,7 +1,7 @@
 name: moneyt_pfm
 description: "Personal Finance Manager"
 publish_to: 'none'
-version: 0.2.6+16
+version: 0.2.6+17
 
 environment:
   sdk: ^3.5.4
@@ -39,6 +39,7 @@ dependencies:
   fl_chart: ^1.1.1
   posthog_flutter: ^5.0.0
   tiktok_events_sdk: ^1.1.4
+  app_tracking_transparency: ^2.0.4
   
 dev_dependencies:
   flutter_test:
