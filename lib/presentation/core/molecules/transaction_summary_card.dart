@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import '../../../core/utils/number_formatter.dart';
 
 class TransactionSummaryCard extends StatelessWidget {
   final String title;
   final IconData icon;
   final double amount;
   final Color backgroundColor;
+  final String currencyId;
 
   const TransactionSummaryCard({
     Key? key,
@@ -13,6 +14,7 @@ class TransactionSummaryCard extends StatelessWidget {
     required this.icon,
     required this.amount,
     required this.backgroundColor,
+    this.currencyId = '',
   }) : super(key: key);
 
   @override
@@ -42,7 +44,7 @@ class TransactionSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            NumberFormat.currency(symbol: '\$', decimalDigits: 2).format(amount),
+            NumberFormatter.formatCurrencyWithCode(amount, currencyId: currencyId),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 18,

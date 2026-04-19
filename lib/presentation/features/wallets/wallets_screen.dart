@@ -20,6 +20,8 @@ import '../../navigation/app_routes.dart';
 import '../../navigation/navigation_service.dart';
 import '../../core/l10n/generated/strings.g.dart';
 import '../../core/organisms/sliver_filter_header_delegate.dart';
+import '../../core/molecules/currency_pill_selector.dart';
+import '../../core/providers/currency_filter_provider.dart';
 import 'wallet_provider.dart';
 import '../transactions/transaction_provider.dart';
 
@@ -201,7 +203,24 @@ class _WalletsScreenState extends State<WalletsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final walletProvider = Provider.of<WalletProvider>(context);
+    final walletProvider = context.watch<WalletProvider>();
+    final currencyFilter = context.watch<CurrencyFilterProvider>();
+
+    final availableCurrencies = walletProvider.wallets
+        .where((w) => w.active)
+        .map((w) => w.currencyId)
+        .toSet()
+        .toList();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && availableCurrencies.isNotEmpty) {
+        currencyFilter.syncWithAvailable(availableCurrencies);
+      }
+    });
+
+    final selectedCurrency = currencyFilter.selectedCurrencyId;
+    final showPills = availableCurrencies.length > 1;
+    final headerHeight = showPills ? 128.0 : 72.0;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -220,14 +239,28 @@ class _WalletsScreenState extends State<WalletsScreen> {
           SliverPersistentHeader(
             pinned: true,
             delegate: SliverFilterHeaderDelegate(
-              height: 72, // 40 (filter) + 16*2 (padding)
+              height: headerHeight,
               blur: true,
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                child: WalletTypeFilter(
-                  selectedType: _selectedFilter,
-                  onTypeChanged: (type) => setState(() => _selectedFilter = type),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    WalletTypeFilter(
+                      selectedType: _selectedFilter,
+                      onTypeChanged: (type) =>
+                          setState(() => _selectedFilter = type),
+                    ),
+                    if (showPills) ...[
+                      const SizedBox(height: 8),
+                      CurrencyPillSelector(
+                        availableCurrencies: availableCurrencies,
+                        selectedCurrencyId: selectedCurrency,
+                        onCurrencySelected: currencyFilter.selectCurrency,
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),
@@ -238,7 +271,7 @@ class _WalletsScreenState extends State<WalletsScreen> {
               : walletProvider.error != null
                   ? SliverFillRemaining(
                       child: _buildErrorState(context, walletProvider.error!))
-                  : _buildWalletsSlivers(context, walletProvider),
+                  : _buildWalletsSlivers(context, walletProvider, selectedCurrency),
         ],
       ),
       floatingActionButton: AppFloatingActionButton(
@@ -248,16 +281,17 @@ class _WalletsScreenState extends State<WalletsScreen> {
     );
   }
 
-  Widget _buildWalletsSlivers(BuildContext context, WalletProvider provider) {
+  Widget _buildWalletsSlivers(BuildContext context, WalletProvider provider, String selectedCurrency) {
     // 1. Identificar wallets que coinciden directamente con el filtro
     final matchingWallets = provider.wallets.where((w) {
+      final currencyMatch = w.currencyId == selectedCurrency;
       switch (_selectedFilter) {
         case WalletFilterType.active:
-          return w.active;
+          return w.active && currencyMatch;
         case WalletFilterType.archived:
-          return !w.active;
+          return !w.active && currencyMatch;
         default:
-          return true;
+          return currencyMatch;
       }
     }).toList();
 
@@ -301,8 +335,9 @@ class _WalletsScreenState extends State<WalletsScreen> {
 
     return SliverList(delegate: SliverChildListDelegate([
         TotalBalanceCard(
-          totalBalance: _calculateFilteredBalance(provider), // Modificado: Balance filtrado
+          totalBalance: _calculateFilteredBalance(provider, selectedCurrency),
           monthlyGrowth: 0, // TODO: Implement monthly growth
+          currencyId: selectedCurrency,
           isBalanceVisible: _isBalanceVisible,
           onVisibilityToggle: () =>
               setState(() => _isBalanceVisible = !_isBalanceVisible),
@@ -363,12 +398,12 @@ class _WalletsScreenState extends State<WalletsScreen> {
   }
 
   /// Calcula el balance total considerando solo las wallets que pasan el filtro.
-  double _calculateFilteredBalance(WalletProvider provider) {
-    if (_selectedFilter == WalletFilterType.all) return provider.totalBalance;
-
+  double _calculateFilteredBalance(WalletProvider provider, String selectedCurrency) {
     double total = 0.0;
-    
+
     for (var wallet in provider.wallets) {
+      if (wallet.currencyId != selectedCurrency) continue;
+
       // 1. Filtrar por estado activo/archivado
       bool matches = false;
       switch (_selectedFilter) {

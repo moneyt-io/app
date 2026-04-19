@@ -7,6 +7,7 @@ import '../../../domain/entities/loan_entry.dart';
 import '../../../domain/entities/contact.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/category.dart';
+import '../../core/providers/currency_provider.dart';
 import '../../../domain/usecases/contact_usecases.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/usecases/category_usecases.dart';
@@ -111,6 +112,8 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
       _selectedDate = loan.date;
       _selectedCurrency = loan.currencyId;
       // TODO: Handle editing existing loans with transactions
+    } else {
+      _selectedCurrency = context.read<CurrencyProvider>().currencyId;
     }
   }
 
@@ -614,7 +617,10 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
       initialSelection: _selectedAccount,
     );
     if (result != null) {
-      setState(() => _selectedAccount = result);
+      setState(() {
+        _selectedAccount = result;
+        _selectedCurrency = result.currencyId;
+      });
     }
   }
 

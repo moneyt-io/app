@@ -3,12 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../domain/entities/category.dart';
+import '../../../../core/utils/number_formatter.dart';
 import '../../../core/atoms/widget_card_header.dart';
+import '../../../core/providers/currency_filter_provider.dart';
 import '../../transactions/transaction_provider.dart';
 import '../../../core/l10n/generated/strings.g.dart';
 import '../../../navigation/app_routes.dart';
@@ -42,6 +43,7 @@ class _CategoryBreakdownWidgetState extends State<CategoryBreakdownWidget> {
   bool _lastMode = false;
   DateTime? _lastStart;
   DateTime? _lastEnd;
+  String _lastCurrency = '';
 
   @override
   void initState() {
@@ -90,6 +92,7 @@ class _CategoryBreakdownWidgetState extends State<CategoryBreakdownWidget> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TransactionProvider>();
+    final selectedCurrency = context.watch<CurrencyFilterProvider>().selectedCurrencyId;
     final txCount = provider.transactions.length;
     final categoriesMap = provider.categoriesDataMap;
 
@@ -102,12 +105,15 @@ class _CategoryBreakdownWidgetState extends State<CategoryBreakdownWidget> {
         _lastTxCount != txCount ||
         _lastMode != _isExpenseMode ||
         _lastStart != start ||
-        _lastEnd != end) {
+        _lastEnd != end ||
+        _lastCurrency != selectedCurrency) {
       _lastTxCount = txCount;
       _lastMode = _isExpenseMode;
       _lastStart = start;
       _lastEnd = end;
-      _summaryFuture = provider.getCategorySummary(start, end, _isExpenseMode);
+      _lastCurrency = selectedCurrency;
+      _summaryFuture = provider.getCategorySummary(start, end, _isExpenseMode,
+          currencyId: selectedCurrency);
     }
 
     return FutureBuilder<Map<String, dynamic>>(
@@ -294,7 +300,7 @@ class _CategoryBreakdownWidgetState extends State<CategoryBreakdownWidget> {
                     children: [
                       Expanded(
                         flex: 1,
-                        child: _buildChart(parentTotals, categoriesMap),
+                        child: _buildChart(parentTotals, categoriesMap, selectedCurrency),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -330,7 +336,7 @@ class _CategoryBreakdownWidgetState extends State<CategoryBreakdownWidget> {
   }
 
   Widget _buildChart(
-      Map<int, double> parentTotals, Map<int, Category> categoriesMap) {
+      Map<int, double> parentTotals, Map<int, Category> categoriesMap, String currencyId) {
     if (parentTotals.isEmpty) return const SizedBox();
 
     double totalExpenses =
@@ -358,8 +364,6 @@ class _CategoryBreakdownWidgetState extends State<CategoryBreakdownWidget> {
       );
       sections.add(section);
     }
-
-    final formatCurrency = NumberFormat.simpleCurrency(decimalDigits: 2);
 
     return Stack(
       alignment: Alignment.center,
@@ -416,9 +420,12 @@ class _CategoryBreakdownWidgetState extends State<CategoryBreakdownWidget> {
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              formatCurrency.format(_selectedParentCategoryId == null
-                  ? totalExpenses
-                  : parentTotals[_selectedParentCategoryId]),
+              NumberFormatter.formatCurrencyWithCode(
+                _selectedParentCategoryId == null
+                    ? totalExpenses
+                    : (parentTotals[_selectedParentCategoryId] ?? 0.0),
+                currencyId: currencyId,
+              ),
               style: const TextStyle(
                 fontSize: 12,
                 color: Colors.black87,

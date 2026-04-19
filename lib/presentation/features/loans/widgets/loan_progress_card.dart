@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../../../../core/utils/number_formatter.dart';
 import '../../../../domain/entities/loan_entry.dart';
 import '../../../core/l10n/generated/strings.g.dart';
 
 class LoanProgressCard extends StatelessWidget {
   final LoanEntry loan;
-  final String currencySymbol;
 
   const LoanProgressCard({
     Key? key,
     required this.loan,
-    this.currencySymbol = '\$',
   }) : super(key: key);
 
   @override
@@ -45,7 +43,7 @@ class LoanProgressCard extends StatelessWidget {
               Text(
                 t.loans.detail.progress,
                 style: const TextStyle(
-                  color: Color(0xFF374151), // text-slate-700
+                  color: Color(0xFF374151),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -53,22 +51,22 @@ class LoanProgressCard extends StatelessWidget {
               Text(
                 '${progressPercentage.toStringAsFixed(1)}%',
                 style: const TextStyle(
-                  color: Color(0xFF111827), // text-slate-900
+                  color: Color(0xFF111827),
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Progress Bar
           Container(
             width: double.infinity,
             height: 12,
             decoration: BoxDecoration(
-              color: const Color(0xFFE2E8F0), // bg-slate-200
+              color: const Color(0xFFE2E8F0),
               borderRadius: BorderRadius.circular(6),
             ),
             child: FractionallySizedBox(
@@ -77,7 +75,7 @@ class LoanProgressCard extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF22C55E), Color(0xFF16A34A)], // green-500 to green-600
+                    colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -86,24 +84,28 @@ class LoanProgressCard extends StatelessWidget {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Amount Labels
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                t.loans.detail.payment.paid(amount: '$currencySymbol${NumberFormat('#,##0').format(paidAmount)}'),
+                t.loans.detail.payment.paid(
+                  amount: NumberFormatter.formatCurrencyWithDecimals(paidAmount, currencyId: loan.currencyId),
+                ),
                 style: const TextStyle(
-                  color: Color(0xFF64748B), // text-slate-500
+                  color: Color(0xFF64748B),
                   fontSize: 12,
                 ),
               ),
               Text(
-                t.loans.detail.payment.remaining(amount: '$currencySymbol${NumberFormat('#,##0').format(remainingAmount)}'),
+                t.loans.detail.payment.remaining(
+                  amount: NumberFormatter.formatCurrencyWithDecimals(remainingAmount, currencyId: loan.currencyId),
+                ),
                 style: const TextStyle(
-                  color: Color(0xFF64748B), // text-slate-500
+                  color: Color(0xFF64748B),
                   fontSize: 12,
                 ),
               ),

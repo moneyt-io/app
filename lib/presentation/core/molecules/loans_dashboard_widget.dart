@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../../core/utils/number_formatter.dart';
 import '../atoms/widget_card_header.dart';
 
-/// Widget de préstamos para dashboard basado en dashboard_main.html
-/// 
-/// HTML Reference:
-/// ```html
-/// <div class="bg-white rounded-2xl shadow-sm border border-slate-200 widget-card">
-///   <div class="p-4">
-///     <div class="grid grid-cols-2 gap-4 mb-4">
-/// ```
 class LoansDashboardWidget extends StatelessWidget {
   const LoansDashboardWidget({
     Key? key,
     required this.youLent,
     required this.youBorrowed,
+    required this.currencyId,
     required this.activeLoansCount,
     required this.onHeaderTap,
     this.isVisible = true,
@@ -21,6 +15,7 @@ class LoansDashboardWidget extends StatelessWidget {
 
   final double youLent;
   final double youBorrowed;
+  final String currencyId;
   final int activeLoansCount;
   final VoidCallback onHeaderTap;
   final bool isVisible;
@@ -33,16 +28,14 @@ class LoansDashboardWidget extends StatelessWidget {
     final isPositive = netPosition >= 0;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16), // HTML: mx-4
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16), // HTML: rounded-2xl
-        border: Border.all(
-          color: const Color(0xFFE2E8F0), // HTML: border-slate-200
-        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0A000000), // HTML: shadow-sm
+            color: Color(0x0A000000),
             blurRadius: 2,
             offset: Offset(0, 1),
           ),
@@ -50,105 +43,91 @@ class LoansDashboardWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Header
           WidgetCardHeader(
             icon: Icons.handshake,
             title: 'Loans',
             subtitle: '$activeLoansCount active',
             onTap: onHeaderTap,
-            iconColor: const Color(0xFFEA580C), // HTML: text-orange-600
-            iconBackgroundColor: const Color(0xFFFED7AA), // HTML: bg-orange-100
+            iconColor: const Color(0xFFEA580C),
+            iconBackgroundColor: const Color(0xFFFED7AA),
           ),
-          
-          // Content
           Container(
-            padding: const EdgeInsets.all(16), // HTML: p-4
+            padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // Statistics grid
                 Row(
                   children: [
-                    // You Lent
                     Expanded(
                       child: Column(
                         children: [
                           Text(
-                            '\$${_formatAmount(youLent)}',
+                            NumberFormatter.formatCurrencyWithCode(
+                                youLent, currencyId: currencyId),
                             style: const TextStyle(
-                              fontSize: 18, // HTML: text-lg
-                              fontWeight: FontWeight.bold, // HTML: font-bold
-                              color: Color(0xFFEA580C), // HTML: text-orange-600
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFEA580C),
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(
+                          const Text(
                             'You Lent',
-                            style: const TextStyle(
-                              fontSize: 12, // HTML: text-xs
-                              color: Color(0xFF64748B), // HTML: text-slate-500
-                            ),
+                            style: TextStyle(
+                                fontSize: 12, color: Color(0xFF64748B)),
                           ),
                         ],
                       ),
                     ),
-                    
-                    // You Borrowed
                     Expanded(
                       child: Column(
                         children: [
                           Text(
-                            '\$${_formatAmount(youBorrowed)}',
+                            NumberFormatter.formatCurrencyWithCode(
+                                youBorrowed, currencyId: currencyId),
                             style: const TextStyle(
-                              fontSize: 18, // HTML: text-lg
-                              fontWeight: FontWeight.bold, // HTML: font-bold
-                              color: Color(0xFF7C3AED), // HTML: text-purple-600
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF7C3AED),
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(
+                          const Text(
                             'You Borrowed',
-                            style: const TextStyle(
-                              fontSize: 12, // HTML: text-xs
-                              color: Color(0xFF64748B), // HTML: text-slate-500
-                            ),
+                            style: TextStyle(
+                                fontSize: 12, color: Color(0xFF64748B)),
                           ),
                         ],
                       ),
                     ),
                   ],
                 ),
-                
-                const SizedBox(height: 16), // HTML: mb-4
-                
-                // Net Position card
+                const SizedBox(height: 16),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(12), // HTML: p-3
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isPositive 
-                        ? const Color(0xFFF0FDF4) // HTML: bg-green-50
-                        : const Color(0xFFFEF2F2), // bg-red-50
-                    borderRadius: BorderRadius.circular(8), // HTML: rounded-lg
+                    color: isPositive
+                        ? const Color(0xFFF0FDF4)
+                        : const Color(0xFFFEF2F2),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
                     children: [
                       Text(
-                        'Net Position: ${isPositive ? '+' : ''}\$${_formatAmount(netPosition.abs())}',
+                        'Net Position: ${isPositive ? '+' : ''}${NumberFormatter.formatCurrencyWithCode(netPosition.abs(), currencyId: currencyId)}',
                         style: TextStyle(
-                          fontSize: 14, // HTML: text-sm
-                          fontWeight: FontWeight.w500, // HTML: font-medium
-                          color: isPositive 
-                              ? const Color(0xFF16A34A) // HTML: text-green-600
-                              : const Color(0xFFDC2626), // text-red-600
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: isPositive
+                              ? const Color(0xFF16A34A)
+                              : const Color(0xFFDC2626),
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         isPositive ? 'You are owed' : 'You owe',
                         style: const TextStyle(
-                          fontSize: 12, // HTML: text-xs
-                          color: Color(0xFF64748B), // HTML: text-slate-500
-                        ),
+                            fontSize: 12, color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -158,14 +137,6 @@ class LoansDashboardWidget extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  /// Formatea montos con comas
-  String _formatAmount(double amount) {
-    return amount.toStringAsFixed(2).replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
     );
   }
 }

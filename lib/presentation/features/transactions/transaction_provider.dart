@@ -219,14 +219,14 @@ class TransactionProvider extends ChangeNotifier {
     return _transactionUseCases.watchCategoryTotals(startDate, endDate, documentTypeId);
   }
 
-  Future<Map<String, dynamic>> getCategorySummary(DateTime startDate, DateTime endDate, bool isExpenseMode) async {
+  Future<Map<String, dynamic>> getCategorySummary(DateTime startDate, DateTime endDate, bool isExpenseMode, {String? currencyId}) async {
     try {
-      final modeTotals = await _transactionUseCases.getCategoryTotals(startDate, endDate, isExpenseMode ? 'E' : 'I');
-      
-      final incomeTotals = await _transactionUseCases.getCategoryTotals(startDate, endDate, 'I');
+      final modeTotals = await _transactionUseCases.getCategoryTotals(startDate, endDate, isExpenseMode ? 'E' : 'I', currencyId: currencyId);
+
+      final incomeTotals = await _transactionUseCases.getCategoryTotals(startDate, endDate, 'I', currencyId: currencyId);
       final double totalIncome = incomeTotals.values.fold(0.0, (a, b) => a + b);
-      
-      final expenseTotals = await _transactionUseCases.getCategoryTotals(startDate, endDate, 'E');
+
+      final expenseTotals = await _transactionUseCases.getCategoryTotals(startDate, endDate, 'E', currencyId: currencyId);
       final double totalExpense = expenseTotals.values.fold(0.0, (a, b) => a + b);
 
       return {

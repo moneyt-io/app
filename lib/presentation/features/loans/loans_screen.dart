@@ -21,6 +21,8 @@ import '../../navigation/navigation_service.dart';
 import 'loan_contact_detail_screen.dart';
 import '../../core/design_system/tokens/app_dimensions.dart';
 import '../../core/l10n/generated/strings.g.dart';
+import '../../core/molecules/currency_pill_selector.dart';
+import '../../core/providers/currency_filter_provider.dart';
 
 enum LoanTypeFilter { pending, lent, borrowed, all }
 
@@ -71,8 +73,23 @@ class _LoansScreenState extends State<LoansScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<LoanProvider>();
+    final currencyFilter = context.watch<CurrencyFilterProvider>();
     final loans = provider.loans;
     final contactsMap = <int, Contact>{};
+
+    final availableCurrencies = loans
+        .map((l) => l.currencyId)
+        .toSet()
+        .toList();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && availableCurrencies.isNotEmpty) {
+        currencyFilter.syncWithAvailable(availableCurrencies);
+      }
+    });
+
+    final selectedCurrency = currencyFilter.selectedCurrencyId;
+    final showPills = availableCurrencies.length > 1;
 
     // Build contacts map from loans that have contact objects loaded
     for (final loan in loans) {
@@ -84,6 +101,7 @@ class _LoansScreenState extends State<LoansScreen> {
     // Helper function to get filtered loans
     List<LoanEntry> getFilteredLoans() {
       return loans.where((loan) {
+        if (loan.currencyId != selectedCurrency) return false;
         // Status filter (based on the main chip selection)
         if (_selectedFilter != LoanTypeFilter.all &&
             loan.status != LoanStatus.active) {
@@ -177,7 +195,7 @@ class _LoansScreenState extends State<LoansScreen> {
           SliverPersistentHeader(
             pinned: true,
             delegate: _SliverFilterHeaderDelegate(
-              height: 64,
+              height: showPills ? 120 : 64,
               blur: true,
               child: Container(
                 padding:
@@ -204,6 +222,14 @@ class _LoansScreenState extends State<LoansScreen> {
                         });
                       },
                     ),
+                    if (showPills) ...[
+                      const SizedBox(height: 8),
+                      CurrencyPillSelector(
+                        availableCurrencies: availableCurrencies,
+                        selectedCurrencyId: selectedCurrency,
+                        onCurrencySelected: currencyFilter.selectCurrency,
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -218,6 +244,7 @@ class _LoansScreenState extends State<LoansScreen> {
                   lentToPeople: summaryLentToPeople,
                   totalBorrowed: summaryTotalBorrowed,
                   borrowedFromPeople: summaryBorrowedFromPeople,
+                  currencyId: selectedCurrency,
                   isLoading: provider.isLoading && !_initialLoadCompleted,
                 ),
               ),

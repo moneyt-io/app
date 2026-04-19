@@ -50,57 +50,60 @@ class CurrencySelectorButton extends StatelessWidget {
                       width: 1,
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      // Currency icon and text
-                      Expanded(
-                        child: Row(
-                          children: [
-                            // Currency icon circle
-                            Container(
-                              width: 32, // HTML: h-8 w-8
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: _getCurrencyBackgroundColor(selectedCurrency),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  _getCurrencySymbol(selectedCurrency),
-                                  style: TextStyle(
-                                    fontSize: 14, // HTML: text-sm
-                                    fontWeight: FontWeight.bold, // HTML: font-bold
-                                    color: _getCurrencyTextColor(selectedCurrency),
+                  child: Opacity(
+                    opacity: enabled ? 1.0 : 0.6,
+                    child: Row(
+                      children: [
+                        // Currency icon and text
+                        Expanded(
+                          child: Row(
+                            children: [
+                              // Currency icon circle
+                              Container(
+                                width: 32, // HTML: h-8 w-8
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: _getCurrencyBackgroundColor(selectedCurrency),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    _getCurrencySymbol(selectedCurrency),
+                                    style: TextStyle(
+                                      fontSize: 14, // HTML: text-sm
+                                      fontWeight: FontWeight.bold, // HTML: font-bold
+                                      color: _getCurrencyTextColor(selectedCurrency),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            
-                            const SizedBox(width: 12), // HTML: gap-3
-                            
-                            // Currency name
-                            Expanded(
-                              child: Text(
-                                '$selectedCurrency - $selectedCurrencyName',
-                                style: const TextStyle(
-                                  fontSize: 16, // HTML: text-base
-                                  fontWeight: FontWeight.w500, // HTML: font-medium
-                                  color: Color(0xFF0F172A), // HTML: text-slate-900
+
+                              const SizedBox(width: 12), // HTML: gap-3
+
+                              // Currency name
+                              Expanded(
+                                child: Text(
+                                  '$selectedCurrency - $selectedCurrencyName',
+                                  style: const TextStyle(
+                                    fontSize: 16, // HTML: text-base
+                                    fontWeight: FontWeight.w500, // HTML: font-medium
+                                    color: Color(0xFF0F172A), // HTML: text-slate-900
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      
-                      // Expand icon
-                      Icon(
-                        Icons.expand_more, // HTML: expand_more
-                        color: const Color(0xFF94A3B8), // HTML: text-slate-400
-                        size: 24,
-                      ),
-                    ],
+
+                        // Lock icon when disabled, expand icon when enabled
+                        Icon(
+                          enabled ? Icons.expand_more : Icons.lock_outline,
+                          color: const Color(0xFF94A3B8),
+                          size: 24,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -318,6 +318,7 @@ class AppStringsSettingsEn {
 	late final AppStringsSettingsLogoutEn logout = AppStringsSettingsLogoutEn.internal(_root);
 	late final AppStringsSettingsSocialEn social = AppStringsSettingsSocialEn.internal(_root);
 	late final AppStringsSettingsLanguageEn language = AppStringsSettingsLanguageEn.internal(_root);
+	late final AppStringsSettingsCurrencyEn currency = AppStringsSettingsCurrencyEn.internal(_root);
 	late final AppStringsSettingsMessagesEn messages = AppStringsSettingsMessagesEn.internal(_root);
 }
 
@@ -829,6 +830,21 @@ class AppStringsTransactionsFormEn {
 
 	/// en: 'Transaction created successfully'
 	String get created => 'Transaction created successfully';
+
+	/// en: 'Currency conversion'
+	String get crossCurrencyConversion => 'Currency conversion';
+
+	/// en: 'Amount received'
+	String get receivedAmount => 'Amount received';
+
+	/// en: 'Exchange rate'
+	String get exchangeRate => 'Exchange rate';
+
+	/// en: 'Enter the amount to receive'
+	String get receivedAmountRequired => 'Enter the amount to receive';
+
+	/// en: '1 $from = $rate $to'
+	String exchangeRateLabel({required Object from, required Object rate, required Object to}) => '1 ${from} = ${rate} ${to}';
 }
 
 // Path: transactions.errors
@@ -1078,8 +1094,8 @@ class AppStringsSettingsAppearanceEn {
 
 	// Translations
 
-	/// en: 'Appearance'
-	String get title => 'Appearance';
+	/// en: 'Preferences'
+	String get title => 'Preferences';
 
 	/// en: 'Dark mode'
 	String get darkMode => 'Dark mode';
@@ -1089,6 +1105,12 @@ class AppStringsSettingsAppearanceEn {
 
 	/// en: 'Language'
 	String get language => 'Language';
+
+	/// en: 'Default Currency'
+	String get currency => 'Default Currency';
+
+	/// en: 'Currency for new accounts and display'
+	String get currencySubtitle => 'Currency for new accounts and display';
 
 	/// en: 'Dark theme'
 	String get darkTheme => 'Dark theme';
@@ -1248,6 +1270,24 @@ class AppStringsSettingsLanguageEn {
 
 	/// en: 'Apply Language'
 	String get apply => 'Apply Language';
+}
+
+// Path: settings.currency
+class AppStringsSettingsCurrencyEn {
+	AppStringsSettingsCurrencyEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Default Currency'
+	String get title => 'Default Currency';
+
+	/// en: 'AVAILABLE CURRENCIES'
+	String get available => 'AVAILABLE CURRENCIES';
+
+	/// en: 'Apply Currency'
+	String get apply => 'Apply Currency';
 }
 
 // Path: settings.messages
@@ -1620,6 +1660,9 @@ class AppStringsWalletsFormEn {
 
 	/// en: 'Currency'
 	String get currency => 'Currency';
+
+	/// en: 'Inherited from parent wallet'
+	String get currencyLockedByParent => 'Inherited from parent wallet';
 
 	/// en: 'Parent wallet (optional)'
 	String get parent => 'Parent wallet (optional)';
@@ -3513,6 +3556,11 @@ extension on AppStrings {
 			case 'transactions.form.saveError': return 'Error saving transaction';
 			case 'transactions.form.share': return 'Share';
 			case 'transactions.form.created': return 'Transaction created successfully';
+			case 'transactions.form.crossCurrencyConversion': return 'Currency conversion';
+			case 'transactions.form.receivedAmount': return 'Amount received';
+			case 'transactions.form.exchangeRate': return 'Exchange rate';
+			case 'transactions.form.receivedAmountRequired': return 'Enter the amount to receive';
+			case 'transactions.form.exchangeRateLabel': return ({required Object from, required Object rate, required Object to}) => '1 ${from} = ${rate} ${to}';
 			case 'transactions.errors.load': return 'Error loading transactions';
 			case 'transactions.empty.title': return 'No transactions';
 			case 'transactions.empty.message': return 'No transactions found with applied filters';
@@ -3598,10 +3646,12 @@ extension on AppStrings {
 			case 'settings.account.title': return 'Account';
 			case 'settings.account.profile': return 'Profile';
 			case 'settings.account.profileSubtitle': return 'Manage your account information';
-			case 'settings.appearance.title': return 'Appearance';
+			case 'settings.appearance.title': return 'Preferences';
 			case 'settings.appearance.darkMode': return 'Dark mode';
 			case 'settings.appearance.darkModeSubtitle': return 'Switch to dark theme';
 			case 'settings.appearance.language': return 'Language';
+			case 'settings.appearance.currency': return 'Default Currency';
+			case 'settings.appearance.currencySubtitle': return 'Currency for new accounts and display';
 			case 'settings.appearance.darkTheme': return 'Dark theme';
 			case 'settings.appearance.lightTheme': return 'Light theme';
 			case 'settings.appearance.systemTheme': return 'System theme';
@@ -3640,6 +3690,9 @@ extension on AppStrings {
 			case 'settings.language.title': return 'Language';
 			case 'settings.language.available': return 'AVAILABLE LANGUAGES';
 			case 'settings.language.apply': return 'Apply Language';
+			case 'settings.currency.title': return 'Default Currency';
+			case 'settings.currency.available': return 'AVAILABLE CURRENCIES';
+			case 'settings.currency.apply': return 'Apply Currency';
 			case 'settings.messages.profileComingSoon': return 'Profile screen coming soon';
 			case 'settings.messages.privacyError': return 'Could not open privacy policy';
 			case 'settings.messages.logoutComingSoon': return 'Sign out functionality coming soon';
@@ -3765,6 +3818,7 @@ extension on AppStrings {
 			case 'wallets.form.description': return 'Description';
 			case 'wallets.form.descriptionPlaceholder': return 'Optional description for this wallet';
 			case 'wallets.form.currency': return 'Currency';
+			case 'wallets.form.currencyLockedByParent': return 'Inherited from parent wallet';
 			case 'wallets.form.parent': return 'Parent wallet (optional)';
 			case 'wallets.form.parentEmpty': return 'No wallets available as parent';
 			case 'wallets.form.chartAccount': return 'Associated chart account';

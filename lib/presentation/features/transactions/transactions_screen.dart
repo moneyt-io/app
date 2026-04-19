@@ -24,6 +24,8 @@ import '../../../domain/services/balance_calculation_service.dart';
 import 'package:get_it/get_it.dart';
 import '../../core/molecules/active_filters_bar.dart';
 import '../../core/l10n/generated/strings.g.dart';
+import '../../core/molecules/currency_pill_selector.dart';
+import '../../core/providers/currency_filter_provider.dart';
 
 enum TransactionTypeFilter { all, expense, income, transfer }
 
@@ -52,14 +54,41 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   Widget build(BuildContext context) {
     // Watch for changes in the provider
     final provider = context.watch<TransactionProvider>();
+    final currencyFilter = context.watch<CurrencyFilterProvider>();
     final transactions = provider.transactions;
     final categoriesMap = provider.categoriesMap;
     final contactsMap = provider.contactsMap;
     final walletsMap = provider.walletsMap;
 
+    final availableCurrencies = transactions
+        .expand((t) {
+          final currencies = {t.currencyId};
+          // Cross-currency transfers also expose the target currency
+          final targetCurrency = t.targetDetail?.currencyId;
+          if (t.isTransfer && targetCurrency != null && targetCurrency != t.currencyId) {
+            currencies.add(targetCurrency);
+          }
+          return currencies;
+        })
+        .toSet()
+        .toList();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && availableCurrencies.isNotEmpty) {
+        currencyFilter.syncWithAvailable(availableCurrencies);
+      }
+    });
+
+    final selectedCurrency = currencyFilter.selectedCurrencyId;
+    final showPills = availableCurrencies.length > 1;
+
     // Helper functions
     List<TransactionEntry> getFilteredTransactions() {
       return transactions.where((t) {
+        // Match source currency OR target currency (for cross-currency transfers)
+        final matchesCurrency = t.currencyId == selectedCurrency ||
+            (t.isTransfer && t.targetDetail?.currencyId == selectedCurrency);
+        if (!matchesCurrency) return false;
         // Date filter
         if (_filterModel.startDate != null &&
             t.date.isBefore(_filterModel.startDate!)) {
@@ -195,7 +224,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           SliverPersistentHeader(
             pinned: true,
             delegate: _SliverFilterHeaderDelegate(
-              height: 96,
+              height: showPills ? 152 : 96,
               blur: true,
               child: Container(
                 padding:
@@ -255,6 +284,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         });
                       },
                     ),
+                    if (showPills) ...[
+                      const SizedBox(height: 8),
+                      CurrencyPillSelector(
+                        availableCurrencies: availableCurrencies,
+                        selectedCurrencyId: selectedCurrency,
+                        onCurrencySelected: currencyFilter.selectCurrency,
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -267,6 +304,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 totalIncome: totalIncome,
                 totalExpense: totalExpense,
                 totalTransfer: totalTransfer,
+                currencyId: selectedCurrency,
               ),
             ),
           ),
@@ -331,6 +369,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                       accountName: getAccountName(transaction),
                                       targetAccountName:
                                           getTargetAccountName(transaction),
+                                      selectedCurrency: selectedCurrency,
                                       onTap: () => NavigationService.navigateTo(
                                           AppRoutes.transactionDetail,
                                           arguments: transaction),

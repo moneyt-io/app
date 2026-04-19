@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/utils/number_formatter.dart';
 import '../l10n/generated/strings.g.dart';
 
 /// Card de balance total con gradiente basado en wallet_list.html
@@ -18,12 +19,14 @@ class TotalBalanceCard extends StatelessWidget {
     Key? key,
     required this.totalBalance,
     required this.monthlyGrowth,
+    required this.currencyId,
     this.isBalanceVisible = true,
     this.onVisibilityToggle,
   }) : super(key: key);
 
   final double totalBalance;
   final double monthlyGrowth;
+  final String currencyId;
   final bool isBalanceVisible;
   final VoidCallback? onVisibilityToggle;
 
@@ -84,8 +87,8 @@ class TotalBalanceCard extends StatelessWidget {
           
           // Balance amount
           Text(
-            isBalanceVisible 
-                ? '\$${_formatBalance(totalBalance)}'
+            isBalanceVisible
+                ? NumberFormatter.formatCurrencyWithCode(totalBalance, currencyId: currencyId)
                 : '••••••',
             style: const TextStyle(
               fontSize: 30, // HTML: text-3xl
@@ -110,20 +113,8 @@ class TotalBalanceCard extends StatelessWidget {
     );
   }
 
-  /// Formatea el balance con comas para miles
-  String _formatBalance(double balance) {
-    return balance.toStringAsFixed(2).replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
-
-  /// Formatea el texto de crecimiento mensual
   String _formatGrowthText() {
-    final isPositive = monthlyGrowth >= 0;
-    final prefix = isPositive ? '+' : '';
-    final formattedGrowth = monthlyGrowth.abs().toStringAsFixed(2);
-    
-    return '${prefix}\$${formattedGrowth} ${t.dashboard.balance.thisMonth}';
+    final prefix = monthlyGrowth >= 0 ? '+' : '';
+    return '$prefix${NumberFormatter.formatCurrencyWithCode(monthlyGrowth.abs(), currencyId: currencyId)} ${t.dashboard.balance.thisMonth}';
   }
 }

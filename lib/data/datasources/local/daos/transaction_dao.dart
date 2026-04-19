@@ -172,22 +172,25 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<Map<int, double>> getCategoryTotals(
-      DateTime startDate, DateTime endDate, String documentTypeId) async {
+      DateTime startDate, DateTime endDate, String documentTypeId,
+      {String? currencyId}) async {
     final query = customSelect(
       '''
       SELECT d.category_id, SUM(d.amount) as total
       FROM transaction_detail d
       INNER JOIN transaction_entry e ON d.transaction_id = e.id
-      WHERE e.date >= ? AND e.date < ? 
+      WHERE e.date >= ? AND e.date < ?
         AND e.document_type_id = ?
         AND e.active = 1
         AND d.category_id IS NOT NULL AND d.category_id > 0
+        ${currencyId != null ? 'AND e.currency_id = ?' : ''}
       GROUP BY d.category_id
       ''',
       variables: [
         Variable.withDateTime(startDate),
         Variable.withDateTime(endDate),
         Variable.withString(documentTypeId),
+        if (currencyId != null) Variable.withString(currencyId),
       ],
       readsFrom: {transactionEntry, transactionDetail},
     );

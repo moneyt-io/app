@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/wallet.dart';
+import '../../../core/utils/number_formatter.dart';
 import '../atoms/widget_card_header.dart';
 import '../l10n/generated/strings.g.dart';
 
@@ -128,14 +129,28 @@ class WalletsDashboardWidget extends StatelessWidget {
                   ),
                 ),
 
-                // Balance
-                Text(
-                  '\$${_formatAmount(wallet.balance)}',
-                  style: const TextStyle(
-                    fontSize: 14, // HTML: text-sm
-                    fontWeight: FontWeight.bold, // HTML: font-bold
-                    color: Color(0xFF0F172A), // HTML: text-slate-900
-                  ),
+                // Balance + código ISO cuando el símbolo es ambiguo
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      NumberFormatter.formatCurrency(wallet.balance, currencyId: wallet.currencyId),
+                      style: const TextStyle(
+                        fontSize: 14, // HTML: text-sm
+                        fontWeight: FontWeight.bold, // HTML: font-bold
+                        color: Color(0xFF0F172A), // HTML: text-slate-900
+                      ),
+                    ),
+                    if (NumberFormatter.needsCode(wallet.currencyId))
+                      Text(
+                        wallet.currencyId,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF94A3B8), // slate-400
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
@@ -145,13 +160,6 @@ class WalletsDashboardWidget extends StatelessWidget {
     );
   }
 
-  /// Formatea montos con comas
-  String _formatAmount(double amount) {
-    return amount.toStringAsFixed(2).replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        );
-  }
 }
 
 /// Modelo para mostrar wallet en el dashboard
@@ -159,6 +167,7 @@ class WalletDisplayItem {
   final int id;
   final String name;
   final double balance;
+  final String currencyId;
   final IconData icon;
   final Color iconColor;
   final Color iconBackgroundColor;
@@ -167,6 +176,7 @@ class WalletDisplayItem {
     required this.id,
     required this.name,
     required this.balance,
+    required this.currencyId,
     required this.icon,
     required this.iconColor,
     required this.iconBackgroundColor,
@@ -203,6 +213,7 @@ class WalletDisplayItem {
       id: wallet.id,
       name: wallet.name,
       balance: balance,
+      currencyId: wallet.currencyId,
       icon: icon,
       iconColor: iconColor,
       iconBackgroundColor: iconBackgroundColor,

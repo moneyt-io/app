@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/chart_account.dart';
+import '../../../core/utils/number_formatter.dart';
 import '../l10n/generated/strings.g.dart';
 
 /// Opciones disponibles en el diálogo de wallet
@@ -364,7 +365,7 @@ class WalletOptionsDialog extends StatelessWidget {
     //}
         
     // Balance formateado
-    parts.add('\$${balance.toStringAsFixed(2)}');
+    parts.add(NumberFormatter.formatCurrencyWithCode(balance, currencyId: wallet.currencyId));
     
     return parts.join(' • ');
   }

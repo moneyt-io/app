@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:ui';
 
+import '../../../core/utils/number_formatter.dart';
 import '../../../domain/entities/category.dart';
 import '../../../domain/entities/contact.dart';
 import '../../../domain/entities/transaction.dart';
@@ -342,8 +343,19 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
           'icon': Icons.receipt
         };
 
-    final amount = NumberFormat.currency(locale: 'es_MX', symbol: r'$')
-        .format(transaction.amount);
+    // For cross-currency transfers, check if there is a different target amount
+    final isCrossCurrencyTransfer = transaction.isTransfer &&
+        transaction.targetDetail != null &&
+        transaction.targetDetail!.currencyId != transaction.currencyId &&
+        transaction.targetDetail!.amount != transaction.amount;
+
+    final sourceAmountStr = NumberFormatter.formatCurrencyWithCode(
+        transaction.amount, currencyId: transaction.currencyId);
+    final targetAmountStr = isCrossCurrencyTransfer
+        ? NumberFormatter.formatCurrencyWithCode(
+            transaction.targetDetail!.amount,
+            currencyId: transaction.targetDetail!.currencyId)
+        : null;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 4),
@@ -371,11 +383,22 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('$amountPrefix$amount',
+                    // Cross-currency transfer: show "300 USD → 600 PEN"
+                    if (isCrossCurrencyTransfer) ...[
+                      Text(
+                        '$sourceAmountStr → $targetAmountStr',
                         style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold)),
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ] else ...[
+                      Text('$amountPrefix$sourceAmountStr',
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold)),
+                    ],
                     if (transaction.description?.isNotEmpty ?? false)
                       Text(transaction.description!,
                           style: TextStyle(

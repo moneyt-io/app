@@ -205,6 +205,7 @@ class _AppStringsSettingsEs extends AppStringsSettingsEn {
 	@override late final _AppStringsSettingsLogoutEs logout = _AppStringsSettingsLogoutEs._(_root);
 	@override late final _AppStringsSettingsSocialEs social = _AppStringsSettingsSocialEs._(_root);
 	@override late final _AppStringsSettingsLanguageEs language = _AppStringsSettingsLanguageEs._(_root);
+	@override late final _AppStringsSettingsCurrencyEs currency = _AppStringsSettingsCurrencyEs._(_root);
 	@override late final _AppStringsSettingsMessagesEs messages = _AppStringsSettingsMessagesEs._(_root);
 }
 
@@ -512,6 +513,11 @@ class _AppStringsTransactionsFormEs extends AppStringsTransactionsFormEn {
 	@override String get saveError => 'Error al guardar transacción';
 	@override String get share => 'Compartir';
 	@override String get created => 'Transacción creada exitosamente';
+	@override String get crossCurrencyConversion => 'Conversión de divisas';
+	@override String get receivedAmount => 'Monto a recibir';
+	@override String get exchangeRate => 'Tipo de cambio';
+	@override String get receivedAmountRequired => 'Ingresa el monto a recibir';
+	@override String exchangeRateLabel({required Object from, required Object rate, required Object to}) => '1 ${from} = ${rate} ${to}';
 }
 
 // Path: transactions.errors
@@ -655,10 +661,12 @@ class _AppStringsSettingsAppearanceEs extends AppStringsSettingsAppearanceEn {
 	final AppStringsEs _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Apariencia';
+	@override String get title => 'Preferencias';
 	@override String get darkMode => 'Modo oscuro';
 	@override String get darkModeSubtitle => 'Cambiar a tema oscuro';
 	@override String get language => 'Idioma';
+	@override String get currency => 'Moneda por defecto';
+	@override String get currencySubtitle => 'Moneda para nuevas cuentas y visualización';
 	@override String get darkTheme => 'Tema oscuro';
 	@override String get lightTheme => 'Tema claro';
 	@override String get systemTheme => 'Tema del sistema';
@@ -742,6 +750,18 @@ class _AppStringsSettingsLanguageEs extends AppStringsSettingsLanguageEn {
 	@override String get title => 'Idioma';
 	@override String get available => 'IDIOMAS DISPONIBLES';
 	@override String get apply => 'Aplicar Idioma';
+}
+
+// Path: settings.currency
+class _AppStringsSettingsCurrencyEs extends AppStringsSettingsCurrencyEn {
+	_AppStringsSettingsCurrencyEs._(AppStringsEs root) : this._root = root, super.internal(root);
+
+	final AppStringsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Moneda por defecto';
+	@override String get available => 'MONEDAS DISPONIBLES';
+	@override String get apply => 'Aplicar Moneda';
 }
 
 // Path: settings.messages
@@ -988,6 +1008,7 @@ class _AppStringsWalletsFormEs extends AppStringsWalletsFormEn {
 	@override String get description => 'Descripción';
 	@override String get descriptionPlaceholder => 'Descripción opcional para esta billetera';
 	@override String get currency => 'Moneda';
+	@override String get currencyLockedByParent => 'Heredada de la billetera padre';
 	@override String get parent => 'Billetera padre (opcional)';
 	@override String get parentEmpty => 'No hay billeteras disponibles como padre';
 	@override String get chartAccount => 'Cuenta contable asociada';
@@ -2084,6 +2105,11 @@ extension on AppStringsEs {
 			case 'transactions.form.saveError': return 'Error al guardar transacción';
 			case 'transactions.form.share': return 'Compartir';
 			case 'transactions.form.created': return 'Transacción creada exitosamente';
+			case 'transactions.form.crossCurrencyConversion': return 'Conversión de divisas';
+			case 'transactions.form.receivedAmount': return 'Monto a recibir';
+			case 'transactions.form.exchangeRate': return 'Tipo de cambio';
+			case 'transactions.form.receivedAmountRequired': return 'Ingresa el monto a recibir';
+			case 'transactions.form.exchangeRateLabel': return ({required Object from, required Object rate, required Object to}) => '1 ${from} = ${rate} ${to}';
 			case 'transactions.errors.load': return 'Error al cargar las transacciones';
 			case 'transactions.empty.title': return 'No hay transacciones';
 			case 'transactions.empty.message': return 'No se encontraron transacciones con los filtros aplicados';
@@ -2169,10 +2195,12 @@ extension on AppStringsEs {
 			case 'settings.account.title': return 'Cuenta';
 			case 'settings.account.profile': return 'Perfil';
 			case 'settings.account.profileSubtitle': return 'Gestiona la información de tu cuenta';
-			case 'settings.appearance.title': return 'Apariencia';
+			case 'settings.appearance.title': return 'Preferencias';
 			case 'settings.appearance.darkMode': return 'Modo oscuro';
 			case 'settings.appearance.darkModeSubtitle': return 'Cambiar a tema oscuro';
 			case 'settings.appearance.language': return 'Idioma';
+			case 'settings.appearance.currency': return 'Moneda por defecto';
+			case 'settings.appearance.currencySubtitle': return 'Moneda para nuevas cuentas y visualización';
 			case 'settings.appearance.darkTheme': return 'Tema oscuro';
 			case 'settings.appearance.lightTheme': return 'Tema claro';
 			case 'settings.appearance.systemTheme': return 'Tema del sistema';
@@ -2211,6 +2239,9 @@ extension on AppStringsEs {
 			case 'settings.language.title': return 'Idioma';
 			case 'settings.language.available': return 'IDIOMAS DISPONIBLES';
 			case 'settings.language.apply': return 'Aplicar Idioma';
+			case 'settings.currency.title': return 'Moneda por defecto';
+			case 'settings.currency.available': return 'MONEDAS DISPONIBLES';
+			case 'settings.currency.apply': return 'Aplicar Moneda';
 			case 'settings.messages.profileComingSoon': return 'Pantalla de perfil próximamente';
 			case 'settings.messages.privacyError': return 'No se pudo abrir la política de privacidad';
 			case 'settings.messages.logoutComingSoon': return 'Función de cerrar sesión próximamente';
@@ -2336,6 +2367,7 @@ extension on AppStringsEs {
 			case 'wallets.form.description': return 'Descripción';
 			case 'wallets.form.descriptionPlaceholder': return 'Descripción opcional para esta billetera';
 			case 'wallets.form.currency': return 'Moneda';
+			case 'wallets.form.currencyLockedByParent': return 'Heredada de la billetera padre';
 			case 'wallets.form.parent': return 'Billetera padre (opcional)';
 			case 'wallets.form.parentEmpty': return 'No hay billeteras disponibles como padre';
 			case 'wallets.form.chartAccount': return 'Cuenta contable asociada';

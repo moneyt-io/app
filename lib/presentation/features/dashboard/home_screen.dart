@@ -9,13 +9,14 @@ import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 import 'package:provider/provider.dart';
 import '../wallets/wallet_provider.dart';
 import '../../features/transactions/transaction_provider.dart';
-import '../../../domain/services/balance_calculation_service.dart';
 import '../../core/atoms/greeting_header.dart';
 import '../../core/atoms/expandable_fab.dart';
 import '../../core/molecules/balance_summary_widget.dart';
+import '../../core/molecules/currency_pill_selector.dart';
 import '../../core/molecules/quick_actions_grid.dart';
 import '../../core/molecules/wallets_dashboard_widget.dart';
-import '../../core/molecules/widget_config_item.dart'; // Added
+import '../../core/molecules/widget_config_item.dart';
+import '../../core/providers/currency_filter_provider.dart';
 
 import '../../core/organisms/app_drawer.dart';
 import '../../navigation/navigation_service.dart';
@@ -37,8 +38,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _balanceCalculationService =
-      GetIt.instance<BalanceCalculationService>();
 
   bool _isBalanceVisible = true;
   List<WidgetConfig> _widgetConfigs = []; // Stores widget configuration
@@ -179,38 +178,49 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  /// Calcular el balance total excluyendo cuentas archivadas
-  double _calculateActiveTotalBalance(WalletProvider provider) {
-    // 1. Obtener todas las wallets
+  /// Divisas únicas de las cuentas activas — alimenta el pill selector.
+  List<String> _getAvailableCurrencies(WalletProvider provider) {
+    return provider.wallets
+        .where((w) => w.active)
+        .map((w) => w.currencyId)
+        .toSet()
+        .toList();
+  }
+
+  /// Balance total para una divisa específica, excluyendo cuentas archivadas.
+  double _calculateBalanceForCurrency(
+      WalletProvider provider, String currencyId) {
+    double total = 0.0;
     final allWallets = provider.wallets;
 
-    // 2. Filtrar solo las wallets ACTIVAS
-    // Un hijo se considera activo si él mismo es activo Y su padre (si tiene) tambien es activo.
-    // Sin embargo, por simplicidad y siguiendo la lógica de WalletsScreen:
-    // "Active" filter sums "Own Balance" of active wallets.
+    for (final wallet in allWallets) {
+      if (!wallet.active || wallet.currencyId != currencyId) continue;
 
-    double total = 0.0;
-
-    for (var wallet in allWallets) {
-      if (wallet.active) {
-        // Obtenemos el balance del wallet
-        double balance = provider.walletBalances[wallet.id] ?? 0.0;
-
-        // Si es PADRE, su balance en el provider es consolidado (suma de hijos).
-        // Debemos restar los hijos para obtener su "Own Balance" puro antes de sumar,
-        // ya que los hijos activos se sumarán individualmente en su turno del bucle.
-        if (wallet.parentId == null) {
-          final children = allWallets.where((w) => w.parentId == wallet.id);
-          for (var child in children) {
-            balance -= (provider.walletBalances[child.id] ?? 0.0);
-          }
+      double balance = provider.walletBalances[wallet.id] ?? 0.0;
+      if (wallet.parentId == null) {
+        for (final child in allWallets.where((w) => w.parentId == wallet.id)) {
+          balance -= (provider.walletBalances[child.id] ?? 0.0);
         }
-
-        total += balance;
       }
+      total += balance;
     }
-
     return total;
+  }
+
+  /// Ingresos del mes para una divisa específica.
+  double _calculateIncomeForCurrency(
+      List<dynamic> transactions, String currencyId) {
+    return transactions
+        .where((t) => t.documentTypeId == 'I' && t.currencyId == currencyId)
+        .fold(0.0, (sum, t) => sum + (t.amount as double).abs());
+  }
+
+  /// Gastos del mes para una divisa específica.
+  double _calculateExpensesForCurrency(
+      List<dynamic> transactions, String currencyId) {
+    return transactions
+        .where((t) => t.documentTypeId == 'E' && t.currencyId == currencyId)
+        .fold(0.0, (sum, t) => sum + (t.amount as double).abs());
   }
 
   @override
@@ -226,33 +236,47 @@ class _HomeScreenState extends State<HomeScreen> {
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF8FAFC), // HTML: bg-slate-50
       drawer: const AppDrawer(),
-      body: Consumer2<WalletProvider, TransactionProvider>(
-        builder: (context, walletProvider, transactionProvider, child) {
+      body: Consumer3<WalletProvider, TransactionProvider, CurrencyFilterProvider>(
+        builder: (context, walletProvider, transactionProvider, currencyFilter, child) {
           if (walletProvider.isLoading) {
             return _buildLoadingState();
           }
 
-          // Calcular resumen mensual dinámicamente
+          // Divisas disponibles y sincronización del filtro
+          final availableCurrencies = _getAvailableCurrencies(walletProvider);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted && availableCurrencies.isNotEmpty) {
+              currencyFilter.syncWithAvailable(availableCurrencies);
+            }
+          });
+          final selectedCurrency = currencyFilter.selectedCurrencyId;
+
+          // Transacciones del mes filtradas por divisa
           final now = DateTime.now();
           final currentMonthTransactions = transactionProvider.transactions
-              .where(
-                  (t) => t.date.year == now.year && t.date.month == now.month)
+              .where((t) =>
+                  t.date.year == now.year && t.date.month == now.month)
               .toList();
 
-          final income = _balanceCalculationService
-              .calculateTotalIncome(currentMonthTransactions);
-          final expenses = _balanceCalculationService
-              .calculateTotalExpense(currentMonthTransactions);
+          // Cálculos para la divisa seleccionada
+          final totalBalance =
+              _calculateBalanceForCurrency(walletProvider, selectedCurrency);
+          final income =
+              _calculateIncomeForCurrency(currentMonthTransactions, selectedCurrency);
+          final expenses =
+              _calculateExpensesForCurrency(currentMonthTransactions, selectedCurrency);
 
-          // Map wallets to display items
+          // Wallets filtradas por divisa seleccionada
           final walletItems = walletProvider.wallets
               .where((w) =>
                   w.parentId != null &&
-                  w.active) // Show only active child accounts on dashboard
+                  w.active &&
+                  w.currencyId == selectedCurrency)
               .map((wallet) => WalletDisplayItem(
                     id: wallet.id,
                     name: wallet.name,
                     balance: walletProvider.walletBalances[wallet.id] ?? 0.0,
+                    currencyId: wallet.currencyId,
                     icon: Icons.account_balance_wallet,
                     iconColor: Colors.white,
                     iconBackgroundColor: Colors.blue,
@@ -264,11 +288,21 @@ class _HomeScreenState extends State<HomeScreen> {
               // ✅ CONTENIDO DESPLAZABLE (EN EL FONDO)
               SingleChildScrollView(
                 padding: EdgeInsets.only(
-                  top: topPadding, // Padding calculado y preciso
-                  bottom: 100, // Space for FAB
+                  top: topPadding,
+                  bottom: 100,
                 ),
                 child: Column(
                   children: [
+                    // Pill selector — solo visible cuando hay 2+ divisas
+                    if (availableCurrencies.length > 1) ...[
+                      CurrencyPillSelector(
+                        availableCurrencies: availableCurrencies,
+                        selectedCurrencyId: selectedCurrency,
+                        onCurrencySelected: currencyFilter.selectCurrency,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
                     // Dynamic Widget Rendering Loop
                     ..._widgetConfigs
                         .where((config) => config.enabled)
@@ -278,10 +312,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Column(
                             children: [
                               BalanceSummaryWidget(
-                                totalBalance: _calculateActiveTotalBalance(
-                                    walletProvider), // ✅ Usando cálculo filtrado
+                                totalBalance: totalBalance,
                                 income: income,
                                 expenses: expenses,
+                                currencyId: selectedCurrency,
                                 isBalanceVisible: _isBalanceVisible,
                                 onVisibilityToggle: () {
                                   setState(() {
@@ -316,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 wallets: walletItems
                                     .take(3)
                                     .toList(), // Show first 3
-                                totalCount: walletProvider.wallets.length,
+                                totalCount: walletItems.length,
                                 onHeaderTap: () => NavigationService.navigateTo(
                                     AppRoutes.wallets),
                                 onWalletTap: (wallet) {

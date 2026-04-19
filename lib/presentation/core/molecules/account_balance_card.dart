@@ -131,7 +131,7 @@ class _AccountBalanceCardState extends State<AccountBalanceCard> {
                     ),
                   )
                 : Text(
-                    NumberFormatter.formatCurrency(_currentBalance),
+                    NumberFormatter.formatCurrency(_currentBalance, currencyId: widget.wallet.currencyId),
                     style: textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: _currentBalance >= 0 

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/utils/number_formatter.dart';
 import '../../../../domain/entities/transaction_entry.dart';
 import '../../../core/atoms/widget_card_header.dart';
+import '../../../core/providers/currency_filter_provider.dart';
 import '../../../navigation/app_routes.dart';
 import '../../../navigation/navigation_service.dart';
 import '../../transactions/transaction_provider.dart';
@@ -23,7 +25,15 @@ class RecentTransactionsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TransactionProvider>();
-    final transactions = provider.transactions;
+    final selectedCurrency = context.watch<CurrencyFilterProvider>().selectedCurrencyId;
+    final transactions = provider.transactions
+        .where((t) {
+          if (t.currencyId == selectedCurrency) return true;
+          // Cross-currency transfers also visible from the target currency
+          if (t.isTransfer && t.targetDetail?.currencyId == selectedCurrency) return true;
+          return false;
+        })
+        .toList();
     final categoriesMap = provider.categoriesMap;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16), // HTML: mx-4
@@ -65,7 +75,7 @@ class RecentTransactionsWidget extends StatelessWidget {
                   ...transactions
                       .take(5)
                       .map((transaction) =>
-                          _buildTransactionItem(transaction, categoriesMap)),
+                          _buildTransactionItem(transaction, categoriesMap, selectedCurrency)),
 
                   // More transactions indicator
                   if (transactions.length > 5) ...[
@@ -89,9 +99,20 @@ class RecentTransactionsWidget extends StatelessWidget {
   }
 
   Widget _buildTransactionItem(
-      TransactionEntry transaction, Map<int, String> categoriesMap) {
+      TransactionEntry transaction, Map<int, String> categoriesMap, String currencyId) {
     final isIncome = transaction.isIncome;
     final isTransfer = transaction.documentTypeId == 'T';
+
+    // For cross-currency transfers viewed from the target side, show target amount/currency
+    final isViewingFromTarget = isTransfer &&
+        transaction.currencyId != currencyId &&
+        transaction.targetDetail?.currencyId == currencyId;
+    final displayAmount = isViewingFromTarget
+        ? (transaction.targetDetail?.amount ?? transaction.amount)
+        : transaction.amount;
+    final displayCurrency = isViewingFromTarget
+        ? (transaction.targetDetail?.currencyId ?? currencyId)
+        : currencyId;
 
     final categoryName = transaction.mainCategoryId != null
         ? categoriesMap[transaction.mainCategoryId]
@@ -180,7 +201,7 @@ class RecentTransactionsWidget extends StatelessWidget {
 
                 // Amount
                 Text(
-                  '${isIncome ? '+' : isTransfer ? '' : '-'}\$${_formatAmount(transaction.amount)}',
+                  '${isIncome ? '+' : isTransfer ? '' : '-'}${NumberFormatter.formatCurrencyWithCode(displayAmount.abs(), currencyId: displayCurrency)}',
                   style: const TextStyle(
                     fontSize: 14, // HTML: text-sm
                     fontWeight: FontWeight.bold, // HTML: font-bold
@@ -238,11 +259,4 @@ class RecentTransactionsWidget extends StatelessWidget {
     );
   }
 
-  /// Formatea montos con comas
-  String _formatAmount(double amount) {
-    return amount.toStringAsFixed(2).replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        );
-  }
 }

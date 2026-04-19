@@ -56,8 +56,12 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _targetAmountController = TextEditingController();
+  final _exchangeRateController = TextEditingController();
   final _amountFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
+
+  bool _isComputingConversion = false;
 
   // Screen state
   late TransactionToggleType _selectedToggleType;
@@ -88,6 +92,11 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   bool get isExpense => _selectedType == 'E';
   bool get isIncome => _selectedType == 'I';
   bool get isEditing => widget.transaction != null && !widget.isDuplicate;
+  bool get isCrossCurrencyTransfer =>
+      isTransfer &&
+      _selectedAccount != null &&
+      _selectedToAccount != null &&
+      _selectedAccount!.currencyId != _selectedToAccount!.currencyId;
 
   @override
   void initState() {
@@ -100,6 +109,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
 
     _amountFocusNode.addListener(() => setState(() {}));
     _descriptionFocusNode.addListener(() => setState(() {}));
+    _amountController.addListener(_onSourceAmountChanged);
+    _targetAmountController.addListener(_onTargetAmountChanged);
+    _exchangeRateController.addListener(_onExchangeRateChanged);
 
     _loadData().then((_) {
       _initializeFormData();
@@ -141,9 +153,53 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   void dispose() {
     _amountController.dispose();
     _descriptionController.dispose();
+    _targetAmountController.dispose();
+    _exchangeRateController.dispose();
     _amountFocusNode.dispose();
     _descriptionFocusNode.dispose();
     super.dispose();
+  }
+
+  // ── Conversion listeners ──────────────────────────────────────────────────
+
+  void _onSourceAmountChanged() {
+    if (_isComputingConversion || !isCrossCurrencyTransfer) return;
+    final rate = double.tryParse(_exchangeRateController.text) ?? 0;
+    final source = double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0;
+    if (source <= 0 || rate <= 0) return;
+    _isComputingConversion = true;
+    final target = source * rate;
+    _targetAmountController.text = NumberFormat('#,##0.00').format(target);
+    _isComputingConversion = false;
+  }
+
+  void _onTargetAmountChanged() {
+    if (_isComputingConversion || !isCrossCurrencyTransfer) return;
+    final target = double.tryParse(_targetAmountController.text.replaceAll(',', '')) ?? 0;
+    final source = double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0;
+    if (source <= 0 || target <= 0) return;
+    _isComputingConversion = true;
+    final rate = target / source;
+    _exchangeRateController.text = rate.toStringAsFixed(4);
+    _isComputingConversion = false;
+  }
+
+  void _onExchangeRateChanged() {
+    if (_isComputingConversion || !isCrossCurrencyTransfer) return;
+    final rate = double.tryParse(_exchangeRateController.text) ?? 0;
+    final source = double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0;
+    if (source <= 0 || rate <= 0) return;
+    _isComputingConversion = true;
+    final target = source * rate;
+    _targetAmountController.text = NumberFormat('#,##0.00').format(target);
+    _isComputingConversion = false;
+  }
+
+  void _resetConversionFields() {
+    _isComputingConversion = true;
+    _targetAmountController.clear();
+    _exchangeRateController.clear();
+    _isComputingConversion = false;
   }
 
   void _updateFlowAndToggleType() {
@@ -298,8 +354,17 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       initialSelection: isSource ? _selectedAccount : _selectedToAccount,
     );
     if (result != null) {
-      setState(() =>
-          isSource ? _selectedAccount = result : _selectedToAccount = result);
+      setState(() {
+        if (isSource) {
+          _selectedAccount = result;
+        } else {
+          final prevCurrency = _selectedToAccount?.currencyId;
+          _selectedToAccount = result;
+          if (prevCurrency != result.currencyId) {
+            _resetConversionFields();
+          }
+        }
+      });
     }
   }
 
@@ -497,6 +562,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             contactId: _selectedContactId,
           );
         } else if (isTransfer) {
+          final double targetAmount = isCrossCurrencyTransfer
+              ? (double.tryParse(_targetAmountController.text.replaceAll(',', '')) ?? amount)
+              : amount;
           newTransaction = await transactionProvider.createTransfer(
             date: _selectedDate,
             description: _descriptionController.text,
@@ -506,7 +574,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             targetPaymentId: _selectedToAccount!.id,
             targetPaymentTypeId: 'W',
             targetCurrencyId: _selectedToAccount!.currencyId,
-            targetAmount: amount,
+            targetAmount: targetAmount,
             contactId: _selectedContactId,
           );
         }
@@ -610,6 +678,141 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     );
   }
 
+  Widget _buildConversionSection() {
+    final fromCurrency = _selectedAccount!.currencyId;
+    final toCurrency = _selectedToAccount!.currencyId;
+    final rate = double.tryParse(_exchangeRateController.text) ?? 0;
+    final rateLabel = rate > 0
+        ? t.transactions.form.exchangeRateLabel(
+            from: fromCurrency,
+            rate: rate.toStringAsFixed(4),
+            to: toCurrency,
+          )
+        : '1 $fromCurrency = ? $toCurrency';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFF6FF), // blue-50
+        border: Border.all(color: const Color(0xFFBFDBFE)), // blue-200
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              const Icon(Icons.currency_exchange, size: 16, color: Color(0xFF2563EB)),
+              const SizedBox(width: 8),
+              Text(
+                t.transactions.form.crossCurrencyConversion,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1E40AF),
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDBEAFE),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '$fromCurrency → $toCurrency',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1D4ED8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Amount received field
+          _buildConversionField(
+            controller: _targetAmountController,
+            label: t.transactions.form.receivedAmount,
+            currencyCode: toCurrency,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [CurrencyInputFormatter()],
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return t.transactions.form.receivedAmountRequired;
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 12),
+
+          // Exchange rate field
+          _buildConversionField(
+            controller: _exchangeRateController,
+            label: t.transactions.form.exchangeRate,
+            currencyCode: null,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          ),
+          const SizedBox(height: 10),
+
+          // Rate label
+          Text(
+            rateLabel,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF2563EB),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConversionField({
+    required TextEditingController controller,
+    required String label,
+    required String? currencyCode,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      validator: validator,
+      style: const TextStyle(fontSize: 14, color: Color(0xFF0F172A)),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(fontSize: 13, color: Color(0xFF1D4ED8)),
+        suffixText: currencyCode,
+        suffixStyle: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF2563EB),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF93C5FD)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF93C5FD)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+        ),
+      ),
+    );
+  }
+
   Widget _buildFormContent() {
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -669,8 +872,14 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
               value: _selectedToAccount?.name ?? t.components.accountSelection.selectAccount,
               onTap: () => _showAccountSelector(isSource: false),
               hasValue: _selectedToAccount != null,
-              iconColor: const Color(0xFF2563EB), // blue-600
-              iconBackgroundColor: const Color(0xFFDBEAFE)), // blue-100
+              iconColor: const Color(0xFF2563EB),
+              iconBackgroundColor: const Color(0xFFDBEAFE)),
+        ],
+
+        // Cross-currency conversion section
+        if (isCrossCurrencyTransfer) ...[
+          const SizedBox(height: 16),
+          _buildConversionSection(),
         ],
 
         // Category (for income/expense)

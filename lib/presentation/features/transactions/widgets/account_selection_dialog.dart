@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 
 import '../../../core/l10n/generated/strings.g.dart';
+import '../../../../core/utils/number_formatter.dart';
 import '../../../../domain/services/balance_calculation_service.dart';
 import '../../../core/molecules/form_action_bar.dart';
 import '../../../core/organisms/account_selector_modal.dart'
@@ -215,8 +215,6 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
     final List<Widget> listItems = [];
     final wallets = _filteredAccounts.where((a) => !a.isCreditCard).toList();
     final creditCards = _filteredAccounts.where((a) => a.isCreditCard).toList();
-    final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$');
-
     if (wallets.isNotEmpty) {
       listItems.add(_buildSectionHeader(t.components.accountSelection.wallets));
 
@@ -248,7 +246,7 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
           // Render children, indented and selectable
           for (final child in children) {
             final balance = _balances[child.id] ?? 0.0;
-            final details = 'Balance: ${currencyFormat.format(balance)}';
+            final details = NumberFormatter.formatCurrencyWithCode(balance, currencyId: child.currencyId);
             listItems.add(Padding(
               padding: const EdgeInsets.only(left: 16.0),
               child: _AccountListItem(
@@ -265,7 +263,7 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
         } else {
           // Render standalone account as a selectable item
           final balance = _balances[rootWallet.id] ?? 0.0;
-          final details = 'Balance: ${currencyFormat.format(balance)}';
+          final details = NumberFormatter.formatCurrencyWithCode(balance, currencyId: rootWallet.currencyId);
           listItems.add(_AccountListItem(
               icon: Icons.account_balance,
               iconBgColor: _blue100,
@@ -283,7 +281,7 @@ class _AccountSelectionDialogState extends State<AccountSelectionDialog> {
       listItems.add(_buildSectionHeader(t.components.accountSelection.creditCards));
       for (final account in creditCards) {
         final availableCredit = _balances[account.id] ?? 0.0;
-        final details = 'Available: ${currencyFormat.format(availableCredit)}';
+        final details = NumberFormatter.formatCurrencyWithCode(availableCredit, currencyId: account.currencyId);
         listItems.add(_AccountListItem(
           icon: Icons.credit_card,
           iconBgColor: _purple100,

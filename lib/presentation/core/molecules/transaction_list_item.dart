@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../domain/entities/transaction_entry.dart';
+import '../../../core/utils/number_formatter.dart';
 
 class TransactionListItem extends StatelessWidget {
   final TransactionEntry transaction;
@@ -8,6 +9,9 @@ class TransactionListItem extends StatelessWidget {
   final String? contactName;
   final String? accountName;
   final String? targetAccountName;
+  /// The currency currently selected in the filter. Used to show the correct
+  /// side of a cross-currency transfer (source vs target amount).
+  final String? selectedCurrency;
   final VoidCallback onTap;
 
   const TransactionListItem({
@@ -17,6 +21,7 @@ class TransactionListItem extends StatelessWidget {
     this.contactName,
     this.accountName,
     this.targetAccountName,
+    this.selectedCurrency,
     required this.onTap,
   }) : super(key: key);
 
@@ -53,9 +58,20 @@ class TransactionListItem extends StatelessWidget {
         break;
     }
 
+    // For cross-currency transfers, show the amount in the currently filtered currency
+    final effectiveCurrency = selectedCurrency ?? transaction.currencyId;
+    final isViewingFromTarget = isTransfer &&
+        transaction.currencyId != effectiveCurrency &&
+        transaction.targetDetail?.currencyId == effectiveCurrency;
+    final displayAmount = isViewingFromTarget
+        ? (transaction.targetDetail?.amount ?? transaction.amount)
+        : transaction.amount;
+    final displayCurrency = isViewingFromTarget
+        ? (transaction.targetDetail?.currencyId ?? effectiveCurrency)
+        : transaction.currencyId;
+
     final amountString = sign +
-        NumberFormat.currency(locale: 'es_MX', symbol: r'$')
-            .format(transaction.amount.abs());
+        NumberFormatter.formatCurrency(displayAmount.abs(), currencyId: displayCurrency);
 
     final title = transaction.description?.isNotEmpty == true
         ? transaction.description!

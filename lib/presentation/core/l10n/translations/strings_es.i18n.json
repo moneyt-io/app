@@ -159,7 +159,12 @@
       "updateSuccess": "Transacción actualizada exitosamente",
       "saveError": "Error al guardar transacción",
       "share": "Compartir",
-      "created": "Transacción creada exitosamente"
+      "created": "Transacción creada exitosamente",
+      "crossCurrencyConversion": "Conversión de divisas",
+      "receivedAmount": "Monto a recibir",
+      "exchangeRate": "Tipo de cambio",
+      "receivedAmountRequired": "Ingresa el monto a recibir",
+      "exchangeRateLabel": "1 $from = $rate $to"
     },
     "errors": {
       "load": "Error al cargar las transacciones"
@@ -273,10 +278,12 @@
       "profileSubtitle": "Gestiona la información de tu cuenta"
     },
     "appearance": {
-      "title": "Apariencia",
+      "title": "Preferencias",
       "darkMode": "Modo oscuro",
       "darkModeSubtitle": "Cambiar a tema oscuro",
       "language": "Idioma",
+      "currency": "Moneda por defecto",
+      "currencySubtitle": "Moneda para nuevas cuentas y visualización",
       "darkTheme": "Tema oscuro",
       "lightTheme": "Tema claro",
       "systemTheme": "Tema del sistema"
@@ -325,6 +332,11 @@
       "title": "Idioma",
       "available": "IDIOMAS DISPONIBLES",
       "apply": "Aplicar Idioma"
+    },
+    "currency": {
+      "title": "Moneda por defecto",
+      "available": "MONEDAS DISPONIBLES",
+      "apply": "Aplicar Moneda"
     },
     "messages": {
       "profileComingSoon": "Pantalla de perfil próximamente",
@@ -526,6 +538,7 @@
       "description": "Descripción",
       "descriptionPlaceholder": "Descripción opcional para esta billetera",
       "currency": "Moneda",
+      "currencyLockedByParent": "Heredada de la billetera padre",
       "parent": "Billetera padre (opcional)",
       "parentEmpty": "No hay billeteras disponibles como padre",
       "chartAccount": "Cuenta contable asociada",

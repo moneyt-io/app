@@ -15,7 +15,7 @@ abstract class TransactionRepository {
   Future<Map<int, double>> getWalletBalances();
   
   // Optimización de categorías
-  Future<Map<int, double>> getCategoryTotals(DateTime startDate, DateTime endDate, String documentTypeId);
+  Future<Map<int, double>> getCategoryTotals(DateTime startDate, DateTime endDate, String documentTypeId, {String? currencyId});
   Stream<Map<int, double>> watchCategoryTotals(DateTime startDate, DateTime endDate, String documentTypeId);
     // CRUD Operations
   Future<TransactionEntry> createTransaction(TransactionEntry transaction, List<TransactionDetail> details);

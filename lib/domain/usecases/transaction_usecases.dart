@@ -36,8 +36,8 @@ class TransactionUseCases {
   Future<List<TransactionEntry>> getTransactionsByType(String documentTypeId) =>
       _transactionRepository.getTransactionsByType(documentTypeId);
 
-  Future<Map<int, double>> getCategoryTotals(DateTime startDate, DateTime endDate, String documentTypeId) =>
-      _transactionRepository.getCategoryTotals(startDate, endDate, documentTypeId);
+  Future<Map<int, double>> getCategoryTotals(DateTime startDate, DateTime endDate, String documentTypeId, {String? currencyId}) =>
+      _transactionRepository.getCategoryTotals(startDate, endDate, documentTypeId, currencyId: currencyId);
 
   Stream<Map<int, double>> watchCategoryTotals(DateTime startDate, DateTime endDate, String documentTypeId) =>
       _transactionRepository.watchCategoryTotals(startDate, endDate, documentTypeId);

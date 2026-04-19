@@ -6,6 +6,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:get_it/get_it.dart';
 import 'presentation/core/providers/theme_provider.dart';
 import 'presentation/core/providers/language_provider.dart';
+import 'presentation/core/providers/currency_provider.dart';
+import 'presentation/core/providers/currency_filter_provider.dart';
 import 'presentation/core/l10n/generated/strings.g.dart';
 import 'presentation/features/backup/backup_provider.dart';
 import 'presentation/features/loans/loan_provider.dart';
@@ -78,6 +80,14 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => LanguageProvider(prefs),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CurrencyProvider(prefs),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CurrencyFilterProvider(
+            context.read<CurrencyProvider>().currencyId,
+          ),
         ),
         ChangeNotifierProvider(
           create: (_) => GetIt.instance<app_auth.AuthProvider>(),

@@ -84,9 +84,10 @@ class _LoanPaymentFormScreenState extends State<LoanPaymentFormScreen> {
       final wallets = await _walletUseCases.getAllWallets();
       final creditCards = await _creditCardUseCases.getAllCreditCards();
 
+      final loanCurrency = widget.loan.currencyId;
       final accounts = <SelectableAccount>[
-          ...wallets.where((w) => w.active).map((w) => SelectableAccount.fromWallet(w)),
-          ...creditCards.where((cc) => cc.active).map((cc) => SelectableAccount.fromCreditCard(cc)),
+          ...wallets.where((w) => w.active && w.currencyId == loanCurrency).map((w) => SelectableAccount.fromWallet(w)),
+          ...creditCards.where((cc) => cc.active && cc.currencyId == loanCurrency).map((cc) => SelectableAccount.fromCreditCard(cc)),
       ];
 
       _accountsMap = {for (var acc in accounts) acc.id: acc};

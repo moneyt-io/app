@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/chart_account.dart';
+import '../../../core/utils/number_formatter.dart';
 import '../l10n/generated/strings.g.dart';
 
 /// Item de wallet expandible con tree view basado en wallet_list.html
@@ -112,7 +113,7 @@ class WalletTreeItem extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '\$${_formatBalance(parentBalance ?? 0.0)}', // ✅ CORREGIDO: Usar balance pasado como parámetro
+                            NumberFormatter.formatCurrencyWithCode(parentBalance ?? 0.0, currencyId: parentWallet.currencyId),
                             style: const TextStyle(
                               fontSize: 18, // HTML: text-lg
                               fontWeight: FontWeight.bold, // HTML: font-bold
@@ -225,7 +226,7 @@ class WalletTreeItem extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '\$${_formatBalance(childBalance)}', // ✅ CORREGIDO: Usar balance calculado
+                      NumberFormatter.formatCurrencyWithCode(childBalance, currencyId: childWallet.currencyId),
                       style: const TextStyle(
                         fontSize: 16, // HTML: text-base
                         fontWeight: FontWeight.w600, // HTML: font-semibold
@@ -356,11 +357,4 @@ class WalletTreeItem extends StatelessWidget {
     return t.wallets.subtitle.account;
   }
 
-  /// Formatea el balance con comas
-  String _formatBalance(double balance) {
-    return balance.toStringAsFixed(2).replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
 }

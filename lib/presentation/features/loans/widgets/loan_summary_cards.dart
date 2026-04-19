@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../../../../core/utils/number_formatter.dart';
 import '../../../core/design_system/tokens/app_dimensions.dart';
 import '../../../core/design_system/tokens/app_colors.dart';
 import '../../../core/l10n/generated/strings.g.dart';
@@ -10,7 +10,7 @@ class LoanSummaryCards extends StatelessWidget {
   final double? totalBorrowed;
   final int? lentToPeople;
   final int? borrowedFromPeople;
-  final String currencySymbol;
+  final String currencyId;
   final bool isLoading;
 
   const LoanSummaryCards({
@@ -19,7 +19,7 @@ class LoanSummaryCards extends StatelessWidget {
     this.totalBorrowed,
     this.lentToPeople,
     this.borrowedFromPeople,
-    this.currencySymbol = '\$',
+    this.currencyId = 'USD',
     this.isLoading = false,
   }) : super(key: key);
 
@@ -45,7 +45,7 @@ class LoanSummaryCards extends StatelessWidget {
             peopleCount: lentToPeople ?? 0,
             icon: Icons.call_made,
             backgroundColor: const Color(0xFFF97316), // Orange
-            currencySymbol: currencySymbol,
+            currencyId: currencyId,
           )
         : null;
 
@@ -56,7 +56,7 @@ class LoanSummaryCards extends StatelessWidget {
             peopleCount: borrowedFromPeople ?? 0,
             icon: Icons.call_received,
             backgroundColor: const Color(0xFF8B5CF6), // Violet
-            currencySymbol: currencySymbol,
+            currencyId: currencyId,
           )
         : null;
 
@@ -84,7 +84,7 @@ class _LoanSummaryCard extends StatelessWidget {
   final int peopleCount;
   final IconData icon;
   final Color backgroundColor;
-  final String currencySymbol;
+  final String currencyId;
 
   const _LoanSummaryCard({
     required this.title,
@@ -92,7 +92,7 @@ class _LoanSummaryCard extends StatelessWidget {
     required this.peopleCount,
     required this.icon,
     required this.backgroundColor,
-    required this.currencySymbol,
+    required this.currencyId,
   });
 
   @override
@@ -128,7 +128,7 @@ class _LoanSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: AppDimensions.spacing4),
           Text(
-            '$currencySymbol${NumberFormat('#,##0.00').format(amount)}',
+            NumberFormatter.formatCurrencyWithCode(amount, currencyId: currencyId),
             style: textTheme.titleLarge?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,

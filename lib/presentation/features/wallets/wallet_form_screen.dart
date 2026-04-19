@@ -15,7 +15,8 @@ import '../../core/molecules/error_message_card.dart';
 import '../../core/molecules/currency_selection_dialog.dart';
 import '../../core/molecules/parent_wallet_selection_dialog.dart';
 import '../../navigation/navigation_service.dart';
-import '../../core/l10n/generated/strings.g.dart'; // ✅ IMPORTANTE: Importar traducciones
+import '../../core/l10n/generated/strings.g.dart';
+import '../../core/providers/currency_provider.dart';
 import 'wallet_provider.dart';
 
 class WalletFormScreen extends StatefulWidget {
@@ -105,6 +106,9 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
       _descriptionController.text = wallet.description ?? '';
       _selectedCurrency = wallet.currencyId;
       _selectedParentId = wallet.parentId;
+    } else {
+      // Pre-seleccionar la moneda por defecto del usuario
+      _selectedCurrency = context.read<CurrencyProvider>().currencyId;
     }
   }
 
@@ -129,6 +133,8 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
               orElse: () => potentialParents.first,
             );
             _selectedParentName = parentWallet.name;
+            // Always enforce parent's currency for child wallets
+            _selectedCurrency = parentWallet.currencyId;
           }
           
           _isParentWalletsLoading = false;
@@ -185,11 +191,15 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
       setState(() {
         _selectedParentId = result.id;
         _selectedParentName = result.name;
+        // Inherit parent's currency and lock the field
+        _selectedCurrency = result.currencyId;
       });
     } else {
       setState(() {
         _selectedParentId = null;
         _selectedParentName = null;
+        // Restore to user's default currency when parent is cleared
+        _selectedCurrency = context.read<CurrencyProvider>().currencyId;
       });
     }
   }
@@ -316,11 +326,29 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
                           
                           // ✅ NUEVO: Currency selector exacto del HTML
                           CurrencySelectorButton(
-                            label: t.wallets.form.currency, // HTML: exacto
+                            label: t.wallets.form.currency,
                             selectedCurrency: _selectedCurrency,
                             selectedCurrencyName: selectedCurrencyData['name']!,
                             onPressed: _showCurrencySelector,
+                            enabled: _selectedParentId == null,
                           ),
+                          if (_selectedParentId != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 6, left: 4),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.info_outline, size: 13, color: Color(0xFF94A3B8)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    t.wallets.form.currencyLockedByParent,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF94A3B8),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           
                           const SizedBox(height: 24), // HTML: space-y-6
                           

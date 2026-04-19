@@ -103,8 +103,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
-  Future<Map<int, double>> getCategoryTotals(DateTime startDate, DateTime endDate, String documentTypeId) async {
-    return await _transactionDao.getCategoryTotals(startDate, endDate, documentTypeId);
+  Future<Map<int, double>> getCategoryTotals(DateTime startDate, DateTime endDate, String documentTypeId, {String? currencyId}) async {
+    return await _transactionDao.getCategoryTotals(startDate, endDate, documentTypeId, currencyId: currencyId);
   }
 
   @override

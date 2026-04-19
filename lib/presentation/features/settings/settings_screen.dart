@@ -11,8 +11,10 @@ import '../../core/providers/theme_provider.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/l10n/generated/strings.g.dart';
 import '../../navigation/app_routes.dart';
-import 'social_screen.dart'; // ✅ AGREGADO: Import de SocialScreen
-import 'language_screen.dart'; // ✅ AGREGADO: Import de LanguageScreen
+import 'social_screen.dart';
+import 'language_screen.dart';
+import 'currency_screen.dart';
+import '../../core/providers/currency_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -43,6 +45,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => const LanguageScreen(),
+      ),
+    );
+  }
+
+  Future<void> _navigateToCurrency() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const CurrencyScreen(),
       ),
     );
   }
@@ -234,7 +245,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             return SettingsItem(
                               icon: Icons.language,
                               title: t.settings.appearance.language,
-                              subtitle: languageProvider.getCurrentLanguageName(), // ✅ CORREGIDO: Dinámico
+                              subtitle: languageProvider.getCurrentLanguageName(),
                               backgroundColor: const Color(0xFFFED7AA),
                               iconColor: const Color(0xFFEA580C),
                               trailing: const Icon(
@@ -242,6 +253,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 color: Color(0xFF9CA3AF),
                               ),
                               onTap: _navigateToLanguage,
+                            );
+                          },
+                        ),
+
+                        // Currency
+                        Consumer<CurrencyProvider>(
+                          builder: (context, currencyProvider, child) {
+                            return SettingsItem(
+                              icon: Icons.attach_money,
+                              title: t.settings.appearance.currency,
+                              subtitle: '${currencyProvider.currentCurrency.name} (${currencyProvider.currencyId})',
+                              backgroundColor: const Color(0xFFD1FAE5),
+                              iconColor: const Color(0xFF059669),
+                              trailing: const Icon(
+                                Icons.chevron_right,
+                                color: Color(0xFF9CA3AF),
+                              ),
+                              onTap: _navigateToCurrency,
                             );
                           },
                         ),

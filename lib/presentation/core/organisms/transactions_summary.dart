@@ -6,12 +6,14 @@ class TransactionsSummary extends StatelessWidget {
   final double totalIncome;
   final double totalExpense;
   final double totalTransfer;
+  final String currencyId;
 
   const TransactionsSummary({
     Key? key,
     required this.totalIncome,
     required this.totalExpense,
     required this.totalTransfer,
+    this.currencyId = '',
   }) : super(key: key);
 
   @override
@@ -25,7 +27,8 @@ class TransactionsSummary extends StatelessWidget {
             title: t.transactions.types.income,
             icon: Icons.trending_up,
             amount: totalIncome,
-            backgroundColor: const Color(0xFF22C55E), // green-500
+            backgroundColor: const Color(0xFF22C55E),
+            currencyId: currencyId,
           ),
         ),
       );
@@ -41,7 +44,8 @@ class TransactionsSummary extends StatelessWidget {
             title: t.transactions.types.expense,
             icon: Icons.trending_down,
             amount: totalExpense,
-            backgroundColor: const Color(0xFFEF4444), // red-500
+            backgroundColor: const Color(0xFFEF4444),
+            currencyId: currencyId,
           ),
         ),
       );
@@ -57,7 +61,8 @@ class TransactionsSummary extends StatelessWidget {
             title: t.transactions.types.transfer,
             icon: Icons.swap_horiz,
             amount: totalTransfer,
-            backgroundColor: const Color(0xFF3B82F6), // blue-500
+            backgroundColor: const Color(0xFF3B82F6),
+            currencyId: currencyId,
           ),
         ),
       );
