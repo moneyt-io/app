@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../domain/entities/category.dart';
 import '../../../../domain/usecases/category_usecases.dart';
@@ -25,6 +27,12 @@ class DomainSeeds {
     final jsonString = await _loadSeedJsonSafely(lang, 'wallets.json');
     if (jsonString == null) return;
 
+    // Leer moneda guardada o detectar desde el locale del dispositivo.
+    // CurrencyProvider aún no existe en este punto del startup, así que
+    // replicamos su lógica leyendo directamente de SharedPreferences.
+    final prefs = await SharedPreferences.getInstance();
+    final currencyId = prefs.getString('default_currency') ?? _detectCurrencyFromLocale();
+
     final List<dynamic> walletsJson = json.decode(jsonString);
 
     for (var walletData in walletsJson) {
@@ -32,7 +40,7 @@ class DomainSeeds {
       if (!existingWalletNames.contains(walletData['name'])) {
         final parentWallet = await walletUseCases.createWalletWithAccount(
           name: walletData['name'],
-          currencyId: 'USD', // Default currency
+          currencyId: currencyId,
         );
         existingWalletNames.add(parentWallet.name);
 
@@ -42,7 +50,7 @@ class DomainSeeds {
             if (!existingWalletNames.contains(childData['name'])) {
               await walletUseCases.createWalletWithAccount(
                 name: childData['name'],
-                currencyId: 'USD',
+                currencyId: currencyId,
                 parentId: parentWallet.id,
               );
               existingWalletNames.add(childData['name']);
@@ -51,6 +59,25 @@ class DomainSeeds {
         }
       }
     }
+  }
+
+  /// Detecta la moneda más probable según el locale del dispositivo.
+  /// Misma lógica que CurrencyProvider._detectFromLocale().
+  static String _detectCurrencyFromLocale() {
+    try {
+      final locale = Platform.localeName;
+      if (locale.contains('CO')) return 'COP';
+      if (locale.contains('MX')) return 'MXN';
+      if (locale.contains('AR')) return 'ARS';
+      if (locale.contains('PE')) return 'PEN';
+      if (locale.contains('CL')) return 'CLP';
+      if (locale.contains('BR')) return 'BRL';
+      if (locale.contains('GB')) return 'GBP';
+      if (locale.contains('JP')) return 'JPY';
+      if (locale.contains('CA')) return 'CAD';
+      if (locale.contains('AU')) return 'AUD';
+    } catch (_) {}
+    return 'USD';
   }
 
   /// Seeds categories from a JSON file, creating parent-child relationships.
