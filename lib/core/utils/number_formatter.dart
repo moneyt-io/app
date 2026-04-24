@@ -66,13 +66,14 @@ class NumberFormatter {
   /// Retorna true si la moneda está registrada.
   static bool isSupported(String currencyId) => _meta.containsKey(currencyId);
 
-  /// Formatea un monto sin decimales.
+  /// Formatea un monto respetando los decimales estándar de la moneda.
   ///
   /// Ejemplo: formatCurrency(1500000, currencyId: 'COP') → "$1.500.000"
-  /// Ejemplo: formatCurrency(1500.50, currencyId: 'USD') → "$1,501"
+  /// Ejemplo: formatCurrency(1500.50, currencyId: 'USD') → "$1,500.50"
   static String formatCurrency(double amount, {String? currencyId}) {
     final cid = currencyId ?? _defaultCurrency;
-    return _format(amount, cid, 0);
+    final decimals = _meta[cid]?.decimals ?? 2;
+    return _format(amount, cid, decimals);
   }
 
   /// Devuelve true siempre — el código ISO se muestra junto al monto en todos los casos
@@ -82,11 +83,12 @@ class NumberFormatter {
   /// Formatea un monto añadiendo el código ISO cuando el símbolo es ambiguo.
   ///
   /// Ejemplo: formatCurrencyWithCode(1500, currencyId: 'COP') → "$1.500.000 COP"
-  /// Ejemplo: formatCurrencyWithCode(1500, currencyId: 'EUR') → "€1.500"  (sin código, símbolo único)
-  /// Ejemplo: formatCurrencyWithCode(1500, currencyId: 'USD') → "$1,500 USD"
+  /// Ejemplo: formatCurrencyWithCode(1500, currencyId: 'EUR') → "€1.500 EUR"
+  /// Ejemplo: formatCurrencyWithCode(1500.50, currencyId: 'USD') → "$1,500.50 USD"
   static String formatCurrencyWithCode(double amount, {String? currencyId}) {
     final cid = currencyId ?? _defaultCurrency;
-    final base = _format(amount, cid, 0);
+    final decimals = _meta[cid]?.decimals ?? 2;
+    final base = _format(amount, cid, decimals);
     return needsCode(cid) ? '$base $cid' : base;
   }
 
