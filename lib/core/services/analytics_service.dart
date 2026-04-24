@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
+import 'facebook_service.dart';
 
 /// Configuración del onboarding retornada por PostHog.
 /// [steps] son los índices de páginas a mostrar (0-7), en orden.
@@ -169,6 +170,7 @@ class AnalyticsService {
       if (goal != null) 'goal': goal,
       if (method != null) 'method': method,
     });
+    FacebookService().trackOnboardingCompleted();
 
     // Persiste las elecciones como person properties para segmentar en cualquier análisis futuro
     if (!_initialized) return;

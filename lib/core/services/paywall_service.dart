@@ -5,6 +5,7 @@ import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'analytics_service.dart';
 import 'tiktok_service.dart';
+import 'facebook_service.dart';
 
 /// Servicio para encapsular toda la lógica de Superwall.
 ///
@@ -92,6 +93,9 @@ class PaywallService implements SuperwallDelegate {
       eventName,
       paywallName: eventInfo.event.paywallInfo?.name,
     );
+    if (eventName == 'freeTrialStart') {
+      FacebookService().trackFreeTrial();
+    }
   }
 
   @override
@@ -118,6 +122,7 @@ class PaywallService implements SuperwallDelegate {
       print('⭐️ PaywallService: Premium status updated to $isPremium');
       if (isPremium) {
         TikTokService().trackSubscribe();
+        FacebookService().trackSubscribe();
       }
     }
   }

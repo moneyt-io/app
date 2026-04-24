@@ -25,6 +25,7 @@ import 'core/di/injection_container.dart';
 import 'core/services/paywall_service.dart';
 import 'core/services/analytics_service.dart';
 import 'core/services/tiktok_service.dart';
+import 'core/services/facebook_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
@@ -63,6 +64,7 @@ void main() async {
   }
 
   await TikTokService().init();
+  await FacebookService().init();
 
   final prefs = await SharedPreferences.getInstance();
 
