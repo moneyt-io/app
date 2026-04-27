@@ -8,9 +8,9 @@
 	<key>FacebookAppID</key>
 	<string>4509366099307206</string>
 	<key>FacebookClientToken</key>
-	<string>TODO_CLIENT_TOKEN</string>
+	<string>3ce8310e6eab24f534193dd8cd50aa55</string>
 	<key>FacebookDisplayName</key>
-	<string>MoneyT</string>
+	<string>moneyt</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

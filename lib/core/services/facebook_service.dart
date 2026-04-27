@@ -8,9 +8,9 @@ import 'package:facebook_app_events/facebook_app_events.dart';
 ///
 /// Eventos implementados:
 /// - [init]                     → activateApp (reach de instalaciones)
-/// - [trackOnboardingCompleted] → CompletedRegistration (activación de usuario)
-/// - [trackSubscribe]           → Subscribe (el más importante para optimizar campañas)
-/// - [trackFreeTrial]           → StartTrial (inicio de prueba gratuita)
+/// - [trackOnboardingCompleted] → CompleteRegistration
+/// - [trackSubscribe]           → Subscribe
+/// - [trackFreeTrial]           → StartTrial
 class FacebookService {
   static final FacebookService _instance = FacebookService._internal();
   factory FacebookService() => _instance;
@@ -38,10 +38,12 @@ class FacebookService {
   /// Facebook lo usa para medir "usuarios activados" y optimizar campañas.
   Future<void> trackOnboardingCompleted() async {
     try {
-      await _events.logCompletedRegistration(registrationMethod: 'onboarding');
-      debugPrint('📊 FacebookService: CompletedRegistration logged');
+      await _events.logEvent(name: 'CompleteRegistration', parameters: {
+        'registration_method': 'onboarding',
+      });
+      debugPrint('📊 FacebookService: CompleteRegistration logged');
     } catch (e) {
-      debugPrint('❌ FacebookService: logCompletedRegistration failed: $e');
+      debugPrint('❌ FacebookService: CompleteRegistration failed: $e');
     }
   }
 
@@ -50,20 +52,24 @@ class FacebookService {
   /// automáticamente hacia perfiles con alta intención de pago.
   Future<void> trackSubscribe() async {
     try {
-      await _events.logSubscribe(orderId: 'moneyt_premium');
+      await _events.logEvent(name: 'Subscribe', parameters: {
+        'order_id': 'moneyt_premium',
+      });
       debugPrint('📊 FacebookService: Subscribe logged');
     } catch (e) {
-      debugPrint('❌ FacebookService: logSubscribe failed: $e');
+      debugPrint('❌ FacebookService: Subscribe failed: $e');
     }
   }
 
   /// Llamar cuando el usuario inicia un free trial.
   Future<void> trackFreeTrial() async {
     try {
-      await _events.logStartTrial(orderId: 'moneyt_trial');
+      await _events.logEvent(name: 'StartTrial', parameters: {
+        'order_id': 'moneyt_trial',
+      });
       debugPrint('📊 FacebookService: StartTrial logged');
     } catch (e) {
-      debugPrint('❌ FacebookService: logStartTrial failed: $e');
+      debugPrint('❌ FacebookService: StartTrial failed: $e');
     }
   }
 }
