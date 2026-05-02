@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'facebook_service.dart';
 
@@ -26,8 +27,10 @@ class AnalyticsService {
   factory AnalyticsService() => _instance;
   AnalyticsService._internal();
 
-  static const String _apiKey =
-      'phc_vC8qqzeUS4ECh2Pnb3nkNeKWiMKgXXNMZDyo5nrudb9F';
+  static String get _apiKey => kReleaseMode
+      ? dotenv.env['POSTHOG_API_KEY_PROD'] ?? ''
+      : dotenv.env['POSTHOG_API_KEY_DEV'] ?? '';
+
   static const String _host = 'https://us.i.posthog.com';
 
   bool _initialized = false;
@@ -51,7 +54,8 @@ class AnalyticsService {
       final config = PostHogConfig(_apiKey)
         ..host = _host
         ..debug = kDebugMode
-        ..captureApplicationLifecycleEvents = false;
+        ..captureApplicationLifecycleEvents = false
+        ..sessionReplay = true;
 
       await Posthog().setup(config);
       _initialized = true;
@@ -69,6 +73,17 @@ class AnalyticsService {
       Posthog().capture(eventName: event, properties: properties);
     } catch (e) {
       debugPrint('❌ AnalyticsService: capture "$event" failed: $e');
+    }
+  }
+
+  /// Detiene la grabación de la sesión actual
+  void stopRecording() {
+    if (!_initialized) return;
+    try {
+      Posthog().stopSessionRecording();
+      debugPrint('✅ AnalyticsService: Session recording stopped');
+    } catch (e) {
+      debugPrint('❌ AnalyticsService: stopSessionRecording failed: $e');
     }
   }
 
@@ -211,15 +226,21 @@ class AnalyticsService {
     _capture('paywall_dismissed', properties: {'paywall_name': paywallName});
   }
 
+  /// Cuando el usuario interactúa con un botón configurado con un Custom Action en Superwall
+  void trackCustomPaywallAction(String actionName) {
+    _capture('paywall_custom_action', properties: {'action_name': actionName});
+  }
+
   /// Forwadea los eventos clave de Superwall a PostHog con nombres limpios.
   /// Se llama desde PaywallService.handleSuperwallEvent.
-  void trackSuperwallEvent(String superwallEventName, {String? paywallName}) {
+  void trackSuperwallEvent(String superwallEventName, {String? paywallName, String? productId}) {
     final mapped = _mapSuperwallEvent(superwallEventName);
     if (mapped == null) return;
 
     _capture(mapped, properties: {
       'superwall_event': superwallEventName,
       if (paywallName != null) 'paywall_name': paywallName,
+      if (productId != null) 'product_id': productId,
     });
 
     // Si es suscripción, actualizar person property
@@ -227,7 +248,10 @@ class AnalyticsService {
       if (!_initialized) return;
       try {
         Posthog().setPersonProperties(
-          userPropertiesToSet: {'is_premium': true},
+          userPropertiesToSet: {
+            'is_premium': true,
+            if (productId != null) 'premium_plan': productId,
+          },
           userPropertiesToSetOnce: {
             'first_subscription_at': DateTime.now().toIso8601String(),
           },

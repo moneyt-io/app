@@ -42,6 +42,10 @@
         <meta-data
             android:name="com.facebook.sdk.ClientToken"
             android:value="@string/facebook_client_token" />
+        <!-- PostHog: Desactivar auto-init para configuración manual -->
+        <meta-data
+            android:name="com.posthog.posthog.AUTO_INIT"
+            android:value="false" />
         <!-- Agregar provider para compartir archivos -->
         <provider
             android:name="androidx.core.content.FileProvider"

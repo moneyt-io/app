@@ -78,6 +78,7 @@ class PaywallService implements SuperwallDelegate {
   @override
   void handleCustomPaywallAction(String name) {
     print(' PaywallService: Custom action: $name');
+    AnalyticsService().trackCustomPaywallAction(name);
   }
 
   @override
@@ -89,9 +90,14 @@ class PaywallService implements SuperwallDelegate {
   void handleSuperwallEvent(SuperwallEventInfo eventInfo) {
     final eventName = eventInfo.event.type.name;
     print(' PaywallService: Superwall event: $eventName');
+    
+    // Obtenemos el ID del producto si el usuario inicia una transacción o se suscribe
+    final productId = eventInfo.event.product?.productIdentifier;
+    
     AnalyticsService().trackSuperwallEvent(
       eventName,
       paywallName: eventInfo.event.paywallInfo?.name,
+      productId: productId,
     );
     if (eventName == 'freeTrialStart') {
       FacebookService().trackFreeTrial();
@@ -135,6 +141,7 @@ class PaywallService implements SuperwallDelegate {
   @override
   void willPresentPaywall(PaywallInfo paywallInfo) {
     print(' PaywallService: Will present paywall: ${paywallInfo.name}');
+    AnalyticsService().stopRecording(); // Detener grabación justo ANTES de mostrar la paywall
   }
 
   // ✅ AÑADIDO: Métodos adicionales requeridos por la versión 2.3.5

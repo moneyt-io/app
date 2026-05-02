@@ -32,7 +32,7 @@ PODS:
   - DKPhotoGallery/Resource (0.0.19):
     - SDWebImage
     - SwiftyGif
-  - facebook_app_events (0.27.1):
+  - facebook_app_events (0.27.2):
     - FBSDKCoreKit (~> 18.0)
     - Flutter
   - FBAEMKit (18.0.3):
@@ -54,7 +54,7 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.3.0):
     - Flutter
-  - PostHog (3.50.0)
+  - PostHog (3.57.3)
   - posthog_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -174,7 +174,7 @@ SPEC CHECKSUMS:
   app_tracking_transparency: 3d84f147f67ca82d3c15355c36b1fa6b66ca7c92
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
-  facebook_app_events: 682080987ac09154742e4373a7647bd16d36776b
+  facebook_app_events: f5a6c6a367fb041f78d14a12e6f0dce0ba96a8ab
   FBAEMKit: 2a6b529993713c185b02bc36f8c91129bf78dfb0
   FBSDKCoreKit: 65d7f7a7d6fcc3aa6eb6e093ec737a4184fc6049
   FBSDKCoreKit_Basics: 7bc9d8fde8f70985fba2ed7c1d07e319f969a991
@@ -184,7 +184,7 @@ SPEC CHECKSUMS:
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
-  PostHog: 0e18a35b0fef8f5bfbcdb1cfce22245350b6a401
+  PostHog: c33925273e18b9c6bf3b33401416b08fa3db578e
   posthog_flutter: 7d1eca9c14e96d1fb31cf35d75a32c31fbc776c5
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
