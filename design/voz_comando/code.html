@@ -1,0 +1,215 @@
+<!DOCTYPE html><html class="light" lang="pt-br"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Wealth AI - Voice Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#00714d",
+                        "inverse-surface": "#283044",
+                        "inverse-primary": "#b4c5ff",
+                        "on-background": "#131b2e",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#d2d9f4",
+                        "surface-bright": "#faf8ff",
+                        "surface": "#faf8ff",
+                        "surface-tint": "#0053db",
+                        "error": "#ba1a1a",
+                        "surface-container": "#eaedff",
+                        "background": "#faf8ff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "outline": "#737686",
+                        "surface-variant": "#dae2fd",
+                        "tertiary-container": "#996100",
+                        "on-secondary-fixed": "#002113",
+                        "on-secondary-fixed-variant": "#005236",
+                        "secondary": "#006c49",
+                        "tertiary-fixed": "#ffddb8",
+                        "secondary-container": "#6cf8bb",
+                        "surface-container-high": "#e2e7ff",
+                        "on-primary-fixed": "#00174b",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-container-low": "#f2f3ff",
+                        "primary-container": "#2563eb",
+                        "primary": "#004ac6",
+                        "outline-variant": "#c3c6d7",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-tertiary-container": "#ffeedd",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "surface-container-highest": "#dae2fd",
+                        "tertiary": "#784b00",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#434655",
+                        "on-surface": "#131b2e",
+                        "secondary-fixed-dim": "#4edea3",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "xl": "40px",
+                        "md": "16px",
+                        "margin-desktop": "64px",
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "sm": "8px",
+                        "margin-mobile": "20px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Manrope"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "label-md": ["Manrope"],
+                        "headline-lg": ["Manrope"],
+                        "display-lg": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "body-lg": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .pulse-ring {
+            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+            animation: pulse-animation 2s infinite;
+        }
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.6); }
+            70% { box-shadow: 0 0 0 40px rgba(37, 99, 235, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+        .floating-icon {
+            animation: float-in 4s ease-out forwards;
+        }
+        @keyframes float-in {
+            0% { opacity: 0; transform: scale(0.5) translate(var(--tw-translate-x), var(--tw-translate-y)); }
+            100% { opacity: 1; transform: scale(1) translate(0, 0); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-hidden min-h-screen flex flex-col">
+<!-- Hero Background Wrapper -->
+<div class="fixed inset-0 z-0">
+<img alt="Florianópolis beach" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0uiDxjZ6MHOXH3DQxF0xx4bhPcbgSllJ3SeMWdWmLLnHGDN0PGgL4ZU9KHrAgu9vZdYMG2FXBd-PDCei58o_JFb35Ic4-NK_eUxcC6I4CNPiBcb_V8HRinKeCkOXvHoYTcey352vnBBKTuIPKfi_IQPqLsMkX_lAibqwq7IuFmFlMsW92pIDOgCT6Jm98G3GTcT2ScLB6HsJZnG3fbaOgKKh0gQJE5A9wlXhaE3MkMtz2y8Y229y35eSOiJw">
+<div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40"></div>
+</div>
+<!-- Top App Bar -->
+<header class="w-full top-0 sticky z-50 flex justify-between items-center px-margin-mobile py-md w-full bg-transparent">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white/50">
+<img alt="User Profile Photo" class="w-full h-full object-cover" data-alt="A high-quality close-up studio portrait of a modern professional male in his 30s with a clean-cut appearance. The lighting is soft and cinematic, emphasizing a warm and trustworthy persona. The background is a blurred, minimalist office setting to maintain a corporate yet approachable aesthetic. The image reflects premium service and personal financial success." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAR6IKbpWwz2GSgKvvCpGE_t5xaHCLpNuzjTryRBYW1Ah8w1IbhauKhsDdsL40NkRp4H8z4PVp7ggmMrIPSuXWBRv4jU3ckimZYxv97NDW5HZOKuwwqEWL7F1pLi7x4ZF6bJ_sanxqJi09gBpW3k49IhfveWCTUHTEkB04D5a23SgRxqsitQkTJRmN-E9DN0wEYwqEkfrKnlZk9s6OC1izsCdSa7F50iMunXfNe5SagJyMcnCMJiT9MwtYc5ui8BUdUTs-B1LjBpFhV">
+</div>
+<h1 class="font-display-lg text-headline-md text-white tracking-tight drop-shadow-md">Wealth AI</h1>
+</div>
+<button class="text-white hover:opacity-80 transition-opacity active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-headline-md">settings</span>
+</button>
+</header>
+<!-- Main Voice Interface Canvas -->
+<main class="relative flex-1 flex flex-col items-center justify-center px-margin-mobile z-10">
+<!-- Category Icons Floating In -->
+<div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+<!-- Tech Icon -->
+<div class="floating-icon absolute top-1/4 left-1/4 translate-x-12 translate-y-12" style="--tw-translate-x: -100px; --tw-translate-y: -100px;">
+<div class="glass-card p-4 rounded-full text-white shadow-xl">
+<span class="material-symbols-outlined text-headline-md">devices</span>
+</div>
+<span class="block text-center text-white font-label-sm mt-2">Tech</span>
+</div>
+<!-- Food Icon -->
+<div class="floating-icon absolute top-1/3 right-1/4 -translate-x-12 translate-y-8" style="--tw-translate-x: 100px; --tw-translate-y: -80px;">
+<div class="glass-card p-4 rounded-full text-white shadow-xl">
+<span class="material-symbols-outlined text-headline-md">restaurant</span>
+</div>
+<span class="block text-center text-white font-label-sm mt-2">Food</span>
+</div>
+<!-- Clothing Icon -->
+<div class="floating-icon absolute bottom-1/3 left-1/3 translate-x-8 -translate-y-12" style="--tw-translate-x: -80px; --tw-translate-y: 100px;">
+<div class="glass-card p-4 rounded-full text-white shadow-xl">
+<span class="material-symbols-outlined text-headline-md">apparel</span>
+</div>
+<span class="block text-center text-white font-label-sm mt-2">Clothing</span>
+</div>
+</div>
+<!-- AI Pulse Indicator -->
+<div class="text-center space-y-2">
+<h2 class="text-white font-display-lg text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+        Gaste 50 USD en Starbucks
+    </h2>
+</div>
+</main>
+<!-- Contextual Control Area -->
+<div class="fixed bottom-0 left-0 w-full z-50 px-lg pb-lg pt-md">
+<div class="glass-card rounded-xl p-md flex items-center justify-between shadow-2xl">
+<button class="flex flex-col items-center justify-center text-white/70 p-3 hover:text-white transition-colors">
+<span class="material-symbols-outlined">close</span>
+<span class="font-label-sm mt-1">Cancelar</span>
+</button>
+<!-- Large Integrated Voice Button -->
+<div class="bg-primary text-on-primary rounded-full p-4 scale-110 -translate-y-6 shadow-lg border-4 border-white/20 active:scale-95 duration-300 ease-out">
+<span class="material-symbols-outlined text-headline-lg">mic</span>
+</div>
+<button class="flex flex-col items-center justify-center text-white/70 p-3 hover:text-white transition-colors">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-sm mt-1">Recentes</span>
+</button>
+</div>
+</div>
+<!-- Hidden Bottom Nav Spacer -->
+<div class="h-32"></div>
+<!-- Bottom Navigation Component (Semantic shell logic: Home/Explore active state suppressed for task focus) -->
+<nav class="fixed bottom-0 left-0 w-full z-40 flex justify-around items-center px-lg pb-lg pt-md backdrop-blur-md bg-surface/80 dark:bg-inverse-surface/80 shadow-lg rounded-t-xl md:hidden">
+<div class="flex flex-col items-center justify-center text-on-surface-variant p-3 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</div>
+<!-- Active state for Mic since it's the Voice Interface -->
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full p-4 scale-110 -translate-y-2 shadow-md Active: scale-110 duration-300 ease-out">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">mic</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant p-3 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">query_stats</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant p-3 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">person</span>
+</div>
+</nav>
+</body></html>

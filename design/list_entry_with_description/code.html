@@ -1,0 +1,258 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Wealth - Add Transaction</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-error": "#ffffff",
+            "on-primary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "primary-container": "#2563eb",
+            "surface-variant": "#dae2fd",
+            "inverse-on-surface": "#eef0ff",
+            "on-secondary-fixed": "#002113",
+            "on-primary-fixed-variant": "#003ea8",
+            "inverse-primary": "#b4c5ff",
+            "on-surface-variant": "#434655",
+            "secondary-fixed": "#6ffbbe",
+            "primary": "#004ac6",
+            "tertiary-container": "#996100",
+            "on-tertiary-fixed-variant": "#653e00",
+            "primary-fixed-dim": "#b4c5ff",
+            "surface-tint": "#0053db",
+            "surface-dim": "#d2d9f4",
+            "surface-container": "#eaedff",
+            "secondary": "#006c49",
+            "surface-container-high": "#e2e7ff",
+            "surface-bright": "#faf8ff",
+            "outline-variant": "#c3c6d7",
+            "surface": "#faf8ff",
+            "background": "#faf8ff",
+            "on-primary-fixed": "#00174b",
+            "tertiary-fixed": "#ffddb8",
+            "on-secondary": "#ffffff",
+            "on-background": "#131b2e",
+            "outline": "#737686",
+            "on-secondary-container": "#00714d",
+            "on-surface": "#131b2e",
+            "surface-container-low": "#f2f3ff",
+            "error-container": "#ffdad6",
+            "on-primary-container": "#eeefff",
+            "secondary-container": "#6cf8bb",
+            "on-tertiary-fixed": "#2a1700",
+            "error": "#ba1a1a",
+            "on-tertiary-container": "#ffeedd",
+            "tertiary": "#784b00",
+            "primary-fixed": "#dbe1ff",
+            "tertiary-fixed-dim": "#ffb95f",
+            "on-secondary-fixed-variant": "#005236",
+            "secondary-fixed-dim": "#4edea3",
+            "inverse-surface": "#283044",
+            "on-tertiary": "#ffffff",
+            "surface-container-highest": "#dae2fd",
+            "on-error-container": "#93000a"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "xs": "4px",
+            "xl": "40px",
+            "margin-mobile": "20px",
+            "unit": "4px",
+            "margin-desktop": "64px",
+            "gutter": "16px",
+            "lg": "24px",
+            "sm": "8px",
+            "md": "16px"
+          },
+          "fontFamily": {
+            "headline-md": ["Manrope"],
+            "body-md": ["Manrope"],
+            "headline-lg": ["Manrope"],
+            "label-sm": ["Manrope"],
+            "headline-lg-mobile": ["Manrope"],
+            "display-lg": ["Manrope"],
+            "label-md": ["Manrope"],
+            "body-lg": ["Manrope"]
+          },
+          "fontSize": {
+            "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+            "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+            "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+            "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+            "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+            "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+            "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+            "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      font-family: 'Manrope', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background-color: #faf8ff;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    /* Hide scrollbar */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    .keyboard-shadow {
+      box-shadow: 0px -4px 30px rgba(0, 0, 0, 0.08);
+    }
+    
+    .soft-card-shadow {
+      box-shadow: 0px 4px 20px rgba(15, 23, 42, 0.05);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top App Bar (Task-Focused: Hide Main Nav) -->
+<header class="fixed top-0 left-0 right-0 z-40 bg-surface h-16 flex items-center justify-between px-margin-mobile">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface">close</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-on-surface">Nueva Transacción</h1>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="pt-20 pb-80 px-margin-mobile max-w-md mx-auto min-h-screen flex flex-col">
+<!-- Meta Selectors (Modern Pills) -->
+<section class="flex flex-wrap gap-sm mb-lg">
+<div class="flex items-center gap-xs px-md py-sm bg-surface-container-low rounded-full border border-outline-variant/30 hover:border-primary transition-colors cursor-pointer">
+<span class="font-label-md text-label-md text-on-surface">Hoy</span>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</div>
+<div class="flex items-center gap-xs px-md py-sm bg-surface-container-low rounded-full border border-outline-variant/30 hover:border-primary transition-colors cursor-pointer">
+<span class="font-label-md text-label-md text-on-surface">Una vez</span>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</div>
+<div class="flex items-center gap-xs px-md py-sm bg-surface-container-low rounded-full border border-outline-variant/30 hover:border-primary transition-colors cursor-pointer">
+<span class="font-label-md text-label-md text-on-surface">Lista Privada</span>
+<span class="material-symbols-outlined text-[18px]">lock</span>
+</div>
+</section>
+<!-- Large Amount Entry -->
+<section class="mb-xl">
+<div class="flex flex-col">
+<label class="font-label-sm text-label-sm text-outline mb-xs uppercase tracking-widest">MONTO</label>
+<div class="flex items-baseline gap-xs">
+<span class="font-display-lg text-display-lg text-outline-variant">$</span>
+<input autofocus="" class="w-full bg-transparent border-none p-0 focus:ring-0 font-display-lg text-display-lg text-on-background placeholder:text-surface-container-highest" placeholder="0.00" type="text">
+</div>
+</div>
+</section><section class="mb-xl">
+<div class="flex flex-col">
+<label class="font-label-sm text-label-sm text-outline mb-xs uppercase tracking-widest">DESCRIPCIÓN</label>
+<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-lg text-body-lg text-on-background placeholder:text-outline-variant/60" placeholder="Agregar nota..." type="text">
+</div>
+</section>
+<!-- Description Entry -->
+<!-- Category Selection (Iconic Pills) -->
+<section class="mb-xl">
+<label class="font-label-sm text-label-sm text-outline mb-md block uppercase tracking-widest">CATEGORÍA</label>
+<div class="flex flex-wrap gap-md">
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-low border border-outline-variant/20 hover:border-primary transition-all">
+<span class="material-symbols-outlined text-outline">add</span>
+</button>
+<button class="flex items-center gap-sm px-lg py-sm bg-secondary-container/10 rounded-full border border-secondary-container/50 text-on-secondary-container hover:bg-secondary-container/20 transition-all"><span class="text-xl">🍴</span><span class="font-label-md text-label-md">Comida</span></button>
+<button class="flex items-center gap-sm px-lg py-sm bg-surface-container rounded-full border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="text-xl">🛍️</span><span class="font-label-md text-label-md">Compras</span></button>
+<button class="flex items-center gap-sm px-lg py-sm bg-surface-container rounded-full border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="text-xl">🚗</span><span class="font-label-md text-label-md">Transporte</span></button>
+</div>
+</section>
+</main>
+<!-- Bottom Interactive Layer -->
+<div class="fixed bottom-0 left-0 right-0 z-50 bg-surface keyboard-shadow flex flex-col pt-4">
+<!-- Action Bar -->
+<div class="flex items-center gap-md px-margin-mobile mb-6">
+<button class="w-14 h-14 flex items-center justify-center rounded-xl bg-surface-container-low border border-outline-variant/30 text-on-surface-variant active:scale-95 transition-transform">
+<span class="material-symbols-outlined">tag</span>
+</button>
+<button class="flex-1 h-14 bg-inverse-surface text-inverse-on-surface rounded-xl flex items-center justify-center gap-sm font-label-md text-label-md active:scale-[0.98] transition-transform"><span class="material-symbols-outlined text-[20px]">check_circle</span>Guardar</button>
+</div>
+<!-- Stylized Mobile Keyboard (Simulated) -->
+<div class="bg-surface-container-low px-1 pt-2 pb-safe">
+<div class="flex flex-col gap-[6px] max-w-lg mx-auto pb-4">
+<!-- Keyboard Row 1 -->
+<div class="flex justify-center gap-[6px] px-1">
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">Q</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">W</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">E</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">R</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">T</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">Y</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">U</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">I</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">O</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">P</div>
+</div>
+<!-- Keyboard Row 2 -->
+<div class="flex justify-center gap-[6px] px-6">
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">A</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">S</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">D</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">F</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">G</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">H</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">J</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">K</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">L</div>
+</div>
+<!-- Keyboard Row 3 -->
+<div class="flex justify-center gap-[6px] px-1">
+<div class="w-10 h-11 bg-surface-variant flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-[20px]">shift</span>
+</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">Z</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">X</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">C</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">V</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">B</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">N</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-center text-on-surface font-medium">M</div>
+<div class="w-10 h-11 bg-surface-variant flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-[20px]">backspace</span>
+</div>
+</div>
+<!-- Keyboard Row 4 -->
+<div class="flex justify-center gap-[6px] px-1">
+<div class="w-14 h-11 bg-surface-variant flex items-center justify-center rounded-lg font-medium text-[14px]">123</div>
+<div class="w-11 h-11 bg-surface-variant flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-[20px]">sentiment_satisfied</span>
+</div>
+<div class="flex-1 h-11 bg-white soft-card-shadow rounded-lg flex items-center justify-end px-3 text-outline text-[12px] uppercase tracking-tighter">Space</div>
+<div class="w-11 h-11 bg-surface-variant flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-[20px]">language</span>
+</div>
+<div class="w-14 h-11 bg-primary text-white flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-[20px]">keyboard_return</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

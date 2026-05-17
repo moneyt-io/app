@@ -8,6 +8,7 @@ import '../../domain/entities/loan_entry.dart';
 import '../../domain/entities/wallet.dart';
 import 'app_routes.dart';
 import '../features/dashboard/home_screen.dart';
+import '../features_v2/dashboard/dashboard_wrapper.dart';
 import '../features/dashboard/dashboard_widgets_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/splash/splash_screen.dart';
@@ -80,7 +81,7 @@ class AppRouter {
           final hasJustSeenPaywall =
               args?['hasJustSeenPaywall'] as bool? ?? false;
           return MaterialPageRoute(
-            builder: (_) => HomeScreen(hasJustSeenPaywall: hasJustSeenPaywall),
+            builder: (_) => DashboardWrapper(hasJustSeenPaywall: hasJustSeenPaywall),
             settings: settings,
           );
         }

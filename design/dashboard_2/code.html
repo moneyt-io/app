@@ -1,0 +1,259 @@
+<!DOCTYPE html><html class="light" lang="es" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-fixed-variant": "#003ea8",
+            "on-primary": "#ffffff",
+            "on-secondary-fixed": "#002113",
+            "tertiary-fixed-dim": "#ffb95f",
+            "tertiary": "#784b00",
+            "surface-container-low": "#f2f3ff",
+            "outline-variant": "#c3c6d7",
+            "primary": "#004ac6",
+            "on-error-container": "#93000a",
+            "primary-container": "#2563eb",
+            "on-secondary-container": "#00714d",
+            "error": "#ba1a1a",
+            "surface-dim": "#d2d9f4",
+            "on-surface": "#131b2e",
+            "surface-tint": "#0053db",
+            "surface-container-high": "#e2e7ff",
+            "inverse-surface": "#283044",
+            "secondary-container": "#6cf8bb",
+            "inverse-on-surface": "#eef0ff",
+            "surface-container": "#eaedff",
+            "secondary-fixed-dim": "#4edea3",
+            "surface-bright": "#faf8ff",
+            "on-tertiary-container": "#ffeedd",
+            "background": "#faf8ff",
+            "secondary": "#006c49",
+            "surface": "#faf8ff",
+            "on-tertiary": "#ffffff",
+            "on-surface-variant": "#434655",
+            "error-container": "#ffdad6",
+            "on-secondary-fixed-variant": "#005236",
+            "inverse-primary": "#b4c5ff",
+            "secondary-fixed": "#6ffbbe",
+            "on-primary-container": "#eeefff",
+            "primary-fixed-dim": "#b4c5ff",
+            "surface-variant": "#dae2fd",
+            "on-primary-fixed": "#00174b",
+            "tertiary-fixed": "#ffddb8",
+            "on-error": "#ffffff",
+            "tertiary-container": "#996100",
+            "outline": "#737686",
+            "primary-fixed": "#dbe1ff",
+            "surface-container-highest": "#dae2fd",
+            "on-tertiary-fixed": "#2a1700",
+            "on-background": "#131b2e",
+            "on-tertiary-fixed-variant": "#653e00",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary": "#ffffff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "unit": "4px",
+            "lg": "24px",
+            "margin-desktop": "64px",
+            "xl": "40px",
+            "gutter": "16px",
+            "xs": "4px",
+            "sm": "8px",
+            "md": "16px",
+            "margin-mobile": "20px"
+          },
+          "fontFamily": {
+            "label-sm": ["Manrope"],
+            "display-lg": ["Manrope"],
+            "headline-md": ["Manrope"],
+            "headline-lg": ["Manrope"],
+            "body-md": ["Manrope"],
+            "label-md": ["Manrope"],
+            "body-lg": ["Manrope"],
+            "headline-lg-mobile": ["Manrope"]
+          },
+          "fontSize": {
+            "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+            "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+            "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+            "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+            "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+            "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+            "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+            "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      font-family: 'Manrope', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100dvh;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .gauge-svg {
+      transform: rotate(180deg);
+    }
+    .text-shadow-strong {
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface">
+<!-- TopAppBar -->
+<div class="relative overflow-hidden bg-white mb-2">
+<div class="absolute inset-0 z-0">
+<img alt="Florianópolis beach background" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwYJtbLoiRlK81HfQ0l7k4ySGsyJeulQ5JpR_i0oIcnwM_9Pw_1IBnZ81Yk48phFd11NOlBX-OHgmovM__zWyLxpcfQ721O5NjjvLM_7LkERh01LoHkOddGXkwHpoI-AHMuT8bcbMn849_lNZ7Su4h9TYOpv_qUTD6XXWe7Yps8HV7sQVkcNQKhhaIzTrwgESMzN-MvMbARMYlmjgpHQSr0vFRfsEkwAJWwGYqohbqQuSGjFSOnqyq7eDOq6wiFI3-d2d74TspvgIC">
+<div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-white"></div>
+</div>
+<div class="relative z-10" id="top-section-container"><header class="w-full bg-transparent h-16">
+<div class="flex justify-between items-center px-margin-mobile h-full w-full max-w-7xl mx-auto">
+<div class="flex items-center">
+<span class="text-label-md font-bold text-white drop-shadow-md tracking-tight">¡Buenos días, Rafiqur!</span>
+</div>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-white drop-shadow-md hover:text-white transition-colors cursor-pointer">settings</span>
+</div>
+</div>
+</header>
+<section class="mt-4 text-center">
+<p class="text-[10px] font-bold text-white/90 uppercase tracking-[0.2em] mb-2 text-shadow-strong">BALANCE TOTAL</p>
+<h1 class="text-[44px] font-extrabold text-white tracking-tight leading-tight text-shadow-strong">$625.00</h1>
+<div class="flex items-center justify-center gap-2 mt-2 mb-1 text-white font-medium">
+<button class="flex items-center gap-1.5 px-3 py-1 bg-black/30 hover:bg-black/40 rounded-full transition-colors backdrop-blur-md border border-white/20">
+<span class="text-[11px] font-semibold">Este mes</span>
+<span class="material-symbols-outlined text-[14px] leading-none">unfold_more</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1 bg-black/30 hover:bg-black/40 rounded-full transition-colors backdrop-blur-md border border-white/20">
+<span class="text-[11px] font-semibold">Lista privada</span>
+<span class="material-symbols-outlined text-[14px] leading-none">unfold_more</span>
+</button>
+</div>
+</section>
+<section class="flex flex-col items-center mt-8 pb-4">
+<div class="relative w-64 h-32 overflow-hidden flex flex-col items-center justify-end">
+<svg class="w-full h-[200%] absolute top-0 gauge-svg" viewBox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="rgba(0,0,0,0.1)" stroke-dasharray="125.6 125.6" stroke-dashoffset="0" stroke-width="10"></circle>
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="#2563eb" stroke-dasharray="109.3 142" stroke-dashoffset="0" stroke-width="10"></circle>
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="#6cf8bb" stroke-dasharray="11.3 239.9" stroke-dashoffset="-109.3" stroke-width="10"></circle>
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="#ffb95f" stroke-dasharray="5.0 246.2" stroke-dashoffset="-120.6" stroke-width="10"></circle>
+</svg>
+<div class="z-10 flex flex-col items-center mb-1">
+<span class="text-on-surface font-extrabold text-[36px] leading-none mb-1 drop-shadow-sm">52%</span>
+<div class="bg-black/10 backdrop-blur-sm px-2 py-0.5 rounded-full">
+<span class="text-[9px] text-on-surface/70 uppercase font-bold tracking-widest">LO QUE QUEDA</span>
+</div>
+</div>
+</div>
+</section></div>
+</div>
+<main class="max-w-7xl mx-auto px-margin-mobile pb-40">
+<!-- Income/Expense Indicators -->
+<section class="flex justify-between gap-4 -mt-2 relative z-20">
+<div class="flex-1 flex flex-col items-center justify-center py-5 bg-[#e2f9f0] rounded-xl border border-[#bbf7e1]/20 shadow-sm">
+<p class="text-[9px] font-bold text-on-secondary-container/60 uppercase tracking-widest mb-1">INGRESOS</p>
+<p class="text-headline-md font-bold text-on-secondary-container">+$1.200,00</p>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center py-5 bg-[#fff1f1] rounded-xl border border-[#fee2e2]/20 shadow-sm">
+<p class="text-[9px] font-bold text-on-error-container/60 uppercase tracking-widest mb-1">GASTOS</p>
+<p class="text-headline-md font-bold text-on-error-container">-$575,00</p>
+</div>
+</section>
+<!-- Activity Section -->
+<section class="mt-12">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-headline-md font-bold text-on-surface">Actividad Reciente</h2>
+<a class="text-primary text-label-md font-bold hover:underline transition-all" href="#">Ver todo</a>
+</div>
+<div class="space-y-4">
+<!-- Item 1: iMac (87%) -->
+<div class="relative overflow-hidden rounded-xl bg-primary/5 group transition-all">
+<div class="absolute inset-y-0 left-0 bg-primary/10 transition-all duration-700" style="width: 87%"></div>
+<div class="relative flex items-center justify-between p-4 z-10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center text-2xl">🖥️</div>
+<div>
+<p class="text-label-md font-bold text-on-surface">iMac</p>
+<p class="text-[11px] font-medium text-on-surface-variant/50">Tecnología • Hoy</p>
+</div>
+</div>
+<p class="text-label-md font-bold text-on-surface">-$500,00 <span class="text-[10px] text-on-surface-variant font-normal">(87%)</span></p>
+</div>
+</div>
+<!-- Item 2: Vans (9%) -->
+<div class="relative overflow-hidden rounded-xl bg-secondary-container/10 group transition-all">
+<div class="absolute inset-y-0 left-0 bg-secondary-container/40 transition-all duration-700" style="width: 9%"></div>
+<div class="relative flex items-center justify-between p-4 z-10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center text-2xl">👟</div>
+<div>
+<p class="text-label-md font-bold text-on-surface">Vans</p>
+<p class="text-[11px] font-medium text-on-surface-variant/50">Ropa • hace 4h</p>
+</div>
+</div>
+<p class="text-label-md font-bold text-on-surface">-$50,00 <span class="text-[10px] text-on-surface-variant font-normal">(9%)</span></p>
+</div>
+</div>
+<!-- Item 3: Starbucks (4%) -->
+<div class="relative overflow-hidden rounded-xl bg-tertiary-fixed-dim/10 group transition-all">
+<div class="absolute inset-y-0 left-0 bg-tertiary-fixed-dim/40 transition-all duration-700" style="width: 4%"></div>
+<div class="relative flex items-center justify-between p-4 z-10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center text-2xl">☕️</div>
+<div>
+<p class="text-label-md font-bold text-on-surface">Starbucks</p>
+<p class="text-[11px] font-medium text-on-surface-variant/50">Comida • hace 2h</p>
+</div>
+</div>
+<p class="text-label-md font-bold text-on-surface">-$25,00 <span class="text-[10px] text-on-surface-variant font-normal">(4%)</span></p>
+</div>
+</div>
+<!-- Item 4: Salario -->
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest/50 hover:bg-surface-container-low rounded-xl transition-colors border border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center text-2xl">💰</div>
+<div>
+<p class="text-label-md font-bold text-on-surface">Salario Mensual</p>
+<p class="text-[11px] font-medium text-on-surface-variant/50">Ingresos • Hoy</p>
+</div>
+</div>
+<p class="text-label-md font-bold text-on-secondary-container">+$1.200,00</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end px-8 pb-8 pt-4 bg-surface-container-lowest/80 backdrop-blur-xl">
+<!-- Left: Search -->
+<a class="flex items-center justify-center text-on-surface-variant/30 hover:text-primary transition-colors mb-6" href="#">
+<span class="material-symbols-outlined text-[28px]">search</span>
+</a>
+<!-- Center: Voice (Primary) -->
+<div class="relative -top-4">
+<a class="flex items-center justify-center bg-primary text-on-primary rounded-full shadow-2xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all w-[72px] h-[72px]" href="#">
+<span class="material-symbols-outlined text-[36px] font-variation-fill">mic</span>
+</a>
+</div>
+<!-- Right: Add -->
+<a class="flex items-center justify-center text-on-surface-variant/30 hover:text-primary transition-colors mb-6" href="#">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="es" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #faf8ff;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#6cf8bb",
+                      "surface-tint": "#0053db",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-surface": "#131b2e",
+                      "on-secondary-fixed-variant": "#005236",
+                      "surface": "#faf8ff",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-container": "#996100",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "primary-container": "#2563eb",
+                      "on-error": "#ffffff",
+                      "tertiary": "#784b00",
+                      "inverse-surface": "#283044",
+                      "on-primary-fixed": "#00174b",
+                      "on-primary-container": "#eeefff",
+                      "outline-variant": "#c3c6d7",
+                      "on-primary": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-dim": "#d2d9f4",
+                      "inverse-on-surface": "#eef0ff",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "inverse-primary": "#b4c5ff",
+                      "on-secondary-fixed": "#002113",
+                      "primary-fixed": "#dbe1ff",
+                      "secondary-fixed": "#6ffbbe",
+                      "tertiary-fixed": "#ffddb8",
+                      "secondary-fixed-dim": "#4edea3",
+                      "error": "#ba1a1a",
+                      "background": "#faf8ff",
+                      "primary": "#004ac6",
+                      "on-background": "#131b2e",
+                      "surface-container-low": "#f2f3ff",
+                      "surface-container-high": "#e2e7ff",
+                      "outline": "#737686",
+                      "on-secondary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "secondary": "#006c49",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-secondary-container": "#00714d",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-bright": "#faf8ff",
+                      "on-tertiary-container": "#ffeedd",
+                      "surface-variant": "#dae2fd",
+                      "surface-container-highest": "#dae2fd",
+                      "surface-container": "#eaedff",
+                      "on-surface-variant": "#434655"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "40px",
+                      "lg": "24px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "gutter": "16px",
+                      "margin-mobile": "20px",
+                      "unit": "4px",
+                      "xs": "4px",
+                      "margin-desktop": "64px"
+              },
+              "fontFamily": {
+                      "body-md": ["Manrope"],
+                      "headline-lg-mobile": ["Manrope"],
+                      "headline-lg": ["Manrope"],
+                      "body-lg": ["Manrope"],
+                      "label-sm": ["Manrope"],
+                      "display-lg": ["Manrope"],
+                      "label-md": ["Manrope"],
+                      "headline-md": ["Manrope"]
+              },
+              "fontSize": {
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-surface shadow-[0px_4px_20px_rgba(15,23,42,0.05)]">
+<div class="flex items-center justify-between px-margin-mobile h-16 w-full max-w-[1280px] mx-auto">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 transition-transform hover:opacity-80">
+<span class="material-symbols-outlined text-primary" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-on-surface">Categorías</h1>
+</div>
+<button class="active:scale-95 transition-transform hover:opacity-80">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</header>
+<main class="max-w-[1280px] mx-auto px-margin-mobile mt-lg">
+<!-- Search Bar -->
+<div class="mb-lg">
+<div class="bg-surface-container-low rounded-xl px-md py-sm flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-md font-body-md w-full placeholder:text-outline-variant" placeholder="Buscar categorías..." type="text">
+</div>
+</div>
+<!-- Floating Categories Grid -->
+<button class="w-full mb-lg bg-primary text-on-primary py-4 rounded-xl flex items-center justify-center gap-md shadow-lg active:scale-[0.98] transition-transform">
+  <span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+  <span class="text-headline-md font-headline-md">+ Nueva Categora</span>
+</button><div class="flex flex-wrap gap-md">
+<!-- Category Pill: Comida -->
+<button class="flex items-center gap-sm bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)] px-lg py-md rounded-full active:scale-95 transition-all hover:-translate-y-0.5 border border-surface-container-high/50">
+<span class="text-[24px]">🍴</span>
+<span class="font-label-md text-label-md text-on-surface">Comida</span>
+</button>
+<!-- Category Pill: Compras -->
+<button class="flex items-center gap-sm bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)] px-lg py-md rounded-full active:scale-95 transition-all hover:-translate-y-0.5 border border-surface-container-high/50">
+<span class="text-[24px]">🛍️</span>
+<span class="font-label-md text-label-md text-on-surface">Compras</span>
+</button>
+<!-- Category Pill: Transporte -->
+<button class="flex items-center gap-sm bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)] px-lg py-md rounded-full active:scale-95 transition-all hover:-translate-y-0.5 border border-surface-container-high/50">
+<span class="text-[24px]">🚗</span>
+<span class="font-label-md text-label-md text-on-surface">Transporte</span>
+</button>
+<!-- Category Pill: Ocio (Extra for UI density) -->
+<button class="flex items-center gap-sm bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)] px-lg py-md rounded-full active:scale-95 transition-all hover:-translate-y-0.5 border border-surface-container-high/50">
+<span class="text-[24px]">🎬</span>
+<span class="font-label-md text-label-md text-on-surface">Ocio</span>
+</button>
+<!-- Category Pill: Salud (Extra for UI density) -->
+<button class="flex items-center gap-sm bg-surface-container-lowest shadow-[0px_4px_20px_rgba(15,23,42,0.05)] px-lg py-md rounded-full active:scale-95 transition-all hover:-translate-y-0.5 border border-surface-container-high/50">
+<span class="text-[24px]">💊</span>
+<span class="font-label-md text-label-md text-on-surface">Salud</span>
+</button>
+<!-- ADD NEW CATEGORY PILL -->
+
+</div>
+<!-- Suggestion Section -->
+
+<!-- Informative Graphic -->
+
+</main>
+<!-- Bottom Navigation (Shared Component Integration) -->
+
+
+
+</body></html>
