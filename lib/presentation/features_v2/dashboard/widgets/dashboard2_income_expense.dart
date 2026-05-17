@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Dashboard2IncomeExpense extends StatelessWidget {
   final double income;
@@ -43,7 +44,7 @@ class Dashboard2IncomeExpense extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "+\$1.200,00",
+                  "+${NumberFormat.currency(symbol: '\$', decimalDigits: 2).format(income)}",
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -85,7 +86,7 @@ class Dashboard2IncomeExpense extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "-\$575,00",
+                  "-${NumberFormat.currency(symbol: '\$', decimalDigits: 2).format(expenses)}",
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,

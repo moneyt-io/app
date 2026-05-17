@@ -1,66 +1,123 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class Dashboard2Gauge extends StatelessWidget {
-  final double percentage;
+class Dashboard2Gauge extends StatefulWidget {
+  final double income;
+  final double expenses;
 
   const Dashboard2Gauge({
     super.key,
-    required this.percentage,
+    required this.income,
+    required this.expenses,
   });
 
   @override
+  State<Dashboard2Gauge> createState() => _Dashboard2GaugeState();
+}
+
+class _Dashboard2GaugeState extends State<Dashboard2Gauge> {
+  bool _showPercentage = true;
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 250,
-      height: 125, // Half of width for a semi-circle
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          CustomPaint(
-            size: const Size(250, 125),
-            painter: _GaugePainter(),
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '${(percentage * 100).toInt()}%',
-                style: const TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF131B2E),
-                  height: 1,
-                  fontFamily: 'Manrope',
-                ),
+    // Calculates percentage of income spent
+    double displayPercentage = widget.income > 0 
+        ? widget.expenses / widget.income 
+        : (widget.expenses > 0 ? 1.5 : 0.0); // If expenses exist but no income, simulate overflow
+
+    Color gaugeColor;
+    if (displayPercentage <= 0.8) {
+      gaugeColor = const Color(0xFF6CF8BB); // Green
+    } else if (displayPercentage <= 1.0) {
+      gaugeColor = const Color(0xFFFFB95F); // Yellow/Orange
+    } else {
+      gaugeColor = const Color(0xFFBA1A1A); // Red
+    }
+
+    double remaining = widget.income - widget.expenses;
+    String mainText;
+    String subText;
+
+    if (_showPercentage) {
+      mainText = '${(displayPercentage * 100).toInt()}%';
+      subText = displayPercentage > 1.0 ? 'EXCEDIDO' : 'GASTADO';
+    } else {
+      final formatCurrency = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
+      mainText = formatCurrency.format(remaining.abs());
+      subText = remaining >= 0 ? 'DISPONIBLE' : 'SOBREGIRADO';
+    }
+
+    // Adapt text color conditionally 
+    Color textColor = displayPercentage > 1.0 && _showPercentage ? gaugeColor : const Color(0xFF131B2E);
+    // Darker variant for subText if it's over limit
+    Color subTextColor = displayPercentage > 1.0 ? gaugeColor.withValues(alpha: 0.8) : const Color(0xB3131B2E);
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _showPercentage = !_showPercentage;
+        });
+      },
+      child: SizedBox(
+        width: 250,
+        height: 125, // Half of width for a semi-circle
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            CustomPaint(
+              size: const Size(250, 125),
+              painter: _GaugePainter(
+                percentage: displayPercentage.clamp(0.0, 1.0),
+                color: gaugeColor,
               ),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'LO QUE QUEDA',
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  mainText,
                   style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xB3131B2E), // 70% opacity
-                    letterSpacing: 1.5,
+                    fontSize: _showPercentage ? 36 : 28,
+                    fontWeight: FontWeight.w800,
+                    color: textColor,
+                    height: 1,
+                    fontFamily: 'Manrope',
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ],
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: displayPercentage > 1.0 ? gaugeColor.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    subText,
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      color: subTextColor,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _GaugePainter extends CustomPainter {
+  final double percentage;
+  final Color color;
+
+  _GaugePainter({required this.percentage, required this.color});
+
   @override
   void paint(Canvas canvas, Size size) {
     // Pad by half the strokeWidth (12) so the arc is completely inside the bounds
@@ -76,31 +133,21 @@ class _GaugePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     canvas.drawArc(rect, startAngle, sweepAngle, false, bgPaint);
 
-    // Color 1: Orange #ffb95f
-    final orangePaint = Paint()
-      ..color = const Color(0xFFFFB95F)
+    // Foreground track
+    final fgPaint = Paint()
+      ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 24
       ..strokeCap = StrokeCap.round;
-    canvas.drawArc(rect, startAngle, pi * 0.15, false, orangePaint);
 
-    // Color 2: Green #6cf8bb
-    final greenPaint = Paint()
-      ..color = const Color(0xFF6CF8BB)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 24
-      ..strokeCap = StrokeCap.round;
-    canvas.drawArc(rect, startAngle + pi * 0.15, pi * 0.35, false, greenPaint);
-
-    // Color 3: Blue #2563eb
-    final bluePaint = Paint()
-      ..color = const Color(0xFF2563EB)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 24
-      ..strokeCap = StrokeCap.round;
-    canvas.drawArc(rect, startAngle + pi * 0.50, pi * 0.40, false, bluePaint);
+    final sweep = pi * percentage;
+    if (sweep > 0) {
+      canvas.drawArc(rect, startAngle, sweep, false, fgPaint);
+    }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _GaugePainter oldDelegate) {
+    return oldDelegate.percentage != percentage || oldDelegate.color != color;
+  }
 }

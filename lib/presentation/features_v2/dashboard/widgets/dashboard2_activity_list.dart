@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../../domain/entities/transaction_entry.dart';
+import '../../../../core/utils/icon_to_emoji_mapper.dart';
+
+import '../../../../domain/entities/category.dart';
 
 class Dashboard2ActivityList extends StatelessWidget {
-  const Dashboard2ActivityList({super.key});
+  final List<TransactionEntry> transactions;
+  final double totalExpenses;
+  final Map<int, Category> categoriesDataMap;
+
+  const Dashboard2ActivityList({
+    super.key,
+    required this.transactions,
+    required this.totalExpenses,
+    required this.categoriesDataMap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,47 +49,74 @@ class Dashboard2ActivityList extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        _buildActivityItem(
-          title: "iMac",
-          category: "Tecnología",
-          date: "Hoy",
-          amount: -500.00,
-          emoji: "🖥️",
-          progress: 0.87,
-          progressColor: const Color(0xFF004AC6), // Primary blue
-        ),
-        const SizedBox(height: 16),
-        _buildActivityItem(
-          title: "Vans",
-          category: "Ropa",
-          date: "hace 4h",
-          amount: -50.00,
-          emoji: "👟",
-          progress: 0.09,
-          progressColor: const Color(0xFF6CF8BB), // Secondary green container
-        ),
-        const SizedBox(height: 16),
-        _buildActivityItem(
-          title: "Starbucks",
-          category: "Comida",
-          date: "hace 2h",
-          amount: -25.00,
-          emoji: "☕️",
-          progress: 0.04,
-          progressColor: const Color(0xFFFFB95F), // Tertiary orange
-        ),
-        const SizedBox(height: 16),
-        _buildActivityItem(
-          title: "Salario Mensual",
-          category: "Ingresos",
-          date: "Hoy",
-          amount: 1200.00,
-          emoji: "💰",
-          progress: 0.0,
-          progressColor: Colors.transparent, // No progress for income
-        ),
+        if (transactions.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 32),
+            child: Center(
+              child: Text(
+                "No hay actividad reciente",
+                style: TextStyle(
+                  color: Color(0xFF737686),
+                  fontFamily: 'Manrope',
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          )
+        else
+          ...transactions.take(5).map((t) {
+            final category = t.category ?? (t.mainCategoryId != null ? categoriesDataMap[t.mainCategoryId!] : null);
+
+            double progress = 0.0;
+            if (t.isExpense && totalExpenses > 0) {
+              progress = (t.amount.abs() / totalExpenses).clamp(0.0, 1.0);
+            }
+
+            // Assign a color based on category or index (for variety)
+            Color progressColor = const Color(0xFF004AC6);
+            if (t.isExpense) {
+              final hash = category?.id.hashCode ?? t.id.hashCode;
+              final colors = [
+                const Color(0xFF004AC6), // blue
+                const Color(0xFF6CF8BB), // green
+                const Color(0xFFFFB95F), // orange
+                const Color(0xFFBA1A1A), // red
+              ];
+              progressColor = colors[hash % colors.length];
+            }
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _buildActivityItem(
+                title: t.description?.isNotEmpty == true
+                    ? t.description!
+                    : (t.contact?.name ?? category?.name ?? 'Transacción'),
+                category: category?.name ?? 'Otros',
+                date: _formatDate(t.date),
+                amount: t.isExpense ? -t.amount.abs() : t.amount.abs(),
+                emoji: (category != null && category.icon.isNotEmpty) 
+                    ? IconToEmojiMapper.getEmoji(category.icon) 
+                    : (t.isIncome ? '💰' : '🏷️'),
+                progress: progress,
+                progressColor: t.isIncome ? Colors.transparent : progressColor,
+              ),
+            );
+          }),
       ],
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+    
+    if (difference.inDays == 0 && now.day == date.day) {
+      return "Hoy";
+    } else if (difference.inDays == 1 || (difference.inDays == 0 && now.day != date.day)) {
+      return "Ayer";
+    } else {
+      return DateFormat('dd MMM').format(date);
+    }
   }
 
   Widget _buildActivityItem({
@@ -95,17 +135,17 @@ class Dashboard2ActivityList extends StatelessWidget {
       borderRadius: BorderRadius.circular(12), // rounded-xl
       child: Container(
         color: progress > 0 ? progressColor.withValues(alpha: 0.05) : const Color(0xFFFFFFFF).withValues(alpha: 0.5),
-            child: Stack(
-              children: [
-                if (progress > 0)
-                  Positioned.fill(
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: progress,
-                      child: Container(color: progressColor.withValues(alpha: 0.15)),
-                    ),
-                  ),
-                Padding(
+        child: Stack(
+          children: [
+            if (progress > 0)
+              Positioned.fill(
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: progress,
+                  child: Container(color: progressColor.withValues(alpha: 0.15)),
+                ),
+              ),
+            Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
@@ -126,6 +166,8 @@ class Dashboard2ActivityList extends StatelessWidget {
                       children: [
                         Text(
                           title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
