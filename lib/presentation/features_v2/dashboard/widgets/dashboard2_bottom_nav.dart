@@ -39,34 +39,7 @@ class Dashboard2BottomNav extends StatelessWidget {
                   },
                   icon: const Icon(Icons.search, size: 28, color: Color(0x4D131B2E)),
                 ),
-                Transform.translate(
-                  offset: const Offset(0, -20),
-                  child: Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF004AC6),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF004AC6).withValues(alpha: 0.4),
-                          blurRadius: 24,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        customBorder: const CircleBorder(),
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const VoiceCommandScreen()));
-                        },
-                        child: const Icon(Icons.mic, size: 36, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ),
+                const SizedBox(width: 72), // Espacio para el botón central
                 IconButton(
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const NewTransactionScreen()));
@@ -74,6 +47,47 @@ class Dashboard2BottomNav extends StatelessWidget {
                   icon: const Icon(Icons.add, size: 28, color: Color(0x4D131B2E)),
                 ),
               ],
+            ),
+          ),
+          Positioned(
+            bottom: 52, // Exactamente 52px desde abajo, igual que en VoiceCommandScreen
+            child: Hero(
+              tag: 'mic_hero_button',
+              child: Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF004AC6),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 4), // Mismo borde que en la vista de grabación para transición fluida
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF004AC6).withValues(alpha: 0.4),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) => const VoiceCommandScreen(),
+                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                            return FadeTransition(opacity: animation, child: child);
+                          },
+                          transitionDuration: const Duration(milliseconds: 350),
+                        ),
+                      );
+                    },
+                    child: const Icon(Icons.mic, size: 36, color: Colors.white),
+                  ),
+                ),
+              ),
             ),
           ),
         ],

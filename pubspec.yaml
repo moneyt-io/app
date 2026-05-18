@@ -44,6 +44,7 @@ dependencies:
   google_fonts: ^8.1.0
   speech_to_text: ^7.3.0
   google_generative_ai: ^0.4.7
+  sensors_plus: ^7.0.0
   
 dev_dependencies:
   flutter_test:

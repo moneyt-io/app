@@ -11,6 +11,8 @@ import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../core/utils/icon_to_emoji_mapper.dart';
 import '../../../core/services/ai_transaction_service.dart';
 import '../transactions/new_transaction_screen.dart';
+import '../theme/v2_colors.dart';
+import '../dashboard/widgets/parallax_background.dart';
 
 class VoiceCommandScreen extends StatefulWidget {
   const VoiceCommandScreen({super.key});
@@ -29,25 +31,46 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
   bool _isListening = false;
   bool _isAnalyzing = false;
   String _recognizedText = '';
-  final String _defaultText = 'Toca el micrófono y comienza a hablar...';
+  
+  String get _currentPrompt {
+    if (!_isListening) return 'Toca el micrófono para hablar';
+    // Animación de los puntos suspensivos basada en el controlador de 4 segundos
+    int dots = (_controller.value * 4).floor() % 4;
+    String ellipsis = '.' * dots;
+    // Rellenamos con espacios invisibles para que el texto no "salte" cambiando de ancho
+    return 'Escuchando$ellipsis'.padRight(14, ' '); 
+  }
 
   @override
   void initState() {
     super.initState();
-    _initSpeech();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
     )..repeat(); // Continues 0.0 -> 1.0 -> 0.0
     _generateRandomPositions();
     _loadCategories();
+
+    // Iniciar el micrófono automáticamente al abrir la pantalla
+    _initSpeech().then((_) {
+      if (mounted && _speechEnabled) {
+        _startListening();
+      }
+    });
   }
 
   void _handleSpeechFinished() {
     if (!mounted) return;
     setState(() => _isListening = false);
-    if (_recognizedText.trim().isNotEmpty && !_isAnalyzing) {
+    
+    final text = _recognizedText.trim();
+    // Evitar procesar ruidos cortos o palabras vacías de 1-2 letras
+    if (text.length > 2 && !_isAnalyzing) {
       _processWithAI();
+    } else if (text.isNotEmpty && text.length <= 2) {
+      setState(() {
+        _recognizedText = ''; // Limpiar si fue un falso positivo
+      });
     }
   }
 
@@ -135,7 +158,8 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
         }
       },
       localeId: 'es_ES', // Intentar con español por defecto
-      pauseFor: const Duration(seconds: 2), // Se apaga la grabación luego de 2s de silencio
+      pauseFor: const Duration(seconds: 4), // Dar más tiempo para pensar (4s en lugar de 2s)
+      listenFor: const Duration(seconds: 30), // Asegurar que no se corte por tiempo máximo
     );
   }
 
@@ -188,12 +212,9 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
         extendBodyBehindAppBar: true,
         body: Stack(
         children: [
-          // Background Image
-          Positioned.fill(
-            child: Image.network(
-              'https://lh3.googleusercontent.com/aida/ADBb0uiDxjZ6MHOXH3DQxF0xx4bhPcbgSllJ3SeMWdWmLLnHGDN0PGgL4ZU9KHrAgu9vZdYMG2FXBd-PDCei58o_JFb35Ic4-NK_eUxcC6I4CNPiBcb_V8HRinKeCkOXvHoYTcey352vnBBKTuIPKfi_IQPqLsMkX_lAibqwq7IuFmFlMsW92pIDOgCT6Jm98G3GTcT2ScLB6HsJZnG3fbaOgKKh0gQJE5A9wlXhaE3MkMtz2y8Y229y35eSOiJw',
-              fit: BoxFit.cover,
-            ),
+          // Background Image with Parallax
+          const ParallaxBackground(
+            imageUrl: 'https://lh3.googleusercontent.com/aida/ADBb0uiDxjZ6MHOXH3DQxF0xx4bhPcbgSllJ3SeMWdWmLLnHGDN0PGgL4ZU9KHrAgu9vZdYMG2FXBd-PDCei58o_JFb35Ic4-NK_eUxcC6I4CNPiBcb_V8HRinKeCkOXvHoYTcey352vnBBKTuIPKfi_IQPqLsMkX_lAibqwq7IuFmFlMsW92pIDOgCT6Jm98G3GTcT2ScLB6HsJZnG3fbaOgKKh0gQJE5A9wlXhaE3MkMtz2y8Y229y35eSOiJw',
           ),
           
           // Gradient Overlay
@@ -240,90 +261,136 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
                 // Top App Bar removido a petición (sin Wealth AI, foto, ni settings)
                 const SizedBox(height: 72), // Mantenemos el espacio para no tapar los elementos con notches
                 
-                // Center Text
+                // Center Text or Analyzing Animation
                 Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: _isAnalyzing
-                          ? Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const CircularProgressIndicator(color: Colors.white),
-                                const SizedBox(height: 16),
-                                Text(
-                                  "Analizando comando...",
-                                  style: theme.textTheme.headlineMedium?.copyWith(
-                                    color: Colors.white,
+                  child: _isAnalyzing
+                      ? const AuraAnalyzingAnimation()
+                      : Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            child: AnimatedBuilder(
+                              animation: _controller,
+                              builder: (context, child) {
+                                // Shimmer sutil usando el controlador
+                                final shimmerOffset = -1.0 + (_controller.value * 2.0);
+                                
+                                return ShaderMask(
+                                  blendMode: BlendMode.srcIn,
+                                  shaderCallback: (bounds) => LinearGradient(
+                                    colors: [
+                                      Colors.white.withValues(alpha: _isListening ? 0.7 : 0.8),
+                                      Colors.white,
+                                      Colors.white.withValues(alpha: _isListening ? 0.7 : 0.8),
+                                    ],
+                                    stops: const [0.0, 0.5, 1.0],
+                                    begin: Alignment(shimmerOffset - 1.0, 0),
+                                    end: Alignment(shimmerOffset + 1.0, 0),
+                                  ).createShader(bounds),
+                                  child: Text(
+                                    _recognizedText.isNotEmpty ? _recognizedText : _currentPrompt,
+                                    textAlign: TextAlign.center,
+                                    style: theme.textTheme.displayLarge?.copyWith(
+                                      color: Colors.white, // Se usa color base para el ShaderMask
+                                      fontSize: _recognizedText.isNotEmpty ? 40 : 26,
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.2,
+                                      shadows: [
+                                        const Shadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 2)),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            )
-                          : Text(
-                              _recognizedText.isNotEmpty ? _recognizedText : _defaultText,
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.displayLarge?.copyWith(
-                                color: _isListening ? Colors.white : Colors.white.withValues(alpha: 0.8),
-                                fontSize: _recognizedText.isNotEmpty ? 40 : 24, // Smaller if just hint
-                                height: 1.1,
-                                shadows: [
-                                  const Shadow(color: Colors.black54, blurRadius: 10, offset: Offset(0, 2)),
-                                ],
-                              ),
+                                );
+                              },
                             ),
+                          ),
+                        ),
+                ),
+                
+                const SizedBox(height: 120), // Spacer para no superponer con el bottom nav
+              ],
+            ),
+          ),
+          
+          // Bottom Contextual Control Area (Posicionamiento Absoluto para igualar Dashboard)
+          Positioned(
+            bottom: 32,
+            left: 24,
+            right: 24,
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.bottomCenter,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildBottomActionButton(Icons.close, "Cancelar", () => Navigator.pop(context)),
+                          const SizedBox(width: 72), // Espacio para el botón central
+                          _buildBottomActionButton(Icons.camera_alt_outlined, "Escanear", () {}),
+                        ],
+                      ),
                     ),
                   ),
                 ),
                 
-                // Bottom Contextual Control Area
-                Padding(
-                  padding: const EdgeInsets.only(left: 24, right: 24, bottom: 40),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            _buildBottomActionButton(Icons.close, "Cancelar", () => Navigator.pop(context)),
-                            
-                            // Large Integrated Voice Button
-                            Transform.translate(
-                              offset: const Offset(0, -24),
-                              child: GestureDetector(
+                // Large Integrated Voice Button
+                Positioned(
+                  bottom: 20, // 32 + 20 = 52px desde el fondo de la pantalla (Igual que en Dashboard)
+                  child: AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, child) {
+                      // Animación más suave y fluida (1 ciclo cada 2 segundos)
+                      final pulseScale = _isListening 
+                          ? 1.0 + (sin(_controller.value * 4 * pi) * 0.1) 
+                          : 1.0;
+                          
+                      return Hero(
+                        tag: 'mic_hero_button',
+                        // El Hero envuelve al Transform para que la transición de vista a vista use el mismo ancla
+                        child: Transform.scale(
+                          scale: pulseScale,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            width: 72,
+                            height: 72,
+                            decoration: BoxDecoration(
+                              color: _isListening ? const Color(0xFFDC2626) : V2Colors.primary,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 4),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: (_isListening ? const Color(0xFFDC2626) : V2Colors.primary).withValues(alpha: 0.4),
+                                  blurRadius: _isListening ? 35 : 24,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                customBorder: const CircleBorder(),
                                 onTap: _speechToText.isNotListening ? _startListening : _stopListening,
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 300),
-                                  padding: EdgeInsets.all(_isListening ? 20 : 16),
-                                  decoration: BoxDecoration(
-                                    color: _isListening ? const Color(0xFFDC2626) : theme.colorScheme.primary, // Red when listening
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 4),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: (_isListening ? const Color(0xFFDC2626) : theme.colorScheme.primary).withValues(alpha: 0.4),
-                                        blurRadius: _isListening ? 30 : 20,
-                                        spreadRadius: _isListening ? 8 : 4,
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Icon(Icons.mic, color: Colors.white, size: 36),
+                                child: Icon(
+                                  _isListening ? Icons.stop_rounded : Icons.mic, 
+                                  color: Colors.white, 
+                                  size: 36
                                 ),
                               ),
                             ),
-                            
-                            _buildBottomActionButton(Icons.history, "Recientes", () {}),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -379,6 +446,95 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
         ),
       ),
     );
+  }
+}
+
+class AuraAnalyzingAnimation extends StatefulWidget {
+  const AuraAnalyzingAnimation({super.key});
+
+  @override
+  State<AuraAnalyzingAnimation> createState() => _AuraAnalyzingAnimationState();
+}
+
+class _AuraAnalyzingAnimationState extends State<AuraAnalyzingAnimation> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return CustomPaint(
+          painter: _AuraPainter(_controller.value),
+          child: const SizedBox.expand(),
+        );
+      },
+    );
+  }
+}
+
+class _AuraPainter extends CustomPainter {
+  final double progress;
+
+  _AuraPainter(this.progress);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    
+    // Usamos colores de V2Colors para mantener la consistencia
+    final color1 = V2Colors.primary.withValues(alpha: 0.6); // Azul principal
+    final color2 = V2Colors.secondaryContainer.withValues(alpha: 0.5); // Verde aguamarina suave
+    final color3 = const Color(0xFFDC2626).withValues(alpha: 0.3); // Acento rojo sutil
+    
+    // Movimiento orbital suave para 3 esferas
+    final angle1 = progress * 2 * pi;
+    final angle2 = (progress * 2 * pi) + (2 * pi / 3);
+    final angle3 = (progress * 2 * pi) + (4 * pi / 3);
+    
+    // El radio de órbita y tamaño de las esferas
+    final orbitRadius = size.width * 0.15; 
+    final orbSize = size.width * 0.35;
+    
+    // Posiciones dinámicas con formas elípticas
+    final pos1 = center + Offset(cos(angle1) * orbitRadius, sin(angle1) * orbitRadius * 0.6);
+    final pos2 = center + Offset(cos(angle2) * orbitRadius * 0.7, sin(angle2) * orbitRadius);
+    final pos3 = center + Offset(cos(angle3) * orbitRadius, sin(angle3) * orbitRadius * 0.8);
+    
+    // Difuminado extremo para crear el aura
+    const blur = MaskFilter.blur(BlurStyle.normal, 80);
+    
+    canvas.drawCircle(pos1, orbSize, Paint()..color = color1..maskFilter = blur);
+    canvas.drawCircle(pos2, orbSize * 0.9, Paint()..color = color2..maskFilter = blur);
+    canvas.drawCircle(pos3, orbSize * 0.8, Paint()..color = color3..maskFilter = blur);
+    
+    // Un núcleo central brillante que pulsa sutilmente
+    final pulse = sin(progress * 4 * pi).abs();
+    final corePaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.2 + (pulse * 0.2))
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 40);
+      
+    canvas.drawCircle(center, orbSize * 0.6, corePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _AuraPainter oldDelegate) {
+    return oldDelegate.progress != progress;
   }
 }
 
