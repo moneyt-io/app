@@ -17,10 +17,18 @@ import '../../features/transactions/transaction_provider.dart';
 
 class NewTransactionScreen extends StatefulWidget {
   final String initialType;
+  final double? initialAmount;
+  final String? initialDescription;
+  final int? initialCategoryId;
+  final int? initialWalletId;
   
   const NewTransactionScreen({
     super.key,
     this.initialType = 'E',
+    this.initialAmount,
+    this.initialDescription,
+    this.initialCategoryId,
+    this.initialWalletId,
   });
 
   @override
@@ -51,6 +59,15 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     super.initState();
     _selectedType = widget.initialType == 'all' ? 'E' : widget.initialType;
     if (_selectedType == 'T') _selectedType = 'E'; // Not handling transfer in this simplified MVP screen yet
+    
+    if (widget.initialAmount != null) {
+      _amountController.text = widget.initialAmount.toString();
+    }
+    if (widget.initialDescription != null) {
+      _descriptionController.text = widget.initialDescription!;
+    }
+    _selectedCategoryId = widget.initialCategoryId;
+    
     _loadData();
   }
 
@@ -82,10 +99,13 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
         setState(() {
           _categories = categoriesResult;
           _accountsMap = accountsMap;
-          // Pre-select first account if available
-          if (_accountsMap.isNotEmpty) {
+          
+          if (widget.initialWalletId != null && _accountsMap.containsKey(widget.initialWalletId!)) {
+            _selectedAccount = _accountsMap[widget.initialWalletId!];
+          } else if (_accountsMap.isNotEmpty) {
             _selectedAccount = _accountsMap.values.first;
           }
+          
           _isLoading = false;
         });
       }

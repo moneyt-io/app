@@ -55,6 +55,10 @@
 			<string>v79kvwwj4g.skadnetwork</string>
 		</dict>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Necesitamos acceso a tu micrófono para que puedas dictar tus transacciones con la voz.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Necesitamos permiso de reconocimiento de voz para convertir lo que dictas a texto de forma segura.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

@@ -42,6 +42,8 @@ dependencies:
   app_tracking_transparency: ^2.0.4
   facebook_app_events: ^0.27.2
   google_fonts: ^8.1.0
+  speech_to_text: ^7.3.0
+  google_generative_ai: ^0.4.7
   
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -122,9 +123,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFAF8FF), // surface-container-lowest
-      drawer: const AppDrawer(),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light, // Fuerza íconos blancos en la barra de estado
+      child: Scaffold(
+        backgroundColor: const Color(0xFFFAF8FF), // surface-container-lowest
+        drawer: const AppDrawer(),
       body: Consumer3<WalletProvider, TransactionProvider, CurrencyFilterProvider>(
         builder: (context, walletProvider, transactionProvider, currencyFilter, child) {
           if (walletProvider.isLoading) {
@@ -199,6 +202,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
             ],
           );
         },
+      ),
       ),
     );
   }
