@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Opciones - Wealth App</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-variant": "#dae2fd",
+                        "surface": "#faf8ff",
+                        "secondary-fixed": "#6ffbbe",
+                        "secondary-fixed-dim": "#4edea3",
+                        "inverse-primary": "#b4c5ff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary-container": "#eeefff",
+                        "surface-container-highest": "#dae2fd",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-background": "#131b2e",
+                        "primary": "#004ac6",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#283044",
+                        "tertiary": "#784b00",
+                        "on-tertiary-fixed": "#2a1700",
+                        "outline-variant": "#c3c6d7",
+                        "on-tertiary-container": "#ffeedd",
+                        "secondary-container": "#6cf8bb",
+                        "on-secondary-container": "#00714d",
+                        "on-secondary-fixed": "#002113",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "outline": "#737686",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#0053db",
+                        "primary-container": "#2563eb",
+                        "on-primary-fixed": "#00174b",
+                        "surface-container": "#eaedff",
+                        "background": "#faf8ff",
+                        "surface-bright": "#faf8ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-dim": "#d2d9f4",
+                        "on-surface-variant": "#434655",
+                        "surface-container-low": "#f2f3ff",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#dbe1ff",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-surface": "#131b2e",
+                        "tertiary-container": "#996100",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-container-high": "#e2e7ff",
+                        "secondary": "#006c49"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "margin-mobile": "20px",
+                        "unit": "4px",
+                        "margin-desktop": "64px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "xl": "40px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Manrope"],
+                        "headline-lg": ["Manrope"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "display-lg": ["Manrope"],
+                        "label-sm": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "label-md": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen font-body-md antialiased pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface dark:bg-background shadow-none z-40">
+<div class="flex items-center px-margin-mobile py-md w-full max-w-7xl mx-auto">
+<button aria-label="Go back" class="hover:opacity-80 transition-opacity active:scale-95 duration-200 text-on-surface-variant dark:text-surface-variant p-sm mr-sm">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary dark:text-primary-fixed flex-1 text-center pr-12">Opciones</h1>
+</div>
+</header>
+<!-- Main Content -->
+<main class="max-w-3xl mx-auto px-margin-mobile pt-lg pb-xl space-y-md">
+<!-- Option Item: Categorías -->
+<a class="group block bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(15,23,42,0.05)] hover:shadow-[0px_12px_40px_rgba(15,23,42,0.1)] hover:-translate-y-[2px] transition-all duration-300 flex items-center justify-between border border-transparent hover:border-outline-variant/30" href="#">
+<div class="flex items-center space-x-md">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="category">category</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">Categorías</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</a>
+<!-- Option Item: Billeteras -->
+<a class="group block bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(15,23,42,0.05)] hover:shadow-[0px_12px_40px_rgba(15,23,42,0.1)] hover:-translate-y-[2px] transition-all duration-300 flex items-center justify-between border border-transparent hover:border-outline-variant/30" href="#">
+<div class="flex items-center space-x-md">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">Billeteras</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</a>
+<!-- Option Item: Idioma -->
+<a class="group block bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(15,23,42,0.05)] hover:shadow-[0px_12px_40px_rgba(15,23,42,0.1)] hover:-translate-y-[2px] transition-all duration-300 flex items-center justify-between border border-transparent hover:border-outline-variant/30" href="#">
+<div class="flex items-center space-x-md">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="language">language</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">Idioma</span>
+</div>
+<div class="flex items-center space-x-sm">
+<span class="font-body-md text-body-md text-on-surface-variant">Español</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</a>
+<!-- Option Item: Divisa -->
+<a class="group block bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(15,23,42,0.05)] hover:shadow-[0px_12px_40px_rgba(15,23,42,0.1)] hover:-translate-y-[2px] transition-all duration-300 flex items-center justify-between border border-transparent hover:border-outline-variant/30" href="#">
+<div class="flex items-center space-x-md">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="attach_money">attach_money</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">Divisa</span>
+</div>
+<div class="flex items-center space-x-sm">
+<span class="font-body-md text-body-md text-on-surface-variant">USD ($)</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</a>
+<!-- Option Item: Contacto -->
+<a class="group block bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(15,23,42,0.05)] hover:shadow-[0px_12px_40px_rgba(15,23,42,0.1)] hover:-translate-y-[2px] transition-all duration-300 flex items-center justify-between border border-transparent hover:border-outline-variant/30" href="#">
+<div class="flex items-center space-x-md">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="support_agent">support_agent</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">Contacto</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</a>
+</main>
+<!-- BottomNavBar -->
+<!-- Suppressed: Settings/Options screen is a top-level destination, but it's a structural/settings page. Wait, the prompt says "Navigation: Use the shared BottomNavBar from {{DATA:COMPONENTS:COMPONENTS_124}} which includes the large center voice button, search, and add icons." Therefore, I must include it despite standard suppression rules, as explicitly requested by user. -->
+<nav class="bg-surface-container-lowest dark:bg-inverse-surface fixed bottom-0 w-full rounded-t-xl shadow-[0px_-4px_20px_rgba(15,23,42,0.05)] shadow-lg fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile pb-8 pt-4 md:hidden">
+<!-- Nav Item 1: Búsqueda -->
+<button class="hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors active:scale-90 duration-300 flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant p-sm rounded-lg group">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors mb-xs" data-icon="search">search</span>
+<span class="font-label-sm text-label-sm text-primary dark:text-primary-fixed-dim">Búsqueda</span>
+</button>
+<!-- Nav Item 2: Asistente (Active for center FAB style) -->
+<button class="hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors active:scale-90 duration-300 flex flex-col items-center justify-center bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-full p-sm -mt-6 shadow-md border-4 border-surface">
+<span class="material-symbols-outlined text-[32px] m-xs" data-icon="mic" data-weight="fill" style="font-variation-settings: 'FILL' 1;">mic</span>
+<span class="sr-only">Asistente</span>
+</button>
+<!-- Nav Item 3: Añadir -->
+<button class="hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors active:scale-90 duration-300 flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant p-sm rounded-lg group">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors mb-xs" data-icon="add_circle">add_circle</span>
+<span class="font-label-sm text-label-sm text-primary dark:text-primary-fixed-dim">Añadir</span>
+</button>
+</nav>
+</body></html>

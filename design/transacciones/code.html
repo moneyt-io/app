@@ -1,0 +1,362 @@
+<!DOCTYPE html><html class="light" lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#dbe1ff",
+                        "on-primary-fixed": "#00174b",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#996100",
+                        "on-secondary-fixed-variant": "#005236",
+                        "inverse-on-surface": "#eef0ff",
+                        "secondary-container": "#6cf8bb",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#131b2e",
+                        "surface-container-highest": "#dae2fd",
+                        "inverse-surface": "#283044",
+                        "surface-variant": "#dae2fd",
+                        "outline-variant": "#c3c6d7",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "inverse-primary": "#b4c5ff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "surface-tint": "#0053db",
+                        "secondary": "#006c49",
+                        "on-primary-container": "#eeefff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#faf8ff",
+                        "primary": "#004ac6",
+                        "on-secondary-container": "#00714d",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#eaedff",
+                        "primary-container": "#2563eb",
+                        "on-tertiary-container": "#ffeedd",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed": "#002113",
+                        "surface-dim": "#d2d9f4",
+                        "surface-container-low": "#f2f3ff",
+                        "on-surface": "#131b2e",
+                        "tertiary-fixed": "#ffddb8",
+                        "outline": "#737686",
+                        "secondary-fixed-dim": "#4edea3",
+                        "secondary-fixed": "#6ffbbe",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "tertiary": "#784b00",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#e2e7ff",
+                        "background": "#faf8ff",
+                        "surface": "#faf8ff",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#434655"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "xl": "40px",
+                        "margin-desktop": "64px",
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "margin-mobile": "20px",
+                        "md": "16px",
+                        "unit": "4px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "label-sm": ["Manrope"],
+                        "display-lg": ["Manrope"],
+                        "label-md": ["Manrope"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "headline-md": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .transaction-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .transaction-card:active {
+            transform: scale(0.98);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- Header Section -->
+<header class="w-full top-0 sticky z-40 bg-surface/80 backdrop-blur-md">
+<div class="flex justify-between items-center px-margin-mobile py-md w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-md">
+<button aria-label="Volver" class="p-xs hover:opacity-80 transition-opacity active:scale-95">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md-mobile font-bold text-on-surface">Actividad Reciente</h1>
+</div>
+<button aria-label="Filtrar" class="p-xs hover:opacity-80 transition-opacity active:scale-95">
+<span class="material-symbols-outlined text-on-surface">filter_list</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="w-full max-w-2xl mx-auto px-margin-mobile pb-xl">
+<!-- Group: Hoy -->
+<!-- Categories Section -->
+<section class="mt-md mb-lg">
+<h2 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md ml-xs">CATEGORÍAS USADAS</h2>
+<div class="flex flex-wrap gap-sm px-xs">
+<!-- Category Chip: Ingresos -->
+<button class="w-12 h-12 flex items-center justify-center bg-secondary-container/20 rounded-xl text-[24px] hover:scale-110 active:scale-95 transition-all shadow-sm border border-secondary-container/10">
+      💰
+    </button>
+<!-- Category Chip: Tecnología -->
+<button class="w-12 h-12 flex items-center justify-center bg-primary-fixed/30 rounded-xl text-[24px] hover:scale-110 active:scale-95 transition-all shadow-sm border border-primary-fixed/10">
+      🖥️
+    </button>
+<!-- Category Chip: Transporte -->
+<button class="w-12 h-12 flex items-center justify-center bg-surface-container-high rounded-xl text-[24px] hover:scale-110 active:scale-95 transition-all shadow-sm border border-surface-container-high/20">
+      🚗
+    </button>
+<!-- Category Chip: Comida -->
+<button class="w-12 h-12 flex items-center justify-center bg-tertiary-fixed/30 rounded-xl text-[24px] hover:scale-110 active:scale-95 transition-all shadow-sm border border-tertiary-fixed/10">
+      ☕
+    </button>
+<!-- Category Chip: Ropa -->
+<button class="w-12 h-12 flex items-center justify-center bg-error-container/20 rounded-xl text-[24px] hover:scale-110 active:scale-95 transition-all shadow-sm border border-error-container/10">
+      👟
+    </button>
+<!-- Category Chip: Entretenimiento -->
+<button class="w-12 h-12 flex items-center justify-center bg-primary-fixed/20 rounded-xl text-[24px] hover:scale-110 active:scale-95 transition-all shadow-sm border border-primary-fixed/10">
+      🎬
+    </button>
+</div>
+</section><section class="mt-lg">
+<h2 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md ml-xs">Hoy</h2>
+<div class="flex flex-col gap-sm">
+<!-- Transaction: Salario -->
+<div class="transaction-card flex items-center justify-between p-md bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 flex items-center justify-center bg-secondary-container/20 rounded-xl text-[24px]">
+                            💰
+                        </div>
+<div class="flex flex-col">
+<span class="font-headline-md text-label-md font-bold text-on-surface">Salario Mensual</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Ingresos • Hoy</span>
+</div>
+</div>
+<span class="font-headline-md text-label-md font-bold text-secondary"><div class="flex items-center gap-sm">
+<span class="font-headline-md text-label-md font-bold text-secondary">+$1.200,00</span>
+<div class="flex items-center gap-xs">
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div></span>
+</div>
+<!-- Transaction: iMac -->
+<div class="transaction-card flex items-center justify-between p-md bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 flex items-center justify-center bg-primary-fixed/30 rounded-xl text-[24px]">
+                            🖥️
+                        </div>
+<div class="flex flex-col">
+<span class="font-headline-md text-label-md font-bold text-on-surface">iMac</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Tecnología • Hoy</span>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-label-md font-bold text-on-surface">-$500,00</span>
+<div class="flex items-center gap-xs">
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Transaction: Uber -->
+<div class="transaction-card flex items-center justify-between p-md bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 flex items-center justify-center bg-surface-container-high rounded-xl text-[24px]">
+                            🚗
+                        </div>
+<div class="flex flex-col">
+<span class="font-headline-md text-label-md font-bold text-on-surface">Uber</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Transporte • Hoy</span>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-label-md font-bold text-on-surface">-$15,00</span>
+<div class="flex items-center gap-xs">
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Group: Ayer -->
+<section class="mt-xl">
+<h2 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md ml-xs">Ayer</h2>
+<div class="flex flex-col gap-sm">
+<!-- Transaction: Starbucks -->
+<div class="transaction-card flex items-center justify-between p-md bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 flex items-center justify-center bg-tertiary-fixed/30 rounded-xl text-[24px]">
+                            ☕
+                        </div>
+<div class="flex flex-col">
+<span class="font-headline-md text-label-md font-bold text-on-surface">Starbucks</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Comida • Ayer</span>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-label-md font-bold text-on-surface">-$25,00</span>
+<div class="flex items-center gap-xs">
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Transaction: Vans -->
+<div class="transaction-card flex items-center justify-between p-md bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 flex items-center justify-center bg-error-container/20 rounded-xl text-[24px]">
+                            👟
+                        </div>
+<div class="flex flex-col">
+<span class="font-headline-md text-label-md font-bold text-on-surface">Vans</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Ropa • Ayer</span>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-label-md font-bold text-on-surface">-$500,00</span>
+<div class="flex items-center gap-xs">
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Transaction: Netflix -->
+<div class="transaction-card flex items-center justify-between p-md bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 flex items-center justify-center bg-primary-fixed/20 rounded-xl text-[24px]">
+                            🎬
+                        </div>
+<div class="flex flex-col">
+<span class="font-headline-md text-label-md font-bold text-on-surface">Netflix</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Entretenimiento • Ayer</span>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-label-md font-bold text-on-surface">-$15,00</span>
+<div class="flex items-center gap-xs">
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Group: 15 de Octubre -->
+<section class="mt-xl">
+<h2 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md ml-xs">15 de Octubre</h2>
+<div class="flex flex-col gap-sm">
+<!-- Transaction: Supermercado -->
+<div class="transaction-card flex items-center justify-between p-md bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 flex items-center justify-center bg-on-secondary-fixed-variant/10 rounded-xl text-[24px]">
+                            🛒
+                        </div>
+<div class="flex flex-col">
+<span class="font-headline-md text-label-md font-bold text-on-surface">Supermercado</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Comida • 15 Oct</span>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-label-md font-bold text-on-surface">-$85,00</span>
+<div class="flex items-center gap-xs">
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Shell (Consistent with Shared Components) -->
+<script>
+        // Micro-interaction for feedback
+        document.querySelectorAll('.transaction-card').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.97)';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'scale(1)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>

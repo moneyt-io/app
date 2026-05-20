@@ -377,13 +377,35 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
                             ),
                             child: Material(
                               color: Colors.transparent,
-                              child: InkWell(
-                                customBorder: const CircleBorder(),
-                                onTap: _speechToText.isNotListening ? _startListening : _stopListening,
-                                child: Icon(
-                                  _isListening ? Icons.stop_rounded : Icons.mic, 
-                                  color: Colors.white, 
-                                  size: 36
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (_speechToText.isNotListening) {
+                                    _startListening();
+                                  } else {
+                                    _stopListening();
+                                  }
+                                },
+                                onLongPressStart: (_) {
+                                  if (_speechToText.isNotListening) {
+                                    _startListening();
+                                  }
+                                },
+                                onLongPressEnd: (_) {
+                                  if (!_speechToText.isNotListening) {
+                                    _stopListening();
+                                  }
+                                },
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.transparent,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Icon(
+                                    _isListening ? Icons.stop_rounded : Icons.mic, 
+                                    color: Colors.white, 
+                                    size: 36
+                                  ),
                                 ),
                               ),
                             ),

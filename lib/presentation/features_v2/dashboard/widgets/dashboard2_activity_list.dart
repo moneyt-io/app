@@ -19,6 +19,21 @@ class Dashboard2ActivityList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Agrupar gastos por categoría
+    final expenses = transactions.where((t) => t.documentTypeId == 'E');
+    final Map<String, double> categorySums = {};
+    final Map<String, Category?> categoryMap = {};
+    
+    for (final t in expenses) {
+      final cat = t.category ?? (t.mainCategoryId != null ? categoriesDataMap[t.mainCategoryId!] : null);
+      final catId = cat?.id.toString() ?? 'otros';
+      categorySums[catId] = (categorySums[catId] ?? 0) + t.amount.abs();
+      categoryMap[catId] = cat;
+    }
+
+    final sortedCategories = categorySums.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -26,7 +41,7 @@ class Dashboard2ActivityList extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              "Actividad Reciente",
+              "Gastos por categoría",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -49,12 +64,12 @@ class Dashboard2ActivityList extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        if (transactions.isEmpty)
+        if (sortedCategories.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 32),
             child: Center(
               child: Text(
-                "No hay actividad reciente",
+                "No hay gastos recientes",
                 style: TextStyle(
                   color: Color(0xFF737686),
                   fontFamily: 'Manrope',
@@ -64,41 +79,38 @@ class Dashboard2ActivityList extends StatelessWidget {
             ),
           )
         else
-          ...transactions.take(5).map((t) {
-            final category = t.category ?? (t.mainCategoryId != null ? categoriesDataMap[t.mainCategoryId!] : null);
+          ...sortedCategories.take(5).map((entry) {
+            final catId = entry.key;
+            final sum = entry.value;
+            final category = categoryMap[catId];
 
             double progress = 0.0;
-            if (t.isExpense && totalExpenses > 0) {
-              progress = (t.amount.abs() / totalExpenses).clamp(0.0, 1.0);
+            if (totalExpenses > 0) {
+              progress = (sum / totalExpenses).clamp(0.0, 1.0);
             }
 
-            // Assign a color based on category or index (for variety)
-            Color progressColor = const Color(0xFF004AC6);
-            if (t.isExpense) {
-              final hash = category?.id.hashCode ?? t.id.hashCode;
-              final colors = [
-                const Color(0xFF004AC6), // blue
-                const Color(0xFF6CF8BB), // green
-                const Color(0xFFFFB95F), // orange
-                const Color(0xFFBA1A1A), // red
-              ];
-              progressColor = colors[hash % colors.length];
-            }
+            // Asignar color consistente
+            final hash = catId.hashCode;
+            final colors = [
+              const Color(0xFF004AC6), // blue
+              const Color(0xFF6CF8BB), // green
+              const Color(0xFFFFB95F), // orange
+              const Color(0xFFBA1A1A), // red
+            ];
+            final progressColor = colors[hash % colors.length];
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: _buildActivityItem(
-                title: t.description?.isNotEmpty == true
-                    ? t.description!
-                    : (t.contact?.name ?? category?.name ?? 'Transacción'),
-                category: category?.name ?? 'Otros',
-                date: _formatDate(t.date),
-                amount: t.isExpense ? -t.amount.abs() : t.amount.abs(),
+                title: category?.name ?? 'Otros',
+                category: "${(progress * 100).toInt()}% del total",
+                date: "", // Ya no mostramos la fecha porque es un agrupado
+                amount: -sum,
                 emoji: (category != null && category.icon.isNotEmpty) 
                     ? IconToEmojiMapper.getEmoji(category.icon) 
-                    : (t.isIncome ? '💰' : '🏷️'),
+                    : '🏷️',
                 progress: progress,
-                progressColor: t.isIncome ? Colors.transparent : progressColor,
+                progressColor: progressColor,
               ),
             );
           }),
@@ -176,7 +188,7 @@ class Dashboard2ActivityList extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "$category • $date",
+                          date.isEmpty ? category : "$category • $date",
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,

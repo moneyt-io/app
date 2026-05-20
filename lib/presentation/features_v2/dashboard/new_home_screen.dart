@@ -14,6 +14,7 @@ import 'widgets/dashboard2_income_expense.dart';
 import 'widgets/dashboard2_activity_list.dart';
 import 'widgets/dashboard2_bottom_nav.dart';
 import 'widgets/parallax_background.dart';
+import '../settings/new_settings_screen.dart';
 
 class NewHomeScreen extends StatefulWidget {
   final bool hasJustSeenPaywall;
@@ -172,7 +173,15 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeaderWithBackground(context, totalBalance, expenses, income, walletProvider),
+                    _buildHeaderWithBackground(
+                      context, 
+                      totalBalance, 
+                      expenses, 
+                      income, 
+                      walletProvider,
+                      currentRangeTransactions,
+                      transactionProvider,
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
@@ -208,7 +217,15 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     );
   }
 
-  Widget _buildHeaderWithBackground(BuildContext context, double totalBalance, double expenses, double income, WalletProvider walletProvider) {
+  Widget _buildHeaderWithBackground(
+    BuildContext context, 
+    double totalBalance, 
+    double expenses, 
+    double income, 
+    WalletProvider walletProvider,
+    List<TransactionEntry> currentRangeTransactions,
+    TransactionProvider transactionProvider,
+  ) {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -282,9 +299,18 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                           const SizedBox(width: 8),
                           IconButton(
                             onPressed: () {
-                              Scaffold.of(context).openDrawer();
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation, secondaryAnimation) => const NewSettingsScreen(),
+                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                    return FadeTransition(opacity: animation, child: child);
+                                  },
+                                  transitionDuration: const Duration(milliseconds: 300),
+                                ),
+                              );
                             },
-                            icon: const Icon(Icons.settings, color: Colors.white),
+                            icon: const Icon(Icons.tune_rounded, color: Colors.white),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                           ),
@@ -430,8 +456,13 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 ),
                 const SizedBox(height: 32),
                 // Gauge Chart
-                Dashboard2Gauge(income: income, expenses: expenses),
-                const SizedBox(height: 56), // Added more space to prevent overlap with income/expense cards
+                Dashboard2Gauge(
+                  income: income, 
+                  expenses: expenses,
+                  transactions: currentRangeTransactions,
+                  categoriesDataMap: transactionProvider.categoriesDataMap,
+                ),
+                const SizedBox(height: 56), // Added more space to prevent overlap con income/expense cards
               ],
             ),
           ),
