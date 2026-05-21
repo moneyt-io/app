@@ -4,6 +4,8 @@ import '../../../../domain/entities/transaction_entry.dart';
 import '../../../../core/utils/icon_to_emoji_mapper.dart';
 
 import '../../../../domain/entities/category.dart';
+import '../../transactions/new_transactions_screen.dart';
+import '../../../../core/utils/number_formatter.dart';
 
 class Dashboard2ActivityList extends StatelessWidget {
   final List<TransactionEntry> transactions;
@@ -50,7 +52,12 @@ class Dashboard2ActivityList extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const NewTransactionsScreen()),
+                );
+              },
               style: TextButton.styleFrom(
                 foregroundColor: const Color(0xFF004AC6),
                 textStyle: const TextStyle(
@@ -140,7 +147,6 @@ class Dashboard2ActivityList extends StatelessWidget {
     required double progress,
     required Color progressColor,
   }) {
-    final formatCurrency = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
     final isIncome = amount > 0;
 
     return ClipRRect(
@@ -189,6 +195,8 @@ class Dashboard2ActivityList extends StatelessWidget {
                         ),
                         Text(
                           date.isEmpty ? category : "$category • $date",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -199,13 +207,13 @@ class Dashboard2ActivityList extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        "${isIncome ? '+' : ''}${formatCurrency.format(amount)}",
-                        style: TextStyle(
-                          fontSize: 14,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "${isIncome ? '+' : ''}${NumberFormatter.formatCurrency(amount.abs())}",
+                            style: TextStyle(
+                              fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: isIncome ? const Color(0xFF00714D) : const Color(0xFF131B2E),
                           fontFamily: 'Manrope',

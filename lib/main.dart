@@ -11,6 +11,7 @@ import 'presentation/core/providers/theme_provider.dart';
 import 'presentation/core/providers/language_provider.dart';
 import 'presentation/core/providers/currency_provider.dart';
 import 'presentation/core/providers/currency_filter_provider.dart';
+import 'presentation/core/providers/background_provider.dart';
 import 'presentation/core/l10n/generated/strings.g.dart';
 import 'presentation/features/backup/backup_provider.dart';
 import 'presentation/features/loans/loan_provider.dart';
@@ -93,6 +94,9 @@ void main() async {
       providers: [
         ChangeNotifierProvider(
           create: (_) => ThemeProvider(prefs),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => BackgroundProvider(prefs),
         ),
         ChangeNotifierProvider(
           create: (_) => LanguageProvider(prefs),

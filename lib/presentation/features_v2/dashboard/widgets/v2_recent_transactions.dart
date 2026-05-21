@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import '../../../../core/utils/number_formatter.dart';
 
 class V2RecentTransactions extends StatelessWidget {
   final String currencySymbol;
@@ -106,7 +106,6 @@ class V2RecentTransactions extends StatelessWidget {
     required IconData icon,
     required Color color,
   }) {
-    final formatCurrency = NumberFormat.currency(symbol: currencySymbol, decimalDigits: 2);
     final isIncome = amount > 0;
     
     return Row(
@@ -148,7 +147,7 @@ class V2RecentTransactions extends StatelessWidget {
           ),
         ),
         Text(
-          "${isIncome ? '+' : ''}${formatCurrency.format(amount)}",
+          "${isIncome ? '+' : ''}${NumberFormatter.formatCurrency(amount.abs())}",
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,

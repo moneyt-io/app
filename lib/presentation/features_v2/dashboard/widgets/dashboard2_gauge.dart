@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../domain/entities/transaction_entry.dart';
+import '../../../../core/utils/number_formatter.dart';
 import '../../../../domain/entities/category.dart';
 
 class Dashboard2Gauge extends StatefulWidget {
@@ -78,8 +78,7 @@ class _Dashboard2GaugeState extends State<Dashboard2Gauge> {
       mainText = '${(displayPercentage * 100).toInt()}%';
       subText = displayPercentage > 1.0 ? 'EXCEDIDO' : 'GASTADO';
     } else {
-      final formatCurrency = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
-      mainText = formatCurrency.format(remaining.abs());
+      mainText = NumberFormatter.formatCurrency(remaining.abs());
       subText = remaining >= 0 ? 'DISPONIBLE' : 'SOBREGIRADO';
     }
 

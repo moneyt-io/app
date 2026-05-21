@@ -10,6 +10,7 @@ class AITransactionResult {
   final int? categoryId;
   final int? walletId;
   final String description;
+  final DateTime? date;
 
   AITransactionResult({
     required this.type,
@@ -17,6 +18,7 @@ class AITransactionResult {
     this.categoryId,
     this.walletId,
     required this.description,
+    this.date,
   });
 
   factory AITransactionResult.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class AITransactionResult {
       categoryId: json['categoryId'] as int?,
       walletId: json['walletId'] as int?,
       description: json['description']?.toString() ?? '',
+      date: json['date'] != null ? DateTime.tryParse(json['date']) : null,
     );
   }
 }
@@ -52,8 +55,12 @@ class AITransactionService {
     final categoriesJson = categories.map((c) => {'id': c.id, 'name': c.name, 'type': c.documentTypeId}).toList();
     final walletsJson = wallets.map((w) => {'id': w.id, 'name': w.name}).toList();
 
+    final currentDate = DateTime.now().toIso8601String().split('T')[0];
+
     final prompt = '''
     Actúa como un asistente financiero inteligente. Analiza este texto dictado por un usuario: "$text".
+    
+    Hoy es la fecha: $currentDate.
 
     Extrae la siguiente información y devuelve ÚNICAMENTE un objeto JSON válido con esta estructura exacta:
     {
@@ -61,7 +68,8 @@ class AITransactionService {
       "amount": (número positivo flotante, ej: 50.0),
       "categoryId": (el ID de la categoría que mejor coincida, o null),
       "walletId": (el ID de la billetera/cuenta que mejor coincida, o null),
-      "description": (Un resumen de 1 a 3 palabras de lo que fue, ej: "Café Starbucks")
+      "description": (Un resumen de 1 a 3 palabras de lo que fue, ej: "Café Starbucks"),
+      "date": (Calcula la fecha a la que se refiere el usuario en formato "YYYY-MM-DD", si dice ayer u otro día, calcúlalo en base a hoy. Si no menciona ninguna fecha explícita, devuelve null)
     }
 
     Opciones de Categorías disponibles:

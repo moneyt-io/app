@@ -1,15 +1,35 @@
 import 'dart:ui';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
+import 'package:provider/provider.dart';
 import '../theme/v2_colors.dart';
 import '../dashboard/widgets/parallax_background.dart';
 import '../dashboard/widgets/dashboard2_bottom_nav.dart';
+import '../../core/providers/background_provider.dart';
+import '../../core/providers/currency_provider.dart';
+import '../../core/providers/language_provider.dart';
+import 'currency_selection_screen.dart';
+import 'language_selection_screen.dart';
+import 'package:flutter/cupertino.dart';
+import '../../features/categories/categories_screen.dart';
+import '../../features/wallets/wallets_screen.dart';
 
 class NewSettingsScreen extends StatelessWidget {
   const NewSettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final currencyProvider = context.watch<CurrencyProvider>();
+    final currentCurrency = currencyProvider.currentCurrency;
+    
+    final languageProvider = context.watch<LanguageProvider>();
+    final currentLanguage = languageProvider.getCurrentLanguageName();
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light, // Texto blanco para fondo oscuro
       child: Scaffold(
@@ -94,32 +114,126 @@ class NewSettingsScreen extends StatelessWidget {
                       children: [
                         _buildGlassmorphismOptionItem(
                           context,
+                          icon: Icons.flag_outlined,
+                          title: 'Metas',
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              backgroundColor: V2Colors.surface,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                              ),
+                              builder: (sheetContext) => SafeArea(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 40,
+                                        height: 4,
+                                        decoration: BoxDecoration(
+                                          color: V2Colors.outlineVariant.withValues(alpha: 0.5),
+                                          borderRadius: BorderRadius.circular(2),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text(
+                                        'Fondo de Metas',
+                                        style: TextStyle(
+                                          fontFamily: 'Manrope',
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                          color: V2Colors.onSurface,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      ListTile(
+                                        leading: const Icon(Icons.photo_library_outlined, color: V2Colors.primary),
+                                        title: const Text('Elegir foto de la galería', style: TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w600)),
+                                        onTap: () async {
+                                          Navigator.pop(sheetContext);
+                                          final picker = ImagePicker();
+                                          final image = await picker.pickImage(source: ImageSource.gallery);
+                                          if (image != null && context.mounted) {
+                                            final appDir = await getApplicationDocumentsDirectory();
+                                            final fileName = path.basename(image.path);
+                                            final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
+                                            
+                                            if (context.mounted) {
+                                              context.read<BackgroundProvider>().setBackground(savedImage.path);
+                                            }
+                                          }
+                                        },
+                                      ),
+                                      ListTile(
+                                        leading: const Icon(Icons.restore, color: V2Colors.primary),
+                                        title: const Text('Restaurar fondo por defecto', style: TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w600)),
+                                        onTap: () {
+                                          Navigator.pop(sheetContext);
+                                          context.read<BackgroundProvider>().clearBackground();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildGlassmorphismOptionItem(
+                          context,
                           icon: Icons.category_outlined,
                           title: 'Categorías',
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (_) => const CategoriesScreen(),
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
                         _buildGlassmorphismOptionItem(
                           context,
                           icon: Icons.account_balance_wallet_outlined,
                           title: 'Billeteras',
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (_) => const WalletsScreen(),
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
                         _buildGlassmorphismOptionItem(
                           context,
                           icon: Icons.language,
                           title: 'Idioma',
-                          trailingText: 'Español',
-                          onTap: () {},
+                          trailingText: currentLanguage,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const LanguageSelectionScreen()),
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
                         _buildGlassmorphismOptionItem(
                           context,
                           icon: Icons.attach_money,
                           title: 'Divisa',
-                          trailingText: 'USD (\$)',
-                          onTap: () {},
+                          trailingText: '${currentCurrency.id} (${currentCurrency.symbol})',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const CurrencySelectionScreen()),
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
                         _buildGlassmorphismOptionItem(

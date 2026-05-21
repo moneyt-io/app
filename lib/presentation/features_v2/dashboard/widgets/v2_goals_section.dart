@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import '../../../../core/utils/number_formatter.dart';
 
 class V2GoalsSection extends StatelessWidget {
   final String currencySymbol;
@@ -66,7 +66,6 @@ class V2GoalsSection extends StatelessWidget {
     required Color color,
     required IconData icon,
   }) {
-    final formatCurrency = NumberFormat.currency(symbol: currencySymbol, decimalDigits: 0);
     final double progress = currentAmount / targetAmount;
 
     return Container(
@@ -120,7 +119,7 @@ class V2GoalsSection extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    formatCurrency.format(currentAmount),
+                    NumberFormatter.formatCurrency(currentAmount),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -129,7 +128,7 @@ class V2GoalsSection extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    formatCurrency.format(targetAmount),
+                    NumberFormatter.formatCurrency(targetAmount),
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import '../../../../core/utils/number_formatter.dart';
 
 class V2BalanceCard extends StatelessWidget {
   final double totalBalance;
@@ -12,13 +12,11 @@ class V2BalanceCard extends StatelessWidget {
     required this.totalBalance,
     required this.income,
     required this.expenses,
-    this.currencySymbol = '\$',
+    this.currencySymbol = '\$', // Se mantiene como fallback/compatibilidad, pero usamos NumberFormatter
   });
 
   @override
   Widget build(BuildContext context) {
-    final formatCurrency = NumberFormat.currency(symbol: currencySymbol, decimalDigits: 2);
-    
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -47,7 +45,7 @@ class V2BalanceCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            formatCurrency.format(totalBalance),
+            NumberFormatter.formatCurrency(totalBalance),
             style: const TextStyle(
               fontSize: 40,
               fontWeight: FontWeight.w800,
@@ -64,7 +62,7 @@ class V2BalanceCard extends StatelessWidget {
                   icon: Icons.arrow_downward,
                   iconColor: const Color(0xFF006C49), // Emerald Green
                   label: "Income",
-                  amount: formatCurrency.format(income),
+                  amount: NumberFormatter.formatCurrency(income),
                 ),
               ),
               Container(
@@ -78,7 +76,7 @@ class V2BalanceCard extends StatelessWidget {
                   icon: Icons.arrow_upward,
                   iconColor: const Color(0xFFBA1A1A), // Error Red
                   label: "Expenses",
-                  amount: formatCurrency.format(expenses),
+                  amount: NumberFormatter.formatCurrency(expenses),
                 ),
               ),
             ],

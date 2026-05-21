@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/organisms/app_drawer.dart';
 import '../../core/providers/currency_filter_provider.dart';
+import '../../core/providers/currency_provider.dart';
 import '../../features/transactions/transaction_provider.dart';
 import '../../features/wallets/wallet_provider.dart';
 import '../../../domain/entities/transaction_entry.dart';
+import '../../../core/utils/number_formatter.dart';
 
 import 'widgets/dashboard2_gauge.dart';
 import 'widgets/dashboard2_income_expense.dart';
@@ -125,6 +128,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Escuchar el proveedor de moneda para que se reconstruya si cambia la configuración
+    context.watch<CurrencyProvider>();
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light, // Fuerza íconos blancos en la barra de estado
       child: Scaffold(
@@ -288,29 +294,21 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                       ),
                       Row(
                         children: [
-                          TextButton.icon(
+                          IconButton(
                             onPressed: widget.onToggleLegacy,
-                            icon: const Icon(Icons.swap_horiz, size: 16, color: Colors.white),
-                            label: const Text(
-                              "Legacy View", 
-                              style: TextStyle(color: Colors.white, fontSize: 12),
-                            ),
+                            icon: const Icon(Icons.swap_horiz, color: Colors.white),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
                           ),
                           const SizedBox(width: 8),
-                          IconButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation, secondaryAnimation) => const NewSettingsScreen(),
-                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                    return FadeTransition(opacity: animation, child: child);
-                                  },
-                                  transitionDuration: const Duration(milliseconds: 300),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.tune_rounded, color: Colors.white),
+                            IconButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(builder: (_) => const NewSettingsScreen()),
+                                );
+                              },
+                              icon: const Icon(Icons.tune_rounded, color: Colors.white),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                           ),
@@ -340,7 +338,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "\$${totalBalance.toStringAsFixed(2)}",
+                  NumberFormatter.formatCurrencyWithDecimals(totalBalance),
                   style: const TextStyle(
                     fontSize: 44,
                     fontWeight: FontWeight.w800,

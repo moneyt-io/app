@@ -105,6 +105,7 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
               initialCategoryId: result.categoryId,
               initialWalletId: result.walletId,
               initialDescription: result.description,
+              initialDate: result.date,
             ),
           ),
         );
@@ -214,7 +215,7 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
         children: [
           // Background Image with Parallax
           const ParallaxBackground(
-            imageUrl: 'https://lh3.googleusercontent.com/aida/ADBb0uiDxjZ6MHOXH3DQxF0xx4bhPcbgSllJ3SeMWdWmLLnHGDN0PGgL4ZU9KHrAgu9vZdYMG2FXBd-PDCei58o_JFb35Ic4-NK_eUxcC6I4CNPiBcb_V8HRinKeCkOXvHoYTcey352vnBBKTuIPKfi_IQPqLsMkX_lAibqwq7IuFmFlMsW92pIDOgCT6Jm98G3GTcT2ScLB6HsJZnG3fbaOgKKh0gQJE5A9wlXhaE3MkMtz2y8Y229y35eSOiJw',
+            imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBwYJtbLoiRlK81HfQ0l7k4ySGsyJeulQ5JpR_i0oIcnwM_9Pw_1IBnZ81Yk48phFd11NOlBX-OHgmovM__zWyLxpcfQ721O5NjjvLM_7LkERh01LoHkOddGXkwHpoI-AHMuT8bcbMn849_lNZ7Su4h9TYOpv_qUTD6XXWe7Yps8HV7sQVkcNQKhhaIzTrwgESMzN-MvMbARMYlmjgpHQSr0vFRfsEkwAJWwGYqohbqQuSGjFSOnqyq7eDOq6wiFI3-d2d74TspvgIC',
           ),
           
           // Gradient Overlay

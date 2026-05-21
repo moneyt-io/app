@@ -45,6 +45,7 @@ dependencies:
   speech_to_text: ^7.3.0
   google_generative_ai: ^0.4.7
   sensors_plus: ^7.0.0
+  image_picker: ^1.2.2
   
 dev_dependencies:
   flutter_test:

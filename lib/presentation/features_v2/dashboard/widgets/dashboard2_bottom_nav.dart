@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../voice/voice_command_screen.dart';
 import '../../transactions/new_transaction_screen.dart';
-import '../../categories/categories_chip_selection_screen.dart';
+import '../../transactions/new_transactions_screen.dart';
 
 class Dashboard2BottomNav extends StatelessWidget {
   const Dashboard2BottomNav({super.key});
@@ -35,7 +35,10 @@ class Dashboard2BottomNav extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoriesChipSelectionScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const NewTransactionsScreen()),
+                    );
                   },
                   icon: const Icon(Icons.search, size: 28, color: Color(0x4D131B2E)),
                 ),

@@ -14,6 +14,10 @@ import '../../features/transactions/widgets/account_selection_dialog.dart';
 import '../../features/categories/widgets/category_selection_dialog.dart' as cat_dialog;
 import '../../core/molecules/date_selection_dialog.dart';
 import '../../features/transactions/transaction_provider.dart';
+import '../../core/providers/currency_provider.dart';
+import '../../../core/utils/number_formatter.dart';
+
+import '../../../domain/entities/transaction.dart';
 
 class NewTransactionScreen extends StatefulWidget {
   final String initialType;
@@ -21,6 +25,8 @@ class NewTransactionScreen extends StatefulWidget {
   final String? initialDescription;
   final int? initialCategoryId;
   final int? initialWalletId;
+  final int? transactionIdToEdit;
+  final DateTime? initialDate;
   
   const NewTransactionScreen({
     super.key,
@@ -29,6 +35,8 @@ class NewTransactionScreen extends StatefulWidget {
     this.initialDescription,
     this.initialCategoryId,
     this.initialWalletId,
+    this.transactionIdToEdit,
+    this.initialDate,
   });
 
   @override
@@ -59,6 +67,10 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     super.initState();
     _selectedType = widget.initialType == 'all' ? 'E' : widget.initialType;
     if (_selectedType == 'T') _selectedType = 'E'; // Not handling transfer in this simplified MVP screen yet
+    
+    if (widget.initialDate != null) {
+      _selectedDate = widget.initialDate!;
+    }
     
     if (widget.initialAmount != null) {
       _amountController.text = widget.initialAmount.toString();
@@ -218,29 +230,45 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
         paymentTypeId = 'W';
       }
 
-      if (_selectedType == 'E') {
-        await transactionProvider.createExpense(
-          date: _selectedDate,
-          description: _descriptionController.text,
+      if (widget.transactionIdToEdit != null) {
+        // Update existing transaction (replicating legacy mapping exactly)
+        final updatedEntity = TransactionEntity(
+          id: widget.transactionIdToEdit,
+          type: _selectedType, // Document Type ('E' or 'I')
+          flow: _selectedType == 'E' ? 'F' : 'T', // Flow ('F' for expenses, 'T' for incomes)
           amount: amount,
-          currencyId: _selectedAccount!.currencyId,
-          paymentId: paymentId,
-          paymentTypeId: paymentTypeId,
-          categoryId: _selectedCategoryId!,
+          accountId: paymentId,
+          categoryId: _selectedCategoryId,
+          description: _descriptionController.text,
+          transactionDate: _selectedDate,
         );
+        await transactionProvider.updateTransaction(updatedEntity);
       } else {
-        await transactionProvider.createIncome(
-          date: _selectedDate,
-          description: _descriptionController.text,
-          amount: amount,
-          currencyId: _selectedAccount!.currencyId,
-          walletId: paymentId,
-          categoryId: _selectedCategoryId!,
-        );
+        // Create new transaction
+        if (_selectedType == 'E') {
+          await transactionProvider.createExpense(
+            date: _selectedDate,
+            description: _descriptionController.text,
+            amount: amount,
+            currencyId: _selectedAccount!.currencyId,
+            paymentId: paymentId,
+            paymentTypeId: paymentTypeId,
+            categoryId: _selectedCategoryId!,
+          );
+        } else {
+          await transactionProvider.createIncome(
+            date: _selectedDate,
+            description: _descriptionController.text,
+            amount: amount,
+            currencyId: _selectedAccount!.currencyId,
+            walletId: paymentId,
+            categoryId: _selectedCategoryId!,
+          );
+        }
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Transacción guardada exitosamente.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.transactionIdToEdit != null ? 'Transacción actualizada.' : 'Transacción guardada exitosamente.')));
         Navigator.of(context).pop();
       }
     } catch (e) {
@@ -260,7 +288,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
         backgroundColor: theme.scaffoldBackgroundColor,
         appBar: AppBar(
           leading: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(context).pop()),
-          title: const Text("Nueva Transacción"),
+          title: Text(widget.transactionIdToEdit != null ? "Editar Transacción" : "Nueva Transacción"),
         ),
         body: const Center(child: CircularProgressIndicator()),
       );
@@ -277,13 +305,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text("Nueva Transacción"),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.auto_awesome, color: theme.colorScheme.primary),
-            onPressed: () {},
-          ),
-        ],
+        title: Text(widget.transactionIdToEdit != null ? "Editar Transacción" : "Nueva Transacción"),
       ),
       body: Column(
         children: [
@@ -299,14 +321,6 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     runSpacing: 8,
                     children: [
                       _buildMetaPill(context, _getDateLabel(), Icons.calendar_today, _selectDate),
-                      _buildMetaPill(
-                        context, 
-                        _selectedType == 'E' ? "Gasto" : "Ingreso", 
-                        _selectedType == 'E' ? Icons.arrow_downward : Icons.arrow_upward, 
-                        _toggleType,
-                        color: _selectedType == 'E' ? const Color(0xFFFFF1F1) : const Color(0xFFE2F9F0),
-                        textColor: _selectedType == 'E' ? const Color(0xFF93000A) : const Color(0xFF00714D),
-                      ),
                       _buildMetaPill(
                         context, 
                         _selectedAccount?.name ?? "Seleccionar Billetera", 
@@ -330,7 +344,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        "\$",
+                        NumberFormatter.getSymbol(context.watch<CurrencyProvider>().currencyId),
                         style: theme.textTheme.displayLarge?.copyWith(
                           color: theme.colorScheme.outlineVariant,
                         ),
@@ -359,6 +373,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 12),
+                  _buildSubtleTypeToggle(context),
                   const SizedBox(height: 40),
                   
                   // Description Entry
@@ -440,17 +456,6 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             ),
             child: Row(
               children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                  ),
-                  child: Icon(Icons.tag, color: theme.colorScheme.onSurfaceVariant),
-                ),
-                const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _saveTransaction,
@@ -487,6 +492,79 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSubtleTypeToggle(BuildContext context) {
+    final theme = Theme.of(context);
+    final isExpense = _selectedType == 'E';
+    
+    return GestureDetector(
+      onTap: _toggleType,
+      child: Container(
+        width: 200,
+        height: 44,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Stack(
+          children: [
+            AnimatedAlign(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut,
+              alignment: isExpense ? Alignment.centerLeft : Alignment.centerRight,
+              child: Container(
+                width: 96,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 250),
+                      style: TextStyle(
+                        color: isExpense ? theme.colorScheme.error : theme.colorScheme.outline,
+                        fontWeight: isExpense ? FontWeight.w700 : FontWeight.w500,
+                        fontSize: 14,
+                        fontFamily: 'Manrope',
+                      ),
+                      child: const Text("Gasto"),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Center(
+                    child: AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 250),
+                      style: TextStyle(
+                        color: !isExpense ? const Color(0xFF00714D) : theme.colorScheme.outline,
+                        fontWeight: !isExpense ? FontWeight.w700 : FontWeight.w500,
+                        fontSize: 14,
+                        fontFamily: 'Manrope',
+                      ),
+                      child: const Text("Ingreso"),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -549,13 +627,20 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: selected ? theme.colorScheme.secondaryContainer.withValues(alpha: 0.1) : theme.colorScheme.surfaceContainer,
+          color: selected ? theme.colorScheme.primary : theme.colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: selected 
-                ? theme.colorScheme.secondaryContainer.withValues(alpha: 0.5)
+                ? theme.colorScheme.primary
                 : theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
           ),
+          boxShadow: selected ? [
+            BoxShadow(
+              color: theme.colorScheme.primary.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            )
+          ] : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -565,7 +650,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             Text(
               label,
               style: theme.textTheme.labelMedium?.copyWith(
-                color: selected ? theme.colorScheme.onSecondaryContainer : theme.colorScheme.onSurfaceVariant,
+                color: selected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurfaceVariant,
+                fontWeight: selected ? FontWeight.bold : FontWeight.w500,
               ),
             ),
           ],

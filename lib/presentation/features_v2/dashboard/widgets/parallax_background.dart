@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:provider/provider.dart';
+import '../../../core/providers/background_provider.dart';
 
 class ParallaxBackground extends StatefulWidget {
   final String imageUrl;
@@ -73,10 +76,21 @@ class _ParallaxBackgroundState extends State<ParallaxBackground> {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
         transform: Matrix4.translationValues(offsetX, offsetY, 0),
-        child: Image.network(
-          widget.imageUrl,
-          fit: BoxFit.fitWidth,
-          alignment: Alignment.topCenter,
+        child: Consumer<BackgroundProvider>(
+          builder: (context, provider, child) {
+            if (provider.hasCustomBackground) {
+              return Image.file(
+                File(provider.backgroundPath!),
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+              );
+            }
+            return Image.network(
+              widget.imageUrl,
+              fit: BoxFit.cover,
+              alignment: Alignment.center,
+            );
+          },
         ),
       ),
     );
