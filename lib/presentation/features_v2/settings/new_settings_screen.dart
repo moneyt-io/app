@@ -16,11 +16,16 @@ import '../../core/providers/language_provider.dart';
 import 'currency_selection_screen.dart';
 import 'language_selection_screen.dart';
 import 'package:flutter/cupertino.dart';
-import '../../features/categories/categories_screen.dart';
-import '../../features/wallets/wallets_screen.dart';
+import 'v2_categories_screen.dart';
+import 'v2_wallets_screen.dart';
 
 class NewSettingsScreen extends StatelessWidget {
-  const NewSettingsScreen({super.key});
+  final VoidCallback onToggleLegacy;
+
+  const NewSettingsScreen({
+    super.key,
+    required this.onToggleLegacy,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +195,7 @@ class NewSettingsScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               CupertinoPageRoute(
-                                builder: (_) => const CategoriesScreen(),
+                                builder: (_) => const V2CategoriesScreen(),
                               ),
                             );
                           },
@@ -204,7 +209,7 @@ class NewSettingsScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               CupertinoPageRoute(
-                                builder: (_) => const WalletsScreen(),
+                                builder: (_) => const V2WalletsScreen(),
                               ),
                             );
                           },
@@ -241,6 +246,16 @@ class NewSettingsScreen extends StatelessWidget {
                           icon: Icons.support_agent,
                           title: 'Contacto',
                           onTap: () {},
+                        ),
+                        const SizedBox(height: 32),
+                        _buildGlassmorphismOptionItem(
+                          context,
+                          icon: Icons.history,
+                          title: 'Vista Legacy',
+                          onTap: () {
+                            Navigator.pop(context);
+                            onToggleLegacy();
+                          },
                         ),
                       ],
                     ),

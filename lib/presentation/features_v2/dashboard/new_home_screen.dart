@@ -295,20 +295,17 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                       Row(
                         children: [
                           IconButton(
-                            onPressed: widget.onToggleLegacy,
-                            icon: const Icon(Icons.swap_horiz, color: Colors.white),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                          ),
-                          const SizedBox(width: 8),
-                            IconButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  CupertinoPageRoute(builder: (_) => const NewSettingsScreen()),
-                                );
-                              },
-                              icon: const Icon(Icons.tune_rounded, color: Colors.white),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (_) => NewSettingsScreen(
+                                    onToggleLegacy: widget.onToggleLegacy,
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.tune_rounded, color: Colors.white),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                           ),
