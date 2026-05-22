@@ -10,9 +10,9 @@ import '../../../domain/usecases/credit_card_usecases.dart';
 import '../../core/organisms/account_selector_modal.dart' show SelectableAccount;
 
 import '../../../core/utils/icon_to_emoji_mapper.dart';
-import '../../features/transactions/widgets/account_selection_dialog.dart';
-import '../../features/categories/widgets/category_selection_dialog.dart' as cat_dialog;
-import '../../core/molecules/date_selection_dialog.dart';
+import 'widgets/v2_account_selection_sheet.dart';
+import 'widgets/v2_category_selection_sheet.dart';
+import '../shared/widgets/v2_date_selection_sheet.dart';
 import '../../features/transactions/transaction_provider.dart';
 import '../../core/providers/currency_provider.dart';
 import '../../../core/utils/number_formatter.dart';
@@ -129,8 +129,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
   }
 
   Future<void> _selectDate() async {
-    final picked = await DateSelectionDialog.show(
-      context: context,
+    final picked = await V2DateSelectionSheet.showSingle(
+      context,
       initialDate: _selectedDate,
     );
     if (picked != null && picked != _selectedDate) {
@@ -140,7 +140,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
 
   Future<void> _selectAccount() async {
     final accounts = _accountsMap.values.toList();
-    final result = await AccountSelectionDialog.show(
+    final result = await V2AccountSelectionSheet.show(
       context,
       accounts: accounts,
       initialSelection: _selectedAccount,
@@ -151,32 +151,26 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
   }
 
   Future<void> _selectMoreCategories() async {
-    final selectableCategories = _categories
+    // Solo mostrar las que sean del tipo seleccionado y preferiblemente hijas si hay agupamiento root
+    // Para no romper legacy y ser V2, usamos parentId != null (o todas para estar seguros)
+    // El filtro base es por tipo de documento.
+    final availableCategories = _categories
         .where((c) => c.documentTypeId == _selectedType)
-        .map((c) => cat_dialog.SelectableCategory(
-              id: c.id.toString(),
-              name: c.name,
-              parentId: c.parentId?.toString(),
-              isIncome: _selectedType == 'I',
-              icon: _selectedType == 'I' ? Icons.arrow_upward : Icons.arrow_downward,
-              iconColor: _selectedType == 'I' ? Colors.green.shade600 : Colors.red.shade600,
-              iconBgColor: _selectedType == 'I' ? Colors.green.shade100 : Colors.red.shade100,
-            ))
         .toList();
 
     final currentSelection = _selectedCategoryId != null
-        ? selectableCategories.where((sc) => sc.id == _selectedCategoryId.toString()).firstOrNull
+        ? availableCategories.where((c) => c.id == _selectedCategoryId).firstOrNull
         : null;
 
-    final result = await cat_dialog.CategorySelectionDialog.show(
+    final result = await V2CategorySelectionSheet.show(
       context,
-      categories: selectableCategories,
+      categories: availableCategories,
       initialSelection: currentSelection,
     );
 
     if (result != null) {
       setState(() {
-        _selectedCategoryId = int.parse(result.id);
+        _selectedCategoryId = result.id;
       });
     }
   }
@@ -420,9 +414,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     children: [
                       ...displayCategories.map((c) => _buildCategoryPill(
                             context,
-                            c.icon.isNotEmpty 
-                                ? IconToEmojiMapper.getEmoji(c.icon) 
-                                : (_selectedType == 'E' ? '🏷️' : '💰'),
+                            IconToEmojiMapper.getEmoji(c.icon),
                             c.name,
                             _selectedCategoryId == c.id,
                             () => setState(() => _selectedCategoryId = c.id),

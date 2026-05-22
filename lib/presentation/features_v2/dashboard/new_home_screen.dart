@@ -12,6 +12,7 @@ import '../../features/wallets/wallet_provider.dart';
 import '../../../domain/entities/transaction_entry.dart';
 import '../../../core/utils/number_formatter.dart';
 
+import '../shared/widgets/v2_date_selection_sheet.dart';
 import 'widgets/dashboard2_gauge.dart';
 import 'widgets/dashboard2_income_expense.dart';
 import 'widgets/dashboard2_activity_list.dart';
@@ -367,21 +368,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                         } else if (value == 'previous') {
                           setState(() => _selectedDateRange = _getPreviousMonthRange());
                         } else if (value == 'custom') {
-                          final picked = await showDateRangePicker(
-                            context: context,
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2100),
-                            initialDateRange: _selectedDateRange,
-                            builder: (context, child) {
-                              return Theme(
-                                data: Theme.of(context).copyWith(
-                                  colorScheme: const ColorScheme.light(
-                                    primary: Color(0xFF004AC6),
-                                  ),
-                                ),
-                                child: child!,
-                              );
-                            }
+                          final picked = await V2DateSelectionSheet.showRange(
+                            context,
+                            initialRange: _selectedDateRange,
                           );
                           if (picked != null) {
                             setState(() => _selectedDateRange = DateTimeRange(

@@ -12,9 +12,22 @@ import '../../features/transactions/transaction_provider.dart';
 import 'new_transaction_screen.dart';
 import '../theme/v2_colors.dart';
 import '../../../../core/utils/number_formatter.dart';
+import 'widgets/v2_category_selection_sheet.dart';
+import 'widgets/v2_account_selection_sheet.dart';
+import '../shared/widgets/v2_date_selection_sheet.dart';
+import '../../core/organisms/account_selector_modal.dart' show SelectableAccount;
+import '../../../domain/usecases/wallet_usecases.dart';
+import '../../../domain/usecases/credit_card_usecases.dart';
+import 'package:get_it/get_it.dart';
+import '../../features/wallets/wallet_provider.dart';
 
 class NewTransactionsScreen extends StatefulWidget {
-  const NewTransactionsScreen({super.key});
+  final bool autoOpenSearch;
+  
+  const NewTransactionsScreen({
+    super.key,
+    this.autoOpenSearch = false,
+  });
 
   @override
   State<NewTransactionsScreen> createState() => _NewTransactionsScreenState();
@@ -22,6 +35,23 @@ class NewTransactionsScreen extends StatefulWidget {
 
 class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
   int? _selectedCategoryId;
+  int? _selectedWalletId;
+  DateTimeRange? _selectedDateRange;
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+  late bool _isSearchExpanded;
+
+  @override
+  void initState() {
+    super.initState();
+    _isSearchExpanded = widget.autoOpenSearch;
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   String _formatDateHeader(DateTime date) {
     final now = DateTime.now();
@@ -91,6 +121,31 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
               transactions = transactions.where((t) => t.mainCategoryId == _selectedCategoryId).toList();
             }
 
+            // Aplicar filtro de billetera seleccionada
+            if (_selectedWalletId != null) {
+              transactions = transactions.where((t) => t.details.any((d) => d.paymentId == _selectedWalletId)).toList();
+            }
+
+            // Aplicar filtro de fecha
+            if (_selectedDateRange != null) {
+              transactions = transactions.where((t) {
+                final isAfterOrSame = t.date.isAfter(_selectedDateRange!.start) || t.date.isAtSameMomentAs(_selectedDateRange!.start);
+                final isBeforeOrSame = t.date.isBefore(_selectedDateRange!.end) || t.date.isAtSameMomentAs(_selectedDateRange!.end);
+                return isAfterOrSame && isBeforeOrSame;
+              }).toList();
+            }
+
+            // Aplicar filtro de búsqueda
+            if (_searchQuery.isNotEmpty) {
+              transactions = transactions.where((t) {
+                final q = _searchQuery.toLowerCase();
+                final catName = t.category?.name.toLowerCase() ?? (t.mainCategoryId != null ? transactionProvider.categoriesDataMap[t.mainCategoryId!]?.name.toLowerCase() : '') ?? '';
+                final contactName = t.contact?.name.toLowerCase() ?? '';
+                final desc = t.description?.toLowerCase() ?? '';
+                return catName.contains(q) || contactName.contains(q) || desc.contains(q);
+              }).toList();
+            }
+
             final groupedTransactions = _groupTransactions(transactions);
 
             return Stack(
@@ -101,10 +156,10 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                   slivers: [
                     // Espacio para la cabecera fija (aumentado para evitar solapamiento)
                     const SliverToBoxAdapter(
-                      child: SizedBox(height: 120),
+                      child: SizedBox(height: 160),
                     ),
                     
-                    // Categorías Utilizadas
+                    // Categorías Utilizadas (Filtro Visual Mantenido)
                     if (topCategories.isNotEmpty) ...[
                       SliverToBoxAdapter(
                         child: Padding(
@@ -131,14 +186,15 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                             itemCount: topCategories.length,
                             itemBuilder: (context, index) {
                               final cat = topCategories[index];
-                              final colors = [
-                                V2Colors.primaryContainer.withValues(alpha: 0.2),
-                                V2Colors.secondaryContainer.withValues(alpha: 0.3),
-                                V2Colors.errorContainer.withValues(alpha: 0.4),
-                                V2Colors.tertiaryContainer.withValues(alpha: 0.2),
-                              ];
-                              final bgColor = colors[cat.id.hashCode % colors.length];
+                              
+                              final isIncome = cat.documentTypeId == 'I';
+                              final bgColor = isIncome 
+                                  ? V2Colors.secondaryContainer.withValues(alpha: 0.3) 
+                                  : V2Colors.errorContainer.withValues(alpha: 0.3);
+                                  
                               final isSelected = _selectedCategoryId == cat.id;
+
+                              String emoji = IconToEmojiMapper.getEmoji(cat.icon);
 
                               return GestureDetector(
                                 onTap: () {
@@ -179,7 +235,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
-                                    IconToEmojiMapper.getEmoji(cat.icon),
+                                    emoji,
                                     style: TextStyle(
                                       fontSize: isSelected ? 30 : 28,
                                     ),
@@ -263,33 +319,61 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                         child: SafeArea(
                           bottom: false,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.arrow_back, color: V2Colors.onSurface),
-                                      onPressed: () => Navigator.pop(context),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    const Text(
-                                      "Actividad Reciente",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w700,
-                                        color: V2Colors.onSurface,
-                                        fontFamily: 'Manrope',
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.arrow_back, color: V2Colors.onSurface),
+                                        onPressed: () => Navigator.pop(context),
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 8),
+                                      const Text(
+                                        "Actividad Reciente",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
+                                          color: V2Colors.onSurface,
+                                          fontFamily: 'Manrope',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.filter_list, color: V2Colors.onSurface),
-                                  onPressed: () {
-                                    // TODO: Filter action
-                                  },
+                                const SizedBox(height: 12),
+                                // Barra de Búsqueda y Filtros
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: Row(
+                                    children: [
+                                      if (_isSearchExpanded)
+                                        Expanded(
+                                          child: _buildExpandedSearchBar(),
+                                        )
+                                      else ...[
+                                        // Ícono de búsqueda fijo a la izquierda
+                                        _buildSearchIconButton(),
+                                        const SizedBox(width: 8),
+                                        // Chips de filtros desplazables
+                                        Expanded(
+                                          child: SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            physics: const BouncingScrollPhysics(),
+                                            child: Row(
+                                              children: [
+                                                _buildDateChip(),
+                                                _buildWalletChip(),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -307,22 +391,210 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
     );
   }
 
+  Widget _buildSearchIconButton() {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _isSearchExpanded = true;
+        });
+      },
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: V2Colors.surfaceContainerLowest,
+          shape: BoxShape.circle,
+          border: Border.all(color: V2Colors.outlineVariant.withValues(alpha: 0.3)),
+        ),
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.search,
+          size: 18,
+          color: V2Colors.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExpandedSearchBar() {
+    return Container(
+      height: 36,
+      decoration: BoxDecoration(
+        color: V2Colors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: V2Colors.primary.withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 12, right: 8),
+            child: Icon(Icons.search, size: 18, color: V2Colors.primary),
+          ),
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              autofocus: true,
+              style: const TextStyle(fontFamily: 'Manrope', fontSize: 13, color: V2Colors.onSurface),
+              decoration: const InputDecoration(
+                hintText: 'Buscar transacción...',
+                hintStyle: TextStyle(fontFamily: 'Manrope', fontSize: 13, color: V2Colors.outline),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 10),
+              ),
+              onChanged: (val) {
+                setState(() => _searchQuery = val);
+              },
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 16),
+            color: V2Colors.primary,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36),
+            onPressed: () {
+              setState(() {
+                _isSearchExpanded = false;
+                _searchController.clear();
+                _searchQuery = '';
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateChip() {
+    final isActive = _selectedDateRange != null;
+    String label = "Fecha";
+    if (isActive) {
+      final start = DateFormat('dd MMM').format(_selectedDateRange!.start);
+      final end = DateFormat('dd MMM').format(_selectedDateRange!.end);
+      label = start == end ? start : "$start - $end";
+    }
+
+    return _buildFilterChip(
+      label: label,
+      icon: Icons.calendar_today,
+      isActive: isActive,
+      onTap: () async {
+        if (isActive) {
+          setState(() => _selectedDateRange = null);
+          return;
+        }
+        final picked = await V2DateSelectionSheet.showRange(context, initialRange: _selectedDateRange);
+        if (picked != null) {
+          setState(() => _selectedDateRange = picked);
+        }
+      },
+    );
+  }
+
+  Widget _buildWalletChip() {
+    final isActive = _selectedWalletId != null;
+    String label = "Billetera";
+    // Si quisieramos mostrar el nombre de la billetera, tendríamos que buscarla en WalletProvider.
+    // Por simplicidad en este widget, lo dejamos como "Billetera (Activo)" si no tenemos acceso rápido al nombre,
+    // pero podemos obtenerlo del provider.
+    final walletProvider = context.read<WalletProvider>();
+    if (isActive) {
+      final wallet = walletProvider.wallets.where((w) => w.id == _selectedWalletId).firstOrNull;
+      if (wallet != null) label = wallet.name;
+    }
+
+    return _buildFilterChip(
+      label: label,
+      icon: Icons.account_balance_wallet_outlined,
+      isActive: isActive,
+      onTap: () async {
+        if (isActive) {
+          setState(() => _selectedWalletId = null);
+          return;
+        }
+        
+        final wallets = await GetIt.instance<WalletUseCases>().getAllWallets();
+        final cards = await GetIt.instance<CreditCardUseCases>().getAllCreditCards();
+        
+        final accounts = <SelectableAccount>[];
+        for (final w in wallets) {
+          if (w.active) accounts.add(SelectableAccount.fromWallet(w, balance: 0, accountNumber: '1234'));
+        }
+        for (final c in cards) {
+          accounts.add(SelectableAccount.fromCreditCard(c, balance: 0, availableCredit: 0, cardNumber: '5678'));
+        }
+        
+        final selected = await V2AccountSelectionSheet.show(
+          context,
+          accounts: accounts,
+          initialSelection: _selectedWalletId != null ? accounts.where((a) => a.id == _selectedWalletId).firstOrNull : null,
+        );
+        
+        if (selected != null) {
+          setState(() => _selectedWalletId = selected.id);
+        }
+      },
+    );
+  }
+
+  Widget _buildFilterChip({
+    required String label,
+    required IconData icon,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? V2Colors.primary.withValues(alpha: 0.15) : V2Colors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isActive ? V2Colors.primary : V2Colors.outlineVariant.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!isActive) ...[
+              Icon(icon, size: 16, color: V2Colors.onSurfaceVariant),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isActive ? V2Colors.primary : V2Colors.onSurface,
+                fontFamily: 'Manrope',
+              ),
+            ),
+            if (isActive) ...[
+              const SizedBox(width: 4),
+              const Icon(Icons.close, size: 14, color: V2Colors.primary),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildTransactionCard(TransactionEntry t, Category? category, BuildContext context) {
     final isIncome = t.isIncome;
 
-    // Asignar color consistente
-    final hash = (category?.id.hashCode ?? t.id.hashCode);
-    final colors = [
-      V2Colors.primary.withValues(alpha: 0.15),
-      V2Colors.secondaryContainer.withValues(alpha: 0.3),
-      V2Colors.tertiaryContainer.withValues(alpha: 0.2),
-      V2Colors.errorContainer.withValues(alpha: 0.4),
-    ];
-    final avatarBgColor = isIncome ? V2Colors.secondaryContainer.withValues(alpha: 0.3) : colors[hash % colors.length];
+    // Asignar color consistente: rojo para gastos, verde para ingresos
+    final avatarBgColor = isIncome 
+        ? V2Colors.secondaryContainer.withValues(alpha: 0.3) 
+        : V2Colors.errorContainer.withValues(alpha: 0.3);
     
-    final emoji = (category != null && category.icon.isNotEmpty) 
-        ? IconToEmojiMapper.getEmoji(category.icon) 
-        : (isIncome ? '💰' : '🏷️');
+    String emoji = (isIncome ? '💰' : '🏷️');
+    if (category != null && category.icon.isNotEmpty) {
+      emoji = IconToEmojiMapper.getEmoji(category.icon);
+    }
 
     final title = t.description?.isNotEmpty == true
         ? t.description!

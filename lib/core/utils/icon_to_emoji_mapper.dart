@@ -1,5 +1,22 @@
 class IconToEmojiMapper {
   static String getEmoji(String iconName) {
+    // Si la cadena está vacía o nula, devolver emoji por defecto
+    if (iconName.trim().isEmpty) return '🏷️';
+
+    // Si la cadena no contiene letras de la A a la Z, asumimos que es un código numérico (codePoint)
+    // o un emoji real, así que lo devolvemos tal cual (o lo convertimos si hiciera falta).
+    // Nota: en V2 se guardan emojis reales como '🍔'.
+    final hasLetters = RegExp(r'[a-zA-Z]').hasMatch(iconName);
+    if (!hasLetters) {
+      // Si el texto es numérico puro (un codePoint de icono material legacy)
+      if (int.tryParse(iconName) != null) {
+        // En tu versión legacy, los codePoints no estaban mapeados aquí, pero en caso de haberlos
+        return '🏷️';
+      }
+      // Es un emoji directo
+      return iconName;
+    }
+
     const map = {
       'fastfood': '🍔',
       'restaurant': '🍽️',

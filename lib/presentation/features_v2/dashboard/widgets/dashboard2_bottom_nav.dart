@@ -37,7 +37,7 @@ class Dashboard2BottomNav extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const NewTransactionsScreen()),
+                      MaterialPageRoute(builder: (_) => const NewTransactionsScreen(autoOpenSearch: true)),
                     );
                   },
                   icon: const Icon(Icons.search, size: 28, color: Color(0x4D131B2E)),

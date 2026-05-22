@@ -214,13 +214,7 @@ class _V2CategoriesScreenState extends State<V2CategoriesScreen> {
                         final cat = _categories[index];
                         
                         // Determinar emoji visual
-                        final isCodePoint = int.tryParse(cat.icon) != null;
-                        String emoji;
-                        if (!isCodePoint && cat.icon.isNotEmpty) {
-                          emoji = cat.icon; // Ya es un emoji de iOS guardado en string
-                        } else {
-                          emoji = IconToEmojiMapper.getEmoji(cat.icon); // Fallback legacy
-                        }
+                        String emoji = IconToEmojiMapper.getEmoji(cat.icon);
                         
                         return Container(
                           margin: const EdgeInsets.only(bottom: 12),
@@ -402,12 +396,7 @@ class _CategoryFormBottomSheetState extends State<_CategoryFormBottomSheet> {
     // Extraer emoji si existe
     _selectedEmoji = '🏷️';
     if (widget.categoryToEdit != null) {
-      final isCodePoint = int.tryParse(widget.categoryToEdit!.icon) != null;
-      if (!isCodePoint && widget.categoryToEdit!.icon.isNotEmpty) {
-        _selectedEmoji = widget.categoryToEdit!.icon;
-      } else {
-        _selectedEmoji = IconToEmojiMapper.getEmoji(widget.categoryToEdit!.icon);
-      }
+      _selectedEmoji = IconToEmojiMapper.getEmoji(widget.categoryToEdit!.icon);
     }
   }
 
