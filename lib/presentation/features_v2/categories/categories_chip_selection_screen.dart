@@ -31,30 +31,12 @@ class _CategoriesChipSelectionScreenState extends State<CategoriesChipSelectionS
     setState(() => _isLoading = true);
     try {
       final allCategories = await _categoryUseCases.getAllCategories();
-      
-      final rootCategories = allCategories.where((c) => c.parentId == null && c.name == 'V2 Root').toList();
-      Category? rootExpense = rootCategories.where((c) => c.documentTypeId == 'E').firstOrNull;
-      
-      if (rootExpense == null) {
-        final newRoot = Category(
-          id: 0,
-          name: 'V2 Root',
-          documentTypeId: 'E',
-          chartAccountId: 0,
-          icon: Icons.folder.codePoint.toString(),
-          active: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
-        rootExpense = await _categoryUseCases.createCategory(newRoot);
-        allCategories.add(rootExpense);
-      }
 
       if (mounted) {
         setState(() {
+          // Mostrar todos los "hijos" del tipo seleccionado
           _categories = allCategories.where((c) => 
-            c.documentTypeId == _selectedType && 
-            c.parentId == rootExpense?.id
+            c.documentTypeId == _selectedType && c.parentId != null
           ).toList();
           _filterCategories(_searchQuery);
           _isLoading = false;
@@ -90,23 +72,36 @@ class _CategoriesChipSelectionScreenState extends State<CategoriesChipSelectionS
         selectedType: _selectedType,
         onSave: (name, emoji) async {
           final allCats = await _categoryUseCases.getAllCategories();
-          Category? root = allCats.where((c) => c.parentId == null && c.name == 'V2 Root' && c.documentTypeId == _selectedType).firstOrNull;
+          final rootName = _selectedType == 'E' ? 'Expense' : 'Income';
+          Category? root = allCats.where((c) => c.parentId == null && c.name == rootName && c.documentTypeId == _selectedType).firstOrNull;
           
-          if (root != null) {
-            final newCat = Category(
+          if (root == null) {
+            final newRoot = Category(
               id: 0,
-              name: name,
+              name: rootName,
               documentTypeId: _selectedType,
-              parentId: root.id,
               chartAccountId: 0,
-              icon: emoji,
+              icon: Icons.folder.codePoint.toString(),
               active: true,
               createdAt: DateTime.now(),
               updatedAt: DateTime.now(),
             );
-            await _categoryUseCases.createCategory(newCat);
-            _loadCategories(); // Refrescar
+            root = await _categoryUseCases.createCategory(newRoot);
           }
+
+          final newCat = Category(
+            id: 0,
+            name: name,
+            documentTypeId: _selectedType,
+            parentId: root.id,
+            chartAccountId: 0,
+            icon: emoji,
+            active: true,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+          await _categoryUseCases.createCategory(newCat);
+          _loadCategories(); // Refrescar
         },
       ),
     );

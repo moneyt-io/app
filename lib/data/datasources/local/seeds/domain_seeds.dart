@@ -84,7 +84,9 @@ class DomainSeeds {
   static Future<void> _seedCategories(String lang) async {
     final categoryUseCases = GetIt.instance<CategoryUseCases>();
     final existingCategories = await categoryUseCases.getAllCategories();
-    final existingCategoryNames = existingCategories.map((c) => c.name).toSet();
+    // Guardamos la combinación de name_docType para evitar colisiones 
+    // (ej. "Base" en Ingresos y "Base" en Gastos)
+    final existingCategoryKeys = existingCategories.map((c) => '${c.name}_${c.documentTypeId}').toSet();
 
     final jsonString = await _loadSeedJsonSafely(lang, 'categories.json');
     if (jsonString == null) return;
@@ -92,9 +94,9 @@ class DomainSeeds {
     final Map<String, dynamic> categoriesJson = json.decode(jsonString);
 
     await _processCategoryType(
-        categoriesJson['income'], 'I', existingCategoryNames, categoryUseCases);
+        categoriesJson['income'], 'I', existingCategoryKeys, categoryUseCases);
     await _processCategoryType(categoriesJson['expense'], 'E',
-        existingCategoryNames, categoryUseCases);
+        existingCategoryKeys, categoryUseCases);
   }
 
   /// Carga de forma segura un JSON de los seeds verificando si el lenguaje está soportado.
@@ -120,12 +122,14 @@ class DomainSeeds {
   static Future<void> _processCategoryType(
     List<dynamic> categoryList,
     String docType,
-    Set<String> existingNames,
+    Set<String> existingCategoryKeys,
     CategoryUseCases useCases,
   ) async {
     for (var catData in categoryList) {
+      final parentKey = '${catData['name']}_$docType';
+      
       // Create parent category if it doesn't exist
-      if (!existingNames.contains(catData['name'])) {
+      if (!existingCategoryKeys.contains(parentKey)) {
         final parentCategoryEntity = Category(
           id: 0,
           name: catData['name'],
@@ -137,12 +141,13 @@ class DomainSeeds {
         );
         final createdParent =
             await useCases.createCategory(parentCategoryEntity);
-        existingNames.add(createdParent.name);
+        existingCategoryKeys.add('${createdParent.name}_$docType');
 
         // Create children categories
         if (catData['children'] != null) {
           for (var childData in catData['children']) {
-            if (!existingNames.contains(childData['name'])) {
+            final childKey = '${childData['name']}_$docType';
+            if (!existingCategoryKeys.contains(childKey)) {
               final childCategoryEntity = Category(
                 id: 0,
                 name: childData['name'],
@@ -155,7 +160,7 @@ class DomainSeeds {
               );
               final createdChild =
                   await useCases.createCategory(childCategoryEntity);
-              existingNames.add(createdChild.name);
+              existingCategoryKeys.add('${createdChild.name}_$docType');
             }
           }
         }

@@ -99,7 +99,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
 
       final Map<int, SelectableAccount> accountsMap = {};
       for (final wallet in walletsResult) {
-        if (wallet.active) {
+        if (wallet.active && wallet.parentId != null) {
           accountsMap[wallet.id] = SelectableAccount.fromWallet(wallet, balance: 0, accountNumber: '1234');
         }
       }
@@ -155,7 +155,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     // Para no romper legacy y ser V2, usamos parentId != null (o todas para estar seguros)
     // El filtro base es por tipo de documento.
     final availableCategories = _categories
-        .where((c) => c.documentTypeId == _selectedType)
+        .where((c) => c.documentTypeId == _selectedType && c.parentId != null)
         .toList();
 
     final currentSelection = _selectedCategoryId != null
@@ -289,7 +289,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     }
 
     // Get up to 7 categories for the current type
-    final typeCategories = _categories.where((c) => c.documentTypeId == _selectedType).toList();
+    final typeCategories = _categories.where((c) => c.documentTypeId == _selectedType && c.parentId != null).toList();
     final displayCategories = typeCategories.take(7).toList();
 
     return Scaffold(

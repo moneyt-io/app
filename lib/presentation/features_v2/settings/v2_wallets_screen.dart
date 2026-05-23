@@ -79,47 +79,47 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
         onSave: (name) async {
           final provider = context.read<WalletProvider>();
           
-          if (walletToEdit != null) {
-            // Editar
-            final updatedWallet = walletToEdit.copyWith(
-              name: name,
-              updatedAt: DateTime.now(),
-            );
-            await provider.updateWallet(updatedWallet);
-          } else {
-            // Crear
-            Wallet? root = provider.wallets.where((w) => w.parentId == null && w.currencyId == currencyId && w.name == 'V2 Root $currencyId').firstOrNull;
-            
-            if (root == null) {
-              final newRoot = Wallet(
-                id: 0,
-                name: 'V2 Root $currencyId',
-                currencyId: currencyId,
-                chartAccountId: 0,
-                active: true,
-                createdAt: DateTime.now(),
-                updatedAt: DateTime.now(),
-              );
-              await _walletUseCases.createWallet(newRoot);
-              await provider.loadInitialData();
-              root = provider.wallets.where((w) => w.parentId == null && w.currencyId == currencyId && w.name == 'V2 Root $currencyId').firstOrNull;
-            }
-            
-            if (root != null) {
-              final newWallet = Wallet(
-                id: 0,
+            if (walletToEdit != null) {
+              // Editar
+              final updatedWallet = walletToEdit.copyWith(
                 name: name,
-                currencyId: currencyId,
-                parentId: root.id,
-                chartAccountId: 0,
-                active: true,
-                createdAt: DateTime.now(),
                 updatedAt: DateTime.now(),
               );
-              await _walletUseCases.createWallet(newWallet);
-              provider.loadInitialData();
+              await provider.updateWallet(updatedWallet);
+            } else {
+              // Crear
+              Wallet? root = provider.wallets.where((w) => w.parentId == null && w.currencyId == currencyId && w.name == 'Base').firstOrNull;
+              
+              if (root == null) {
+                final newRoot = Wallet(
+                  id: 0,
+                  name: 'Base',
+                  currencyId: currencyId,
+                  chartAccountId: 0,
+                  active: true,
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                );
+                await _walletUseCases.createWallet(newRoot);
+                await provider.loadInitialData();
+                root = provider.wallets.where((w) => w.parentId == null && w.currencyId == currencyId && w.name == 'Base').firstOrNull;
+              }
+              
+              if (root != null) {
+                final newWallet = Wallet(
+                  id: 0,
+                  name: name,
+                  currencyId: currencyId,
+                  parentId: root.id,
+                  chartAccountId: 0,
+                  active: true,
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                );
+                await _walletUseCases.createWallet(newWallet);
+                provider.loadInitialData();
+              }
             }
-          }
         },
       ),
     );

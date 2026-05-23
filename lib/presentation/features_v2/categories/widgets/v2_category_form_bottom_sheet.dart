@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../domain/entities/category.dart';
 import '../../../../core/utils/icon_to_emoji_mapper.dart';
+import '../../../../core/utils/financial_emoji_dictionary.dart';
 import '../../theme/v2_colors.dart';
 
 class V2CategoryFormBottomSheet extends StatefulWidget {
@@ -24,11 +25,13 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> {
   late TextEditingController _nameController;
   late TextEditingController _emojiController;
   bool _hasManuallySelectedEmoji = false;
+  String _lastValidName = '';
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.categoryToEdit?.name ?? '');
+    _lastValidName = _nameController.text;
     
     // Extraer emoji si existe
     String initialEmoji = '🏷️';
@@ -45,40 +48,55 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> {
     super.dispose();
   }
 
+  void _onNameChanged(String val) {
+    final chars = val.characters;
+    String extractedEmoji = '';
+    String newText = '';
+
+    for (var c in chars) {
+      // Detección de rangos comunes de Emojis Unicode
+      bool isEmoji = c.runes.any((r) => 
+        (r >= 0x2600 && r <= 0x27BF) || // Dingbats & Misc Symbols
+        (r >= 0x1F300 && r <= 0x1FAFF)  // Emoticons, Transport, Pictographs, etc.
+      );
+      
+      if (isEmoji) {
+        extractedEmoji = c;
+      } else {
+        newText += c;
+      }
+    }
+
+    if (extractedEmoji.isNotEmpty) {
+      _hasManuallySelectedEmoji = true;
+      setState(() {
+        _emojiController.text = extractedEmoji;
+      });
+      
+      // Si el autocorrector del iPhone reemplazó toda la palabra por el emoji,
+      // el newText estará vacío. Restauramos la última palabra que recordamos.
+      if (newText.trim().isEmpty && _lastValidName.isNotEmpty) {
+        newText = _lastValidName;
+      }
+      
+      // Actualizamos el campo de nombre sin el emoji y restaurando el texto
+      _nameController.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.fromPosition(TextPosition(offset: newText.length)),
+      );
+      _lastValidName = newText;
+    } else {
+      _lastValidName = val;
+      _autoSelectEmoji();
+    }
+  }
+
   void _autoSelectEmoji() {
     if (_hasManuallySelectedEmoji) return;
     
-    final name = _nameController.text.toLowerCase();
-    String suggested = '🏷️';
+    final name = _nameController.text;
+    String suggested = FinancialEmojiDictionary.getEmojiForKeyword(name) ?? '🏷️';
     
-    if (name.contains('comida') || name.contains('food') || name.contains('restaurante') || name.contains('cena') || name.contains('almuerzo')) suggested = '🍽️';
-    else if (name.contains('hamburguesa') || name.contains('fast food') || name.contains('chatarra')) suggested = '🍔';
-    else if (name.contains('supermercado') || name.contains('despensa') || name.contains('mercado') || name.contains('compra') || name.contains('grocery')) suggested = '🛒';
-    else if (name.contains('auto') || name.contains('carro') || name.contains('coche') || name.contains('gasolina') || name.contains('combustible') || name.contains('vehiculo')) suggested = '🚗';
-    else if (name.contains('transporte') || name.contains('bus') || name.contains('colectivo') || name.contains('pasaje')) suggested = '🚌';
-    else if (name.contains('viaje') || name.contains('vuelo') || name.contains('avion') || name.contains('turismo')) suggested = '✈️';
-    else if (name.contains('casa') || name.contains('hogar') || name.contains('alquiler') || name.contains('renta') || name.contains('vivienda')) suggested = '🏠';
-    else if (name.contains('cine') || name.contains('pelicula') || name.contains('entretenimiento') || name.contains('movie')) suggested = '🎬';
-    else if (name.contains('juego') || name.contains('videojuego') || name.contains('gaming')) suggested = '🎮';
-    else if (name.contains('salud') || name.contains('medico') || name.contains('farmacia') || name.contains('pastilla') || name.contains('medicina')) suggested = '💊';
-    else if (name.contains('ropa') || name.contains('vestimenta') || name.contains('zapatos')) suggested = '👕';
-    else if (name.contains('mascota') || name.contains('perro') || name.contains('gato') || name.contains('veterinario')) suggested = '🐾';
-    else if (name.contains('hijo') || name.contains('bebe') || name.contains('nino') || name.contains('niño') || name.contains('escuela') || name.contains('colegio')) suggested = '👶';
-    else if (name.contains('educacion') || name.contains('estudio') || name.contains('libro') || name.contains('curso') || name.contains('universidad')) suggested = '📚';
-    else if (name.contains('trabajo') || name.contains('empleo') || name.contains('oficina') || name.contains('sueldo') || name.contains('salario') || name.contains('honorarios')) suggested = '💼';
-    else if (name.contains('pago') || name.contains('tarjeta') || name.contains('credito') || name.contains('suscripcion')) suggested = '💳';
-    else if (name.contains('dinero') || name.contains('efectivo') || name.contains('prestamo')) suggested = '💸';
-    else if (name.contains('banco') || name.contains('ahorro') || name.contains('inversion')) suggested = '🏦';
-    else if (name.contains('luz') || name.contains('electricidad') || name.contains('energia')) suggested = '⚡';
-    else if (name.contains('agua')) suggested = '💧';
-    else if (name.contains('internet') || name.contains('wifi') || name.contains('cable')) suggested = '📶';
-    else if (name.contains('telefono') || name.contains('celular') || name.contains('movil')) suggested = '📱';
-    else if (name.contains('fiesta') || name.contains('celebracion') || name.contains('evento')) suggested = '🎉';
-    else if (name.contains('regalo') || name.contains('obsequio')) suggested = '🎁';
-    else if (name.contains('vino') || name.contains('licor') || name.contains('alcohol')) suggested = '🍷';
-    else if (name.contains('cerveza') || name.contains('bar') || name.contains('pub')) suggested = '🍺';
-    else if (name.contains('cafe') || name.contains('cafeteria')) suggested = '☕';
-
     if (_emojiController.text != suggested) {
       setState(() {
         _emojiController.text = suggested;
@@ -210,9 +228,7 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> {
                   ),
                   autofocus: widget.categoryToEdit == null,
                   textCapitalization: TextCapitalization.words,
-                  onChanged: (val) {
-                    _autoSelectEmoji(); 
-                  },
+                  onChanged: _onNameChanged,
                 ),
               ),
             ],
