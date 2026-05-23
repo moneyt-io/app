@@ -206,33 +206,33 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                     }
                                   });
                                 },
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  width: 56,
-                                  height: 56,
-                                  margin: const EdgeInsets.only(right: 8),
-                                  decoration: BoxDecoration(
-                                    color: isSelected ? bgColor.withValues(alpha: 0.8) : bgColor,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: isSelected ? V2Colors.primary : Colors.white.withValues(alpha: 0.5),
-                                      width: isSelected ? 2 : 1,
-                                    ),
-                                    boxShadow: [
-                                      if (isSelected)
-                                        BoxShadow(
-                                          color: V2Colors.primary.withValues(alpha: 0.2),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 4),
-                                        )
-                                      else
-                                        BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.02),
-                                          blurRadius: 4,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                    ],
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                width: 56,
+                                height: 56,
+                                margin: const EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? bgColor.withValues(alpha: 0.5) : bgColor,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: isSelected ? V2Colors.primary.withValues(alpha: 0.4) : Colors.white.withValues(alpha: 0.5),
+                                    width: isSelected ? 1.5 : 1,
                                   ),
+                                  boxShadow: [
+                                    if (isSelected)
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.06),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 4),
+                                      )
+                                    else
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.02),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                  ],
+                                ),
                                   alignment: Alignment.center,
                                   child: Text(
                                     emoji,
@@ -346,19 +346,13 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                 ),
                                 const SizedBox(height: 12),
                                 // Barra de Búsqueda y Filtros
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  child: Row(
-                                    children: [
-                                      if (_isSearchExpanded)
-                                        Expanded(
-                                          child: _buildExpandedSearchBar(),
-                                        )
-                                      else ...[
-                                        // Ícono de búsqueda fijo a la izquierda
-                                        _buildSearchIconButton(),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: Row(
+                                      children: [
+                                        _buildAnimatedSearchBar(context),
                                         const SizedBox(width: 8),
-                                        // Chips de filtros desplazables
+                                        // Chips de filtros desplazables siempre visibles
                                         Expanded(
                                           child: SingleChildScrollView(
                                             scrollDirection: Axis.horizontal,
@@ -372,9 +366,8 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                           ),
                                         ),
                                       ],
-                                    ],
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ),
@@ -391,77 +384,96 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
     );
   }
 
-  Widget _buildSearchIconButton() {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _isSearchExpanded = true;
-        });
-      },
-      borderRadius: BorderRadius.circular(18),
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: V2Colors.surfaceContainerLowest,
-          shape: BoxShape.circle,
-          border: Border.all(color: V2Colors.outlineVariant.withValues(alpha: 0.3)),
-        ),
-        alignment: Alignment.center,
-        child: const Icon(
-          Icons.search,
-          size: 18,
-          color: V2Colors.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
+  Widget _buildAnimatedSearchBar(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final expandedWidth = screenWidth * 0.55; // 55% of screen width
 
-  Widget _buildExpandedSearchBar() {
-    return Container(
-      height: 36,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+      width: _isSearchExpanded ? expandedWidth : 36.0,
+      height: 36.0,
       decoration: BoxDecoration(
         color: V2Colors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: V2Colors.primary.withValues(alpha: 0.5)),
+        border: Border.all(
+          color: _isSearchExpanded 
+              ? V2Colors.primary.withValues(alpha: 0.15) 
+              : V2Colors.outlineVariant.withValues(alpha: 0.3),
+        ),
       ),
-      child: Row(
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 12, right: 8),
-            child: Icon(Icons.search, size: 18, color: V2Colors.primary),
-          ),
-          Expanded(
-            child: TextField(
-              controller: _searchController,
-              autofocus: true,
-              style: const TextStyle(fontFamily: 'Manrope', fontSize: 13, color: V2Colors.onSurface),
-              decoration: const InputDecoration(
-                hintText: 'Buscar transacción...',
-                hintStyle: TextStyle(fontFamily: 'Manrope', fontSize: 13, color: V2Colors.outline),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 10),
-              ),
-              onChanged: (val) {
-                setState(() => _searchQuery = val);
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: Row(
+          children: [
+            InkWell(
+              onTap: () {
+                if (!_isSearchExpanded) {
+                  setState(() => _isSearchExpanded = true);
+                }
               },
+              borderRadius: BorderRadius.circular(18),
+              child: SizedBox(
+                width: 34, // fits inside the 36px border area
+                height: 34,
+                child: Center(
+                  child: Icon(
+                    Icons.search,
+                    size: 18,
+                    color: _isSearchExpanded ? V2Colors.primary : V2Colors.onSurfaceVariant,
+                  ),
+                ),
+              ),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.close, size: 16),
-            color: V2Colors.primary,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 36),
-            onPressed: () {
-              setState(() {
-                _isSearchExpanded = false;
-                _searchController.clear();
-                _searchQuery = '';
-              });
-            },
-          ),
-        ],
+            if (_isSearchExpanded)
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: TextField(
+                          controller: _searchController,
+                          autofocus: true,
+                          textAlignVertical: TextAlignVertical.center,
+                          style: const TextStyle(fontFamily: 'Manrope', fontSize: 13, color: V2Colors.onSurface),
+                          decoration: const InputDecoration(
+                            hintText: 'Buscar transacción...',
+                            hintStyle: TextStyle(fontFamily: 'Manrope', fontSize: 13, color: V2Colors.outline),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          onChanged: (val) {
+                            setState(() => _searchQuery = val);
+                          },
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 16),
+                      color: V2Colors.primary,
+                      padding: EdgeInsets.zero,
+                      splashRadius: 16,
+                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      onPressed: () {
+                        if (_searchController.text.isNotEmpty) {
+                          setState(() {
+                            _searchController.clear();
+                            _searchQuery = '';
+                          });
+                        } else {
+                          setState(() {
+                            _isSearchExpanded = false;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -678,7 +690,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                             style: TextStyle(
                               fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: isIncome ? V2Colors.secondary : V2Colors.onSurface,
+                            color: isIncome ? V2Colors.secondary : V2Colors.error,
                             fontFamily: 'Manrope',
                             letterSpacing: -0.5,
                           ),

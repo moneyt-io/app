@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../../../../domain/entities/transaction_entry.dart';
 import '../../../../core/utils/icon_to_emoji_mapper.dart';
@@ -6,6 +7,7 @@ import '../../../../core/utils/icon_to_emoji_mapper.dart';
 import '../../../../domain/entities/category.dart';
 import '../../transactions/new_transactions_screen.dart';
 import '../../../../core/utils/number_formatter.dart';
+import 'dart:ui';
 
 class Dashboard2ActivityList extends StatelessWidget {
   final List<TransactionEntry> transactions;
@@ -96,32 +98,239 @@ class Dashboard2ActivityList extends StatelessWidget {
               progress = (sum / totalExpenses).clamp(0.0, 1.0);
             }
 
-            // Asignar color consistente
-            final hash = catId.hashCode;
+            // Asignar color consistente basado en el índice global de la categoría
             final colors = [
-              const Color(0xFF004AC6), // blue
-              const Color(0xFF6CF8BB), // green
-              const Color(0xFFFFB95F), // orange
-              const Color(0xFFBA1A1A), // red
+              const Color(0xFF004AC6), // Royal Blue
+              const Color(0xFF0D9488), // Teal
+              const Color(0xFFD97706), // Amber
+              const Color(0xFF059669), // Emerald
+              const Color(0xFF7C3AED), // Violet
+              const Color(0xFFDC2626), // Soft Red
+              const Color(0xFF2563EB), // Blue 600
+              const Color(0xFFD946EF), // Fuchsia
+              const Color(0xFF0F766E), // Dark Teal
+              const Color(0xFFEA580C), // Orange
+              const Color(0xFF4F46E5), // Indigo
+              const Color(0xFFBE123C), // Rose
             ];
-            final progressColor = colors[hash % colors.length];
+            
+            int colorIndex = 0;
+            if (catId != 'otros') {
+              final parsedId = int.tryParse(catId);
+              if (parsedId != null) {
+                final sortedKeys = categoriesDataMap.keys.toList()..sort();
+                final idx = sortedKeys.indexOf(parsedId);
+                if (idx != -1) colorIndex = idx;
+              }
+            }
+            
+            final progressColor = colors[colorIndex % colors.length];
+
+            // Filtrar las transacciones correspondientes a esta categoría
+            final categoryTransactions = expenses.where((t) {
+              final tCatId = t.category?.id.toString() ?? (t.mainCategoryId?.toString() ?? 'otros');
+              return tCatId == catId;
+            }).toList()
+              ..sort((a, b) => b.amount.abs().compareTo(a.amount.abs()));
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: _buildActivityItem(
+              child: _InteractiveActivityItem(
                 title: category?.name ?? 'Otros',
-                category: "${(progress * 100).toInt()}% del total",
-                date: "", // Ya no mostramos la fecha porque es un agrupado
+                percentageStr: "${(progress * 100).toInt()}% del total",
                 amount: -sum,
                 emoji: (category != null && category.icon.isNotEmpty) 
                     ? IconToEmojiMapper.getEmoji(category.icon) 
                     : '🏷️',
                 progress: progress,
                 progressColor: progressColor,
+                topTransactions: categoryTransactions.take(5).toList(),
               ),
             );
           }),
       ],
+    );
+  }
+}
+
+class _InteractiveActivityItem extends StatefulWidget {
+  final String title;
+  final String percentageStr;
+  final double amount;
+  final String emoji;
+  final double progress;
+  final Color progressColor;
+  final List<TransactionEntry> topTransactions;
+
+  const _InteractiveActivityItem({
+    required this.title,
+    required this.percentageStr,
+    required this.amount,
+    required this.emoji,
+    required this.progress,
+    required this.progressColor,
+    required this.topTransactions,
+  });
+
+  @override
+  State<_InteractiveActivityItem> createState() => _InteractiveActivityItemState();
+}
+
+class _InteractiveActivityItemState extends State<_InteractiveActivityItem> with SingleTickerProviderStateMixin {
+  bool _isPressed = false;
+
+  void _handleTapDown(TapDownDetails details) {
+    setState(() => _isPressed = true);
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    // Retraso sutil para garantizar que el usuario aprecie el estado visual "presionado" en toques muy rápidos
+    Future.delayed(const Duration(milliseconds: 50), () {
+      if (mounted) setState(() => _isPressed = false);
+    });
+  }
+
+  void _handleTapCancel() {
+    setState(() => _isPressed = false);
+  }
+
+  void _handleLongPress() {
+    HapticFeedback.heavyImpact();
+    setState(() => _isPressed = false);
+    
+    if (widget.topTransactions.isEmpty) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              color: const Color(0xFFFFFFFF).withValues(alpha: 0.85),
+              padding: EdgeInsets.only(
+                top: 24,
+                left: 24,
+                right: 24,
+                bottom: MediaQuery.of(context).padding.bottom + 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFC3C6D7),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: widget.progressColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(widget.emoji, style: const TextStyle(fontSize: 24)),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.title,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF131B2E),
+                                fontFamily: 'Manrope',
+                              ),
+                            ),
+                            Text(
+                              "Top ${widget.topTransactions.length} Gastos",
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF737686),
+                                fontFamily: 'Manrope',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  ...widget.topTransactions.map((tx) {
+                    final txTitle = tx.description?.isNotEmpty == true
+                        ? tx.description!
+                        : (tx.contact?.name ?? widget.title);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  txTitle,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF131B2E),
+                                    fontFamily: 'Manrope',
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  _formatDate(tx.date),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF737686),
+                                    fontFamily: 'Manrope',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            NumberFormatter.formatCurrency(tx.amount.abs()),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFFBA1A1A),
+                              fontFamily: 'Manrope',
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -138,103 +347,119 @@ class Dashboard2ActivityList extends StatelessWidget {
     }
   }
 
-  Widget _buildActivityItem({
-    required String title,
-    required String category,
-    required String date,
-    required double amount,
-    required String emoji,
-    required double progress,
-    required Color progressColor,
-  }) {
-    final isIncome = amount > 0;
+  @override
+  Widget build(BuildContext context) {
+    final isIncome = widget.amount > 0;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12), // rounded-xl
-      child: Container(
-        color: progress > 0 ? progressColor.withValues(alpha: 0.05) : const Color(0xFFFFFFFF).withValues(alpha: 0.5),
-        child: Stack(
-          children: [
-            if (progress > 0)
-              Positioned.fill(
-                child: FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: progress,
-                  child: Container(color: progressColor.withValues(alpha: 0.15)),
-                ),
-              ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF2F3FF),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(emoji, style: const TextStyle(fontSize: 24)),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF131B2E),
-                            fontFamily: 'Manrope',
-                          ),
-                        ),
-                        Text(
-                          date.isEmpty ? category : "$category • $date",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0x80434655), // on-surface-variant/50
-                            fontFamily: 'Manrope',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            "${isIncome ? '+' : ''}${NumberFormatter.formatCurrency(amount.abs())}",
-                            style: TextStyle(
-                              fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: isIncome ? const Color(0xFF00714D) : const Color(0xFF131B2E),
-                          fontFamily: 'Manrope',
+    return GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      onLongPress: _handleLongPress,
+      child: AnimatedScale(
+        scale: _isPressed ? 0.98 : 1.0, // Más sutil
+        duration: const Duration(milliseconds: 100), // Más rápido
+        curve: Curves.easeOutCubic,
+        child: AnimatedOpacity(
+          opacity: _isPressed ? 0.6 : 1.0, // Ligeramente más visible
+          duration: const Duration(milliseconds: 100),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              color: widget.progress > 0 
+                  ? widget.progressColor.withValues(alpha: 0.05) 
+                  : const Color(0xFFFFFFFF).withValues(alpha: 0.5),
+              child: IntrinsicHeight(
+                child: Stack(
+                  children: [
+                    if (widget.progress > 0)
+                      Positioned(
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: widget.progress,
+                          child: Container(color: widget.progressColor.withValues(alpha: 0.15)),
                         ),
                       ),
-                      if (progress > 0)
-                        Text(
-                          "(${(progress * 100).toInt()}%)",
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFF434655), // on-surface-variant
-                            fontFamily: 'Manrope',
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF2F3FF),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(widget.emoji, style: const TextStyle(fontSize: 24)),
                           ),
-                        ),
-                    ],
-                  ),
-                ],
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF131B2E),
+                                    fontFamily: 'Manrope',
+                                  ),
+                                ),
+                                Text(
+                                  widget.percentageStr,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0x80434655), // on-surface-variant/50
+                                    fontFamily: 'Manrope',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                "${isIncome ? '+' : ''}${NumberFormatter.formatCurrency(widget.amount.abs())}",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: isIncome ? const Color(0xFF00714D) : const Color(0xFF131B2E),
+                                  fontFamily: 'Manrope',
+                                ),
+                              ),
+                              if (widget.progress > 0)
+                                Text(
+                                  "(${(widget.progress * 100).toInt()}%)",
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w400,
+                                    color: Color(0xFF434655), // on-surface-variant
+                                    fontFamily: 'Manrope',
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../domain/entities/transaction_entry.dart';
 import '../../../../core/utils/number_formatter.dart';
@@ -24,13 +25,20 @@ class Dashboard2Gauge extends StatefulWidget {
 }
 
 class GaugeSegment {
+  final String categoryName;
   final double amount;
   final Color color;
-  GaugeSegment(this.amount, this.color);
+  final double startAngle;
+  final double sweepAngle;
+  
+  GaugeSegment(this.categoryName, this.amount, this.color, this.startAngle, this.sweepAngle);
 }
 
 class _Dashboard2GaugeState extends State<Dashboard2Gauge> {
   bool _showPercentage = true;
+  int? _selectedIndex;
+  Offset? _touchPosition;
+  bool _isTrackingGauge = false;
 
   @override
   Widget build(BuildContext context) {
@@ -52,19 +60,58 @@ class _Dashboard2GaugeState extends State<Dashboard2Gauge> {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     final colors = [
-      const Color(0xFF004AC6), // blue
-      const Color(0xFF6CF8BB), // green
-      const Color(0xFFFFB95F), // orange
-      const Color(0xFFBA1A1A), // red
-      const Color(0xFF9C27B0), // purple
-      const Color(0xFF00BCD4), // indigo
+      const Color(0xFF004AC6), // Royal Blue
+      const Color(0xFF0D9488), // Teal
+      const Color(0xFFD97706), // Amber
+      const Color(0xFF059669), // Emerald
+      const Color(0xFF7C3AED), // Violet
+      const Color(0xFFDC2626), // Soft Red
+      const Color(0xFF2563EB), // Blue 600
+      const Color(0xFFD946EF), // Fuchsia
+      const Color(0xFF0F766E), // Dark Teal
+      const Color(0xFFEA580C), // Orange
+      const Color(0xFF4F46E5), // Indigo
+      const Color(0xFFBE123C), // Rose
     ];
 
     List<GaugeSegment> segments = [];
+    final sortedKeys = widget.categoriesDataMap.keys.toList()..sort();
+    
+    // Asegurar que el gráfico siempre se vea 100% lleno con los gastos
+    final totalExpensesToDraw = widget.expenses;
+    const maxSweep = pi;
+    final scale = totalExpensesToDraw > 0 ? maxSweep / totalExpensesToDraw : 0.0;
+    
+    double currentAngle = pi; // start angle
+    double totalDrawn = 0.0;
+
     for (var entry in sortedCategories) {
-      final hash = entry.key.hashCode;
-      final color = colors[hash % colors.length];
-      segments.add(GaugeSegment(entry.value, color));
+      if (totalDrawn >= totalExpensesToDraw) break;
+      
+      int colorIndex = 0;
+      String categoryName = 'Otros';
+      
+      if (entry.key != 'otros') {
+        final parsedId = int.tryParse(entry.key);
+        if (parsedId != null) {
+          final idx = sortedKeys.indexOf(parsedId);
+          if (idx != -1) colorIndex = idx;
+          categoryName = widget.categoriesDataMap[parsedId]?.name ?? 'Otros';
+        }
+      }
+      
+      final color = colors[colorIndex % colors.length];
+      
+      double sweep = entry.value * scale;
+      if ((currentAngle - pi) + sweep > maxSweep) {
+        sweep = maxSweep - (currentAngle - pi);
+      }
+      
+      if (sweep > 0) {
+        segments.add(GaugeSegment(categoryName, entry.value, color, currentAngle, sweep));
+        currentAngle += sweep;
+        totalDrawn += entry.value;
+      }
     }
 
     // Default color if no segments but expenses exist
@@ -74,7 +121,11 @@ class _Dashboard2GaugeState extends State<Dashboard2Gauge> {
     String mainText;
     String subText;
 
-    if (_showPercentage) {
+    if (_selectedIndex != null && _selectedIndex! < segments.length) {
+      final selectedSegment = segments[_selectedIndex!];
+      mainText = NumberFormatter.formatCurrency(selectedSegment.amount);
+      subText = selectedSegment.categoryName.toUpperCase();
+    } else if (_showPercentage) {
       mainText = '${(displayPercentage * 100).toInt()}%';
       subText = displayPercentage > 1.0 ? 'EXCEDIDO' : 'GASTADO';
     } else {
@@ -83,15 +134,73 @@ class _Dashboard2GaugeState extends State<Dashboard2Gauge> {
     }
 
     // Adapt text color conditionally 
-    Color textColor = displayPercentage > 1.0 && _showPercentage ? overflowColor : const Color(0xFF131B2E);
+    Color textColor = (_selectedIndex == null && displayPercentage > 1.0 && _showPercentage) ? overflowColor : Colors.white;
     // Darker variant for subText if it's over limit
-    Color subTextColor = displayPercentage > 1.0 ? overflowColor.withValues(alpha: 0.8) : const Color(0xB3131B2E);
+    Color subTextColor = (_selectedIndex == null && displayPercentage > 1.0) ? overflowColor.withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.8);
+    
+    // Shadows for contrast on white text
+    List<Shadow> textShadows = textColor == Colors.white ? [
+      Shadow(
+        color: Colors.black.withValues(alpha: 0.25),
+        blurRadius: 10,
+        offset: const Offset(0, 2),
+      )
+    ] : [];
+
+    if (_selectedIndex != null && _selectedIndex! < segments.length) {
+      textColor = segments[_selectedIndex!].color;
+      subTextColor = segments[_selectedIndex!].color.withValues(alpha: 0.8);
+      textShadows = []; // Quitar sombra si tiene color para mantener la estética limpia
+    }
 
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _showPercentage = !_showPercentage;
-        });
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (details) {
+        _isTrackingGauge = _isOverGauge(details.localPosition);
+        if (_isTrackingGauge) {
+          _handleTouch(details.localPosition, segments, isFirstTouch: true);
+        }
+      },
+      onTapUp: (details) {
+        if (_isTrackingGauge) {
+          _isTrackingGauge = false;
+          setState(() => _selectedIndex = null);
+        } else if (!_isOverGauge(details.localPosition)) {
+          setState(() {
+            _showPercentage = !_showPercentage;
+          });
+        }
+      },
+      onTapCancel: () {
+        if (_isTrackingGauge) {
+          _isTrackingGauge = false;
+          setState(() => _selectedIndex = null);
+        }
+      },
+      onHorizontalDragStart: (details) {
+        if (!_isTrackingGauge) {
+          _isTrackingGauge = _isOverGauge(details.localPosition);
+        }
+        if (_isTrackingGauge) {
+          _handleTouch(details.localPosition, segments, isFirstTouch: true);
+        }
+      },
+      onHorizontalDragUpdate: (details) {
+        if (_isTrackingGauge) {
+          _handleTouch(details.localPosition, segments, isFirstTouch: false);
+        }
+      },
+      onHorizontalDragEnd: (details) {
+        if (_isTrackingGauge) {
+          _isTrackingGauge = false;
+          setState(() => _selectedIndex = null);
+        }
+      },
+      onHorizontalDragCancel: () {
+        if (_isTrackingGauge) {
+          _isTrackingGauge = false;
+          setState(() => _selectedIndex = null);
+        }
       },
       child: SizedBox(
         width: 250,
@@ -105,26 +214,38 @@ class _Dashboard2GaugeState extends State<Dashboard2Gauge> {
                 income: widget.income,
                 expenses: widget.expenses,
                 segments: segments,
+                selectedIndex: _selectedIndex,
               ),
             ),
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  mainText,
-                  style: TextStyle(
-                    fontSize: _showPercentage ? 36 : 28,
-                    fontWeight: FontWeight.w800,
-                    color: textColor,
-                    height: 1,
-                    fontFamily: 'Manrope',
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
+                  child: Text(
+                    mainText,
+                    key: ValueKey<String>(mainText),
+                    style: TextStyle(
+                      fontSize: (_showPercentage && _selectedIndex == null) ? 36 : 24,
+                      fontWeight: FontWeight.w800,
+                      color: textColor,
+                      height: 1,
+                      fontFamily: 'Manrope',
+                      shadows: textShadows,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),
-                Container(
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: displayPercentage > 1.0 ? overflowColor.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1),
+                    color: _selectedIndex != null 
+                        ? segments[_selectedIndex!].color.withValues(alpha: 0.1)
+                        : (displayPercentage > 1.0 ? overflowColor.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1)),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -134,6 +255,7 @@ class _Dashboard2GaugeState extends State<Dashboard2Gauge> {
                       fontWeight: FontWeight.w700,
                       color: subTextColor,
                       letterSpacing: 1.5,
+                      shadows: textShadows,
                     ),
                   ),
                 ),
@@ -145,18 +267,85 @@ class _Dashboard2GaugeState extends State<Dashboard2Gauge> {
       ),
     );
   }
+
+  bool _isOverGauge(Offset localPosition) {
+    // Determina si las coordenadas (X, Y) están estrictamente sobre el área pintada del arco
+    final dx = localPosition.dx - 125.0; // 250/2 (centro X)
+    final dy = localPosition.dy - 125.0; // 125 (centro Y)
+    
+    final distance = sqrt(dx * dx + dy * dy);
+    
+    // El arco tiene radio interno ~89 y externo ~113
+    // Damos un margen de error humano (80 a 135)
+    return distance >= 80 && distance <= 135;
+  }
+
+  void _handleTouch(Offset localPosition, List<GaugeSegment> segments, {bool isFirstTouch = false}) {
+    if (segments.isEmpty) return;
+
+    if (isFirstTouch) {
+      final dx = localPosition.dx - 125.0; 
+      final dy = localPosition.dy - 125.0; 
+      final distance = sqrt(dx * dx + dy * dy);
+      
+      if (distance < 80 || distance > 135) {
+        return; 
+      }
+    }
+    
+    double progressX = (localPosition.dx - 12) / (250 - 24);
+    progressX = progressX.clamp(0.0, 1.0); 
+
+    double totalSweep = 0;
+    for (var seg in segments) {
+      totalSweep += seg.sweepAngle;
+    }
+
+    double targetAngleProgress = progressX * totalSweep;
+
+    int? newIndex;
+    double currentProgressAccumulated = 0;
+    
+    for (int i = 0; i < segments.length; i++) {
+      final seg = segments[i];
+      currentProgressAccumulated += seg.sweepAngle;
+      
+      if (targetAngleProgress <= currentProgressAccumulated) {
+        newIndex = i;
+        break;
+      }
+    }
+    
+    if (newIndex == null && segments.isNotEmpty) {
+      newIndex = segments.length - 1;
+    }
+
+    if (newIndex != _selectedIndex) {
+      if (newIndex != null) {
+        if (isFirstTouch) {
+          HapticFeedback.lightImpact();
+        } else {
+          HapticFeedback.selectionClick();
+        }
+      }
+      setState(() {
+        _selectedIndex = newIndex;
+      });
+    }
+  }
 }
 
 class _GaugePainter extends CustomPainter {
   final double income;
   final double expenses;
   final List<GaugeSegment> segments;
+  final int? selectedIndex;
 
-  _GaugePainter({required this.income, required this.expenses, required this.segments});
+  _GaugePainter({required this.income, required this.expenses, required this.segments, this.selectedIndex});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTRB(12, 12, size.width - 12, (size.height - 12) * 2);
+    final rect = Rect.fromLTRB(14, 14, size.width - 14, (size.height - 14) * 2);
     const startAngle = pi;
     const maxSweep = pi;
 
@@ -168,67 +357,116 @@ class _GaugePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     canvas.drawArc(rect, startAngle, maxSweep, false, bgPaint);
 
-    if (expenses <= 0) return;
+    if (expenses <= 0 || segments.isEmpty) return;
 
-    // Si los gastos superan los ingresos, limitamos el visual a llenar todo
-    final totalBase = income > 0 ? income : expenses;
-    final scale = maxSweep / totalBase;
-
-    double currentAngle = startAngle;
-    double totalDrawn = 0;
-
-    for (int i = 0; i < segments.length; i++) {
-      final seg = segments[i];
-      if (totalDrawn >= totalBase) break;
-
-      double sweep = seg.amount * scale;
-      
-      // Si este segmento se pasa del máximo del gauge, lo recortamos
-      if ((currentAngle - startAngle) + sweep > maxSweep) {
-        sweep = maxSweep - (currentAngle - startAngle);
-      }
-
-      final paint = Paint()
-        ..color = seg.color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 24
-        // Solo redondeamos los extremos en el primero y el último (o al final del trazo)
-        ..strokeCap = StrokeCap.butt;
-        
-      if (i == 0 && segments.length == 1) {
-        paint.strokeCap = StrokeCap.round;
-      }
-
-      // Dibujar segmento
-      if (sweep > 0) {
-        canvas.drawArc(rect, currentAngle, sweep, false, paint);
-        currentAngle += sweep;
-        totalDrawn += seg.amount;
-      }
-    }
-
-    // Para redondear los extremos si es necesario, dibujamos pequeños arcos encima
-    if (currentAngle > startAngle && currentAngle < startAngle + maxSweep) {
-      final capPaint = Paint()
-        ..color = segments.last.color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 24
-        ..strokeCap = StrokeCap.round;
-      canvas.drawArc(rect, currentAngle - 0.01, 0.01, false, capPaint);
+    double totalSegmentAmount = 0.0;
+    for (var seg in segments) {
+      totalSegmentAmount += seg.amount;
     }
     
-    if (segments.isNotEmpty && currentAngle > startAngle) {
-      final capPaint = Paint()
-        ..color = segments.first.color
+    if (totalSegmentAmount <= 0) return;
+
+    // Dibujaremos tapones bases DEBAJO de todo. 
+    // Para que los bordes del gauge siempre sean perfectamente curvos y coloreados
+    // sin que un StrokeCap.round tape agresivamente a otro segmento contiguo.
+    
+    // Tapón inicial (izquierda)
+    bool isFirstSelected = selectedIndex == 0;
+    final firstColor = (selectedIndex != null && !isFirstSelected) 
+        ? segments.first.color.withValues(alpha: 0.3) 
+        : segments.first.color.withValues(alpha: 0.85);
+        
+    final firstCapPaint = Paint()
+      ..color = firstColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = isFirstSelected ? 28.0 : 24.0
+      ..strokeCap = StrokeCap.round;
+    canvas.drawArc(rect, startAngle, 0.001, false, firstCapPaint);
+
+    // Tapón final (derecha)
+    bool isLastSelected = selectedIndex == segments.length - 1;
+    final lastColor = (selectedIndex != null && !isLastSelected) 
+        ? segments.last.color.withValues(alpha: 0.3) 
+        : segments.last.color.withValues(alpha: 0.85);
+        
+    final lastCapPaint = Paint()
+      ..color = lastColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = isLastSelected ? 28.0 : 24.0
+      ..strokeCap = StrokeCap.round;
+    canvas.drawArc(rect, startAngle + maxSweep - 0.001, 0.001, false, lastCapPaint);
+
+    // Ahora dibujamos los segmentos puros usando Butt (bordes planos perfectos)
+    double currentAngle = startAngle;
+
+    for (int i = 0; i < segments.length; i++) {
+      double proportion = segments[i].amount / totalSegmentAmount;
+      double rawSweep = proportion * maxSweep;
+
+      bool isSelected = selectedIndex == i;
+      bool isDimmed = selectedIndex != null && !isSelected;
+      
+      final paintColor = isDimmed 
+          ? segments[i].color.withValues(alpha: 0.3) 
+          : segments[i].color.withValues(alpha: 0.85);
+
+      final strokeW = isSelected ? 28.0 : 24.0;
+
+      final paint = Paint()
+        ..color = paintColor
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 24
-        ..strokeCap = StrokeCap.round;
-      canvas.drawArc(rect, startAngle, 0.01, false, capPaint);
+        ..strokeWidth = strokeW
+        ..strokeCap = StrokeCap.butt;
+
+      if (i == segments.length - 1) {
+        // El último segmento debe rellenar matemáticamente hasta el borde final
+        // para garantizar que no haya huecos de decimales
+        rawSweep = maxSweep - (currentAngle - startAngle);
+        if (rawSweep > 0) {
+          canvas.drawArc(rect, currentAngle, rawSweep, false, paint);
+        }
+      } else {
+        // Agregamos apenas 0.005 radianes (ni medio grado) al dibujarlo
+        // Solo lo suficiente para matar el difuminado anti-aliasing del canvas entre dos colores.
+        if (rawSweep > 0) {
+          canvas.drawArc(rect, currentAngle, rawSweep + 0.005, false, paint);
+        }
+      }
+
+      currentAngle += rawSweep;
+    }
+    
+    // Si hay un segmento seleccionado, queremos que sus bordes se vean impecables
+    // y destaquen ligeramente sobre los demás, así que redibujamos el segmento seleccionado
+    // por encima de todo con StrokeCap.butt
+    if (selectedIndex != null && selectedIndex! < segments.length) {
+      double start = startAngle;
+      for (int i = 0; i < selectedIndex!; i++) {
+        start += (segments[i].amount / totalSegmentAmount) * maxSweep;
+      }
+      
+      double sweep = (segments[selectedIndex!].amount / totalSegmentAmount) * maxSweep;
+      if (selectedIndex! == segments.length - 1) {
+        sweep = maxSweep - (start - startAngle);
+      }
+      
+      final highlightPaint = Paint()
+        ..color = segments[selectedIndex!].color.withValues(alpha: 0.85)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 28.0
+        ..strokeCap = StrokeCap.butt;
+        
+      if (sweep > 0) {
+        canvas.drawArc(rect, start, sweep + (selectedIndex! == segments.length - 1 ? 0 : 0.005), false, highlightPaint);
+      }
     }
   }
 
   @override
   bool shouldRepaint(covariant _GaugePainter oldDelegate) {
-    return true; // Simplificado para siempre repintar si cambian los segmentos
+    return oldDelegate.income != income ||
+           oldDelegate.expenses != expenses ||
+           oldDelegate.selectedIndex != selectedIndex ||
+           oldDelegate.segments != segments;
   }
 }
