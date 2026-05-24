@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
 import '../../../../domain/entities/category.dart';
+import '../../../../domain/usecases/category_usecases.dart';
 import '../../../../core/utils/icon_to_emoji_mapper.dart';
 import '../../theme/v2_colors.dart';
+import '../../categories/widgets/v2_category_form_bottom_sheet.dart';
+import '../../../features/transactions/transaction_provider.dart';
 
 class V2CategorySelectionSheet extends StatefulWidget {
   final List<Category> categories;
@@ -59,6 +64,77 @@ class _V2CategorySelectionSheetState extends State<V2CategorySelectionSheet> {
             .toList();
       }
     });
+  }
+
+  void _showCreateCategory() {
+    // Para simplificar, obtenemos el tipo desde las categorías (E o I)
+    // Si la lista está vacía, asumimos Gasto (E) por defecto
+    final selectedType = widget.categories.isNotEmpty 
+        ? widget.categories.first.documentTypeId 
+        : 'E';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => V2CategoryFormBottomSheet(
+        selectedType: selectedType,
+        onSave: (name, emoji) async {
+          final categoryUseCases = GetIt.instance<CategoryUseCases>();
+          try {
+            final allCats = await categoryUseCases.getAllCategories();
+            final rootName = selectedType == 'E' ? 'Expense' : 'Income';
+            Category? root = allCats.where((c) => c.parentId == null && c.name == rootName && c.documentTypeId == selectedType).firstOrNull;
+            
+            if (root == null) {
+              final newRoot = Category(
+                id: 0,
+                name: rootName,
+                documentTypeId: selectedType,
+                chartAccountId: 0,
+                icon: Icons.folder.codePoint.toString(),
+                active: true,
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              );
+              root = await categoryUseCases.createCategory(newRoot);
+            }
+
+            final newCat = Category(
+              id: 0,
+              name: name,
+              documentTypeId: selectedType,
+              parentId: root.id,
+              chartAccountId: 0,
+              icon: emoji,
+              active: true,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            );
+            final created = await categoryUseCases.createCategory(newCat);
+            
+            // Actualizar la caché en el provider para que las demás vistas (Dashboard) la reconozcan
+            if (mounted) {
+              await context.read<TransactionProvider>().refreshCategories();
+            }
+            
+            // Cerrar el modal actual (el del formulario)
+            if (mounted) {
+              Navigator.pop(ctx);
+            }
+            
+            // Cerrar este modal (CategorySelectionSheet) enviando la categoría creada
+            if (mounted) {
+              Navigator.pop(context, created);
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+            }
+          }
+        },
+      ),
+    );
   }
 
   @override
@@ -227,6 +303,28 @@ class _V2CategorySelectionSheetState extends State<V2CategorySelectionSheet> {
                     );
                   },
                 ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _showCreateCategory,
+            icon: const Icon(Icons.add),
+            label: const Text(
+              'Crear nueva categoría',
+              style: TextStyle(
+                fontFamily: 'Manrope',
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: V2Colors.primary.withValues(alpha: 0.1),
+              foregroundColor: V2Colors.primary,
+              elevation: 0,
+              minimumSize: const Size.fromHeight(56),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
           ),
         ],
       ),

@@ -15,7 +15,8 @@ import '../../../../core/utils/number_formatter.dart';
 import 'widgets/v2_category_selection_sheet.dart';
 import 'widgets/v2_account_selection_sheet.dart';
 import '../shared/widgets/v2_date_selection_sheet.dart';
-import '../../core/organisms/account_selector_modal.dart' show SelectableAccount;
+import '../../core/organisms/account_selector_modal.dart'
+    show SelectableAccount;
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/usecases/credit_card_usecases.dart';
 import 'package:get_it/get_it.dart';
@@ -23,7 +24,7 @@ import '../../features/wallets/wallet_provider.dart';
 
 class NewTransactionsScreen extends StatefulWidget {
   final bool autoOpenSearch;
-  
+
   const NewTransactionsScreen({
     super.key,
     this.autoOpenSearch = false,
@@ -56,17 +57,19 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
   String _formatDateHeader(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays == 0 && now.day == date.day) {
       return "Hoy";
-    } else if (difference.inDays == 1 || (difference.inDays == 0 && now.day != date.day)) {
+    } else if (difference.inDays == 1 ||
+        (difference.inDays == 0 && now.day != date.day)) {
       return "Ayer";
     } else {
       return DateFormat('d \'de\' MMMM', 'es').format(date);
     }
   }
 
-  Map<String, List<TransactionEntry>> _groupTransactions(List<TransactionEntry> transactions) {
+  Map<String, List<TransactionEntry>> _groupTransactions(
+      List<TransactionEntry> transactions) {
     final grouped = <String, List<TransactionEntry>>{};
     for (final t in transactions) {
       final dateStr = _formatDateHeader(t.date);
@@ -78,17 +81,18 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
     return grouped;
   }
 
-  List<Category> _getTopCategories(List<TransactionEntry> transactions, Map<int, Category> categoryMap) {
+  List<Category> _getTopCategories(
+      List<TransactionEntry> transactions, Map<int, Category> categoryMap) {
     final counts = <int, int>{};
     for (final t in transactions) {
       if (t.mainCategoryId != null) {
         counts[t.mainCategoryId!] = (counts[t.mainCategoryId!] ?? 0) + 1;
       }
     }
-    
+
     final sortedIds = counts.keys.toList()
       ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
-      
+
     return sortedIds
         .take(10)
         .map((id) => categoryMap[id])
@@ -106,7 +110,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
         body: Consumer2<TransactionProvider, CurrencyFilterProvider>(
           builder: (context, transactionProvider, currencyFilter, child) {
             final selectedCurrency = currencyFilter.selectedCurrencyId;
-            
+
             // Filtro base: moneda
             var transactions = transactionProvider.transactions
                 .where((t) => t.currencyId == selectedCurrency)
@@ -114,23 +118,33 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
               ..sort((a, b) => b.date.compareTo(a.date));
 
             // Extraer el top de categorías SIEMPRE en base a todas las transacciones (para que los chips no desaparezcan al filtrar)
-            final topCategories = _getTopCategories(transactions, transactionProvider.categoriesDataMap);
+            final topCategories = _getTopCategories(
+                transactions, transactionProvider.categoriesDataMap);
 
             // Aplicar filtro de categoría seleccionada
             if (_selectedCategoryId != null) {
-              transactions = transactions.where((t) => t.mainCategoryId == _selectedCategoryId).toList();
+              transactions = transactions
+                  .where((t) => t.mainCategoryId == _selectedCategoryId)
+                  .toList();
             }
 
             // Aplicar filtro de billetera seleccionada
             if (_selectedWalletId != null) {
-              transactions = transactions.where((t) => t.details.any((d) => d.paymentId == _selectedWalletId)).toList();
+              transactions = transactions
+                  .where((t) =>
+                      t.details.any((d) => d.paymentId == _selectedWalletId))
+                  .toList();
             }
 
             // Aplicar filtro de fecha
             if (_selectedDateRange != null) {
               transactions = transactions.where((t) {
-                final isAfterOrSame = t.date.isAfter(_selectedDateRange!.start) || t.date.isAtSameMomentAs(_selectedDateRange!.start);
-                final isBeforeOrSame = t.date.isBefore(_selectedDateRange!.end) || t.date.isAtSameMomentAs(_selectedDateRange!.end);
+                final isAfterOrSame =
+                    t.date.isAfter(_selectedDateRange!.start) ||
+                        t.date.isAtSameMomentAs(_selectedDateRange!.start);
+                final isBeforeOrSame =
+                    t.date.isBefore(_selectedDateRange!.end) ||
+                        t.date.isAtSameMomentAs(_selectedDateRange!.end);
                 return isAfterOrSame && isBeforeOrSame;
               }).toList();
             }
@@ -139,10 +153,18 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
             if (_searchQuery.isNotEmpty) {
               transactions = transactions.where((t) {
                 final q = _searchQuery.toLowerCase();
-                final catName = t.category?.name.toLowerCase() ?? (t.mainCategoryId != null ? transactionProvider.categoriesDataMap[t.mainCategoryId!]?.name.toLowerCase() : '') ?? '';
+                final catName = t.category?.name.toLowerCase() ??
+                    (t.mainCategoryId != null
+                        ? transactionProvider
+                            .categoriesDataMap[t.mainCategoryId!]?.name
+                            .toLowerCase()
+                        : '') ??
+                    '';
                 final contactName = t.contact?.name.toLowerCase() ?? '';
                 final desc = t.description?.toLowerCase() ?? '';
-                return catName.contains(q) || contactName.contains(q) || desc.contains(q);
+                return catName.contains(q) ||
+                    contactName.contains(q) ||
+                    desc.contains(q);
               }).toList();
             }
 
@@ -158,12 +180,13 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                     const SliverToBoxAdapter(
                       child: SizedBox(height: 160),
                     ),
-                    
+
                     // Categorías Utilizadas (Filtro Visual Mantenido)
                     if (topCategories.isNotEmpty) ...[
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 16, bottom: 8, left: 24),
+                          padding: const EdgeInsets.only(
+                              top: 16, bottom: 8, left: 24),
                           child: Text(
                             "CATEGORÍAS UTILIZADAS",
                             style: TextStyle(
@@ -186,15 +209,18 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                             itemCount: topCategories.length,
                             itemBuilder: (context, index) {
                               final cat = topCategories[index];
-                              
+
                               final isIncome = cat.documentTypeId == 'I';
-                              final bgColor = isIncome 
-                                  ? V2Colors.secondaryContainer.withValues(alpha: 0.3) 
-                                  : V2Colors.errorContainer.withValues(alpha: 0.3);
-                                  
+                              final bgColor = isIncome
+                                  ? V2Colors.secondaryContainer
+                                      .withValues(alpha: 0.3)
+                                  : V2Colors.errorContainer
+                                      .withValues(alpha: 0.3);
+
                               final isSelected = _selectedCategoryId == cat.id;
 
-                              String emoji = IconToEmojiMapper.getEmoji(cat.icon);
+                              String emoji =
+                                  IconToEmojiMapper.getEmoji(cat.icon);
 
                               return GestureDetector(
                                 onTap: () {
@@ -206,33 +232,40 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                     }
                                   });
                                 },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                width: 56,
-                                height: 56,
-                                margin: const EdgeInsets.only(right: 8),
-                                decoration: BoxDecoration(
-                                  color: isSelected ? bgColor.withValues(alpha: 0.5) : bgColor,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: isSelected ? V2Colors.primary.withValues(alpha: 0.4) : Colors.white.withValues(alpha: 0.5),
-                                    width: isSelected ? 1.5 : 1,
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  width: 56,
+                                  height: 56,
+                                  margin: const EdgeInsets.only(right: 8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? bgColor.withValues(alpha: 0.5)
+                                        : bgColor,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? V2Colors.primary
+                                              .withValues(alpha: 0.4)
+                                          : Colors.white.withValues(alpha: 0.5),
+                                      width: isSelected ? 1.5 : 1,
+                                    ),
+                                    boxShadow: [
+                                      if (isSelected)
+                                        BoxShadow(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.06),
+                                          blurRadius: 12,
+                                          offset: const Offset(0, 4),
+                                        )
+                                      else
+                                        BoxShadow(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.02),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                    ],
                                   ),
-                                  boxShadow: [
-                                    if (isSelected)
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.06),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 4),
-                                      )
-                                    else
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.02),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                  ],
-                                ),
                                   alignment: Alignment.center,
                                   child: Text(
                                     emoji,
@@ -268,14 +301,16 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                     else
                       ...groupedTransactions.entries.map((entry) {
                         return SliverPadding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 8),
                           sliver: SliverList(
                             delegate: SliverChildBuilderDelegate(
                               (context, index) {
                                 if (index == 0) {
                                   // Cabecera del grupo (Fecha)
                                   return Padding(
-                                    padding: const EdgeInsets.only(bottom: 12, top: 16, left: 4),
+                                    padding: const EdgeInsets.only(
+                                        bottom: 12, top: 16, left: 4),
                                     child: Text(
                                       entry.key.toUpperCase(),
                                       style: TextStyle(
@@ -288,17 +323,23 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                     ),
                                   );
                                 }
-                                
+
                                 final t = entry.value[index - 1];
-                                final category = t.category ?? (t.mainCategoryId != null ? transactionProvider.categoriesDataMap[t.mainCategoryId!] : null);
-                                return _buildTransactionCard(t, category, context);
+                                final category = t.category ??
+                                    (t.mainCategoryId != null
+                                        ? transactionProvider.categoriesDataMap[
+                                            t.mainCategoryId!]
+                                        : null);
+                                return _buildTransactionCard(
+                                    t, category, context);
                               },
-                              childCount: entry.value.length + 1, // +1 for the header
+                              childCount:
+                                  entry.value.length + 1, // +1 for the header
                             ),
                           ),
                         );
                       }),
-                      
+
                     // Espacio inferior
                     const SliverToBoxAdapter(
                       child: SizedBox(height: 80),
@@ -324,11 +365,13 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
                                   child: Row(
                                     children: [
                                       IconButton(
-                                        icon: const Icon(Icons.arrow_back, color: V2Colors.onSurface),
+                                        icon: const Icon(Icons.arrow_back,
+                                            color: V2Colors.onSurface),
                                         onPressed: () => Navigator.pop(context),
                                       ),
                                       const SizedBox(width: 8),
@@ -346,28 +389,30 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                 ),
                                 const SizedBox(height: 12),
                                 // Barra de Búsqueda y Filtros
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    child: Row(
-                                      children: [
-                                        _buildAnimatedSearchBar(context),
-                                        const SizedBox(width: 8),
-                                        // Chips de filtros desplazables siempre visibles
-                                        Expanded(
-                                          child: SingleChildScrollView(
-                                            scrollDirection: Axis.horizontal,
-                                            physics: const BouncingScrollPhysics(),
-                                            child: Row(
-                                              children: [
-                                                _buildDateChip(),
-                                                _buildWalletChip(),
-                                              ],
-                                            ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  child: Row(
+                                    children: [
+                                      _buildAnimatedSearchBar(context),
+                                      const SizedBox(width: 8),
+                                      // Chips de filtros desplazables siempre visibles
+                                      Expanded(
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          physics:
+                                              const BouncingScrollPhysics(),
+                                          child: Row(
+                                            children: [
+                                              _buildDateChip(),
+                                              _buildWalletChip(),
+                                            ],
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
+                                ),
                               ],
                             ),
                           ),
@@ -397,8 +442,8 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
         color: V2Colors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: _isSearchExpanded 
-              ? V2Colors.primary.withValues(alpha: 0.15) 
+          color: _isSearchExpanded
+              ? V2Colors.primary.withValues(alpha: 0.15)
               : V2Colors.outlineVariant.withValues(alpha: 0.3),
         ),
       ),
@@ -420,7 +465,9 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                   child: Icon(
                     Icons.search,
                     size: 18,
-                    color: _isSearchExpanded ? V2Colors.primary : V2Colors.onSurfaceVariant,
+                    color: _isSearchExpanded
+                        ? V2Colors.primary
+                        : V2Colors.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -436,10 +483,16 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                           controller: _searchController,
                           autofocus: true,
                           textAlignVertical: TextAlignVertical.center,
-                          style: const TextStyle(fontFamily: 'Manrope', fontSize: 13, color: V2Colors.onSurface),
+                          style: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 13,
+                              color: V2Colors.onSurface),
                           decoration: const InputDecoration(
                             hintText: 'Buscar transacción...',
-                            hintStyle: TextStyle(fontFamily: 'Manrope', fontSize: 13, color: V2Colors.outline),
+                            hintStyle: TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 13,
+                                color: V2Colors.outline),
                             border: InputBorder.none,
                             isDense: true,
                             contentPadding: EdgeInsets.zero,
@@ -455,7 +508,8 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                       color: V2Colors.primary,
                       padding: EdgeInsets.zero,
                       splashRadius: 16,
-                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      constraints:
+                          const BoxConstraints(minWidth: 32, minHeight: 32),
                       onPressed: () {
                         if (_searchController.text.isNotEmpty) {
                           setState(() {
@@ -496,7 +550,8 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
           setState(() => _selectedDateRange = null);
           return;
         }
-        final picked = await V2DateSelectionSheet.showRange(context, initialRange: _selectedDateRange);
+        final picked = await V2DateSelectionSheet.showRange(context,
+            initialRange: _selectedDateRange);
         if (picked != null) {
           setState(() => _selectedDateRange = picked);
         }
@@ -512,7 +567,9 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
     // pero podemos obtenerlo del provider.
     final walletProvider = context.read<WalletProvider>();
     if (isActive) {
-      final wallet = walletProvider.wallets.where((w) => w.id == _selectedWalletId).firstOrNull;
+      final wallet = walletProvider.wallets
+          .where((w) => w.id == _selectedWalletId)
+          .firstOrNull;
       if (wallet != null) label = wallet.name;
     }
 
@@ -525,24 +582,30 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
           setState(() => _selectedWalletId = null);
           return;
         }
-        
+
         final wallets = await GetIt.instance<WalletUseCases>().getAllWallets();
-        final cards = await GetIt.instance<CreditCardUseCases>().getAllCreditCards();
-        
+        final cards =
+            await GetIt.instance<CreditCardUseCases>().getAllCreditCards();
+
         final accounts = <SelectableAccount>[];
         for (final w in wallets) {
-          if (w.active) accounts.add(SelectableAccount.fromWallet(w, balance: 0, accountNumber: '1234'));
+          if (w.active && w.parentId != null)
+            accounts.add(SelectableAccount.fromWallet(w,
+                balance: 0, accountNumber: '1234'));
         }
         for (final c in cards) {
-          accounts.add(SelectableAccount.fromCreditCard(c, balance: 0, availableCredit: 0, cardNumber: '5678'));
+          accounts.add(SelectableAccount.fromCreditCard(c,
+              balance: 0, availableCredit: 0, cardNumber: '5678'));
         }
-        
+
         final selected = await V2AccountSelectionSheet.show(
           context,
           accounts: accounts,
-          initialSelection: _selectedWalletId != null ? accounts.where((a) => a.id == _selectedWalletId).firstOrNull : null,
+          initialSelection: _selectedWalletId != null
+              ? accounts.where((a) => a.id == _selectedWalletId).firstOrNull
+              : null,
         );
-        
+
         if (selected != null) {
           setState(() => _selectedWalletId = selected.id);
         }
@@ -563,10 +626,14 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? V2Colors.primary.withValues(alpha: 0.15) : V2Colors.surfaceContainerLowest,
+          color: isActive
+              ? V2Colors.primary.withValues(alpha: 0.15)
+              : V2Colors.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isActive ? V2Colors.primary : V2Colors.outlineVariant.withValues(alpha: 0.3),
+            color: isActive
+                ? V2Colors.primary
+                : V2Colors.outlineVariant.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -595,14 +662,15 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
     );
   }
 
-  Widget _buildTransactionCard(TransactionEntry t, Category? category, BuildContext context) {
+  Widget _buildTransactionCard(
+      TransactionEntry t, Category? category, BuildContext context) {
     final isIncome = t.isIncome;
 
     // Asignar color consistente: rojo para gastos, verde para ingresos
-    final avatarBgColor = isIncome 
-        ? V2Colors.secondaryContainer.withValues(alpha: 0.3) 
+    final avatarBgColor = isIncome
+        ? V2Colors.secondaryContainer.withValues(alpha: 0.3)
         : V2Colors.errorContainer.withValues(alpha: 0.3);
-    
+
     String emoji = (isIncome ? '💰' : '🏷️');
     if (category != null && category.icon.isNotEmpty) {
       emoji = IconToEmojiMapper.getEmoji(category.icon);
@@ -611,8 +679,9 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
     final title = t.description?.isNotEmpty == true
         ? t.description!
         : (t.contact?.name ?? category?.name ?? 'Transacción');
-        
-    final subtitle = "${category?.name ?? 'Otros'} • ${DateFormat('HH:mm').format(t.date)}";
+
+    final subtitle =
+        "${category?.name ?? 'Otros'} • ${DateFormat('HH:mm').format(t.date)}";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -683,14 +752,15 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                      Row(
-                        children: [
-                          Text(
-                            "${isIncome ? '+' : '-'}${NumberFormatter.formatCurrency(t.amount.abs())}",
-                            style: TextStyle(
-                              fontSize: 16,
+                    Row(
+                      children: [
+                        Text(
+                          "${isIncome ? '+' : '-'}${NumberFormatter.formatCurrency(t.amount.abs())}",
+                          style: TextStyle(
+                            fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: isIncome ? V2Colors.secondary : V2Colors.error,
+                            color:
+                                isIncome ? V2Colors.secondary : V2Colors.error,
                             fontFamily: 'Manrope',
                             letterSpacing: -0.5,
                           ),
@@ -700,59 +770,80 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => NewTransactionScreen(
-                                    transactionIdToEdit: t.id,
-                                    initialType: t.documentTypeId,
-                                    initialAmount: t.amount.abs(),
-                                    initialDescription: t.description,
-                                    initialCategoryId: t.mainCategoryId,
-                                    initialWalletId: t.details.isNotEmpty 
-                                        ? (t.details.first.paymentTypeId == 'C' ? -t.details.first.paymentId : t.details.first.paymentId) 
-                                        : null,
-                                    initialDate: t.date,
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => NewTransactionScreen(
+                                  transactionIdToEdit: t.id,
+                                  initialType: t.documentTypeId,
+                                  initialAmount: t.amount.abs(),
+                                  initialDescription: t.description,
+                                  initialCategoryId: t.mainCategoryId,
+                                  initialWalletId: t.details.isNotEmpty
+                                      ? (t.details.first.paymentTypeId == 'C'
+                                          ? -t.details.first.paymentId
+                                          : t.details.first.paymentId)
+                                      : null,
+                                  initialDate: t.date,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(4.0),
+                            child: Icon(Icons.edit_outlined,
+                                size: 16, color: V2Colors.onSurfaceVariant),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                title: const Text('¿Eliminar transacción?',
+                                    style: TextStyle(
+                                        fontFamily: 'Manrope',
+                                        fontWeight: FontWeight.w700)),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx),
+                                    child: const Text('Cancelar',
+                                        style: TextStyle(
+                                            color: V2Colors.onSurfaceVariant,
+                                            fontFamily: 'Manrope',
+                                            fontWeight: FontWeight.w600)),
                                   ),
-                                ),
-                              );
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(4.0),
-                              child: Icon(Icons.edit_outlined, size: 16, color: V2Colors.onSurfaceVariant),
-                            ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(ctx);
+                                      context
+                                          .read<TransactionProvider>()
+                                          .deleteTransaction(t.id);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                              content: Text(
+                                                  'Transacción eliminada')));
+                                    },
+                                    child: const Text('Eliminar',
+                                        style: TextStyle(
+                                            color: V2Colors.error,
+                                            fontFamily: 'Manrope',
+                                            fontWeight: FontWeight.w700)),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(4.0),
+                            child: Icon(Icons.delete_outline,
+                                size: 16, color: V2Colors.error),
                           ),
-                          InkWell(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                  title: const Text('¿Eliminar transacción?', style: TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w700)),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx),
-                                      child: const Text('Cancelar', style: TextStyle(color: V2Colors.onSurfaceVariant, fontFamily: 'Manrope', fontWeight: FontWeight.w600)),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(ctx);
-                                        context.read<TransactionProvider>().deleteTransaction(t.id);
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Transacción eliminada')));
-                                      },
-                                      child: const Text('Eliminar', style: TextStyle(color: V2Colors.error, fontFamily: 'Manrope', fontWeight: FontWeight.w700)),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(4.0),
-                              child: Icon(Icons.delete_outline, size: 16, color: V2Colors.error),
-                            ),
-                          ),
+                        ),
                       ],
                     ),
                   ],

@@ -31,7 +31,7 @@ class NewSettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final currencyProvider = context.watch<CurrencyProvider>();
     final currentCurrency = currencyProvider.currentCurrency;
-    
+
     final languageProvider = context.watch<LanguageProvider>();
     final currentLanguage = languageProvider.getCurrentLanguageName();
 
@@ -43,10 +43,11 @@ class NewSettingsScreen extends StatelessWidget {
           children: [
             // Background Image with Parallax compartida
             const ParallaxBackground(
-              imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBwYJtbLoiRlK81HfQ0l7k4ySGsyJeulQ5JpR_i0oIcnwM_9Pw_1IBnZ81Yk48phFd11NOlBX-OHgmovM__zWyLxpcfQ721O5NjjvLM_7LkERh01LoHkOddGXkwHpoI-AHMuT8bcbMn849_lNZ7Su4h9TYOpv_qUTD6XXWe7Yps8HV7sQVkcNQKhhaIzTrwgESMzN-MvMbARMYlmjgpHQSr0vFRfsEkwAJWwGYqohbqQuSGjFSOnqyq7eDOq6wiFI3-d2d74TspvgIC',
+              imageUrl:
+                  'https://lh3.googleusercontent.com/aida-public/AB6AXuBwYJtbLoiRlK81HfQ0l7k4ySGsyJeulQ5JpR_i0oIcnwM_9Pw_1IBnZ81Yk48phFd11NOlBX-OHgmovM__zWyLxpcfQ721O5NjjvLM_7LkERh01LoHkOddGXkwHpoI-AHMuT8bcbMn849_lNZ7Su4h9TYOpv_qUTD6XXWe7Yps8HV7sQVkcNQKhhaIzTrwgESMzN-MvMbARMYlmjgpHQSr0vFRfsEkwAJWwGYqohbqQuSGjFSOnqyq7eDOq6wiFI3-d2d74TspvgIC',
               parallaxFactor: 14.0,
             ),
-            
+
             // Desenfoque extra sutil en toda la imagen de fondo
             Positioned.fill(
               child: BackdropFilter(
@@ -54,7 +55,7 @@ class NewSettingsScreen extends StatelessWidget {
                 child: const SizedBox(),
               ),
             ),
-            
+
             // Gradient Overlay para suavizar el texto
             Positioned.fill(
               child: Container(
@@ -65,14 +66,15 @@ class NewSettingsScreen extends StatelessWidget {
                     colors: [
                       Colors.black.withValues(alpha: 0.6),
                       Colors.black.withValues(alpha: 0.0),
-                      const Color(0xFFFAF8FF), // Fades to surface background color
+                      const Color(
+                          0xFFFAF8FF), // Fades to surface background color
                     ],
                     stops: const [0.0, 0.4, 0.8],
                   ),
                 ),
               ),
             ),
-            
+
             // Content
             SafeArea(
               bottom: false,
@@ -80,11 +82,13 @@ class NewSettingsScreen extends StatelessWidget {
                 children: [
                   // App Bar Transparente Custom
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          icon:
+                              const Icon(Icons.arrow_back, color: Colors.white),
                           onPressed: () => Navigator.pop(context),
                         ),
                         const Expanded(
@@ -106,87 +110,23 @@ class NewSettingsScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 48), // Espacio para equilibrar el botón de atrás
+                        const SizedBox(
+                            width:
+                                48), // Espacio para equilibrar el botón de atrás
                       ],
                     ),
                   ),
-                  
+
                   // Scrollable Options List
                   Expanded(
                     child: ListView(
                       physics: const ClampingScrollPhysics(),
-                      padding: const EdgeInsets.only(left: 20, right: 20, top: 32, bottom: 140), // Espacio para el bottom nav
+                      padding: const EdgeInsets.only(
+                          left: 20,
+                          right: 20,
+                          top: 32,
+                          bottom: 140), // Espacio para el bottom nav
                       children: [
-                        _buildGlassmorphismOptionItem(
-                          context,
-                          icon: Icons.flag_outlined,
-                          title: 'Metas',
-                          onTap: () {
-                            showModalBottomSheet(
-                              context: context,
-                              backgroundColor: V2Colors.surface,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                              ),
-                              builder: (sheetContext) => SafeArea(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Container(
-                                        width: 40,
-                                        height: 4,
-                                        decoration: BoxDecoration(
-                                          color: V2Colors.outlineVariant.withValues(alpha: 0.5),
-                                          borderRadius: BorderRadius.circular(2),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      const Text(
-                                        'Fondo de Metas',
-                                        style: TextStyle(
-                                          fontFamily: 'Manrope',
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
-                                          color: V2Colors.onSurface,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      ListTile(
-                                        leading: const Icon(Icons.photo_library_outlined, color: V2Colors.primary),
-                                        title: const Text('Elegir foto de la galería', style: TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w600)),
-                                        onTap: () async {
-                                          Navigator.pop(sheetContext);
-                                          final picker = ImagePicker();
-                                          final image = await picker.pickImage(source: ImageSource.gallery);
-                                          if (image != null && context.mounted) {
-                                            final appDir = await getApplicationDocumentsDirectory();
-                                            final fileName = path.basename(image.path);
-                                            final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
-                                            
-                                            if (context.mounted) {
-                                              context.read<BackgroundProvider>().setBackground(savedImage.path);
-                                            }
-                                          }
-                                        },
-                                      ),
-                                      ListTile(
-                                        leading: const Icon(Icons.restore, color: V2Colors.primary),
-                                        title: const Text('Restaurar fondo por defecto', style: TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w600)),
-                                        onTap: () {
-                                          Navigator.pop(sheetContext);
-                                          context.read<BackgroundProvider>().clearBackground();
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 16),
                         _buildGlassmorphismOptionItem(
                           context,
                           icon: Icons.category_outlined,
@@ -223,7 +163,9 @@ class NewSettingsScreen extends StatelessWidget {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const LanguageSelectionScreen()),
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      const LanguageSelectionScreen()),
                             );
                           },
                         ),
@@ -232,11 +174,14 @@ class NewSettingsScreen extends StatelessWidget {
                           context,
                           icon: Icons.attach_money,
                           title: 'Divisa',
-                          trailingText: '${currentCurrency.id} (${currentCurrency.symbol})',
+                          trailingText:
+                              '${currentCurrency.id} (${currentCurrency.symbol})',
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const CurrencySelectionScreen()),
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      const CurrencySelectionScreen()),
                             );
                           },
                         ),
@@ -263,7 +208,7 @@ class NewSettingsScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Same Bottom Nav as Dashboard
             const Dashboard2BottomNav(),
           ],
@@ -285,7 +230,9 @@ class NewSettingsScreen extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.25), // Opacidad reducida para que se note el efecto de cristal
+            color: Colors.white.withValues(
+                alpha:
+                    0.25), // Opacidad reducida para que se note el efecto de cristal
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
             boxShadow: [

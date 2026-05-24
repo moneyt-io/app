@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:async';
 import '../../../../domain/entities/category.dart';
 import '../../../../core/utils/icon_to_emoji_mapper.dart';
 import '../../../../core/utils/financial_emoji_dictionary.dart';
+import '../../../../core/services/ai_transaction_service.dart';
 import '../../theme/v2_colors.dart';
 
 class V2CategoryFormBottomSheet extends StatefulWidget {
@@ -21,15 +23,25 @@ class V2CategoryFormBottomSheet extends StatefulWidget {
   State<V2CategoryFormBottomSheet> createState() => _V2CategoryFormBottomSheetState();
 }
 
-class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> {
+class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> with SingleTickerProviderStateMixin {
   late TextEditingController _nameController;
   late TextEditingController _emojiController;
   bool _hasManuallySelectedEmoji = false;
   String _lastValidName = '';
+  
+  Timer? _debounceTimer;
+  bool _isAnalyzingEmoji = false;
+  final AITransactionService _aiService = AITransactionService();
+  
+  AnimationController? _aiAnimationController;
 
   @override
   void initState() {
     super.initState();
+    _aiAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
     _nameController = TextEditingController(text: widget.categoryToEdit?.name ?? '');
     _lastValidName = _nameController.text;
     
@@ -43,12 +55,16 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> {
 
   @override
   void dispose() {
+    _aiAnimationController?.dispose();
+    _debounceTimer?.cancel();
     _nameController.dispose();
     _emojiController.dispose();
     super.dispose();
   }
 
   void _onNameChanged(String val) {
+    _debounceTimer?.cancel();
+    
     final chars = val.characters;
     String extractedEmoji = '';
     String newText = '';
@@ -87,20 +103,66 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> {
       _lastValidName = newText;
     } else {
       _lastValidName = val;
-      _autoSelectEmoji();
+      
+      // Búsqueda instantánea en diccionario local
+      _autoSelectEmojiLocal();
+      
+      // Configurar debounce para invocar IA
+      if (!_hasManuallySelectedEmoji && val.trim().isNotEmpty) {
+        _debounceTimer = Timer(const Duration(milliseconds: 1000), () {
+          _analyzeEmojiWithAI(val.trim());
+        });
+      }
     }
   }
 
-  void _autoSelectEmoji() {
+  void _autoSelectEmojiLocal() {
     if (_hasManuallySelectedEmoji) return;
     
     final name = _nameController.text;
-    String suggested = FinancialEmojiDictionary.getEmojiForKeyword(name) ?? '🏷️';
+    String? suggested = FinancialEmojiDictionary.getEmojiForKeyword(name);
     
-    if (_emojiController.text != suggested) {
+    if (suggested != null && _emojiController.text != suggested) {
+      // Si está en el diccionario local, cancelar timer para no gastar IA
+      _debounceTimer?.cancel();
       setState(() {
         _emojiController.text = suggested;
       });
+    }
+  }
+
+  Future<void> _analyzeEmojiWithAI(String name) async {
+    if (!mounted || _hasManuallySelectedEmoji) return;
+
+    // Inicialización segura para Hot Reloads
+    _aiAnimationController ??= AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    setState(() {
+      _isAnalyzingEmoji = true;
+      _aiAnimationController?.repeat();
+    });
+
+    try {
+      final emoji = await _aiService.suggestEmojiForCategory(name);
+      
+      if (mounted && !_hasManuallySelectedEmoji) {
+        setState(() {
+          // Validar que realmente sea un emoji, en su defecto mantenemos o ponemos el default
+          _emojiController.text = emoji;
+        });
+      }
+    } catch (_) {
+      // Silenciar error en UI, devolvemos fallback local
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAnalyzingEmoji = false;
+          _aiAnimationController?.stop();
+        });
+      }
     }
   }
 
@@ -150,7 +212,7 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Emoji Input (Native Keyboard)
+              // Emoji Input (Native Keyboard) o Analizando
               Container(
                 width: 72,
                 height: 72,
@@ -161,36 +223,70 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> {
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
-                child: TextField(
-                  controller: _emojiController,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 36),
-                  showCursor: false,
-                  keyboardType: TextInputType.text,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.deny(RegExp(r'[a-zA-Z0-9\s]')),
-                  ],
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  onChanged: (val) {
-                    _hasManuallySelectedEmoji = true;
-                    if (val.isEmpty) {
-                      _emojiController.text = '🏷️';
-                      return;
-                    }
-                    // Si hay más de un caracter (un emoji previo + el nuevo),
-                    // nos quedamos solo con el último (el nuevo).
-                    final chars = val.characters;
-                    if (chars.length > 1) {
-                      _emojiController.text = chars.last;
-                      _emojiController.selection = TextSelection.fromPosition(
-                        TextPosition(offset: _emojiController.text.length)
-                      );
-                    }
-                  },
-                ),
+                child: _isAnalyzingEmoji && _aiAnimationController != null
+                    ? AnimatedBuilder(
+                        animation: _aiAnimationController!,
+                        builder: (context, child) {
+                          return Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: SweepGradient(
+                                colors: [
+                                  V2Colors.primary.withValues(alpha: 0.1),
+                                  V2Colors.primary.withValues(alpha: 0.5),
+                                  V2Colors.primary,
+                                ],
+                                transform: GradientRotation(_aiAnimationController!.value * 2 * 3.14159),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(3.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: V2Colors.surface, // Inner core para hacerlo ver como anillo
+                                  shape: BoxShape.circle,
+                                ),
+                                alignment: Alignment.center,
+                                child: const Text('✨', style: TextStyle(fontSize: 10)),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : TextField(
+                        controller: _emojiController,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 36),
+                        showCursor: false,
+                        keyboardType: TextInputType.text,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.deny(RegExp(r'[a-zA-Z0-9\s]')),
+                        ],
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        onChanged: (val) {
+                          _hasManuallySelectedEmoji = true;
+                          _debounceTimer?.cancel(); // Si el usuario eligió uno, cancelamos la IA
+                          
+                          if (val.isEmpty) {
+                            _emojiController.text = '🏷️';
+                            return;
+                          }
+                          // Si hay más de un caracter (un emoji previo + el nuevo),
+                          // nos quedamos solo con el último (el nuevo).
+                          final chars = val.characters;
+                          if (chars.length > 1) {
+                            _emojiController.text = chars.last;
+                            _emojiController.selection = TextSelection.fromPosition(
+                              TextPosition(offset: _emojiController.text.length)
+                            );
+                          }
+                        },
+                      ),
               ),
               const SizedBox(width: 20),
               

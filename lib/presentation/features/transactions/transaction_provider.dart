@@ -184,6 +184,17 @@ class TransactionProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> refreshCategories() async {
+    try {
+      final categories = await _categoryUseCases.getAllCategories();
+      _categoriesDataMap = {for (var c in categories) c.id: c};
+      _categoriesMap = {for (var c in categories) c.id: c.name};
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+    }
+  }
+
   Future<void> updateTransaction(TransactionEntity transaction) async {
     try {
       await _transactionUseCases.updateTransaction(transaction);

@@ -21,7 +21,8 @@ class VoiceCommandScreen extends StatefulWidget {
   State<VoiceCommandScreen> createState() => _VoiceCommandScreenState();
 }
 
-class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTickerProviderStateMixin {
+class _VoiceCommandScreenState extends State<VoiceCommandScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   List<Category> _floatingCategories = [];
   List<Offset> _randomPositions = [];
@@ -31,14 +32,14 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
   bool _isListening = false;
   bool _isAnalyzing = false;
   String _recognizedText = '';
-  
+
   String get _currentPrompt {
     if (!_isListening) return 'Toca el micrófono para hablar';
     // Animación de los puntos suspensivos basada en el controlador de 4 segundos
     int dots = (_controller.value * 4).floor() % 4;
     String ellipsis = '.' * dots;
     // Rellenamos con espacios invisibles para que el texto no "salte" cambiando de ancho
-    return 'Escuchando$ellipsis'.padRight(14, ' '); 
+    return 'Escuchando$ellipsis'.padRight(14, ' ');
   }
 
   @override
@@ -62,7 +63,7 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
   void _handleSpeechFinished() {
     if (!mounted) return;
     setState(() => _isListening = false);
-    
+
     final text = _recognizedText.trim();
     // Evitar procesar ruidos cortos o palabras vacías de 1-2 letras
     if (text.length > 2 && !_isAnalyzing) {
@@ -87,14 +88,21 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
 
   Future<void> _processWithAI() async {
     setState(() => _isAnalyzing = true);
-    
+
     try {
       final wallets = await GetIt.instance<WalletUseCases>().getAllWallets();
-      final categories = await GetIt.instance<CategoryUseCases>().getAllCategories();
-      
+      final categories =
+          await GetIt.instance<CategoryUseCases>().getAllCategories();
+
+      // Solo enviamos a la IA las categorías finales (las que son hijas)
+      // para evitar que la IA seleccione "Expense" o "Income" como categoría
+      final childCategories =
+          categories.where((c) => c.parentId != null).toList();
+
       final service = AITransactionService();
-      final result = await service.parseTransaction(_recognizedText, categories, wallets);
-      
+      final result = await service.parseTransaction(
+          _recognizedText, childCategories, wallets);
+
       if (result != null && mounted) {
         Navigator.pushReplacement(
           context,
@@ -106,6 +114,9 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
               initialWalletId: result.walletId,
               initialDescription: result.description,
               initialDate: result.date,
+              suggestedCategoryName: result.suggestedCategoryName,
+              autoOpenKeyboard:
+                  false, // Keyboard starts closed since data is prefilled
             ),
           ),
         );
@@ -115,7 +126,9 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
             _isAnalyzing = false;
             _recognizedText = '';
           });
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No se pudo procesar el comando. Intenta de nuevo.')));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content:
+                  Text('No se pudo procesar el comando. Intenta de nuevo.')));
         }
       }
     } catch (e) {
@@ -124,12 +137,13 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
           _isAnalyzing = false;
           _recognizedText = '';
         });
-        
-        final errorMsg = e.toString().contains('No GEMINI_API_KEY') 
-            ? 'Por favor, agrega GEMINI_API_KEY a tu archivo .env para usar la IA.' 
+
+        final errorMsg = e.toString().contains('No GEMINI_API_KEY')
+            ? 'Por favor, agrega GEMINI_API_KEY a tu archivo .env para usar la IA.'
             : 'Error en la IA: ${e.toString()}';
-            
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg)));
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(errorMsg)));
       }
     }
   }
@@ -159,8 +173,10 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
         }
       },
       localeId: 'es_ES', // Intentar con español por defecto
-      pauseFor: const Duration(seconds: 4), // Dar más tiempo para pensar (4s en lugar de 2s)
-      listenFor: const Duration(seconds: 30), // Asegurar que no se corte por tiempo máximo
+      pauseFor: const Duration(
+          seconds: 4), // Dar más tiempo para pensar (4s en lugar de 2s)
+      listenFor: const Duration(
+          seconds: 30), // Asegurar que no se corte por tiempo máximo
     );
   }
 
@@ -175,9 +191,11 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
       // Top Left quadrant
       Offset(0.05 + random.nextDouble() * 0.2, 0.1 + random.nextDouble() * 0.2),
       // Top Right quadrant
-      Offset(0.60 + random.nextDouble() * 0.25, 0.1 + random.nextDouble() * 0.2),
+      Offset(
+          0.60 + random.nextDouble() * 0.25, 0.1 + random.nextDouble() * 0.2),
       // Bottom area (below text, above bottom nav)
-      Offset(0.15 + random.nextDouble() * 0.6, 0.65 + random.nextDouble() * 0.1),
+      Offset(
+          0.15 + random.nextDouble() * 0.6, 0.65 + random.nextDouble() * 0.1),
     ];
   }
 
@@ -189,9 +207,11 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
 
   Future<void> _loadCategories() async {
     try {
-      final categories = await GetIt.instance<CategoryUseCases>().getAllCategories();
+      final categories =
+          await GetIt.instance<CategoryUseCases>().getAllCategories();
       // Simulamos "las 7 más usadas" (tomando 7 activas) y seleccionamos 3 al azar
-      final top7 = categories.where((c) => c.documentTypeId == 'E').take(7).toList();
+      final top7 =
+          categories.where((c) => c.documentTypeId == 'E').take(7).toList();
       top7.shuffle();
       if (mounted) {
         setState(() {
@@ -206,226 +226,260 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light, // Fuerza íconos blancos en la barra de estado
+      value: SystemUiOverlayStyle
+          .light, // Fuerza íconos blancos en la barra de estado
       child: Scaffold(
         extendBodyBehindAppBar: true,
         body: Stack(
-        children: [
-          // Background Image with Parallax
-          const ParallaxBackground(
-            imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBwYJtbLoiRlK81HfQ0l7k4ySGsyJeulQ5JpR_i0oIcnwM_9Pw_1IBnZ81Yk48phFd11NOlBX-OHgmovM__zWyLxpcfQ721O5NjjvLM_7LkERh01LoHkOddGXkwHpoI-AHMuT8bcbMn849_lNZ7Su4h9TYOpv_qUTD6XXWe7Yps8HV7sQVkcNQKhhaIzTrwgESMzN-MvMbARMYlmjgpHQSr0vFRfsEkwAJWwGYqohbqQuSGjFSOnqyq7eDOq6wiFI3-d2d74TspvgIC',
-          ),
-          
-          // Gradient Overlay
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.2),
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.4),
-                  ],
+          children: [
+            // Background Image with Parallax
+            const ParallaxBackground(
+              imageUrl:
+                  'https://lh3.googleusercontent.com/aida-public/AB6AXuBwYJtbLoiRlK81HfQ0l7k4ySGsyJeulQ5JpR_i0oIcnwM_9Pw_1IBnZ81Yk48phFd11NOlBX-OHgmovM__zWyLxpcfQ721O5NjjvLM_7LkERh01LoHkOddGXkwHpoI-AHMuT8bcbMn849_lNZ7Su4h9TYOpv_qUTD6XXWe7Yps8HV7sQVkcNQKhhaIzTrwgESMzN-MvMbARMYlmjgpHQSr0vFRfsEkwAJWwGYqohbqQuSGjFSOnqyq7eDOq6wiFI3-d2d74TspvgIC',
+            ),
+
+            // Gradient Overlay
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.2),
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.4),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          
-          // Floating Emojis
-          if (_floatingCategories.isNotEmpty && _randomPositions.isNotEmpty)
-            _buildAnimatedFloatingIcon(
-              _floatingCategories[0],
-              _randomPositions[0],
-              0.0, // phase
-            ),
-          if (_floatingCategories.length > 1 && _randomPositions.length > 1)
-            _buildAnimatedFloatingIcon(
-              _floatingCategories[1],
-              _randomPositions[1],
-              2.0, // phase
-            ),
-          if (_floatingCategories.length > 2 && _randomPositions.length > 2)
-            _buildAnimatedFloatingIcon(
-              _floatingCategories[2],
-              _randomPositions[2],
-              4.0, // phase
-            ),
-          
-          // Main Content
-          SafeArea(
-            child: Column(
-              children: [
-                // Top App Bar removido a petición (sin Wealth AI, foto, ni settings)
-                const SizedBox(height: 72), // Mantenemos el espacio para no tapar los elementos con notches
-                
-                // Center Text or Analyzing Animation
-                Expanded(
-                  child: _isAnalyzing
-                      ? const AuraAnalyzingAnimation()
-                      : Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 40),
-                            child: AnimatedBuilder(
-                              animation: _controller,
-                              builder: (context, child) {
-                                // Shimmer sutil usando el controlador
-                                final shimmerOffset = -1.0 + (_controller.value * 2.0);
-                                
-                                return ShaderMask(
-                                  blendMode: BlendMode.srcIn,
-                                  shaderCallback: (bounds) => LinearGradient(
-                                    colors: [
-                                      Colors.white.withValues(alpha: _isListening ? 0.7 : 0.8),
-                                      Colors.white,
-                                      Colors.white.withValues(alpha: _isListening ? 0.7 : 0.8),
-                                    ],
-                                    stops: const [0.0, 0.5, 1.0],
-                                    begin: Alignment(shimmerOffset - 1.0, 0),
-                                    end: Alignment(shimmerOffset + 1.0, 0),
-                                  ).createShader(bounds),
-                                  child: Text(
-                                    _recognizedText.isNotEmpty ? _recognizedText : _currentPrompt,
-                                    textAlign: TextAlign.center,
-                                    style: theme.textTheme.displayLarge?.copyWith(
-                                      color: Colors.white, // Se usa color base para el ShaderMask
-                                      fontSize: _recognizedText.isNotEmpty ? 40 : 26,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.2,
-                                      shadows: [
-                                        const Shadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 2)),
+
+            // Floating Emojis
+            if (_floatingCategories.isNotEmpty && _randomPositions.isNotEmpty)
+              _buildAnimatedFloatingIcon(
+                _floatingCategories[0],
+                _randomPositions[0],
+                0.0, // phase
+              ),
+            if (_floatingCategories.length > 1 && _randomPositions.length > 1)
+              _buildAnimatedFloatingIcon(
+                _floatingCategories[1],
+                _randomPositions[1],
+                2.0, // phase
+              ),
+            if (_floatingCategories.length > 2 && _randomPositions.length > 2)
+              _buildAnimatedFloatingIcon(
+                _floatingCategories[2],
+                _randomPositions[2],
+                4.0, // phase
+              ),
+
+            // Main Content
+            SafeArea(
+              child: Column(
+                children: [
+                  // Top App Bar removido a petición (sin Wealth AI, foto, ni settings)
+                  const SizedBox(
+                      height:
+                          72), // Mantenemos el espacio para no tapar los elementos con notches
+
+                  // Center Text or Analyzing Animation
+                  Expanded(
+                    child: _isAnalyzing
+                        ? const AuraAnalyzingAnimation()
+                        : Center(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 40),
+                              child: AnimatedBuilder(
+                                animation: _controller,
+                                builder: (context, child) {
+                                  // Shimmer sutil usando el controlador
+                                  final shimmerOffset =
+                                      -1.0 + (_controller.value * 2.0);
+
+                                  return ShaderMask(
+                                    blendMode: BlendMode.srcIn,
+                                    shaderCallback: (bounds) => LinearGradient(
+                                      colors: [
+                                        Colors.white.withValues(
+                                            alpha: _isListening ? 0.7 : 0.8),
+                                        Colors.white,
+                                        Colors.white.withValues(
+                                            alpha: _isListening ? 0.7 : 0.8),
                                       ],
+                                      stops: const [0.0, 0.5, 1.0],
+                                      begin: Alignment(shimmerOffset - 1.0, 0),
+                                      end: Alignment(shimmerOffset + 1.0, 0),
+                                    ).createShader(bounds),
+                                    child: Text(
+                                      _recognizedText.isNotEmpty
+                                          ? _recognizedText
+                                          : _currentPrompt,
+                                      textAlign: TextAlign.center,
+                                      style: theme.textTheme.displayLarge
+                                          ?.copyWith(
+                                        color: Colors
+                                            .white, // Se usa color base para el ShaderMask
+                                        fontSize: _recognizedText.isNotEmpty
+                                            ? 40
+                                            : 26,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.2,
+                                        shadows: [
+                                          const Shadow(
+                                              color: Colors.black26,
+                                              blurRadius: 8,
+                                              offset: Offset(0, 2)),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             ),
                           ),
-                        ),
-                ),
-                
-                const SizedBox(height: 120), // Spacer para no superponer con el bottom nav
-              ],
+                  ),
+
+                  const SizedBox(
+                      height:
+                          120), // Spacer para no superponer con el bottom nav
+                ],
+              ),
             ),
-          ),
-          
-          // Bottom Contextual Control Area (Posicionamiento Absoluto para igualar Dashboard)
-          Positioned(
-            bottom: 32,
-            left: 24,
-            right: 24,
-            child: Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.bottomCenter,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildBottomActionButton(Icons.close, "Cancelar", () => Navigator.pop(context)),
-                          const SizedBox(width: 72), // Espacio para el botón central
-                          _buildBottomActionButton(Icons.camera_alt_outlined, "Escanear", () {}),
-                        ],
+
+            // Bottom Contextual Control Area (Posicionamiento Absoluto para igualar Dashboard)
+            Positioned(
+              bottom: 32,
+              left: 24,
+              right: 24,
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.bottomCenter,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.2)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildBottomActionButton(Icons.close, "Cancelar",
+                                () => Navigator.pop(context)),
+                            const SizedBox(
+                                width: 72), // Espacio para el botón central
+                            _buildBottomActionButton(
+                                Icons.camera_alt_outlined, "Escanear", () {}),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                
-                // Large Integrated Voice Button
-                Positioned(
-                  bottom: 20, // 32 + 20 = 52px desde el fondo de la pantalla (Igual que en Dashboard)
-                  child: AnimatedBuilder(
-                    animation: _controller,
-                    builder: (context, child) {
-                      // Animación más suave y fluida (1 ciclo cada 2 segundos)
-                      final pulseScale = _isListening 
-                          ? 1.0 + (sin(_controller.value * 4 * pi) * 0.1) 
-                          : 1.0;
-                          
-                      return Hero(
-                        tag: 'mic_hero_button',
-                        // El Hero envuelve al Transform para que la transición de vista a vista use el mismo ancla
-                        child: Transform.scale(
-                          scale: pulseScale,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            width: 72,
-                            height: 72,
-                            decoration: BoxDecoration(
-                              color: _isListening ? const Color(0xFFDC2626) : V2Colors.primary,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 4),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: (_isListening ? const Color(0xFFDC2626) : V2Colors.primary).withValues(alpha: 0.4),
-                                  blurRadius: _isListening ? 35 : 24,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: Material(
-                              color: Colors.transparent,
-                              child: GestureDetector(
-                                onTap: () {
-                                  if (_speechToText.isNotListening) {
-                                    _startListening();
-                                  } else {
-                                    _stopListening();
-                                  }
-                                },
-                                onLongPressStart: (_) {
-                                  if (_speechToText.isNotListening) {
-                                    _startListening();
-                                  }
-                                },
-                                onLongPressEnd: (_) {
-                                  if (!_speechToText.isNotListening) {
-                                    _stopListening();
-                                  }
-                                },
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.transparent,
+
+                  // Large Integrated Voice Button
+                  Positioned(
+                    bottom:
+                        20, // 32 + 20 = 52px desde el fondo de la pantalla (Igual que en Dashboard)
+                    child: AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) {
+                        // Animación más suave y fluida (1 ciclo cada 2 segundos)
+                        final pulseScale = _isListening
+                            ? 1.0 + (sin(_controller.value * 4 * pi) * 0.1)
+                            : 1.0;
+
+                        return Hero(
+                          tag: 'mic_hero_button',
+                          // El Hero envuelve al Transform para que la transición de vista a vista use el mismo ancla
+                          child: Transform.scale(
+                            scale: pulseScale,
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: 72,
+                              height: 72,
+                              decoration: BoxDecoration(
+                                color: _isListening
+                                    ? const Color(0xFFDC2626)
+                                    : V2Colors.primary,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                    width: 4),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (_isListening
+                                            ? const Color(0xFFDC2626)
+                                            : V2Colors.primary)
+                                        .withValues(alpha: 0.4),
+                                    blurRadius: _isListening ? 35 : 24,
+                                    offset: const Offset(0, 8),
                                   ),
-                                  alignment: Alignment.center,
-                                  child: Icon(
-                                    _isListening ? Icons.stop_rounded : Icons.mic, 
-                                    color: Colors.white, 
-                                    size: 36
+                                ],
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (_speechToText.isNotListening) {
+                                      _startListening();
+                                    } else {
+                                      _stopListening();
+                                    }
+                                  },
+                                  onLongPressStart: (_) {
+                                    if (_speechToText.isNotListening) {
+                                      _startListening();
+                                    }
+                                  },
+                                  onLongPressEnd: (_) {
+                                    if (!_speechToText.isNotListening) {
+                                      _stopListening();
+                                    }
+                                  },
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.transparent,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Icon(
+                                        _isListening
+                                            ? Icons.stop_rounded
+                                            : Icons.mic,
+                                        color: Colors.white,
+                                        size: 36),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildAnimatedFloatingIcon(Category category, Offset screenPos, double phase) {
+  Widget _buildAnimatedFloatingIcon(
+      Category category, Offset screenPos, double phase) {
     final size = MediaQuery.of(context).size;
     return AnimatedBuilder(
       animation: _controller,
@@ -445,7 +499,8 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> with SingleTick
     );
   }
 
-  Widget _buildBottomActionButton(IconData icon, String label, VoidCallback onTap) {
+  Widget _buildBottomActionButton(
+      IconData icon, String label, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -479,7 +534,8 @@ class AuraAnalyzingAnimation extends StatefulWidget {
   State<AuraAnalyzingAnimation> createState() => _AuraAnalyzingAnimationState();
 }
 
-class _AuraAnalyzingAnimationState extends State<AuraAnalyzingAnimation> with SingleTickerProviderStateMixin {
+class _AuraAnalyzingAnimationState extends State<AuraAnalyzingAnimation>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -519,39 +575,59 @@ class _AuraPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    
+
     // Usamos colores de V2Colors para mantener la consistencia
     final color1 = V2Colors.primary.withValues(alpha: 0.6); // Azul principal
-    final color2 = V2Colors.secondaryContainer.withValues(alpha: 0.5); // Verde aguamarina suave
-    final color3 = const Color(0xFFDC2626).withValues(alpha: 0.3); // Acento rojo sutil
-    
+    final color2 = V2Colors.secondaryContainer
+        .withValues(alpha: 0.5); // Verde aguamarina suave
+    final color3 =
+        const Color(0xFFDC2626).withValues(alpha: 0.3); // Acento rojo sutil
+
     // Movimiento orbital suave para 3 esferas
     final angle1 = progress * 2 * pi;
     final angle2 = (progress * 2 * pi) + (2 * pi / 3);
     final angle3 = (progress * 2 * pi) + (4 * pi / 3);
-    
+
     // El radio de órbita y tamaño de las esferas
-    final orbitRadius = size.width * 0.15; 
+    final orbitRadius = size.width * 0.15;
     final orbSize = size.width * 0.35;
-    
+
     // Posiciones dinámicas con formas elípticas
-    final pos1 = center + Offset(cos(angle1) * orbitRadius, sin(angle1) * orbitRadius * 0.6);
-    final pos2 = center + Offset(cos(angle2) * orbitRadius * 0.7, sin(angle2) * orbitRadius);
-    final pos3 = center + Offset(cos(angle3) * orbitRadius, sin(angle3) * orbitRadius * 0.8);
-    
+    final pos1 = center +
+        Offset(cos(angle1) * orbitRadius, sin(angle1) * orbitRadius * 0.6);
+    final pos2 = center +
+        Offset(cos(angle2) * orbitRadius * 0.7, sin(angle2) * orbitRadius);
+    final pos3 = center +
+        Offset(cos(angle3) * orbitRadius, sin(angle3) * orbitRadius * 0.8);
+
     // Difuminado extremo para crear el aura
     const blur = MaskFilter.blur(BlurStyle.normal, 80);
-    
-    canvas.drawCircle(pos1, orbSize, Paint()..color = color1..maskFilter = blur);
-    canvas.drawCircle(pos2, orbSize * 0.9, Paint()..color = color2..maskFilter = blur);
-    canvas.drawCircle(pos3, orbSize * 0.8, Paint()..color = color3..maskFilter = blur);
-    
+
+    canvas.drawCircle(
+        pos1,
+        orbSize,
+        Paint()
+          ..color = color1
+          ..maskFilter = blur);
+    canvas.drawCircle(
+        pos2,
+        orbSize * 0.9,
+        Paint()
+          ..color = color2
+          ..maskFilter = blur);
+    canvas.drawCircle(
+        pos3,
+        orbSize * 0.8,
+        Paint()
+          ..color = color3
+          ..maskFilter = blur);
+
     // Un núcleo central brillante que pulsa sutilmente
     final pulse = sin(progress * 4 * pi).abs();
     final corePaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.2 + (pulse * 0.2))
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 40);
-      
+
     canvas.drawCircle(center, orbSize * 0.6, corePaint);
   }
 
@@ -572,7 +648,8 @@ class InteractiveFloatingEmoji extends StatefulWidget {
   });
 
   @override
-  State<InteractiveFloatingEmoji> createState() => _InteractiveFloatingEmojiState();
+  State<InteractiveFloatingEmoji> createState() =>
+      _InteractiveFloatingEmojiState();
 }
 
 class _InteractiveFloatingEmojiState extends State<InteractiveFloatingEmoji> {
@@ -602,9 +679,11 @@ class _InteractiveFloatingEmojiState extends State<InteractiveFloatingEmoji> {
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                    border:
+                        Border.all(color: Colors.white.withValues(alpha: 0.2)),
                   ),
-                  child: Text(widget.emoji, style: const TextStyle(fontSize: 28)),
+                  child:
+                      Text(widget.emoji, style: const TextStyle(fontSize: 28)),
                 ),
               ),
             ),
@@ -617,7 +696,10 @@ class _InteractiveFloatingEmojiState extends State<InteractiveFloatingEmoji> {
                 fontWeight: FontWeight.w500,
                 fontFamily: 'Manrope',
                 shadows: [
-                  Shadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 2)),
+                  Shadow(
+                      color: Colors.black45,
+                      blurRadius: 4,
+                      offset: Offset(0, 2)),
                 ],
               ),
             ),

@@ -7,9 +7,11 @@ import '../../../domain/entities/category.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/usecases/category_usecases.dart';
 import '../../../domain/usecases/credit_card_usecases.dart';
-import '../../core/organisms/account_selector_modal.dart' show SelectableAccount;
+import '../../core/organisms/account_selector_modal.dart'
+    show SelectableAccount;
 
 import '../../../core/utils/icon_to_emoji_mapper.dart';
+import '../../../core/utils/financial_emoji_dictionary.dart';
 import 'widgets/v2_account_selection_sheet.dart';
 import 'widgets/v2_category_selection_sheet.dart';
 import '../shared/widgets/v2_date_selection_sheet.dart';
@@ -24,19 +26,23 @@ class NewTransactionScreen extends StatefulWidget {
   final double? initialAmount;
   final String? initialDescription;
   final int? initialCategoryId;
+  final String? suggestedCategoryName;
   final int? initialWalletId;
   final int? transactionIdToEdit;
   final DateTime? initialDate;
-  
+  final bool autoOpenKeyboard;
+
   const NewTransactionScreen({
     super.key,
     this.initialType = 'E',
     this.initialAmount,
     this.initialDescription,
     this.initialCategoryId,
+    this.suggestedCategoryName,
     this.initialWalletId,
     this.transactionIdToEdit,
     this.initialDate,
+    this.autoOpenKeyboard = true,
   });
 
   @override
@@ -49,13 +55,16 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
 
   DateTime _selectedDate = DateTime.now();
   String _selectedType = 'E'; // 'E' for Expense, 'I' for Income
-  
+
   SelectableAccount? _selectedAccount;
   int? _selectedCategoryId;
 
+  // Para manejar categorías sugeridas por IA
+  String? _pendingSuggestedCategoryName;
+
   List<Category> _categories = [];
   Map<int, SelectableAccount> _accountsMap = {};
-  
+
   bool _isLoading = true;
   bool _isSaving = false;
 
@@ -66,12 +75,14 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
   void initState() {
     super.initState();
     _selectedType = widget.initialType == 'all' ? 'E' : widget.initialType;
-    if (_selectedType == 'T') _selectedType = 'E'; // Not handling transfer in this simplified MVP screen yet
-    
+    if (_selectedType == 'T')
+      _selectedType =
+          'E'; // Not handling transfer in this simplified MVP screen yet
+
     if (widget.initialDate != null) {
       _selectedDate = widget.initialDate!;
     }
-    
+
     if (widget.initialAmount != null) {
       _amountController.text = widget.initialAmount.toString();
     }
@@ -79,7 +90,17 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
       _descriptionController.text = widget.initialDescription!;
     }
     _selectedCategoryId = widget.initialCategoryId;
-    
+
+    // Si la IA no encontró el ID pero sugirió un nombre
+    if (_selectedCategoryId == null &&
+        widget.suggestedCategoryName != null &&
+        widget.suggestedCategoryName!.isNotEmpty) {
+      final name = widget.suggestedCategoryName!.trim();
+      if (name.toLowerCase() != 'null') {
+        _pendingSuggestedCategoryName = name;
+      }
+    }
+
     _loadData();
   }
 
@@ -95,29 +116,33 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     try {
       final walletsResult = await _walletUseCases.getAllWallets();
       final categoriesResult = await _categoryUseCases.getAllCategories();
-      final creditCardResult = await GetIt.instance<CreditCardUseCases>().getAllCreditCards();
+      final creditCardResult =
+          await GetIt.instance<CreditCardUseCases>().getAllCreditCards();
 
       final Map<int, SelectableAccount> accountsMap = {};
       for (final wallet in walletsResult) {
         if (wallet.active && wallet.parentId != null) {
-          accountsMap[wallet.id] = SelectableAccount.fromWallet(wallet, balance: 0, accountNumber: '1234');
+          accountsMap[wallet.id] = SelectableAccount.fromWallet(wallet,
+              balance: 0, accountNumber: '1234');
         }
       }
       for (final card in creditCardResult) {
-        accountsMap[-card.id] = SelectableAccount.fromCreditCard(card, balance: 0, availableCredit: 0, cardNumber: '5678');
+        accountsMap[-card.id] = SelectableAccount.fromCreditCard(card,
+            balance: 0, availableCredit: 0, cardNumber: '5678');
       }
 
       if (mounted) {
         setState(() {
           _categories = categoriesResult;
           _accountsMap = accountsMap;
-          
-          if (widget.initialWalletId != null && _accountsMap.containsKey(widget.initialWalletId!)) {
+
+          if (widget.initialWalletId != null &&
+              _accountsMap.containsKey(widget.initialWalletId!)) {
             _selectedAccount = _accountsMap[widget.initialWalletId!];
           } else if (_accountsMap.isNotEmpty) {
             _selectedAccount = _accountsMap.values.first;
           }
-          
+
           _isLoading = false;
         });
       }
@@ -159,7 +184,9 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
         .toList();
 
     final currentSelection = _selectedCategoryId != null
-        ? availableCategories.where((c) => c.id == _selectedCategoryId).firstOrNull
+        ? availableCategories
+            .where((c) => c.id == _selectedCategoryId)
+            .firstOrNull
         : null;
 
     final result = await V2CategorySelectionSheet.show(
@@ -184,7 +211,9 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
 
   String _getDateLabel() {
     final now = DateTime.now();
-    if (_selectedDate.year == now.year && _selectedDate.month == now.month && _selectedDate.day == now.day) {
+    if (_selectedDate.year == now.year &&
+        _selectedDate.month == now.month &&
+        _selectedDate.day == now.day) {
       return "Hoy";
     }
     return DateFormat('dd MMM').format(_selectedDate);
@@ -195,15 +224,18 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     final amount = double.tryParse(amountText) ?? 0.0;
 
     if (amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Por favor, ingresa un monto válido.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Por favor, ingresa un monto válido.')));
       return;
     }
     if (_selectedAccount == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Por favor, selecciona una cuenta.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Por favor, selecciona una cuenta.')));
       return;
     }
-    if (_selectedCategoryId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Por favor, selecciona una categoría.')));
+    if (_selectedCategoryId == null && _pendingSuggestedCategoryName == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Por favor, selecciona una categoría.')));
       return;
     }
 
@@ -211,12 +243,76 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
 
     try {
       final transactionProvider = context.read<TransactionProvider>();
-      
+
+      // Crear la categoría virtual si es necesario
+      if (_selectedCategoryId == null &&
+          _pendingSuggestedCategoryName != null) {
+        try {
+          final allCats = await _categoryUseCases.getAllCategories();
+          final rootName = _selectedType == 'E' ? 'Expense' : 'Income';
+          Category? root = allCats
+              .where((c) =>
+                  c.parentId == null &&
+                  c.name == rootName &&
+                  c.documentTypeId == _selectedType)
+              .firstOrNull;
+
+          if (root == null) {
+            final newRoot = Category(
+              id: 0,
+              name: rootName,
+              documentTypeId: _selectedType,
+              chartAccountId: 0,
+              icon: Icons.folder.codePoint.toString(),
+              active: true,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            );
+            root = await _categoryUseCases.createCategory(newRoot);
+          }
+
+          final emoji = FinancialEmojiDictionary.getEmojiForKeyword(
+                  _pendingSuggestedCategoryName!) ??
+              '🏷️';
+
+          final newCat = Category(
+            id: 0,
+            name: _pendingSuggestedCategoryName!,
+            documentTypeId: _selectedType,
+            parentId: root.id,
+            chartAccountId: 0,
+            icon: emoji,
+            active: true,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+
+          final createdCategory =
+              await _categoryUseCases.createCategory(newCat);
+          _selectedCategoryId = createdCategory.id;
+
+          // Actualizar el provider para que las demás vistas (como Dashboard y la lista de transacciones)
+          // reconozcan la nueva categoría y no la muestren como "Otros"
+          await transactionProvider.refreshCategories();
+
+          // Limpiamos el pendiente
+          _pendingSuggestedCategoryName = null;
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error creando categoría: $e')));
+            setState(() => _isSaving = false);
+          }
+          return;
+        }
+      }
+
       int paymentId;
       String paymentTypeId;
 
       if (_selectedAccount!.isCreditCard) {
-        paymentId = _selectedAccount!.id; // Needs mapping if credit card IDs are negative
+        paymentId = _selectedAccount!
+            .id; // Needs mapping if credit card IDs are negative
         if (paymentId < 0) paymentId = -paymentId; // Fix if using negative IDs
         paymentTypeId = 'C';
       } else {
@@ -229,7 +325,9 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
         final updatedEntity = TransactionEntity(
           id: widget.transactionIdToEdit,
           type: _selectedType, // Document Type ('E' or 'I')
-          flow: _selectedType == 'E' ? 'F' : 'T', // Flow ('F' for expenses, 'T' for incomes)
+          flow: _selectedType == 'E'
+              ? 'F'
+              : 'T', // Flow ('F' for expenses, 'T' for incomes)
           amount: amount,
           accountId: paymentId,
           categoryId: _selectedCategoryId,
@@ -262,12 +360,16 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.transactionIdToEdit != null ? 'Transacción actualizada.' : 'Transacción guardada exitosamente.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(widget.transactionIdToEdit != null
+                ? 'Transacción actualizada.'
+                : 'Transacción guardada exitosamente.')));
         Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error: $e')));
         setState(() => _isSaving = false);
       }
     }
@@ -276,21 +378,41 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     if (_isLoading) {
       return Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
         appBar: AppBar(
-          leading: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(context).pop()),
-          title: Text(widget.transactionIdToEdit != null ? "Editar Transacción" : "Nueva Transacción"),
+          leading: IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => Navigator.of(context).pop()),
+          title: Text(widget.transactionIdToEdit != null
+              ? "Editar Transacción"
+              : "Nueva Transacción"),
         ),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     // Get up to 7 categories for the current type
-    final typeCategories = _categories.where((c) => c.documentTypeId == _selectedType && c.parentId != null).toList();
+    final typeCategories = _categories
+        .where((c) => c.documentTypeId == _selectedType && c.parentId != null)
+        .toList();
     final displayCategories = typeCategories.take(7).toList();
+
+    // Ensure selected category is always in the display list
+    if (_selectedCategoryId != null &&
+        !displayCategories.any((c) => c.id == _selectedCategoryId)) {
+      // Buscar en _categories sin importar el tipo, por si la IA se equivocó de tipo
+      final selectedCat =
+          _categories.where((c) => c.id == _selectedCategoryId).firstOrNull;
+      if (selectedCat != null) {
+        if (displayCategories.length >= 7) {
+          displayCategories.removeLast(); // Keep size to 7
+        }
+        displayCategories.insert(0, selectedCat);
+      }
+    }
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -299,7 +421,9 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(widget.transactionIdToEdit != null ? "Editar Transacción" : "Nueva Transacción"),
+        title: Text(widget.transactionIdToEdit != null
+            ? "Editar Transacción"
+            : "Nueva Transacción"),
       ),
       body: Column(
         children: [
@@ -314,17 +438,17 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _buildMetaPill(context, _getDateLabel(), Icons.calendar_today, _selectDate),
+                      _buildMetaPill(context, _getDateLabel(),
+                          Icons.calendar_today, _selectDate),
                       _buildMetaPill(
-                        context, 
-                        _selectedAccount?.name ?? "Seleccionar Billetera", 
-                        Icons.account_balance_wallet_outlined, 
-                        _selectAccount
-                      ),
+                          context,
+                          _selectedAccount?.name ?? "Seleccionar Billetera",
+                          Icons.account_balance_wallet_outlined,
+                          _selectAccount),
                     ],
                   ),
                   const SizedBox(height: 40),
-                  
+
                   // Amount Entry
                   Text(
                     "MONTO",
@@ -338,7 +462,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        NumberFormatter.getSymbol(context.watch<CurrencyProvider>().currencyId),
+                        NumberFormatter.getSymbol(
+                            context.watch<CurrencyProvider>().currencyId),
                         style: theme.textTheme.displayLarge?.copyWith(
                           color: theme.colorScheme.outlineVariant,
                         ),
@@ -347,10 +472,13 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                       Expanded(
                         child: TextField(
                           controller: _amountController,
-                          autofocus: true,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          autofocus: widget.autoOpenKeyboard,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
                           style: theme.textTheme.displayLarge?.copyWith(
-                            color: _selectedType == 'E' ? theme.colorScheme.error : const Color(0xFF00714D),
+                            color: _selectedType == 'E'
+                                ? theme.colorScheme.error
+                                : const Color(0xFF00714D),
                           ),
                           decoration: InputDecoration(
                             hintText: "0.00",
@@ -370,7 +498,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                   const SizedBox(height: 12),
                   _buildSubtleTypeToggle(context),
                   const SizedBox(height: 40),
-                  
+
                   // Description Entry
                   Text(
                     "DESCRIPCIÓN",
@@ -388,7 +516,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     decoration: InputDecoration(
                       hintText: "Agregar nota...",
                       hintStyle: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.6),
+                        color: theme.colorScheme.outlineVariant
+                            .withValues(alpha: 0.6),
                       ),
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
@@ -398,7 +527,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  
+
                   // Category Selection
                   Text(
                     "CATEGORÍA",
@@ -412,12 +541,17 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     spacing: 12,
                     runSpacing: 12,
                     children: [
+                      if (_pendingSuggestedCategoryName != null)
+                        _buildSuggestedCategoryPill(
+                            context, _pendingSuggestedCategoryName!),
                       ...displayCategories.map((c) => _buildCategoryPill(
                             context,
                             IconToEmojiMapper.getEmoji(c.icon),
                             c.name,
                             _selectedCategoryId == c.id,
-                            () => setState(() => _selectedCategoryId = c.id),
+                            () => setState(() {
+                              _selectedCategoryId = c.id;
+                            }),
                           )),
                       // More Categories Button
                       _buildAddCategoryButton(context, _selectMoreCategories),
@@ -427,15 +561,16 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
               ),
             ),
           ),
-          
+
           // Bottom Action Bar
           Container(
             padding: EdgeInsets.only(
-              left: 20, 
-              right: 20, 
-              top: 16, 
-              bottom: MediaQuery.of(context).viewInsets.bottom > 0 ? 16 : MediaQuery.of(context).padding.bottom + 16
-            ),
+                left: 20,
+                right: 20,
+                top: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom > 0
+                    ? 16
+                    : MediaQuery.of(context).padding.bottom + 16),
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               boxShadow: [
@@ -459,10 +594,15 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       elevation: 8,
-                      shadowColor: theme.colorScheme.primary.withValues(alpha: 0.4),
+                      shadowColor:
+                          theme.colorScheme.primary.withValues(alpha: 0.4),
                     ),
                     child: _isSaving
-                        ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2))
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -491,7 +631,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
   Widget _buildSubtleTypeToggle(BuildContext context) {
     final theme = Theme.of(context);
     final isExpense = _selectedType == 'E';
-    
+
     return GestureDetector(
       onTap: _toggleType,
       child: Container(
@@ -499,7 +639,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
         height: 44,
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+          color:
+              theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(30),
         ),
         child: Stack(
@@ -507,7 +648,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             AnimatedAlign(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
-              alignment: isExpense ? Alignment.centerLeft : Alignment.centerRight,
+              alignment:
+                  isExpense ? Alignment.centerLeft : Alignment.centerRight,
               child: Container(
                 width: 96,
                 decoration: BoxDecoration(
@@ -530,8 +672,11 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     child: AnimatedDefaultTextStyle(
                       duration: const Duration(milliseconds: 250),
                       style: TextStyle(
-                        color: isExpense ? theme.colorScheme.error : theme.colorScheme.outline,
-                        fontWeight: isExpense ? FontWeight.w700 : FontWeight.w500,
+                        color: isExpense
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.outline,
+                        fontWeight:
+                            isExpense ? FontWeight.w700 : FontWeight.w500,
                         fontSize: 14,
                         fontFamily: 'Manrope',
                       ),
@@ -544,8 +689,11 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     child: AnimatedDefaultTextStyle(
                       duration: const Duration(milliseconds: 250),
                       style: TextStyle(
-                        color: !isExpense ? const Color(0xFF00714D) : theme.colorScheme.outline,
-                        fontWeight: !isExpense ? FontWeight.w700 : FontWeight.w500,
+                        color: !isExpense
+                            ? const Color(0xFF00714D)
+                            : theme.colorScheme.outline,
+                        fontWeight:
+                            !isExpense ? FontWeight.w700 : FontWeight.w500,
                         fontSize: 14,
                         fontFamily: 'Manrope',
                       ),
@@ -561,7 +709,9 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     );
   }
 
-  Widget _buildMetaPill(BuildContext context, String label, IconData icon, VoidCallback onTap, {Color? color, Color? textColor}) {
+  Widget _buildMetaPill(
+      BuildContext context, String label, IconData icon, VoidCallback onTap,
+      {Color? color, Color? textColor}) {
     final theme = Theme.of(context);
     return GestureDetector(
       onTap: onTap,
@@ -570,7 +720,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
         decoration: BoxDecoration(
           color: color ?? theme.colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
+          border: Border.all(
+              color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -582,7 +733,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
               ),
             ),
             const SizedBox(width: 4),
-            Icon(icon, size: 18, color: textColor ?? theme.colorScheme.onSurface),
+            Icon(icon,
+                size: 18, color: textColor ?? theme.colorScheme.onSurface),
           ],
         ),
       ),
@@ -598,41 +750,142 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
+          border: Border.all(
+              color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.more_horiz, color: theme.colorScheme.outline, size: 20),
             const SizedBox(width: 4),
-            Text("Más", style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.outline)),
+            Text("Más",
+                style: theme.textTheme.labelMedium
+                    ?.copyWith(color: theme.colorScheme.outline)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCategoryPill(BuildContext context, String emoji, String label, bool selected, VoidCallback onTap) {
+  Widget _buildSuggestedCategoryPill(BuildContext context, String name) {
+    final theme = Theme.of(context);
+    final emoji = FinancialEmojiDictionary.getEmojiForKeyword(name) ?? '🏷️';
+    final selected = _selectedCategoryId ==
+        null; // Está seleccionada si no hay ningún ID seleccionado
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedCategoryId = null; // Volver a seleccionarla
+        });
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(
+                top: 6, right: 6), // Espacio para el badge que sobresale
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: selected
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: selected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+              ),
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      )
+                    ]
+                  : null,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(emoji, style: const TextStyle(fontSize: 18)),
+                const SizedBox(width: 6),
+                Text(
+                  name,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: selected
+                        ? theme.colorScheme.onPrimary
+                        : theme.colorScheme.onSurfaceVariant,
+                    fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+              decoration: BoxDecoration(
+                color: selected
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.primary,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  )
+                ],
+              ),
+              child: Text(
+                "NUEVO",
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                  color: selected
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onPrimary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryPill(BuildContext context, String emoji, String label,
+      bool selected, VoidCallback onTap) {
     final theme = Theme.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: selected ? theme.colorScheme.primary : theme.colorScheme.surfaceContainerLow,
+          color: selected
+              ? theme.colorScheme.primary
+              : theme.colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: selected 
+            color: selected
                 ? theme.colorScheme.primary
                 : theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
           ),
-          boxShadow: selected ? [
-            BoxShadow(
-              color: theme.colorScheme.primary.withValues(alpha: 0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            )
-          ] : null,
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -642,7 +895,9 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             Text(
               label,
               style: theme.textTheme.labelMedium?.copyWith(
-                color: selected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurfaceVariant,
+                color: selected
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.onSurfaceVariant,
                 fontWeight: selected ? FontWeight.bold : FontWeight.w500,
               ),
             ),
