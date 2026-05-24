@@ -18,11 +18,12 @@ class AnimatedPageIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: OnboardingTheme.spacing16,
-        vertical: OnboardingTheme.spacing8,
+        horizontal: 0,
+        vertical: 8,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: List.generate(totalPages, (index) {
           final isActive = index == currentPage;
           final isPassed = index < currentPage;
@@ -30,25 +31,16 @@ class AnimatedPageIndicator extends StatelessWidget {
           return GestureDetector(
             onTap: onPageTap != null ? () => onPageTap!(index) : null,
             child: AnimatedContainer(
-              duration: OnboardingTheme.progressUpdate,
-              curve: OnboardingTheme.defaultCurve,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
               margin: const EdgeInsets.symmetric(horizontal: 4),
-              width: isActive ? 24 : 8,
-              height: 8,
+              width: 24, // Fixed width for all dashes
+              height: 4,  // Thin dash
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
                 color: isActive || isPassed
-                    ? OnboardingTheme.progressColor
-                    : OnboardingTheme.progressBackground,
-                boxShadow: isActive
-                    ? [
-                        BoxShadow(
-                          color: OnboardingTheme.progressColor.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
+                    ? const Color(0xFF2B63F1) // Blue active/passed color
+                    : const Color(0xFFE5E7EB), // Gray inactive color
               ),
             ),
           );

@@ -12,8 +12,8 @@ class OnboardingConfig {
 
   const OnboardingConfig({required this.steps, required this.variant});
 
-  static OnboardingConfig get defaultConfig => OnboardingConfig(
-        steps: [0, 1, 2, 3, 4, 5, 6, 7],
+  static OnboardingConfig get defaultConfig => const OnboardingConfig(
+        steps: [0, 1, 2, 3, 4, 5, 6],
         variant: 'control',
       );
 }
