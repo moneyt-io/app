@@ -584,19 +584,41 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isSaving ? null : _saveTransaction,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: theme.colorScheme.onPrimary,
-                      minimumSize: const Size.fromHeight(56),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 8,
-                      shadowColor:
-                          theme.colorScheme.primary.withValues(alpha: 0.4),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: _isSaving
+                          ? null
+                          : const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                            ),
+                      color: _isSaving ? const Color(0xFF2B63F1).withValues(alpha: 0.5) : null,
+                      boxShadow: _isSaving
+                          ? null
+                          : [
+                              BoxShadow(
+                                color: const Color(0xFF3B82F6).withValues(alpha: 0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                     ),
+                    child: ElevatedButton(
+                      onPressed: _isSaving ? null : _saveTransaction,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        disabledBackgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        disabledForegroundColor: Colors.white.withValues(alpha: 0.5),
+                        minimumSize: const Size.fromHeight(56),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
                     child: _isSaving
                         ? const SizedBox(
                             width: 24,
@@ -618,6 +640,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                               ),
                             ],
                           ),
+                    ),
                   ),
                 ),
               ],
@@ -788,18 +811,25 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: selected
-                  ? theme.colorScheme.primary
+                  ? null
                   : theme.colorScheme.surfaceContainerLow,
+              gradient: selected
+                  ? const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                    )
+                  : null,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: selected
-                    ? theme.colorScheme.primary
+                    ? Colors.transparent
                     : theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
               ),
               boxShadow: selected
                   ? [
                       BoxShadow(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       )
@@ -816,7 +846,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                   name,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: selected
-                        ? theme.colorScheme.onPrimary
+                        ? Colors.white
                         : theme.colorScheme.onSurfaceVariant,
                     fontWeight: selected ? FontWeight.bold : FontWeight.w500,
                   ),
@@ -831,8 +861,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
               decoration: BoxDecoration(
                 color: selected
-                    ? theme.colorScheme.onPrimary
-                    : theme.colorScheme.primary,
+                    ? Colors.white
+                    : const Color(0xFF3B82F6),
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
@@ -849,8 +879,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,
                   color: selected
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onPrimary,
+                      ? const Color(0xFF1D4ED8)
+                      : Colors.white,
                 ),
               ),
             ),
@@ -869,18 +899,25 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: selected
-              ? theme.colorScheme.primary
+              ? null
               : theme.colorScheme.surfaceContainerLow,
+          gradient: selected
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                )
+              : null,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: selected
-                ? theme.colorScheme.primary
+                ? Colors.transparent
                 : theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
           ),
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                    color: const Color(0xFF3B82F6).withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   )
@@ -896,7 +933,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
               label,
               style: theme.textTheme.labelMedium?.copyWith(
                 color: selected
-                    ? theme.colorScheme.onPrimary
+                    ? Colors.white
                     : theme.colorScheme.onSurfaceVariant,
                 fontWeight: selected ? FontWeight.bold : FontWeight.w500,
               ),

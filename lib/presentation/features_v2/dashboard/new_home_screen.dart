@@ -7,7 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:get_it/get_it.dart';
 
+import '../../../core/services/paywall_service.dart';
 import '../../core/organisms/app_drawer.dart';
 import '../../core/providers/background_provider.dart';
 import '../../core/providers/currency_filter_provider.dart';
@@ -51,6 +53,34 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   @override
   void initState() {
     super.initState();
+    _showPaywallIfNeeded();
+  }
+
+  Future<void> _showPaywallIfNeeded() async {
+    // Wait for initial animations to run
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    try {
+      final isSubscribed =
+          GetIt.instance<PaywallService>().isPremiumNotifier.value;
+      if (isSubscribed) {
+        debugPrint(' NewHomeScreen: User is already subscribed. Skipping paywall.');
+        return;
+      }
+
+      if (mounted) {
+        debugPrint(' NewHomeScreen: User is not subscribed. Triggering paywall...');
+        _triggerPaywall();
+      }
+    } catch (e) {
+      debugPrint(' NewHomeScreen: Error trying to show paywall: $e');
+    }
+  }
+
+  void _triggerPaywall() {
+    final paywallService = GetIt.instance<PaywallService>();
+    paywallService.registerEvent('moneyt_pro');
+    debugPrint('Paywall event registered from NewHomeScreen');
   }
 
   DateTimeRange _getCurrentMonthRange() {
@@ -212,29 +242,36 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                         currentRangeTransactions,
                         transactionProvider,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          children: [
-                            Transform.translate(
-                              offset: const Offset(0, -16),
-                              child: Dashboard2IncomeExpense(
-                                income: income,
-                                expenses: expenses,
-                              ),
+                      Transform.translate(
+                        offset: const Offset(0, -32),
+                        child: Container(
+                          width: double.infinity,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFAF8FF),
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 32, left: 20, right: 20),
+                            child: Column(
+                              children: [
+                                Dashboard2IncomeExpense(
+                                  income: income,
+                                  expenses: expenses,
+                                ),
+                                const SizedBox(height: 24),
+                                Dashboard2ActivityList(
+                                  transactions: currentRangeTransactions
+                                      .where(
+                                          (t) => t.currencyId == selectedCurrency)
+                                      .toList()
+                                    ..sort((a, b) => b.date.compareTo(a.date)),
+                                  totalExpenses: expenses,
+                                  categoriesDataMap:
+                                      transactionProvider.categoriesDataMap,
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 24),
-                            Dashboard2ActivityList(
-                              transactions: currentRangeTransactions
-                                  .where(
-                                      (t) => t.currencyId == selectedCurrency)
-                                  .toList()
-                                ..sort((a, b) => b.date.compareTo(a.date)),
-                              totalExpenses: expenses,
-                              categoriesDataMap:
-                                  transactionProvider.categoriesDataMap,
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ],
@@ -261,7 +298,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: Colors.black,
       ),
       child: Stack(
         children: [
@@ -280,8 +317,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.black.withValues(alpha: 0.6),
-                    Colors.black.withValues(alpha: 0.0),
-                    const Color(0xFFFAF8FF),
+                    Colors.black.withValues(alpha: 0.3),
+                    Colors.black,
                   ],
                   stops: const [0.0, 0.5, 1.0],
                 ),
@@ -507,13 +544,13 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 ),
                 const SizedBox(
                     height:
-                        56), // Added more space to prevent overlap con income/expense cards
+                        64), // Space before the overlapping sheet
               ],
             ),
           ),
           Positioned(
             right: 20,
-            bottom: 50,
+            bottom: 64, // Raised to clear the overlap
             child: _buildCameraFab(context),
           ),
         ],

@@ -60,12 +60,16 @@ class Dashboard2BottomNav extends StatelessWidget {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF004AC6),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                  ),
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 4), // Mismo borde que en la vista de grabación para transición fluida
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF004AC6).withValues(alpha: 0.4),
+                      color: const Color(0xFF3B82F6).withValues(alpha: 0.4),
                       blurRadius: 24,
                       offset: const Offset(0, 8),
                     ),
