@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../../domain/entities/category.dart';
 import '../../../../domain/usecases/category_usecases.dart';
 import '../../../../core/utils/icon_to_emoji_mapper.dart';
+import '../../../../core/utils/number_formatter.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 import '../../theme/v2_colors.dart';
 import '../../categories/widgets/v2_category_form_bottom_sheet.dart';
 import '../../../features/transactions/transaction_provider.dart';
@@ -129,7 +131,7 @@ class _V2CategorySelectionSheetState extends State<V2CategorySelectionSheet> {
             }
           } catch (e) {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.v2.transactions.error(error: e.toString()))));
             }
           }
         },
@@ -175,8 +177,8 @@ class _V2CategorySelectionSheetState extends State<V2CategorySelectionSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Seleccionar Categoría',
+              Text(
+                t.v2.transactions.selectCategoryTitle,
                 style: TextStyle(
                   fontFamily: 'Manrope',
                   fontSize: 22,
@@ -197,7 +199,7 @@ class _V2CategorySelectionSheetState extends State<V2CategorySelectionSheet> {
             controller: _searchController,
             onChanged: _onSearch,
             decoration: InputDecoration(
-              hintText: 'Buscar categoría...',
+              hintText: t.v2.transactions.searchCategory,
               hintStyle: const TextStyle(
                 fontFamily: 'Manrope',
                 color: V2Colors.outlineVariant,
@@ -224,10 +226,10 @@ class _V2CategorySelectionSheetState extends State<V2CategorySelectionSheet> {
           
           Expanded(
             child: _filteredCategories.isEmpty
-              ? const Center(
+              ? Center(
                   child: Text(
-                    'No hay categorías disponibles',
-                    style: TextStyle(
+                    t.v2.transactions.noCategoriesAvailable,
+                    style: const TextStyle(
                       fontFamily: 'Manrope',
                       color: V2Colors.outlineVariant,
                     ),
@@ -308,8 +310,8 @@ class _V2CategorySelectionSheetState extends State<V2CategorySelectionSheet> {
           ElevatedButton.icon(
             onPressed: _showCreateCategory,
             icon: const Icon(Icons.add),
-            label: const Text(
-              'Crear nueva categoría',
+            label: Text(
+              t.v2.transactions.createNewCategory,
               style: TextStyle(
                 fontFamily: 'Manrope',
                 fontWeight: FontWeight.bold,

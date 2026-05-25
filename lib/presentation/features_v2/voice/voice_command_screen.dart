@@ -13,6 +13,7 @@ import '../../../core/services/ai_transaction_service.dart';
 import '../transactions/new_transaction_screen.dart';
 import '../theme/v2_colors.dart';
 import '../dashboard/widgets/parallax_background.dart';
+import '../../core/l10n/generated/strings.g.dart';
 
 class VoiceCommandScreen extends StatefulWidget {
   const VoiceCommandScreen({super.key});
@@ -34,12 +35,12 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen>
   String _recognizedText = '';
 
   String get _currentPrompt {
-    if (!_isListening) return 'Toca el micrófono para hablar';
+    if (!_isListening) return t.v2.voice.tapMicrophone;
     // Animación de los puntos suspensivos basada en el controlador de 4 segundos
     int dots = (_controller.value * 4).floor() % 4;
     String ellipsis = '.' * dots;
     // Rellenamos con espacios invisibles para que el texto no "salte" cambiando de ancho
-    return 'Escuchando$ellipsis'.padRight(14, ' ');
+    return '${t.v2.voice.listening}$ellipsis'.padRight(14, ' ');
   }
 
   @override
@@ -126,9 +127,9 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen>
             _isAnalyzing = false;
             _recognizedText = '';
           });
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content:
-                  Text('No se pudo procesar el comando. Intenta de nuevo.')));
+                  Text(t.v2.voice.errorProcessing)));
         }
       }
     } catch (e) {
@@ -139,8 +140,8 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen>
         });
 
         final errorMsg = e.toString().contains('No GEMINI_API_KEY')
-            ? 'Por favor, agrega GEMINI_API_KEY a tu archivo .env para usar la IA.'
-            : 'Error en la IA: ${e.toString()}';
+            ? t.v2.voice.missingApiKey
+            : t.v2.voice.aiError(error: e.toString());
 
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(errorMsg)));
@@ -376,12 +377,12 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _buildBottomActionButton(Icons.close, "Cancelar",
+                            _buildBottomActionButton(Icons.close, t.v2.voice.cancel,
                                 () => Navigator.pop(context)),
                             const SizedBox(
                                 width: 72), // Espacio para el botón central
                             _buildBottomActionButton(
-                                Icons.camera_alt_outlined, "Escanear", () {}),
+                                Icons.camera_alt_outlined, t.v2.voice.scan, () {}),
                           ],
                         ),
                       ),

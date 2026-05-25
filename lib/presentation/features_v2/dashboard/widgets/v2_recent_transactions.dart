@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../theme/v2_typography.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 import '../../../../core/utils/number_formatter.dart';
 
 class V2RecentTransactions extends StatelessWidget {
@@ -36,7 +38,7 @@ class V2RecentTransactions extends StatelessWidget {
                   fontFamily: 'Manrope',
                 ),
               ),
-              child: const Text("See All"),
+              child: Text(t.v2.dashboard.activityList.seeAll),
             ),
           ],
         ),

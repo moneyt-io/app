@@ -11,7 +11,8 @@ import '../../core/providers/currency_filter_provider.dart';
 import '../../features/transactions/transaction_provider.dart';
 import 'new_transaction_screen.dart';
 import '../theme/v2_colors.dart';
-import '../../../../core/utils/number_formatter.dart';
+import '../../../core/utils/number_formatter.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import 'widgets/v2_category_selection_sheet.dart';
 import 'widgets/v2_account_selection_sheet.dart';
 import '../shared/widgets/v2_date_selection_sheet.dart';
@@ -59,10 +60,10 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
     final difference = now.difference(date);
 
     if (difference.inDays == 0 && now.day == date.day) {
-      return "Hoy";
+      return t.v2.transactions.today;
     } else if (difference.inDays == 1 ||
         (difference.inDays == 0 && now.day != date.day)) {
-      return "Ayer";
+      return t.v2.transactions.yesterday;
     } else {
       return DateFormat('d \'de\' MMMM', 'es').format(date);
     }
@@ -71,12 +72,12 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
   Map<String, List<TransactionEntry>> _groupTransactions(
       List<TransactionEntry> transactions) {
     final grouped = <String, List<TransactionEntry>>{};
-    for (final t in transactions) {
-      final dateStr = _formatDateHeader(t.date);
+    for (final tx in transactions) {
+      final dateStr = _formatDateHeader(tx.date);
       if (grouped[dateStr] == null) {
         grouped[dateStr] = [];
       }
-      grouped[dateStr]!.add(t);
+      grouped[dateStr]!.add(tx);
     }
     return grouped;
   }
@@ -84,9 +85,9 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
   List<Category> _getTopCategories(
       List<TransactionEntry> transactions, Map<int, Category> categoryMap) {
     final counts = <int, int>{};
-    for (final t in transactions) {
-      if (t.mainCategoryId != null) {
-        counts[t.mainCategoryId!] = (counts[t.mainCategoryId!] ?? 0) + 1;
+    for (final tx in transactions) {
+      if (tx.mainCategoryId != null) {
+        counts[tx.mainCategoryId!] = (counts[tx.mainCategoryId!] ?? 0) + 1;
       }
     }
 
@@ -113,7 +114,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
 
             // Filtro base: moneda
             var transactions = transactionProvider.transactions
-                .where((t) => t.currencyId == selectedCurrency)
+                .where((tx) => tx.currencyId == selectedCurrency)
                 .toList()
               ..sort((a, b) => b.date.compareTo(a.date));
 
@@ -124,44 +125,44 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
             // Aplicar filtro de categoría seleccionada
             if (_selectedCategoryId != null) {
               transactions = transactions
-                  .where((t) => t.mainCategoryId == _selectedCategoryId)
+                  .where((tx) => tx.mainCategoryId == _selectedCategoryId)
                   .toList();
             }
 
             // Aplicar filtro de billetera seleccionada
             if (_selectedWalletId != null) {
               transactions = transactions
-                  .where((t) =>
-                      t.details.any((d) => d.paymentId == _selectedWalletId))
+                  .where((tx) =>
+                      tx.details.any((d) => d.paymentId == _selectedWalletId))
                   .toList();
             }
 
             // Aplicar filtro de fecha
             if (_selectedDateRange != null) {
-              transactions = transactions.where((t) {
+              transactions = transactions.where((tx) {
                 final isAfterOrSame =
-                    t.date.isAfter(_selectedDateRange!.start) ||
-                        t.date.isAtSameMomentAs(_selectedDateRange!.start);
+                    tx.date.isAfter(_selectedDateRange!.start) ||
+                        tx.date.isAtSameMomentAs(_selectedDateRange!.start);
                 final isBeforeOrSame =
-                    t.date.isBefore(_selectedDateRange!.end) ||
-                        t.date.isAtSameMomentAs(_selectedDateRange!.end);
+                    tx.date.isBefore(_selectedDateRange!.end) ||
+                        tx.date.isAtSameMomentAs(_selectedDateRange!.end);
                 return isAfterOrSame && isBeforeOrSame;
               }).toList();
             }
 
             // Aplicar filtro de búsqueda
             if (_searchQuery.isNotEmpty) {
-              transactions = transactions.where((t) {
+              transactions = transactions.where((tx) {
                 final q = _searchQuery.toLowerCase();
-                final catName = t.category?.name.toLowerCase() ??
-                    (t.mainCategoryId != null
+                final catName = tx.category?.name.toLowerCase() ??
+                    (tx.mainCategoryId != null
                         ? transactionProvider
-                            .categoriesDataMap[t.mainCategoryId!]?.name
+                            .categoriesDataMap[tx.mainCategoryId!]?.name
                             .toLowerCase()
                         : '') ??
                     '';
-                final contactName = t.contact?.name.toLowerCase() ?? '';
-                final desc = t.description?.toLowerCase() ?? '';
+                final contactName = tx.contact?.name.toLowerCase() ?? '';
+                final desc = tx.description?.toLowerCase() ?? '';
                 return catName.contains(q) ||
                     contactName.contains(q) ||
                     desc.contains(q);
@@ -188,7 +189,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                           padding: const EdgeInsets.only(
                               top: 16, bottom: 8, left: 24),
                           child: Text(
-                            "CATEGORÍAS UTILIZADAS",
+                            t.v2.transactions.usedCategories,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -286,10 +287,10 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
 
                     // Transacciones agrupadas
                     if (transactions.isEmpty)
-                      const SliverFillRemaining(
+                      SliverFillRemaining(
                         child: Center(
                           child: Text(
-                            "No hay transacciones registradas",
+                            t.v2.transactions.noTransactions,
                             style: TextStyle(
                               color: V2Colors.outline,
                               fontFamily: 'Manrope',
@@ -324,14 +325,14 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                   );
                                 }
 
-                                final t = entry.value[index - 1];
-                                final category = t.category ??
-                                    (t.mainCategoryId != null
+                                final tx = entry.value[index - 1];
+                                final category = tx.category ??
+                                    (tx.mainCategoryId != null
                                         ? transactionProvider.categoriesDataMap[
-                                            t.mainCategoryId!]
+                                            tx.mainCategoryId!]
                                         : null);
                                 return _buildTransactionCard(
-                                    t, category, context);
+                                    tx, category, context);
                               },
                               childCount:
                                   entry.value.length + 1, // +1 for the header
@@ -375,8 +376,8 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                         onPressed: () => Navigator.pop(context),
                                       ),
                                       const SizedBox(width: 8),
-                                      const Text(
-                                        "Actividad Reciente",
+                                      Text(
+                                        t.v2.transactions.recentActivity,
                                         style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w700,
@@ -487,9 +488,9 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                               fontFamily: 'Manrope',
                               fontSize: 13,
                               color: V2Colors.onSurface),
-                          decoration: const InputDecoration(
-                            hintText: 'Buscar transacción...',
-                            hintStyle: TextStyle(
+                          decoration: InputDecoration(
+                            hintText: t.v2.transactions.searchTransaction,
+                            hintStyle: const TextStyle(
                                 fontFamily: 'Manrope',
                                 fontSize: 13,
                                 color: V2Colors.outline),
@@ -534,7 +535,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
 
   Widget _buildDateChip() {
     final isActive = _selectedDateRange != null;
-    String label = "Fecha";
+    String label = t.v2.transactions.date;
     if (isActive) {
       final start = DateFormat('dd MMM').format(_selectedDateRange!.start);
       final end = DateFormat('dd MMM').format(_selectedDateRange!.end);
@@ -561,7 +562,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
 
   Widget _buildWalletChip() {
     final isActive = _selectedWalletId != null;
-    String label = "Billetera";
+    String label = t.v2.transactions.wallet;
     // Si quisieramos mostrar el nombre de la billetera, tendríamos que buscarla en WalletProvider.
     // Por simplicidad en este widget, lo dejamos como "Billetera (Activo)" si no tenemos acceso rápido al nombre,
     // pero podemos obtenerlo del provider.
@@ -663,8 +664,8 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
   }
 
   Widget _buildTransactionCard(
-      TransactionEntry t, Category? category, BuildContext context) {
-    final isIncome = t.isIncome;
+      TransactionEntry tx, Category? category, BuildContext context) {
+    final isIncome = tx.isIncome;
 
     // Asignar color consistente: rojo para gastos, verde para ingresos
     final avatarBgColor = isIncome
@@ -676,12 +677,12 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
       emoji = IconToEmojiMapper.getEmoji(category.icon);
     }
 
-    final title = t.description?.isNotEmpty == true
-        ? t.description!
-        : (t.contact?.name ?? category?.name ?? 'Transacción');
+    final title = tx.description?.isNotEmpty == true
+        ? tx.description!
+        : (tx.contact?.name ?? category?.name ?? 'Transacción');
 
     final subtitle =
-        "${category?.name ?? 'Otros'} • ${DateFormat('HH:mm').format(t.date)}";
+        "${category?.name ?? 'Otros'} • ${DateFormat('HH:mm').format(tx.date)}";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -755,7 +756,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                     Row(
                       children: [
                         Text(
-                          "${isIncome ? '+' : '-'}${NumberFormatter.formatCurrency(t.amount.abs())}",
+                          "${isIncome ? '+' : '-'}${NumberFormatter.formatCurrency(tx.amount.abs())}",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
@@ -776,22 +777,22 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: (_) => NewTransactionScreen(
-                                  transactionIdToEdit: t.id,
-                                  initialType: t.documentTypeId,
-                                  initialAmount: t.amount.abs(),
-                                  initialDescription: t.description,
-                                  initialCategoryId: t.mainCategoryId,
-                                  initialWalletId: t.details.isNotEmpty
-                                      ? (t.details.first.paymentTypeId == 'C'
-                                          ? -t.details.first.paymentId
-                                          : t.details.first.paymentId)
+                                  transactionIdToEdit: tx.id,
+                                  initialType: tx.documentTypeId,
+                                  initialAmount: tx.amount.abs(),
+                                  initialDescription: tx.description,
+                                  initialCategoryId: tx.mainCategoryId,
+                                  initialWalletId: tx.details.isNotEmpty
+                                      ? (tx.details.first.paymentTypeId == 'C'
+                                          ? -tx.details.first.paymentId
+                                          : tx.details.first.paymentId)
                                       : null,
-                                  initialDate: t.date,
+                                  initialDate: tx.date,
                                 ),
                               ),
                             );
                           },
-                          child: const Padding(
+                          child: Padding(
                             padding: EdgeInsets.all(4.0),
                             child: Icon(Icons.edit_outlined,
                                 size: 16, color: V2Colors.onSurfaceVariant),
@@ -804,14 +805,14 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                               builder: (ctx) => AlertDialog(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20)),
-                                title: const Text('¿Eliminar transacción?',
+                                title: Text(t.v2.transactions.deleteTransaction,
                                     style: TextStyle(
                                         fontFamily: 'Manrope',
                                         fontWeight: FontWeight.w700)),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(ctx),
-                                    child: const Text('Cancelar',
+                                    child: Text(t.v2.transactions.cancel,
                                         style: TextStyle(
                                             color: V2Colors.onSurfaceVariant,
                                             fontFamily: 'Manrope',
@@ -822,13 +823,13 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                       Navigator.pop(ctx);
                                       context
                                           .read<TransactionProvider>()
-                                          .deleteTransaction(t.id);
+                                          .deleteTransaction(tx.id);
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
+                                          .showSnackBar(SnackBar(
                                               content: Text(
-                                                  'Transacción eliminada')));
+                                                  t.v2.transactions.transactionDeleted)));
                                     },
-                                    child: const Text('Eliminar',
+                                    child: Text(t.v2.transactions.delete,
                                         style: TextStyle(
                                             color: V2Colors.error,
                                             fontFamily: 'Manrope',

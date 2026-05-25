@@ -3,8 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../../../../domain/entities/transaction_entry.dart';
 import '../../../../core/utils/icon_to_emoji_mapper.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 import '../../../../domain/entities/category.dart';
+import '../../transactions/widgets/v2_category_selection_sheet.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 import '../../transactions/new_transactions_screen.dart';
 import '../../../../core/utils/number_formatter.dart';
 import 'dart:ui';
@@ -44,9 +47,9 @@ class Dashboard2ActivityList extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              "Gastos por categoría",
-              style: TextStyle(
+            Text(
+              t.v2.dashboard.activityList.expensesByCategory,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF131B2E),
@@ -68,18 +71,18 @@ class Dashboard2ActivityList extends StatelessWidget {
                   fontFamily: 'Manrope',
                 ),
               ),
-              child: const Text("Ver todo"),
+              child: Text(t.common.viewAll),
             ),
           ],
         ),
         const SizedBox(height: 16),
         if (sortedCategories.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 32),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32),
             child: Center(
               child: Text(
-                "No hay gastos recientes",
-                style: TextStyle(
+                t.v2.dashboard.activityList.noRecentExpenses,
+                style: const TextStyle(
                   color: Color(0xFF737686),
                   fontFamily: 'Manrope',
                   fontSize: 14,
@@ -136,8 +139,8 @@ class Dashboard2ActivityList extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: _InteractiveActivityItem(
-                title: category?.name ?? 'Otros',
-                percentageStr: "${(progress * 100).toInt()}% del total",
+                title: category?.name ?? t.v2.dashboard.activityList.others,
+                percentageStr: t.v2.dashboard.activityList.percentOfTotal(percent: (progress * 100).toInt()),
                 amount: -sum,
                 emoji: (category != null && category.icon.isNotEmpty) 
                     ? IconToEmojiMapper.getEmoji(category.icon) 
@@ -262,7 +265,7 @@ class _InteractiveActivityItemState extends State<_InteractiveActivityItem> with
                               ),
                             ),
                             Text(
-                              "Top ${widget.topTransactions.length} Gastos",
+                              t.v2.dashboard.activityList.topExpenses(count: widget.topTransactions.length),
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -339,9 +342,9 @@ class _InteractiveActivityItemState extends State<_InteractiveActivityItem> with
     final difference = now.difference(date);
     
     if (difference.inDays == 0 && now.day == date.day) {
-      return "Hoy";
+      return t.common.today;
     } else if (difference.inDays == 1 || (difference.inDays == 0 && now.day != date.day)) {
-      return "Ayer";
+      return t.common.yesterday;
     } else {
       return DateFormat('dd MMM').format(date);
     }

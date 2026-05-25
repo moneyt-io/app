@@ -51,9 +51,9 @@ class LanguageSelectionScreen extends StatelessWidget {
             icon: const Icon(Icons.arrow_back, color: V2Colors.onSurface),
             onPressed: () => Navigator.pop(context),
           ),
-          title: const Text(
-            'Idioma',
-            style: TextStyle(
+          title: Text(
+            t.v2.settings.language,
+            style: const TextStyle(
               color: V2Colors.onSurface,
               fontSize: 20,
               fontWeight: FontWeight.w700,

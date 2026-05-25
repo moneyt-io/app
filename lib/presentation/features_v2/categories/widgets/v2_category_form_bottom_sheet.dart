@@ -5,6 +5,7 @@ import '../../../../domain/entities/category.dart';
 import '../../../../core/utils/icon_to_emoji_mapper.dart';
 import '../../../../core/utils/financial_emoji_dictionary.dart';
 import '../../../../core/services/ai_transaction_service.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 import '../../theme/v2_colors.dart';
 
 class V2CategoryFormBottomSheet extends StatefulWidget {
@@ -199,7 +200,7 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> w
           const SizedBox(height: 24),
           
           Text(
-            widget.categoryToEdit == null ? 'Nueva Categoría' : 'Editar Categoría',
+            widget.categoryToEdit == null ? t.v2.categories.newCategory : t.v2.categories.editCategory,
             style: const TextStyle(
               fontFamily: 'Manrope',
               fontSize: 22,
@@ -295,7 +296,7 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> w
                 child: TextField(
                   controller: _nameController,
                   decoration: InputDecoration(
-                    labelText: 'Nombre de la categoría',
+                    labelText: t.v2.categories.form.nameLabel,
                     labelStyle: const TextStyle(
                       fontFamily: 'Manrope',
                       color: V2Colors.outline,
@@ -342,8 +343,8 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> w
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: const Text(
-                    'Cancelar',
+                  child: Text(
+                    t.common.cancel,
                     style: TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 16,
@@ -375,8 +376,8 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> w
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'Guardar Categoría',
+                  child: Text(
+                    t.v2.categories.form.save,
                     style: TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 16,

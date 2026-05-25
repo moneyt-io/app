@@ -5,6 +5,7 @@ import '../../../domain/entities/category.dart';
 import '../../../domain/usecases/category_usecases.dart';
 import '../../../core/utils/icon_to_emoji_mapper.dart';
 import '../categories/widgets/v2_category_form_bottom_sheet.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import '../theme/v2_colors.dart';
 
 class V2CategoriesScreen extends StatefulWidget {
@@ -55,16 +56,16 @@ class _V2CategoriesScreenState extends State<V2CategoriesScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('¿Eliminar categoría?', style: TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w700)),
-        content: Text('Esta acción no se puede deshacer.', style: const TextStyle(fontFamily: 'Manrope', color: V2Colors.onSurfaceVariant)),
+        title: Text(t.v2.settings.deleteCategory, style: const TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w700)),
+        content: Text(t.v2.settings.cannotUndo, style: const TextStyle(fontFamily: 'Manrope', color: V2Colors.onSurfaceVariant)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar', style: TextStyle(color: V2Colors.onSurfaceVariant, fontFamily: 'Manrope', fontWeight: FontWeight.w600)),
+            child: Text(t.v2.settings.cancel, style: const TextStyle(color: V2Colors.onSurfaceVariant, fontFamily: 'Manrope', fontWeight: FontWeight.w600)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Eliminar', style: TextStyle(color: V2Colors.error, fontFamily: 'Manrope', fontWeight: FontWeight.w700)),
+            child: Text(t.v2.settings.delete, style: const TextStyle(color: V2Colors.error, fontFamily: 'Manrope', fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -77,7 +78,7 @@ class _V2CategoriesScreenState extends State<V2CategoriesScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al eliminar: $e')),
+            SnackBar(content: Text(t.v2.settings.deleteError(error: e.toString()))),
           );
         }
       }
@@ -149,11 +150,11 @@ class _V2CategoriesScreenState extends State<V2CategoriesScreen> {
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: V2Colors.onSurface),
+            icon: Icon(Icons.arrow_back, color: V2Colors.onSurface),
             onPressed: () => Navigator.pop(context),
           ),
-          title: const Text(
-            'Categorías',
+          title: Text(
+            t.v2.settings.categories,
             style: TextStyle(
               color: V2Colors.onSurface,
               fontSize: 20,
@@ -172,10 +173,10 @@ class _V2CategoriesScreenState extends State<V2CategoriesScreen> {
               child: _isLoading 
                 ? const Center(child: CircularProgressIndicator())
                 : _categories.isEmpty
-                  ? const Center(
-                      child: Text('No hay categorías.\nCrea una nueva.', 
+                  ? Center(
+                      child: Text(t.v2.settings.noCategoriesCreated, 
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: V2Colors.outlineVariant, fontFamily: 'Manrope')
+                        style: const TextStyle(color: V2Colors.outlineVariant, fontFamily: 'Manrope')
                       )
                     )
                   : ListView.builder(
@@ -297,7 +298,7 @@ class _V2CategoriesScreenState extends State<V2CategoriesScreen> {
                         fontSize: 14,
                         fontFamily: 'Manrope',
                       ),
-                      child: const Text("Gastos"),
+                      child: Text(t.v2.settings.expenses),
                     ),
                   ),
                 ),
@@ -321,7 +322,7 @@ class _V2CategoriesScreenState extends State<V2CategoriesScreen> {
                         fontSize: 14,
                         fontFamily: 'Manrope',
                       ),
-                      child: const Text("Ingresos"),
+                      child: Text(t.v2.settings.income),
                     ),
                   ),
                 ),

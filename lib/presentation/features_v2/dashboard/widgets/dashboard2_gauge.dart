@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import '../../../../domain/entities/transaction_entry.dart';
 import '../../../../core/utils/number_formatter.dart';
 import '../../../../domain/entities/category.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class Dashboard2Gauge extends StatefulWidget {
   final double income;
@@ -89,14 +90,14 @@ class _Dashboard2GaugeState extends State<Dashboard2Gauge> {
       if (totalDrawn >= totalExpensesToDraw) break;
       
       int colorIndex = 0;
-      String categoryName = 'Otros';
+      String categoryName = t.v2.dashboard.activityList.others;
       
       if (entry.key != 'otros') {
         final parsedId = int.tryParse(entry.key);
         if (parsedId != null) {
           final idx = sortedKeys.indexOf(parsedId);
           if (idx != -1) colorIndex = idx;
-          categoryName = widget.categoriesDataMap[parsedId]?.name ?? 'Otros';
+          categoryName = widget.categoriesDataMap[parsedId]?.name ?? t.v2.dashboard.activityList.others;
         }
       }
       
@@ -127,10 +128,10 @@ class _Dashboard2GaugeState extends State<Dashboard2Gauge> {
       subText = selectedSegment.categoryName.toUpperCase();
     } else if (_showPercentage) {
       mainText = '${(displayPercentage * 100).toInt()}%';
-      subText = displayPercentage > 1.0 ? 'EXCEDIDO' : 'GASTADO';
+      subText = displayPercentage > 1.0 ? t.v2.dashboard.gauge.exceeded : t.v2.dashboard.gauge.spent;
     } else {
       mainText = NumberFormatter.formatCurrency(remaining.abs());
-      subText = remaining >= 0 ? 'DISPONIBLE' : 'SOBREGIRADO';
+      subText = remaining >= 0 ? t.v2.dashboard.gauge.available : t.v2.dashboard.gauge.overdrawn;
     }
 
     // Adapt text color conditionally 

@@ -13,6 +13,7 @@ import '../dashboard/widgets/dashboard2_bottom_nav.dart';
 import '../../core/providers/background_provider.dart';
 import '../../core/providers/currency_provider.dart';
 import '../../core/providers/language_provider.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import 'currency_selection_screen.dart';
 import 'language_selection_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -91,11 +92,11 @@ class NewSettingsScreen extends StatelessWidget {
                               const Icon(Icons.arrow_back, color: Colors.white),
                           onPressed: () => Navigator.pop(context),
                         ),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Personalizar',
+                            t.v2.settings.title,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
@@ -130,7 +131,7 @@ class NewSettingsScreen extends StatelessWidget {
                         _buildGlassmorphismOptionItem(
                           context,
                           icon: Icons.category_outlined,
-                          title: 'Categorías',
+                          title: t.v2.settings.categories,
                           onTap: () {
                             Navigator.push(
                               context,
@@ -144,7 +145,7 @@ class NewSettingsScreen extends StatelessWidget {
                         _buildGlassmorphismOptionItem(
                           context,
                           icon: Icons.account_balance_wallet_outlined,
-                          title: 'Billeteras',
+                          title: t.v2.settings.wallets,
                           onTap: () {
                             Navigator.push(
                               context,
@@ -158,7 +159,7 @@ class NewSettingsScreen extends StatelessWidget {
                         _buildGlassmorphismOptionItem(
                           context,
                           icon: Icons.language,
-                          title: 'Idioma',
+                          title: t.v2.settings.language,
                           trailingText: currentLanguage,
                           onTap: () {
                             Navigator.push(
@@ -173,7 +174,7 @@ class NewSettingsScreen extends StatelessWidget {
                         _buildGlassmorphismOptionItem(
                           context,
                           icon: Icons.attach_money,
-                          title: 'Divisa',
+                          title: t.v2.settings.currency,
                           trailingText:
                               '${currentCurrency.id} (${currentCurrency.symbol})',
                           onTap: () {
@@ -189,14 +190,14 @@ class NewSettingsScreen extends StatelessWidget {
                         _buildGlassmorphismOptionItem(
                           context,
                           icon: Icons.support_agent,
-                          title: 'Contacto',
+                          title: t.v2.settings.contact,
                           onTap: () {},
                         ),
                         const SizedBox(height: 32),
                         _buildGlassmorphismOptionItem(
                           context,
                           icon: Icons.history,
-                          title: 'Vista Legacy',
+                          title: t.v2.settings.legacyView,
                           onTap: () {
                             Navigator.pop(context);
                             onToggleLegacy();

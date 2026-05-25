@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import '../../../../domain/entities/category.dart';
 import '../../../../domain/usecases/category_usecases.dart';
 import '../../../../core/utils/icon_to_emoji_mapper.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import 'widgets/v2_category_form_bottom_sheet.dart';
 
 class CategoriesChipSelectionScreen extends StatefulWidget {
@@ -118,7 +119,7 @@ class _CategoriesChipSelectionScreenState extends State<CategoriesChipSelectionS
           icon: Icon(Icons.arrow_back, color: theme.colorScheme.primary),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text("Categorías"),
+        title: Text(t.v2.categories.title),
         actions: [
           IconButton(
             icon: Icon(Icons.more_vert, color: theme.colorScheme.onSurfaceVariant),
@@ -147,7 +148,7 @@ class _CategoriesChipSelectionScreenState extends State<CategoriesChipSelectionS
                         color: theme.colorScheme.onSurface,
                       ),
                       decoration: InputDecoration(
-                        hintText: "Buscar categorías...",
+                        hintText: t.v2.categories.searchPlaceholder,
                         hintStyle: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.outlineVariant,
                         ),
@@ -184,7 +185,7 @@ class _CategoriesChipSelectionScreenState extends State<CategoriesChipSelectionS
                   const Icon(Icons.add_circle_outline, size: 24),
                   const SizedBox(width: 8),
                   Text(
-                    "Nueva Categoría",
+                    t.v2.categories.newCategory,
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontSize: 18,
                       color: theme.colorScheme.onPrimary,
@@ -199,12 +200,12 @@ class _CategoriesChipSelectionScreenState extends State<CategoriesChipSelectionS
             if (_isLoading)
               const Center(child: CircularProgressIndicator())
             else if (_filteredCategories.isEmpty)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.all(32.0),
+                  padding: const EdgeInsets.all(32.0),
                   child: Text(
-                    "No se encontraron categorías",
-                    style: TextStyle(color: Colors.grey),
+                    t.v2.categories.noCategories,
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 ),
               )

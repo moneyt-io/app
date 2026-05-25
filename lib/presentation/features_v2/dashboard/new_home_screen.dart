@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../core/l10n/generated/strings.g.dart';
 import '../../../core/services/paywall_service.dart';
 import '../../core/organisms/app_drawer.dart';
 import '../../core/providers/background_provider.dart';
@@ -18,6 +19,7 @@ import '../../core/providers/currency_provider.dart';
 import '../../features/transactions/transaction_provider.dart';
 import '../../features/wallets/wallet_provider.dart';
 import '../../../domain/entities/transaction_entry.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import '../../../core/utils/number_formatter.dart';
 
 import '../shared/widgets/v2_date_selection_sheet.dart';
@@ -104,10 +106,10 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   }
 
   String _getWalletLabel(WalletProvider provider) {
-    if (_selectedWalletId == null) return "Todas las billeteras";
+    if (_selectedWalletId == null) return t.v2.dashboard.walletFilters.allWallets;
     final wallet =
         provider.wallets.where((w) => w.id == _selectedWalletId).firstOrNull;
-    if (wallet == null) return "Todas las billeteras";
+    if (wallet == null) return t.v2.dashboard.walletFilters.allWallets;
     // Para el dashboard, mostramos solo el nombre corto para que no se vea muy largo
     return wallet.name;
   }
@@ -118,10 +120,10 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
 
     if (_isSameDay(_selectedDateRange.start, current.start) &&
         _isSameDay(_selectedDateRange.end, current.end)) {
-      return "Este mes";
+      return t.v2.dashboard.dateFilters.thisMonth;
     } else if (_isSameDay(_selectedDateRange.start, previous.start) &&
         _isSameDay(_selectedDateRange.end, previous.end)) {
-      return "Mes anterior";
+      return t.v2.dashboard.dateFilters.lastMonth;
     }
 
     final startStr = DateFormat('d MMM', 'es').format(_selectedDateRange.start);
@@ -337,9 +339,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          "¡Buenos días!",
+                          t.v2.dashboard.greetingMorning,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -382,8 +384,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 ),
                 const SizedBox(height: 16),
                 // Total Balance Text
-                const Text(
-                  "BALANCE TOTAL",
+                Text(
+                  t.v2.dashboard.totalBalance,
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -455,24 +457,24 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                         }
                       },
                       itemBuilder: (context) => [
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'current',
-                          child: Text('Este mes',
-                              style: TextStyle(
+                          child: Text(t.v2.dashboard.dateFilters.thisMonth,
+                              style: const TextStyle(
                                   fontFamily: 'Manrope',
                                   fontWeight: FontWeight.w500)),
                         ),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'previous',
-                          child: Text('Mes anterior',
-                              style: TextStyle(
+                          child: Text(t.v2.dashboard.dateFilters.lastMonth,
+                              style: const TextStyle(
                                   fontFamily: 'Manrope',
                                   fontWeight: FontWeight.w500)),
                         ),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'custom',
-                          child: Text('Rango personalizado...',
-                              style: TextStyle(
+                          child: Text(t.v2.dashboard.dateFilters.customRange,
+                              style: const TextStyle(
                                   fontFamily: 'Manrope',
                                   fontWeight: FontWeight.w500)),
                         ),
@@ -504,10 +506,10 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                         }).toList();
 
                         final items = <PopupMenuEntry<int>>[
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: -1,
-                            child: Text('Todas',
-                                style: TextStyle(
+                            child: Text(t.v2.dashboard.walletFilters.all,
+                                style: const TextStyle(
                                     fontFamily: 'Manrope',
                                     fontWeight: FontWeight.w500)),
                           ),
@@ -620,9 +622,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Fondo de Metas',
-                style: TextStyle(
+              Text(
+                t.v2.dashboard.background.title,
+                style: const TextStyle(
                   fontFamily: 'Manrope',
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -633,8 +635,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
               ListTile(
                 leading: const Icon(Icons.photo_library_outlined,
                     color: V2Colors.primary),
-                title: const Text('Elegir foto de la galería',
-                    style: TextStyle(
+                title: Text(t.v2.dashboard.background.chooseFromGallery,
+                    style: const TextStyle(
                         fontFamily: 'Manrope', fontWeight: FontWeight.w600)),
                 onTap: () async {
                   Navigator.pop(sheetContext);
@@ -657,8 +659,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.restore, color: V2Colors.primary),
-                title: const Text('Restaurar fondo por defecto',
-                    style: TextStyle(
+                title: Text(t.v2.dashboard.background.restoreDefault,
+                    style: const TextStyle(
                         fontFamily: 'Manrope', fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(sheetContext);

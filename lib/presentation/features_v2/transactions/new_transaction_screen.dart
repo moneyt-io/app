@@ -18,6 +18,7 @@ import '../shared/widgets/v2_date_selection_sheet.dart';
 import '../../features/transactions/transaction_provider.dart';
 import '../../core/providers/currency_provider.dart';
 import '../../../core/utils/number_formatter.dart';
+import '../../core/l10n/generated/strings.g.dart';
 
 import '../../../domain/entities/transaction.dart';
 
@@ -214,7 +215,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     if (_selectedDate.year == now.year &&
         _selectedDate.month == now.month &&
         _selectedDate.day == now.day) {
-      return "Hoy";
+      return t.v2.transactions.today;
     }
     return DateFormat('dd MMM').format(_selectedDate);
   }
@@ -225,17 +226,17 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
 
     if (amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Por favor, ingresa un monto válido.')));
+          SnackBar(content: Text(t.v2.transactions.invalidAmount)));
       return;
     }
     if (_selectedAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Por favor, selecciona una cuenta.')));
+          SnackBar(content: Text(t.v2.transactions.selectAccount)));
       return;
     }
     if (_selectedCategoryId == null && _pendingSuggestedCategoryName == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Por favor, selecciona una categoría.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(t.v2.transactions.selectCategory)));
       return;
     }
 
@@ -300,7 +301,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
         } catch (e) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error creando categoría: $e')));
+                SnackBar(content: Text(t.v2.transactions.errorCreatingCategory(error: e.toString()))));
             setState(() => _isSaving = false);
           }
           return;
@@ -362,14 +363,14 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(widget.transactionIdToEdit != null
-                ? 'Transacción actualizada.'
-                : 'Transacción guardada exitosamente.')));
+                ? t.v2.transactions.transactionUpdated
+                : t.v2.transactions.transactionSaved)));
         Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error: $e')));
+            .showSnackBar(SnackBar(content: Text(t.v2.transactions.error(error: e.toString()))));
         setState(() => _isSaving = false);
       }
     }
@@ -387,8 +388,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
               icon: const Icon(Icons.close),
               onPressed: () => Navigator.of(context).pop()),
           title: Text(widget.transactionIdToEdit != null
-              ? "Editar Transacción"
-              : "Nueva Transacción"),
+              ? t.v2.transactions.editTransaction
+              : t.v2.transactions.newTransaction),
         ),
         body: const Center(child: CircularProgressIndicator()),
       );
@@ -422,8 +423,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(widget.transactionIdToEdit != null
-            ? "Editar Transacción"
-            : "Nueva Transacción"),
+            ? t.v2.transactions.editTransaction
+            : t.v2.transactions.newTransaction),
       ),
       body: Column(
         children: [
@@ -442,7 +443,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                           Icons.calendar_today, _selectDate),
                       _buildMetaPill(
                           context,
-                          _selectedAccount?.name ?? "Seleccionar Billetera",
+                          _selectedAccount?.name ?? t.v2.transactions.selectWallet,
                           Icons.account_balance_wallet_outlined,
                           _selectAccount),
                     ],
@@ -451,7 +452,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
 
                   // Amount Entry
                   Text(
-                    "MONTO",
+                    t.v2.transactions.amount,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.outline,
                       letterSpacing: 2.0,
@@ -501,7 +502,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
 
                   // Description Entry
                   Text(
-                    "DESCRIPCIÓN",
+                    t.v2.transactions.description,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.outline,
                       letterSpacing: 2.0,
@@ -514,7 +515,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                       color: theme.colorScheme.onBackground,
                     ),
                     decoration: InputDecoration(
-                      hintText: "Agregar nota...",
+                      hintText: t.v2.transactions.addNote,
                       hintStyle: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.colorScheme.outlineVariant
                             .withValues(alpha: 0.6),
@@ -530,7 +531,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
 
                   // Category Selection
                   Text(
-                    "CATEGORÍA",
+                    t.v2.transactions.category,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.outline,
                       letterSpacing: 2.0,
@@ -631,7 +632,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                               const Icon(Icons.check_circle_outline, size: 20),
                               const SizedBox(width: 8),
                               Text(
-                                "Guardar",
+                                t.v2.transactions.save,
                                 style: theme.textTheme.labelMedium?.copyWith(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
@@ -703,7 +704,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                         fontSize: 14,
                         fontFamily: 'Manrope',
                       ),
-                      child: const Text("Gasto"),
+                      child: Text(t.v2.transactions.expense),
                     ),
                   ),
                 ),
@@ -720,7 +721,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                         fontSize: 14,
                         fontFamily: 'Manrope',
                       ),
-                      child: const Text("Ingreso"),
+                      child: Text(t.v2.transactions.income),
                     ),
                   ),
                 ),
@@ -781,7 +782,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
           children: [
             Icon(Icons.more_horiz, color: theme.colorScheme.outline, size: 20),
             const SizedBox(width: 4),
-            Text("Más",
+            Text(t.v2.transactions.more,
                 style: theme.textTheme.labelMedium
                     ?.copyWith(color: theme.colorScheme.outline)),
           ],

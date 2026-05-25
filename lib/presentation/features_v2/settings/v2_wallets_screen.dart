@@ -7,6 +7,7 @@ import '../../../domain/usecases/wallet_usecases.dart';
 import '../../features/wallets/wallet_provider.dart';
 import '../../core/providers/currency_provider.dart';
 import '../../../core/utils/number_formatter.dart';
+import '../../core/l10n/generated/strings.g.dart';
 import '../theme/v2_colors.dart';
 
 class V2WalletsScreen extends StatefulWidget {
@@ -35,16 +36,16 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('¿Eliminar billetera?', style: TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w700)),
-        content: Text('Esta acción no se puede deshacer y borrará transacciones asociadas.', style: const TextStyle(fontFamily: 'Manrope', color: V2Colors.onSurfaceVariant)),
+        title: Text(t.v2.settings.deleteWallet, style: const TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w700)),
+        content: Text(t.v2.settings.deleteWalletWarning, style: const TextStyle(fontFamily: 'Manrope', color: V2Colors.onSurfaceVariant)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar', style: TextStyle(color: V2Colors.onSurfaceVariant, fontFamily: 'Manrope', fontWeight: FontWeight.w600)),
+            child: Text(t.v2.settings.cancel, style: const TextStyle(color: V2Colors.onSurfaceVariant, fontFamily: 'Manrope', fontWeight: FontWeight.w600)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Eliminar', style: TextStyle(color: V2Colors.error, fontFamily: 'Manrope', fontWeight: FontWeight.w700)),
+            child: Text(t.v2.settings.delete, style: const TextStyle(color: V2Colors.error, fontFamily: 'Manrope', fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -55,13 +56,13 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
         await provider.deleteWallet(wallet.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Billetera eliminada')),
+            SnackBar(content: Text(t.v2.settings.walletDeleted)),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al eliminar: $e')),
+            SnackBar(content: Text(t.v2.settings.deleteError(error: e.toString()))),
           );
         }
       }
@@ -139,9 +140,9 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
             icon: const Icon(Icons.arrow_back, color: V2Colors.onSurface),
             onPressed: () => Navigator.pop(context),
           ),
-          title: const Text(
-            'Billeteras',
-            style: TextStyle(
+          title: Text(
+            t.v2.settings.wallets,
+            style: const TextStyle(
               color: V2Colors.onSurface,
               fontSize: 20,
               fontWeight: FontWeight.w700,
@@ -163,10 +164,10 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
               children: [
                 Expanded(
                   child: walletsToDisplay.isEmpty
-                    ? const Center(
-                        child: Text('No hay billeteras registradas.\nCrea una nueva.', 
+                    ? Center(
+                        child: Text(t.v2.settings.noWalletsCreated, 
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: V2Colors.outlineVariant, fontFamily: 'Manrope')
+                          style: const TextStyle(color: V2Colors.outlineVariant, fontFamily: 'Manrope')
                         )
                       )
                     : ListView.builder(
@@ -312,7 +313,7 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> {
           const SizedBox(height: 24),
           
           Text(
-            widget.walletToEdit == null ? 'Nueva Billetera' : 'Editar Billetera',
+            widget.walletToEdit == null ? t.v2.settings.newWallet : t.v2.settings.editWallet,
             style: const TextStyle(
               fontFamily: 'Manrope',
               fontSize: 22,
@@ -326,7 +327,7 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> {
           TextField(
             controller: _nameController,
             decoration: InputDecoration(
-              labelText: 'Nombre de la billetera',
+              labelText: t.v2.settings.walletName,
               labelStyle: const TextStyle(
                 fontFamily: 'Manrope',
                 color: V2Colors.outline,
@@ -369,8 +370,8 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: const Text(
-                    'Cancelar',
+                  child: Text(
+                    t.v2.settings.wallets,
                     style: TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 16,
@@ -397,9 +398,9 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'Guardar Billetera',
-                    style: TextStyle(
+                  child: Text(
+                    t.v2.settings.saveWallet,
+                    style: const TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 16,
                       fontWeight: FontWeight.w700,

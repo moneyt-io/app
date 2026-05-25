@@ -957,5 +957,125 @@
       "initial": "Initial Backup",
       "generic": "Backup - $date"
     }
+  },
+  "v2": {
+    "voice": {
+      "errorProcessing": "Could not process command. Try again.",
+      "tapMicrophone": "Tap the microphone to speak",
+      "listening": "Listening",
+      "missingApiKey": "Please add GEMINI_API_KEY to your .env file to use AI.",
+      "aiError": "AI Error: $error",
+      "cancel": "Cancel",
+      "scan": "Scan"
+    },
+    "transactions": {
+      "invalidAmount": "Please enter a valid amount.",
+      "selectAccount": "Please select an account.",
+      "selectCategory": "Please select a category.",
+      "errorCreatingCategory": "Error creating category: $error",
+      "error": "Error: $error",
+      "more": "More",
+      "expense": "Expense",
+      "income": "Income",
+      "deleteTransaction": "Delete transaction?",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "yesterday": "Yesterday",
+      "usedCategories": "USED CATEGORIES",
+      "noTransactions": "No registered transactions",
+      "recentActivity": "Recent Activity",
+      "searchTransaction": "Search transaction...",
+      "date": "Date",
+      "wallet": "Wallet",
+      "transactionDeleted": "Transaction deleted",
+      "selectCategoryTitle": "Select Category",
+      "searchCategory": "Search category...",
+      "noCategoriesAvailable": "No categories available",
+      "createNewCategory": "Create new category",
+      "amount": "AMOUNT",
+      "description": "DESCRIPTION",
+      "category": "CATEGORY",
+      "addNote": "Add note...",
+      "today": "Today",
+      "editTransaction": "Edit Transaction",
+      "newTransaction": "New Transaction",
+      "selectWallet": "Select Wallet",
+      "save": "Save",
+      "transactionUpdated": "Transaction updated.",
+      "transactionSaved": "Transaction saved successfully."
+    },
+    "settings": {
+      "title": "Customize",
+      "categories": "Categories",
+      "wallets": "Wallets",
+      "language": "Language",
+      "currency": "Currency",
+      "contact": "Contact",
+      "legacyView": "Legacy View",
+      "deleteCategory": "Delete category?",
+      "deleteWallet": "Delete wallet?",
+      "cannotUndo": "This action cannot be undone.",
+      "deleteWalletWarning": "This action cannot be undone and will delete associated transactions.",
+      "deleteError": "Error deleting: $error",
+      "noCategoriesCreated": "No categories found.\nCreate a new one.",
+      "noWalletsCreated": "No wallets registered.\nCreate a new one.",
+      "walletDeleted": "Wallet deleted",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "expenses": "Expenses",
+      "income": "Income",
+      "newWallet": "New Wallet",
+      "editWallet": "Edit Wallet",
+      "walletName": "Wallet Name",
+      "saveWallet": "Save Wallet"
+    },
+    "dashboard": {
+      "greetingMorning": "Good morning!",
+      "totalBalance": "TOTAL BALANCE",
+      "dateFilters": {
+        "thisMonth": "This month",
+        "lastMonth": "Last month",
+        "customRange": "Custom range..."
+      },
+      "walletFilters": {
+        "all": "All",
+        "allWallets": "All wallets"
+      },
+      "background": {
+        "title": "Goals Background",
+        "chooseFromGallery": "Choose photo from gallery",
+        "restoreDefault": "Restore default background"
+      },
+      "incomeExpense": {
+        "income": "INCOME",
+        "expenses": "EXPENSES"
+      },
+      "gauge": {
+        "exceeded": "EXCEEDED",
+        "spent": "SPENT",
+        "available": "AVAILABLE",
+        "overdrawn": "OVERDRAWN"
+      },
+      "activityList": {
+        "seeAll": "See All",
+        "newUi": "New UI",
+        "expensesByCategory": "Expenses by category",
+        "noRecentExpenses": "No recent expenses",
+        "percentOfTotal": "$percent% of total",
+        "topExpenses": "Top $count Expenses",
+        "others": "Others"
+      }
+    },
+    "categories": {
+      "title": "Categories",
+      "searchPlaceholder": "Search categories...",
+      "newCategory": "New Category",
+      "editCategory": "Edit Category",
+      "noCategories": "No categories found",
+      "form": {
+        "nameLabel": "Category Name",
+        "save": "Save Category"
+      }
+    }
   }
 }

@@ -53,6 +53,7 @@ class AppStrings implements BaseTranslations<AppLocale, AppStrings> {
 	late final AppStringsLoansEn loans = AppStringsLoansEn.internal(_root);
 	late final AppStringsCategoriesEn categories = AppStringsCategoriesEn.internal(_root);
 	late final AppStringsBackupsEn backups = AppStringsBackupsEn.internal(_root);
+	late final AppStringsV2En v2 = AppStringsV2En.internal(_root);
 }
 
 // Path: app
@@ -457,6 +458,20 @@ class AppStringsBackupsEn {
 	late final AppStringsBackupsStatsEn stats = AppStringsBackupsStatsEn.internal(_root);
 	late final AppStringsBackupsOptionsEn options = AppStringsBackupsOptionsEn.internal(_root);
 	late final AppStringsBackupsFormatEn format = AppStringsBackupsFormatEn.internal(_root);
+}
+
+// Path: v2
+class AppStringsV2En {
+	AppStringsV2En.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+	late final AppStringsV2VoiceEn voice = AppStringsV2VoiceEn.internal(_root);
+	late final AppStringsV2TransactionsEn transactions = AppStringsV2TransactionsEn.internal(_root);
+	late final AppStringsV2SettingsEn settings = AppStringsV2SettingsEn.internal(_root);
+	late final AppStringsV2DashboardEn dashboard = AppStringsV2DashboardEn.internal(_root);
+	late final AppStringsV2CategoriesEn categories = AppStringsV2CategoriesEn.internal(_root);
 }
 
 // Path: components.dateSelection
@@ -2645,6 +2660,273 @@ class AppStringsBackupsFormatEn {
 	String generic({required Object date}) => 'Backup - ${date}';
 }
 
+// Path: v2.voice
+class AppStringsV2VoiceEn {
+	AppStringsV2VoiceEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Could not process command. Try again.'
+	String get errorProcessing => 'Could not process command. Try again.';
+
+	/// en: 'Tap the microphone to speak'
+	String get tapMicrophone => 'Tap the microphone to speak';
+
+	/// en: 'Listening'
+	String get listening => 'Listening';
+
+	/// en: 'Please add GEMINI_API_KEY to your .env file to use AI.'
+	String get missingApiKey => 'Please add GEMINI_API_KEY to your .env file to use AI.';
+
+	/// en: 'AI Error: $error'
+	String aiError({required Object error}) => 'AI Error: ${error}';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Scan'
+	String get scan => 'Scan';
+}
+
+// Path: v2.transactions
+class AppStringsV2TransactionsEn {
+	AppStringsV2TransactionsEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Please enter a valid amount.'
+	String get invalidAmount => 'Please enter a valid amount.';
+
+	/// en: 'Please select an account.'
+	String get selectAccount => 'Please select an account.';
+
+	/// en: 'Please select a category.'
+	String get selectCategory => 'Please select a category.';
+
+	/// en: 'Error creating category: $error'
+	String errorCreatingCategory({required Object error}) => 'Error creating category: ${error}';
+
+	/// en: 'Error: $error'
+	String error({required Object error}) => 'Error: ${error}';
+
+	/// en: 'More'
+	String get more => 'More';
+
+	/// en: 'Expense'
+	String get expense => 'Expense';
+
+	/// en: 'Income'
+	String get income => 'Income';
+
+	/// en: 'Delete transaction?'
+	String get deleteTransaction => 'Delete transaction?';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Delete'
+	String get delete => 'Delete';
+
+	/// en: 'Yesterday'
+	String get yesterday => 'Yesterday';
+
+	/// en: 'USED CATEGORIES'
+	String get usedCategories => 'USED CATEGORIES';
+
+	/// en: 'No registered transactions'
+	String get noTransactions => 'No registered transactions';
+
+	/// en: 'Recent Activity'
+	String get recentActivity => 'Recent Activity';
+
+	/// en: 'Search transaction...'
+	String get searchTransaction => 'Search transaction...';
+
+	/// en: 'Date'
+	String get date => 'Date';
+
+	/// en: 'Wallet'
+	String get wallet => 'Wallet';
+
+	/// en: 'Transaction deleted'
+	String get transactionDeleted => 'Transaction deleted';
+
+	/// en: 'Select Category'
+	String get selectCategoryTitle => 'Select Category';
+
+	/// en: 'Search category...'
+	String get searchCategory => 'Search category...';
+
+	/// en: 'No categories available'
+	String get noCategoriesAvailable => 'No categories available';
+
+	/// en: 'Create new category'
+	String get createNewCategory => 'Create new category';
+
+	/// en: 'AMOUNT'
+	String get amount => 'AMOUNT';
+
+	/// en: 'DESCRIPTION'
+	String get description => 'DESCRIPTION';
+
+	/// en: 'CATEGORY'
+	String get category => 'CATEGORY';
+
+	/// en: 'Add note...'
+	String get addNote => 'Add note...';
+
+	/// en: 'Today'
+	String get today => 'Today';
+
+	/// en: 'Edit Transaction'
+	String get editTransaction => 'Edit Transaction';
+
+	/// en: 'New Transaction'
+	String get newTransaction => 'New Transaction';
+
+	/// en: 'Select Wallet'
+	String get selectWallet => 'Select Wallet';
+
+	/// en: 'Save'
+	String get save => 'Save';
+
+	/// en: 'Transaction updated.'
+	String get transactionUpdated => 'Transaction updated.';
+
+	/// en: 'Transaction saved successfully.'
+	String get transactionSaved => 'Transaction saved successfully.';
+}
+
+// Path: v2.settings
+class AppStringsV2SettingsEn {
+	AppStringsV2SettingsEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Customize'
+	String get title => 'Customize';
+
+	/// en: 'Categories'
+	String get categories => 'Categories';
+
+	/// en: 'Wallets'
+	String get wallets => 'Wallets';
+
+	/// en: 'Language'
+	String get language => 'Language';
+
+	/// en: 'Currency'
+	String get currency => 'Currency';
+
+	/// en: 'Contact'
+	String get contact => 'Contact';
+
+	/// en: 'Legacy View'
+	String get legacyView => 'Legacy View';
+
+	/// en: 'Delete category?'
+	String get deleteCategory => 'Delete category?';
+
+	/// en: 'Delete wallet?'
+	String get deleteWallet => 'Delete wallet?';
+
+	/// en: 'This action cannot be undone.'
+	String get cannotUndo => 'This action cannot be undone.';
+
+	/// en: 'This action cannot be undone and will delete associated transactions.'
+	String get deleteWalletWarning => 'This action cannot be undone and will delete associated transactions.';
+
+	/// en: 'Error deleting: $error'
+	String deleteError({required Object error}) => 'Error deleting: ${error}';
+
+	/// en: 'No categories found. Create a new one.'
+	String get noCategoriesCreated => 'No categories found.\nCreate a new one.';
+
+	/// en: 'No wallets registered. Create a new one.'
+	String get noWalletsCreated => 'No wallets registered.\nCreate a new one.';
+
+	/// en: 'Wallet deleted'
+	String get walletDeleted => 'Wallet deleted';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Delete'
+	String get delete => 'Delete';
+
+	/// en: 'Expenses'
+	String get expenses => 'Expenses';
+
+	/// en: 'Income'
+	String get income => 'Income';
+
+	/// en: 'New Wallet'
+	String get newWallet => 'New Wallet';
+
+	/// en: 'Edit Wallet'
+	String get editWallet => 'Edit Wallet';
+
+	/// en: 'Wallet Name'
+	String get walletName => 'Wallet Name';
+
+	/// en: 'Save Wallet'
+	String get saveWallet => 'Save Wallet';
+}
+
+// Path: v2.dashboard
+class AppStringsV2DashboardEn {
+	AppStringsV2DashboardEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Good morning!'
+	String get greetingMorning => 'Good morning!';
+
+	/// en: 'TOTAL BALANCE'
+	String get totalBalance => 'TOTAL BALANCE';
+
+	late final AppStringsV2DashboardDateFiltersEn dateFilters = AppStringsV2DashboardDateFiltersEn.internal(_root);
+	late final AppStringsV2DashboardWalletFiltersEn walletFilters = AppStringsV2DashboardWalletFiltersEn.internal(_root);
+	late final AppStringsV2DashboardBackgroundEn background = AppStringsV2DashboardBackgroundEn.internal(_root);
+	late final AppStringsV2DashboardIncomeExpenseEn incomeExpense = AppStringsV2DashboardIncomeExpenseEn.internal(_root);
+	late final AppStringsV2DashboardGaugeEn gauge = AppStringsV2DashboardGaugeEn.internal(_root);
+	late final AppStringsV2DashboardActivityListEn activityList = AppStringsV2DashboardActivityListEn.internal(_root);
+}
+
+// Path: v2.categories
+class AppStringsV2CategoriesEn {
+	AppStringsV2CategoriesEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Categories'
+	String get title => 'Categories';
+
+	/// en: 'Search categories...'
+	String get searchPlaceholder => 'Search categories...';
+
+	/// en: 'New Category'
+	String get newCategory => 'New Category';
+
+	/// en: 'Edit Category'
+	String get editCategory => 'Edit Category';
+
+	/// en: 'No categories found'
+	String get noCategories => 'No categories found';
+
+	late final AppStringsV2CategoriesFormEn form = AppStringsV2CategoriesFormEn.internal(_root);
+}
+
 // Path: transactions.filter.ranges
 class AppStringsTransactionsFilterRangesEn {
 	AppStringsTransactionsFilterRangesEn.internal(this._root);
@@ -3376,6 +3658,138 @@ class AppStringsBackupsOptionsDeleteEn {
 
 	/// en: 'This action cannot be undone'
 	String get subtitle => 'This action cannot be undone';
+}
+
+// Path: v2.dashboard.dateFilters
+class AppStringsV2DashboardDateFiltersEn {
+	AppStringsV2DashboardDateFiltersEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'This month'
+	String get thisMonth => 'This month';
+
+	/// en: 'Last month'
+	String get lastMonth => 'Last month';
+
+	/// en: 'Custom range...'
+	String get customRange => 'Custom range...';
+}
+
+// Path: v2.dashboard.walletFilters
+class AppStringsV2DashboardWalletFiltersEn {
+	AppStringsV2DashboardWalletFiltersEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'All'
+	String get all => 'All';
+
+	/// en: 'All wallets'
+	String get allWallets => 'All wallets';
+}
+
+// Path: v2.dashboard.background
+class AppStringsV2DashboardBackgroundEn {
+	AppStringsV2DashboardBackgroundEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Goals Background'
+	String get title => 'Goals Background';
+
+	/// en: 'Choose photo from gallery'
+	String get chooseFromGallery => 'Choose photo from gallery';
+
+	/// en: 'Restore default background'
+	String get restoreDefault => 'Restore default background';
+}
+
+// Path: v2.dashboard.incomeExpense
+class AppStringsV2DashboardIncomeExpenseEn {
+	AppStringsV2DashboardIncomeExpenseEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'INCOME'
+	String get income => 'INCOME';
+
+	/// en: 'EXPENSES'
+	String get expenses => 'EXPENSES';
+}
+
+// Path: v2.dashboard.gauge
+class AppStringsV2DashboardGaugeEn {
+	AppStringsV2DashboardGaugeEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'EXCEEDED'
+	String get exceeded => 'EXCEEDED';
+
+	/// en: 'SPENT'
+	String get spent => 'SPENT';
+
+	/// en: 'AVAILABLE'
+	String get available => 'AVAILABLE';
+
+	/// en: 'OVERDRAWN'
+	String get overdrawn => 'OVERDRAWN';
+}
+
+// Path: v2.dashboard.activityList
+class AppStringsV2DashboardActivityListEn {
+	AppStringsV2DashboardActivityListEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'See All'
+	String get seeAll => 'See All';
+
+	/// en: 'New UI'
+	String get newUi => 'New UI';
+
+	/// en: 'Expenses by category'
+	String get expensesByCategory => 'Expenses by category';
+
+	/// en: 'No recent expenses'
+	String get noRecentExpenses => 'No recent expenses';
+
+	/// en: '$percent% of total'
+	String percentOfTotal({required Object percent}) => '${percent}% of total';
+
+	/// en: 'Top $count Expenses'
+	String topExpenses({required Object count}) => 'Top ${count} Expenses';
+
+	/// en: 'Others'
+	String get others => 'Others';
+}
+
+// Path: v2.categories.form
+class AppStringsV2CategoriesFormEn {
+	AppStringsV2CategoriesFormEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Category Name'
+	String get nameLabel => 'Category Name';
+
+	/// en: 'Save Category'
+	String get save => 'Save Category';
 }
 
 // Path: dashboard.widgets.settings.reset
@@ -4146,6 +4560,100 @@ extension on AppStrings {
 			case 'backups.format.manual': return ({required Object date}) => 'Manual Backup - ${date}';
 			case 'backups.format.initial': return 'Initial Backup';
 			case 'backups.format.generic': return ({required Object date}) => 'Backup - ${date}';
+			case 'v2.voice.errorProcessing': return 'Could not process command. Try again.';
+			case 'v2.voice.tapMicrophone': return 'Tap the microphone to speak';
+			case 'v2.voice.listening': return 'Listening';
+			case 'v2.voice.missingApiKey': return 'Please add GEMINI_API_KEY to your .env file to use AI.';
+			case 'v2.voice.aiError': return ({required Object error}) => 'AI Error: ${error}';
+			case 'v2.voice.cancel': return 'Cancel';
+			case 'v2.voice.scan': return 'Scan';
+			case 'v2.transactions.invalidAmount': return 'Please enter a valid amount.';
+			case 'v2.transactions.selectAccount': return 'Please select an account.';
+			case 'v2.transactions.selectCategory': return 'Please select a category.';
+			case 'v2.transactions.errorCreatingCategory': return ({required Object error}) => 'Error creating category: ${error}';
+			case 'v2.transactions.error': return ({required Object error}) => 'Error: ${error}';
+			case 'v2.transactions.more': return 'More';
+			case 'v2.transactions.expense': return 'Expense';
+			case 'v2.transactions.income': return 'Income';
+			case 'v2.transactions.deleteTransaction': return 'Delete transaction?';
+			case 'v2.transactions.cancel': return 'Cancel';
+			case 'v2.transactions.delete': return 'Delete';
+			case 'v2.transactions.yesterday': return 'Yesterday';
+			case 'v2.transactions.usedCategories': return 'USED CATEGORIES';
+			case 'v2.transactions.noTransactions': return 'No registered transactions';
+			case 'v2.transactions.recentActivity': return 'Recent Activity';
+			case 'v2.transactions.searchTransaction': return 'Search transaction...';
+			case 'v2.transactions.date': return 'Date';
+			case 'v2.transactions.wallet': return 'Wallet';
+			case 'v2.transactions.transactionDeleted': return 'Transaction deleted';
+			case 'v2.transactions.selectCategoryTitle': return 'Select Category';
+			case 'v2.transactions.searchCategory': return 'Search category...';
+			case 'v2.transactions.noCategoriesAvailable': return 'No categories available';
+			case 'v2.transactions.createNewCategory': return 'Create new category';
+			case 'v2.transactions.amount': return 'AMOUNT';
+			case 'v2.transactions.description': return 'DESCRIPTION';
+			case 'v2.transactions.category': return 'CATEGORY';
+			case 'v2.transactions.addNote': return 'Add note...';
+			case 'v2.transactions.today': return 'Today';
+			case 'v2.transactions.editTransaction': return 'Edit Transaction';
+			case 'v2.transactions.newTransaction': return 'New Transaction';
+			case 'v2.transactions.selectWallet': return 'Select Wallet';
+			case 'v2.transactions.save': return 'Save';
+			case 'v2.transactions.transactionUpdated': return 'Transaction updated.';
+			case 'v2.transactions.transactionSaved': return 'Transaction saved successfully.';
+			case 'v2.settings.title': return 'Customize';
+			case 'v2.settings.categories': return 'Categories';
+			case 'v2.settings.wallets': return 'Wallets';
+			case 'v2.settings.language': return 'Language';
+			case 'v2.settings.currency': return 'Currency';
+			case 'v2.settings.contact': return 'Contact';
+			case 'v2.settings.legacyView': return 'Legacy View';
+			case 'v2.settings.deleteCategory': return 'Delete category?';
+			case 'v2.settings.deleteWallet': return 'Delete wallet?';
+			case 'v2.settings.cannotUndo': return 'This action cannot be undone.';
+			case 'v2.settings.deleteWalletWarning': return 'This action cannot be undone and will delete associated transactions.';
+			case 'v2.settings.deleteError': return ({required Object error}) => 'Error deleting: ${error}';
+			case 'v2.settings.noCategoriesCreated': return 'No categories found.\nCreate a new one.';
+			case 'v2.settings.noWalletsCreated': return 'No wallets registered.\nCreate a new one.';
+			case 'v2.settings.walletDeleted': return 'Wallet deleted';
+			case 'v2.settings.cancel': return 'Cancel';
+			case 'v2.settings.delete': return 'Delete';
+			case 'v2.settings.expenses': return 'Expenses';
+			case 'v2.settings.income': return 'Income';
+			case 'v2.settings.newWallet': return 'New Wallet';
+			case 'v2.settings.editWallet': return 'Edit Wallet';
+			case 'v2.settings.walletName': return 'Wallet Name';
+			case 'v2.settings.saveWallet': return 'Save Wallet';
+			case 'v2.dashboard.greetingMorning': return 'Good morning!';
+			case 'v2.dashboard.totalBalance': return 'TOTAL BALANCE';
+			case 'v2.dashboard.dateFilters.thisMonth': return 'This month';
+			case 'v2.dashboard.dateFilters.lastMonth': return 'Last month';
+			case 'v2.dashboard.dateFilters.customRange': return 'Custom range...';
+			case 'v2.dashboard.walletFilters.all': return 'All';
+			case 'v2.dashboard.walletFilters.allWallets': return 'All wallets';
+			case 'v2.dashboard.background.title': return 'Goals Background';
+			case 'v2.dashboard.background.chooseFromGallery': return 'Choose photo from gallery';
+			case 'v2.dashboard.background.restoreDefault': return 'Restore default background';
+			case 'v2.dashboard.incomeExpense.income': return 'INCOME';
+			case 'v2.dashboard.incomeExpense.expenses': return 'EXPENSES';
+			case 'v2.dashboard.gauge.exceeded': return 'EXCEEDED';
+			case 'v2.dashboard.gauge.spent': return 'SPENT';
+			case 'v2.dashboard.gauge.available': return 'AVAILABLE';
+			case 'v2.dashboard.gauge.overdrawn': return 'OVERDRAWN';
+			case 'v2.dashboard.activityList.seeAll': return 'See All';
+			case 'v2.dashboard.activityList.newUi': return 'New UI';
+			case 'v2.dashboard.activityList.expensesByCategory': return 'Expenses by category';
+			case 'v2.dashboard.activityList.noRecentExpenses': return 'No recent expenses';
+			case 'v2.dashboard.activityList.percentOfTotal': return ({required Object percent}) => '${percent}% of total';
+			case 'v2.dashboard.activityList.topExpenses': return ({required Object count}) => 'Top ${count} Expenses';
+			case 'v2.dashboard.activityList.others': return 'Others';
+			case 'v2.categories.title': return 'Categories';
+			case 'v2.categories.searchPlaceholder': return 'Search categories...';
+			case 'v2.categories.newCategory': return 'New Category';
+			case 'v2.categories.editCategory': return 'Edit Category';
+			case 'v2.categories.noCategories': return 'No categories found';
+			case 'v2.categories.form.nameLabel': return 'Category Name';
+			case 'v2.categories.form.save': return 'Save Category';
 			default: return null;
 		}
 	}

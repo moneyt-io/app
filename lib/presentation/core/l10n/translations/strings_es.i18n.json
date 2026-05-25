@@ -957,5 +957,125 @@
       "initial": "Copia Inicial",
       "generic": "Copia - $date"
     }
+  },
+  "v2": {
+    "voice": {
+      "errorProcessing": "No se pudo procesar el comando. Intenta de nuevo.",
+      "tapMicrophone": "Toca el micrófono para hablar",
+      "listening": "Escuchando",
+      "missingApiKey": "Por favor, agrega GEMINI_API_KEY a tu archivo .env para usar la IA.",
+      "aiError": "Error en la IA: $error",
+      "cancel": "Cancelar",
+      "scan": "Escanear"
+    },
+    "transactions": {
+      "invalidAmount": "Por favor, ingresa un monto válido.",
+      "selectAccount": "Por favor, selecciona una cuenta.",
+      "selectCategory": "Por favor, selecciona una categoría.",
+      "errorCreatingCategory": "Error creando categoría: $error",
+      "error": "Error: $error",
+      "more": "Más",
+      "expense": "Gasto",
+      "income": "Ingreso",
+      "deleteTransaction": "¿Eliminar transacción?",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "yesterday": "Ayer",
+      "usedCategories": "CATEGORÍAS UTILIZADAS",
+      "noTransactions": "No hay transacciones registradas",
+      "recentActivity": "Actividad Reciente",
+      "searchTransaction": "Buscar transacción...",
+      "date": "Fecha",
+      "wallet": "Billetera",
+      "transactionDeleted": "Transacción eliminada",
+      "selectCategoryTitle": "Seleccionar Categoría",
+      "searchCategory": "Buscar categoría...",
+      "noCategoriesAvailable": "No hay categorías disponibles",
+      "createNewCategory": "Crear nueva categoría",
+      "amount": "MONTO",
+      "description": "DESCRIPCIÓN",
+      "category": "CATEGORÍA",
+      "addNote": "Agregar nota...",
+      "today": "Hoy",
+      "editTransaction": "Editar Transacción",
+      "newTransaction": "Nueva Transacción",
+      "selectWallet": "Seleccionar Billetera",
+      "save": "Guardar",
+      "transactionUpdated": "Transacción actualizada.",
+      "transactionSaved": "Transacción guardada exitosamente."
+    },
+    "settings": {
+      "title": "Personalizar",
+      "categories": "Categorías",
+      "wallets": "Billeteras",
+      "language": "Idioma",
+      "currency": "Divisa",
+      "contact": "Contacto",
+      "legacyView": "Vista Legacy",
+      "deleteCategory": "¿Eliminar categoría?",
+      "deleteWallet": "¿Eliminar billetera?",
+      "cannotUndo": "Esta acción no se puede deshacer.",
+      "deleteWalletWarning": "Esta acción no se puede deshacer y borrará transacciones asociadas.",
+      "deleteError": "Error al eliminar: $error",
+      "noCategoriesCreated": "No hay categorías.\nCrea una nueva.",
+      "noWalletsCreated": "No hay billeteras registradas.\nCrea una nueva.",
+      "walletDeleted": "Billetera eliminada",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "expenses": "Gastos",
+      "income": "Ingresos",
+      "newWallet": "Nueva Billetera",
+      "editWallet": "Editar Billetera",
+      "walletName": "Nombre de la billetera",
+      "saveWallet": "Guardar Billetera"
+    },
+    "dashboard": {
+      "greetingMorning": "¡Buenos días!",
+      "totalBalance": "BALANCE TOTAL",
+      "dateFilters": {
+        "thisMonth": "Este mes",
+        "lastMonth": "Mes anterior",
+        "customRange": "Rango personalizado..."
+      },
+      "walletFilters": {
+        "all": "Todas",
+        "allWallets": "Todas las billeteras"
+      },
+      "background": {
+        "title": "Fondo de Metas",
+        "chooseFromGallery": "Elegir foto de la galería",
+        "restoreDefault": "Restaurar fondo por defecto"
+      },
+      "incomeExpense": {
+        "income": "INGRESOS",
+        "expenses": "GASTOS"
+      },
+      "gauge": {
+        "exceeded": "EXCEDIDO",
+        "spent": "GASTADO",
+        "available": "DISPONIBLE",
+        "overdrawn": "SOBREGIRADO"
+      },
+      "activityList": {
+        "seeAll": "Ver Todo",
+        "newUi": "Nueva UI",
+        "expensesByCategory": "Gastos por categoría",
+        "noRecentExpenses": "No hay gastos recientes",
+        "percentOfTotal": "${percent}% del total",
+        "topExpenses": "Top $count Gastos",
+        "others": "Otros"
+      }
+    },
+    "categories": {
+      "title": "Categorías",
+      "searchPlaceholder": "Buscar categorías...",
+      "newCategory": "Nueva Categoría",
+      "editCategory": "Editar Categoría",
+      "noCategories": "No se encontraron categorías",
+      "form": {
+        "nameLabel": "Nombre de la categoría",
+        "save": "Guardar Categoría"
+      }
+    }
   }
 }

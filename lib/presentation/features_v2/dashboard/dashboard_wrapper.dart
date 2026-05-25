@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/dashboard/home_screen.dart';
 import '../theme/v2_theme.dart';
 import 'new_home_screen.dart';
+import '../../core/l10n/generated/strings.g.dart';
 
 class DashboardWrapper extends StatefulWidget {
   final bool hasJustSeenPaywall;
@@ -80,12 +81,12 @@ class _DashboardWrapperState extends State<DashboardWrapper> {
                       )
                     ],
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.new_releases, size: 16, color: Color(0xFF0c7ff2)),
                       SizedBox(width: 4),
-                      Text("New UI", style: TextStyle(fontSize: 12, color: Color(0xFF0c7ff2), fontWeight: FontWeight.bold)),
+                      Text(t.v2.dashboard.activityList.newUi, style: TextStyle(fontSize: 12, color: Color(0xFF0c7ff2), fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),

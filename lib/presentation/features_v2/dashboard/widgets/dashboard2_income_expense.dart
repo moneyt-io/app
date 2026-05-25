@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/number_formatter.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class Dashboard2IncomeExpense extends StatelessWidget {
   final double income;
@@ -32,9 +33,9 @@ class Dashboard2IncomeExpense extends StatelessWidget {
             ),
             child: Column(
               children: [
-                const Text(
-                  "INGRESOS",
-                  style: TextStyle(
+                Text(
+                  t.v2.dashboard.incomeExpense.income,
+                  style: const TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
                     color: Color(0x9900714D), // 60% opacity
@@ -74,9 +75,9 @@ class Dashboard2IncomeExpense extends StatelessWidget {
             ),
             child: Column(
               children: [
-                const Text(
-                  "GASTOS",
-                  style: TextStyle(
+                Text(
+                  t.v2.dashboard.incomeExpense.expenses,
+                  style: const TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
                     color: Color(0x9993000A), // 60% opacity
