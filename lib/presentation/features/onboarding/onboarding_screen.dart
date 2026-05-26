@@ -453,13 +453,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     if (index >= 9) return t.common.retry; // Fallback
     
     final labels = [
-      t.onboarding.buttons.start, // 0 splash
-      t.onboarding.buttons.actionContinue, // 1 Expense
-      t.onboarding.buttons.actionContinue, // 2 Financial goals
-      t.onboarding.buttons.actionContinue, // 3 Registration method
-      t.onboarding.buttons.great, // 4 ai analysis
-      t.onboarding.buttons.setGoal, // 5 main priority
-      t.onboarding.buttons.great, // 6 ai voice
+      t.v2.onboarding.buttons.start, // 0 splash
+      t.v2.onboarding.buttons.actionContinue, // 1 Expense
+      t.v2.onboarding.buttons.actionContinue, // 2 Financial goals
+      t.v2.onboarding.buttons.actionContinue, // 3 Registration method
+      t.v2.onboarding.buttons.great, // 4 ai analysis
+      t.v2.onboarding.buttons.setGoal, // 5 main priority
+      t.v2.onboarding.buttons.great, // 6 ai voice
     ];
     
     return labels[index];

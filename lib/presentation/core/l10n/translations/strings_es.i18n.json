@@ -1076,6 +1076,112 @@
         "nameLabel": "Nombre de la categoría",
         "save": "Guardar Categoría"
       }
+    },
+    "onboarding": {
+      "buttons": {
+        "start": "Comenzar",
+        "actionContinue": "Continuar",
+        "great": "Genial",
+        "setGoal": "Fijar meta",
+        "skip": "Omitir"
+      },
+      "splash": {
+        "title1": "¿Y si la Inteligencia\nArtificial (IA)\n",
+        "title2": "organiza tu dinero\nmejor que tú?",
+        "benefit1": "Menos esfuerzo.",
+        "benefit2": "Más claridad.",
+        "benefit3": "Mejores decisiones."
+      },
+      "expenseCategories": {
+        "title1": "¿Cuáles de estos se comen la mayor parte de tu dinero?",
+        "subtitle": "Elige hasta 3",
+        "diningOut": "Comer fuera",
+        "cravings": "Antojos",
+        "subscriptions": "Suscripciones",
+        "outings": "Salidas",
+        "shopping": "Compras",
+        "delivery": "Domicilios"
+      },
+      "financialGoals": {
+        "title": "¿Qué cambiaría más tus\nfinanzas?",
+        "subtitle": "Elige una",
+        "trackMoney": "Saber exactamente a dónde va mi dinero",
+        "spendLess": "Gastar menos en cosas que no necesito",
+        "lessStress": "Dejar de estresarme por el dinero",
+        "saveMoney": "Empezar a ahorrar para algo específico"
+      },
+      "registrationMethod": {
+        "title": "¿Cómo preferirías\nregistrar tus gastos?",
+        "subtitle": "Elige una",
+        "voice": "Solo decirlo en voz alta",
+        "auto": "Automáticamente al pagar",
+        "write": "Escribirlo – ordenar\nautomáticamente",
+        "easy": "Lo que sea más fácil en el\nmomento"
+      },
+      "aiAnalysis": {
+        "loading": {
+          "title": "CONFIGURANDO APP SEGÚN\nTUS RESPUESTAS",
+          "subtitle": "Analizando",
+          "messages": [
+            "Revisando tus gastos diarios...",
+            "Categorizando tus transacciones...",
+            "Encontrando patrones de gasto...",
+            "Generando recomendaciones..."
+          ]
+        },
+        "showcase": {
+          "title": "Análisis concluido",
+          "dynamicText": {
+            "default": "Tus gastos consumen gran parte de tu presupuesto, parece que tus métodos actuales ya no están funcionando.",
+            "part2": " gran parte de tu presupuesto, parece que ",
+            "part3": " ya no está funcionando.",
+            "categories": {
+              "diningOut": "Comer fuera consume",
+              "cravings": "Los antojos consumen",
+              "subscriptions": "Las suscripciones consumen",
+              "outings": "Las salidas consumen",
+              "shopping": "Las compras impulsivas consumen",
+              "delivery": "Los domicilios consumen"
+            },
+            "intentions": {
+              "trackMoney": "entender exactamente a dónde va tu dinero",
+              "spendLess": "intentar gastar menos por tu cuenta",
+              "lessStress": "preocuparte menos por el dinero",
+              "saveMoney": "tratar de ahorrar sin una guía clara"
+            }
+          },
+          "result": {
+            "yourResult": "Tu resultado",
+            "average": "Media",
+            "messagePart1": "Estás gastando 68% ",
+            "messagePart2": "más que la media de las personas, esto ",
+            "messagePart3": "afecta brutalmente\n",
+            "messagePart4": "a tus metas en corto y mediano plazo"
+          }
+        }
+      },
+      "mainPriority": {
+        "title": "¿Cuál es tu prioridad\nprincipal?",
+        "subtitle": "Elige la opción que más quieres que te ayude MoneyT",
+        "breakHabits": "Romper malos hábitos",
+        "stopStress": "Dejar de estresarme por el dinero",
+        "buildFuture": "Construir un futuro abundante",
+        "feelControl": "Sentir que controlo mis finanzas",
+        "saveGoal": "Ahorrar para una meta"
+      },
+      "aiVoice": {
+        "title": {
+          "default": "Alcanzar tu meta",
+          "breakHabits": "Romper tus malos hábitos financieros",
+          "stopStress": "Dejar de preocuparte por el dinero",
+          "buildFuture": "Construir un futuro más abundante",
+          "feelControl": "Sentir que vuelves a controlar tu dinero",
+          "saveGoal": "Ahorrar para tus metas importantes",
+          "suffix": " será posible sin esfuerzo con la inteligencia artificial."
+        },
+        "subtitle": "Registra tus gastos con solo\ndecirlo a tu celular",
+        "listening": "Escuchando..."
+      }
     }
   }
 }

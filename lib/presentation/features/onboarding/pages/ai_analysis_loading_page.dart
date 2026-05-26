@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class AIAnalysisLoadingPage extends StatefulWidget {
   final VoidCallback onLoadingComplete;
@@ -19,10 +20,10 @@ class _AIAnalysisLoadingPageState extends State<AIAnalysisLoadingPage>
   late Animation<double> _progress;
 
   final List<String> _loadingMessages = [
-    'Revisando tus gastos diarios...',
-    'Categorizando tus transacciones...',
-    'Encontrando patrones de gasto...',
-    'Generando recomendaciones...',
+    t.v2.onboarding.aiAnalysis.loading.messages[0],
+    t.v2.onboarding.aiAnalysis.loading.messages[1],
+    t.v2.onboarding.aiAnalysis.loading.messages[2],
+    t.v2.onboarding.aiAnalysis.loading.messages[3],
   ];
 
   @override
@@ -117,10 +118,10 @@ class _AIAnalysisLoadingPageState extends State<AIAnalysisLoadingPage>
                 },
               ),
               const SizedBox(height: 64),
-              const Text(
-                'CONFIGURANDO APP SEGÚN\nTUS RESPUESTAS',
+              Text(
+                t.v2.onboarding.aiAnalysis.loading.title,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF374151),
@@ -129,9 +130,9 @@ class _AIAnalysisLoadingPageState extends State<AIAnalysisLoadingPage>
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Analizando',
-                style: TextStyle(
+              Text(
+                t.v2.onboarding.aiAnalysis.loading.subtitle,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF131B2E),

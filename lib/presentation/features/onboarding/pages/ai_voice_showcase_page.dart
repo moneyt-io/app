@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 import 'main_priority_page.dart';
 
 class AIVoiceShowcasePage extends StatefulWidget {
@@ -87,10 +88,10 @@ class _AIVoiceShowcasePageState extends State<AIVoiceShowcasePage>
           const SizedBox(height: 64),
           _buildMicrophoneAnimation(),
           const SizedBox(height: 64),
-          const Text(
-            'Registra tus gastos con solo\ndecirlo a tu celular',
+          Text(
+            t.v2.onboarding.aiVoice.subtitle,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w400,
               color: Color(0xFF4B5563),
@@ -118,23 +119,23 @@ class _AIVoiceShowcasePageState extends State<AIVoiceShowcasePage>
 
     String meta;
     if (goal == null) {
-      meta = 'Alcanzar tu meta';
+      meta = t.v2.onboarding.aiVoice.title.kDefault;
     } else {
       switch (goal) {
         case PersonalGoal.breakHabits:
-          meta = 'Romper tus malos hábitos financieros';
+          meta = t.v2.onboarding.aiVoice.title.breakHabits;
           break;
         case PersonalGoal.stopStress:
-          meta = 'Dejar de preocuparte por el dinero';
+          meta = t.v2.onboarding.aiVoice.title.stopStress;
           break;
         case PersonalGoal.buildFuture:
-          meta = 'Construir un futuro más abundante';
+          meta = t.v2.onboarding.aiVoice.title.buildFuture;
           break;
         case PersonalGoal.feelControl:
-          meta = 'Sentir que vuelves a controlar tu dinero';
+          meta = t.v2.onboarding.aiVoice.title.feelControl;
           break;
         case PersonalGoal.saveGoal:
-          meta = 'Ahorrar para tus metas importantes';
+          meta = t.v2.onboarding.aiVoice.title.saveGoal;
           break;
       }
     }
@@ -143,7 +144,7 @@ class _AIVoiceShowcasePageState extends State<AIVoiceShowcasePage>
       style: baseStyle,
       children: [
         TextSpan(text: meta, style: highlightStyle),
-        const TextSpan(text: ' será posible sin esfuerzo con la inteligencia artificial.'),
+        TextSpan(text: t.v2.onboarding.aiVoice.title.suffix),
       ],
     );
   }
@@ -206,20 +207,20 @@ class _AIVoiceShowcasePageState extends State<AIVoiceShowcasePage>
           ),
           
           // Text above microphone
-          const Positioned(
+          Positioned(
             top: -20,
             child: Column(
               children: [
                 Text(
-                  'Escuchando...',
-                  style: TextStyle(
+                  t.v2.onboarding.aiVoice.listening,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF2563EB),
                   ),
                 ),
-                SizedBox(height: 4),
-                Row(
+                const SizedBox(height: 4),
+                const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.graphic_eq, size: 16, color: Color(0xFF3B82F6)),

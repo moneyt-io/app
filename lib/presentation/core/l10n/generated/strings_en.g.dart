@@ -472,6 +472,7 @@ class AppStringsV2En {
 	late final AppStringsV2SettingsEn settings = AppStringsV2SettingsEn.internal(_root);
 	late final AppStringsV2DashboardEn dashboard = AppStringsV2DashboardEn.internal(_root);
 	late final AppStringsV2CategoriesEn categories = AppStringsV2CategoriesEn.internal(_root);
+	late final AppStringsV2OnboardingEn onboarding = AppStringsV2OnboardingEn.internal(_root);
 }
 
 // Path: components.dateSelection
@@ -2927,6 +2928,23 @@ class AppStringsV2CategoriesEn {
 	late final AppStringsV2CategoriesFormEn form = AppStringsV2CategoriesFormEn.internal(_root);
 }
 
+// Path: v2.onboarding
+class AppStringsV2OnboardingEn {
+	AppStringsV2OnboardingEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+	late final AppStringsV2OnboardingButtonsEn buttons = AppStringsV2OnboardingButtonsEn.internal(_root);
+	late final AppStringsV2OnboardingSplashEn splash = AppStringsV2OnboardingSplashEn.internal(_root);
+	late final AppStringsV2OnboardingExpenseCategoriesEn expenseCategories = AppStringsV2OnboardingExpenseCategoriesEn.internal(_root);
+	late final AppStringsV2OnboardingFinancialGoalsEn financialGoals = AppStringsV2OnboardingFinancialGoalsEn.internal(_root);
+	late final AppStringsV2OnboardingRegistrationMethodEn registrationMethod = AppStringsV2OnboardingRegistrationMethodEn.internal(_root);
+	late final AppStringsV2OnboardingAiAnalysisEn aiAnalysis = AppStringsV2OnboardingAiAnalysisEn.internal(_root);
+	late final AppStringsV2OnboardingMainPriorityEn mainPriority = AppStringsV2OnboardingMainPriorityEn.internal(_root);
+	late final AppStringsV2OnboardingAiVoiceEn aiVoice = AppStringsV2OnboardingAiVoiceEn.internal(_root);
+}
+
 // Path: transactions.filter.ranges
 class AppStringsTransactionsFilterRangesEn {
 	AppStringsTransactionsFilterRangesEn.internal(this._root);
@@ -3792,6 +3810,198 @@ class AppStringsV2CategoriesFormEn {
 	String get save => 'Save Category';
 }
 
+// Path: v2.onboarding.buttons
+class AppStringsV2OnboardingButtonsEn {
+	AppStringsV2OnboardingButtonsEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Start'
+	String get start => 'Start';
+
+	/// en: 'Continue'
+	String get actionContinue => 'Continue';
+
+	/// en: 'Great'
+	String get great => 'Great';
+
+	/// en: 'Set goal'
+	String get setGoal => 'Set goal';
+
+	/// en: 'Skip'
+	String get skip => 'Skip';
+}
+
+// Path: v2.onboarding.splash
+class AppStringsV2OnboardingSplashEn {
+	AppStringsV2OnboardingSplashEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'What if Artificial Intelligence (AI) '
+	String get title1 => 'What if Artificial\nIntelligence (AI)\n';
+
+	/// en: 'organizes your money better than you?'
+	String get title2 => 'organizes your money\nbetter than you?';
+
+	/// en: 'Less effort.'
+	String get benefit1 => 'Less effort.';
+
+	/// en: 'More clarity.'
+	String get benefit2 => 'More clarity.';
+
+	/// en: 'Better decisions.'
+	String get benefit3 => 'Better decisions.';
+}
+
+// Path: v2.onboarding.expenseCategories
+class AppStringsV2OnboardingExpenseCategoriesEn {
+	AppStringsV2OnboardingExpenseCategoriesEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Which of these eat up most of your money?'
+	String get title1 => 'Which of these eat up most of your money?';
+
+	/// en: 'Choose up to 3'
+	String get subtitle => 'Choose up to 3';
+
+	/// en: 'Dining out'
+	String get diningOut => 'Dining out';
+
+	/// en: 'Cravings'
+	String get cravings => 'Cravings';
+
+	/// en: 'Subscriptions'
+	String get subscriptions => 'Subscriptions';
+
+	/// en: 'Outings'
+	String get outings => 'Outings';
+
+	/// en: 'Shopping'
+	String get shopping => 'Shopping';
+
+	/// en: 'Delivery'
+	String get delivery => 'Delivery';
+}
+
+// Path: v2.onboarding.financialGoals
+class AppStringsV2OnboardingFinancialGoalsEn {
+	AppStringsV2OnboardingFinancialGoalsEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'What would change your finances the most?'
+	String get title => 'What would change your\nfinances the most?';
+
+	/// en: 'Choose one'
+	String get subtitle => 'Choose one';
+
+	/// en: 'Knowing exactly where my money goes'
+	String get trackMoney => 'Knowing exactly where my money goes';
+
+	/// en: 'Spending less on things I don't need'
+	String get spendLess => 'Spending less on things I don\'t need';
+
+	/// en: 'Stop stressing about money'
+	String get lessStress => 'Stop stressing about money';
+
+	/// en: 'Start saving for something specific'
+	String get saveMoney => 'Start saving for something specific';
+}
+
+// Path: v2.onboarding.registrationMethod
+class AppStringsV2OnboardingRegistrationMethodEn {
+	AppStringsV2OnboardingRegistrationMethodEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'How would you prefer to record your expenses?'
+	String get title => 'How would you prefer to\nrecord your expenses?';
+
+	/// en: 'Choose one'
+	String get subtitle => 'Choose one';
+
+	/// en: 'Just say it out loud'
+	String get voice => 'Just say it out loud';
+
+	/// en: 'Automatically when paying'
+	String get auto => 'Automatically when paying';
+
+	/// en: 'Type it – auto sort'
+	String get write => 'Type it – auto sort';
+
+	/// en: 'Whatever is easiest at the moment'
+	String get easy => 'Whatever is easiest at the moment';
+}
+
+// Path: v2.onboarding.aiAnalysis
+class AppStringsV2OnboardingAiAnalysisEn {
+	AppStringsV2OnboardingAiAnalysisEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+	late final AppStringsV2OnboardingAiAnalysisLoadingEn loading = AppStringsV2OnboardingAiAnalysisLoadingEn.internal(_root);
+	late final AppStringsV2OnboardingAiAnalysisShowcaseEn showcase = AppStringsV2OnboardingAiAnalysisShowcaseEn.internal(_root);
+}
+
+// Path: v2.onboarding.mainPriority
+class AppStringsV2OnboardingMainPriorityEn {
+	AppStringsV2OnboardingMainPriorityEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'What is your main priority?'
+	String get title => 'What is your main\npriority?';
+
+	/// en: 'Choose the option you most want MoneyT to help you with'
+	String get subtitle => 'Choose the option you most want MoneyT to help you with';
+
+	/// en: 'Break bad habits'
+	String get breakHabits => 'Break bad habits';
+
+	/// en: 'Stop stressing about money'
+	String get stopStress => 'Stop stressing about money';
+
+	/// en: 'Build an abundant future'
+	String get buildFuture => 'Build an abundant future';
+
+	/// en: 'Feel in control of my finances'
+	String get feelControl => 'Feel in control of my finances';
+
+	/// en: 'Save for a goal'
+	String get saveGoal => 'Save for a goal';
+}
+
+// Path: v2.onboarding.aiVoice
+class AppStringsV2OnboardingAiVoiceEn {
+	AppStringsV2OnboardingAiVoiceEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+	late final AppStringsV2OnboardingAiVoiceTitleEn title = AppStringsV2OnboardingAiVoiceTitleEn.internal(_root);
+
+	/// en: 'Record your expenses just by saying it to your phone'
+	String get subtitle => 'Record your expenses just by\nsaying it to your phone';
+
+	/// en: 'Listening...'
+	String get listening => 'Listening...';
+}
+
 // Path: dashboard.widgets.settings.reset
 class AppStringsDashboardWidgetsSettingsResetEn {
 	AppStringsDashboardWidgetsSettingsResetEn.internal(this._root);
@@ -3838,6 +4048,169 @@ class AppStringsLoansHistoryItemStatusEn {
 
 	/// en: 'Written Off'
 	String get writtenOff => 'Written Off';
+}
+
+// Path: v2.onboarding.aiAnalysis.loading
+class AppStringsV2OnboardingAiAnalysisLoadingEn {
+	AppStringsV2OnboardingAiAnalysisLoadingEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'CONFIGURING APP BASED ON YOUR ANSWERS'
+	String get title => 'CONFIGURING APP BASED ON\nYOUR ANSWERS';
+
+	/// en: 'Analyzing'
+	String get subtitle => 'Analyzing';
+
+	List<String> get messages => [
+		'Reviewing your daily expenses...',
+		'Categorizing your transactions...',
+		'Finding spending patterns...',
+		'Generating recommendations...',
+	];
+}
+
+// Path: v2.onboarding.aiAnalysis.showcase
+class AppStringsV2OnboardingAiAnalysisShowcaseEn {
+	AppStringsV2OnboardingAiAnalysisShowcaseEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Analysis complete'
+	String get title => 'Analysis complete';
+
+	late final AppStringsV2OnboardingAiAnalysisShowcaseDynamicTextEn dynamicText = AppStringsV2OnboardingAiAnalysisShowcaseDynamicTextEn.internal(_root);
+	late final AppStringsV2OnboardingAiAnalysisShowcaseResultEn result = AppStringsV2OnboardingAiAnalysisShowcaseResultEn.internal(_root);
+}
+
+// Path: v2.onboarding.aiVoice.title
+class AppStringsV2OnboardingAiVoiceTitleEn {
+	AppStringsV2OnboardingAiVoiceTitleEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Achieving your goal'
+	String get kDefault => 'Achieving your goal';
+
+	/// en: 'Breaking your bad financial habits'
+	String get breakHabits => 'Breaking your bad financial habits';
+
+	/// en: 'Stop worrying about money'
+	String get stopStress => 'Stop worrying about money';
+
+	/// en: 'Building a more abundant future'
+	String get buildFuture => 'Building a more abundant future';
+
+	/// en: 'Feeling back in control of your money'
+	String get feelControl => 'Feeling back in control of your money';
+
+	/// en: 'Saving for your important goals'
+	String get saveGoal => 'Saving for your important goals';
+
+	/// en: ' will be effortless with artificial intelligence.'
+	String get suffix => ' will be effortless with artificial intelligence.';
+}
+
+// Path: v2.onboarding.aiAnalysis.showcase.dynamicText
+class AppStringsV2OnboardingAiAnalysisShowcaseDynamicTextEn {
+	AppStringsV2OnboardingAiAnalysisShowcaseDynamicTextEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Your expenses consume a large part of your budget, it seems your current methods are no longer working.'
+	String get kDefault => 'Your expenses consume a large part of your budget, it seems your current methods are no longer working.';
+
+	/// en: ' a large part of your budget, it seems that '
+	String get part2 => ' a large part of your budget, it seems that ';
+
+	/// en: ' is no longer working.'
+	String get part3 => ' is no longer working.';
+
+	late final AppStringsV2OnboardingAiAnalysisShowcaseDynamicTextCategoriesEn categories = AppStringsV2OnboardingAiAnalysisShowcaseDynamicTextCategoriesEn.internal(_root);
+	late final AppStringsV2OnboardingAiAnalysisShowcaseDynamicTextIntentionsEn intentions = AppStringsV2OnboardingAiAnalysisShowcaseDynamicTextIntentionsEn.internal(_root);
+}
+
+// Path: v2.onboarding.aiAnalysis.showcase.result
+class AppStringsV2OnboardingAiAnalysisShowcaseResultEn {
+	AppStringsV2OnboardingAiAnalysisShowcaseResultEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Your result'
+	String get yourResult => 'Your result';
+
+	/// en: 'Average'
+	String get average => 'Average';
+
+	/// en: 'You are spending 68% '
+	String get messagePart1 => 'You are spending 68% ';
+
+	/// en: 'more than the average person, this '
+	String get messagePart2 => 'more than the average person, this ';
+
+	/// en: 'brutally affects '
+	String get messagePart3 => 'brutally affects\n';
+
+	/// en: 'your short and medium term goals'
+	String get messagePart4 => 'your short and medium term goals';
+}
+
+// Path: v2.onboarding.aiAnalysis.showcase.dynamicText.categories
+class AppStringsV2OnboardingAiAnalysisShowcaseDynamicTextCategoriesEn {
+	AppStringsV2OnboardingAiAnalysisShowcaseDynamicTextCategoriesEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Dining out consumes'
+	String get diningOut => 'Dining out consumes';
+
+	/// en: 'Cravings consume'
+	String get cravings => 'Cravings consume';
+
+	/// en: 'Subscriptions consume'
+	String get subscriptions => 'Subscriptions consume';
+
+	/// en: 'Outings consume'
+	String get outings => 'Outings consume';
+
+	/// en: 'Impulsive shopping consumes'
+	String get shopping => 'Impulsive shopping consumes';
+
+	/// en: 'Deliveries consume'
+	String get delivery => 'Deliveries consume';
+}
+
+// Path: v2.onboarding.aiAnalysis.showcase.dynamicText.intentions
+class AppStringsV2OnboardingAiAnalysisShowcaseDynamicTextIntentionsEn {
+	AppStringsV2OnboardingAiAnalysisShowcaseDynamicTextIntentionsEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'trying to understand exactly where your money goes'
+	String get trackMoney => 'trying to understand exactly where your money goes';
+
+	/// en: 'trying to spend less on your own'
+	String get spendLess => 'trying to spend less on your own';
+
+	/// en: 'worrying less about money'
+	String get lessStress => 'worrying less about money';
+
+	/// en: 'trying to save without a clear guide'
+	String get saveMoney => 'trying to save without a clear guide';
 }
 
 /// Flat map(s) containing all translations.
@@ -4654,6 +5027,78 @@ extension on AppStrings {
 			case 'v2.categories.noCategories': return 'No categories found';
 			case 'v2.categories.form.nameLabel': return 'Category Name';
 			case 'v2.categories.form.save': return 'Save Category';
+			case 'v2.onboarding.buttons.start': return 'Start';
+			case 'v2.onboarding.buttons.actionContinue': return 'Continue';
+			case 'v2.onboarding.buttons.great': return 'Great';
+			case 'v2.onboarding.buttons.setGoal': return 'Set goal';
+			case 'v2.onboarding.buttons.skip': return 'Skip';
+			case 'v2.onboarding.splash.title1': return 'What if Artificial\nIntelligence (AI)\n';
+			case 'v2.onboarding.splash.title2': return 'organizes your money\nbetter than you?';
+			case 'v2.onboarding.splash.benefit1': return 'Less effort.';
+			case 'v2.onboarding.splash.benefit2': return 'More clarity.';
+			case 'v2.onboarding.splash.benefit3': return 'Better decisions.';
+			case 'v2.onboarding.expenseCategories.title1': return 'Which of these eat up most of your money?';
+			case 'v2.onboarding.expenseCategories.subtitle': return 'Choose up to 3';
+			case 'v2.onboarding.expenseCategories.diningOut': return 'Dining out';
+			case 'v2.onboarding.expenseCategories.cravings': return 'Cravings';
+			case 'v2.onboarding.expenseCategories.subscriptions': return 'Subscriptions';
+			case 'v2.onboarding.expenseCategories.outings': return 'Outings';
+			case 'v2.onboarding.expenseCategories.shopping': return 'Shopping';
+			case 'v2.onboarding.expenseCategories.delivery': return 'Delivery';
+			case 'v2.onboarding.financialGoals.title': return 'What would change your\nfinances the most?';
+			case 'v2.onboarding.financialGoals.subtitle': return 'Choose one';
+			case 'v2.onboarding.financialGoals.trackMoney': return 'Knowing exactly where my money goes';
+			case 'v2.onboarding.financialGoals.spendLess': return 'Spending less on things I don\'t need';
+			case 'v2.onboarding.financialGoals.lessStress': return 'Stop stressing about money';
+			case 'v2.onboarding.financialGoals.saveMoney': return 'Start saving for something specific';
+			case 'v2.onboarding.registrationMethod.title': return 'How would you prefer to\nrecord your expenses?';
+			case 'v2.onboarding.registrationMethod.subtitle': return 'Choose one';
+			case 'v2.onboarding.registrationMethod.voice': return 'Just say it out loud';
+			case 'v2.onboarding.registrationMethod.auto': return 'Automatically when paying';
+			case 'v2.onboarding.registrationMethod.write': return 'Type it – auto sort';
+			case 'v2.onboarding.registrationMethod.easy': return 'Whatever is easiest at the moment';
+			case 'v2.onboarding.aiAnalysis.loading.title': return 'CONFIGURING APP BASED ON\nYOUR ANSWERS';
+			case 'v2.onboarding.aiAnalysis.loading.subtitle': return 'Analyzing';
+			case 'v2.onboarding.aiAnalysis.loading.messages.0': return 'Reviewing your daily expenses...';
+			case 'v2.onboarding.aiAnalysis.loading.messages.1': return 'Categorizing your transactions...';
+			case 'v2.onboarding.aiAnalysis.loading.messages.2': return 'Finding spending patterns...';
+			case 'v2.onboarding.aiAnalysis.loading.messages.3': return 'Generating recommendations...';
+			case 'v2.onboarding.aiAnalysis.showcase.title': return 'Analysis complete';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.kDefault': return 'Your expenses consume a large part of your budget, it seems your current methods are no longer working.';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.part2': return ' a large part of your budget, it seems that ';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.part3': return ' is no longer working.';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.categories.diningOut': return 'Dining out consumes';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.categories.cravings': return 'Cravings consume';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.categories.subscriptions': return 'Subscriptions consume';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.categories.outings': return 'Outings consume';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.categories.shopping': return 'Impulsive shopping consumes';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.categories.delivery': return 'Deliveries consume';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.intentions.trackMoney': return 'trying to understand exactly where your money goes';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.intentions.spendLess': return 'trying to spend less on your own';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.intentions.lessStress': return 'worrying less about money';
+			case 'v2.onboarding.aiAnalysis.showcase.dynamicText.intentions.saveMoney': return 'trying to save without a clear guide';
+			case 'v2.onboarding.aiAnalysis.showcase.result.yourResult': return 'Your result';
+			case 'v2.onboarding.aiAnalysis.showcase.result.average': return 'Average';
+			case 'v2.onboarding.aiAnalysis.showcase.result.messagePart1': return 'You are spending 68% ';
+			case 'v2.onboarding.aiAnalysis.showcase.result.messagePart2': return 'more than the average person, this ';
+			case 'v2.onboarding.aiAnalysis.showcase.result.messagePart3': return 'brutally affects\n';
+			case 'v2.onboarding.aiAnalysis.showcase.result.messagePart4': return 'your short and medium term goals';
+			case 'v2.onboarding.mainPriority.title': return 'What is your main\npriority?';
+			case 'v2.onboarding.mainPriority.subtitle': return 'Choose the option you most want MoneyT to help you with';
+			case 'v2.onboarding.mainPriority.breakHabits': return 'Break bad habits';
+			case 'v2.onboarding.mainPriority.stopStress': return 'Stop stressing about money';
+			case 'v2.onboarding.mainPriority.buildFuture': return 'Build an abundant future';
+			case 'v2.onboarding.mainPriority.feelControl': return 'Feel in control of my finances';
+			case 'v2.onboarding.mainPriority.saveGoal': return 'Save for a goal';
+			case 'v2.onboarding.aiVoice.title.kDefault': return 'Achieving your goal';
+			case 'v2.onboarding.aiVoice.title.breakHabits': return 'Breaking your bad financial habits';
+			case 'v2.onboarding.aiVoice.title.stopStress': return 'Stop worrying about money';
+			case 'v2.onboarding.aiVoice.title.buildFuture': return 'Building a more abundant future';
+			case 'v2.onboarding.aiVoice.title.feelControl': return 'Feeling back in control of your money';
+			case 'v2.onboarding.aiVoice.title.saveGoal': return 'Saving for your important goals';
+			case 'v2.onboarding.aiVoice.title.suffix': return ' will be effortless with artificial intelligence.';
+			case 'v2.onboarding.aiVoice.subtitle': return 'Record your expenses just by\nsaying it to your phone';
+			case 'v2.onboarding.aiVoice.listening': return 'Listening...';
 			default: return null;
 		}
 	}

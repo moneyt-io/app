@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 import 'financial_goals_page.dart';
 import 'expense_categories_page.dart';
 
@@ -28,10 +29,10 @@ class _AIAnalysisShowcasePageState extends State<AIAnalysisShowcasePage>
   late Animation<double> _loadingProgress;
 
   final List<String> _loadingMessages = [
-    'Revisando tus gastos diarios...',
-    'Categorizando tus transacciones...',
-    'Encontrando patrones de gasto...',
-    'Generando recomendaciones...',
+    t.v2.onboarding.aiAnalysis.loading.messages[0],
+    t.v2.onboarding.aiAnalysis.loading.messages[1],
+    t.v2.onboarding.aiAnalysis.loading.messages[2],
+    t.v2.onboarding.aiAnalysis.loading.messages[3],
   ];
 
   @override
@@ -153,10 +154,10 @@ class _AIAnalysisShowcasePageState extends State<AIAnalysisShowcasePage>
                 },
               ),
               const SizedBox(height: 64),
-              const Text(
-                'CONFIGURANDO APP SEGÚN\nTUS RESPUESTAS',
+              Text(
+                t.v2.onboarding.aiAnalysis.loading.title,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF374151),
@@ -165,9 +166,9 @@ class _AIAnalysisShowcasePageState extends State<AIAnalysisShowcasePage>
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Analizando',
-                style: TextStyle(
+              Text(
+                t.v2.onboarding.aiAnalysis.loading.subtitle,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF131B2E),
@@ -208,10 +209,10 @@ class _AIAnalysisShowcasePageState extends State<AIAnalysisShowcasePage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text(
-            'Análisis concluido',
+          Text(
+            t.v2.onboarding.aiAnalysis.showcase.title,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
               color: Color(0xFF131B2E),
@@ -229,7 +230,7 @@ class _AIAnalysisShowcasePageState extends State<AIAnalysisShowcasePage>
             children: [
               _buildAnimatedBar(
                 percentage: '68%',
-                label: 'Tu resultado',
+                label: t.v2.onboarding.aiAnalysis.showcase.result.yourResult,
                 color: const Color(0xFF3B82F6),
                 targetHeight: 200,
                 textColor: Colors.white,
@@ -238,7 +239,7 @@ class _AIAnalysisShowcasePageState extends State<AIAnalysisShowcasePage>
               const SizedBox(width: 32),
               _buildAnimatedBar(
                 percentage: '25%',
-                label: 'Media',
+                label: t.v2.onboarding.aiAnalysis.showcase.result.average,
                 color: const Color(0xFFE5E7EB),
                 targetHeight: 100,
                 textColor: const Color(0xFF1F2937),
@@ -262,8 +263,8 @@ class _AIAnalysisShowcasePageState extends State<AIAnalysisShowcasePage>
             },
             child: RichText(
               textAlign: TextAlign.center,
-              text: const TextSpan(
-                style: TextStyle(
+              text: TextSpan(
+                style: const TextStyle(
                   fontSize: 16,
                   height: 1.4,
                   fontWeight: FontWeight.w500,
@@ -271,19 +272,19 @@ class _AIAnalysisShowcasePageState extends State<AIAnalysisShowcasePage>
                 ),
                 children: [
                   TextSpan(
-                    text: 'Estás gastando 68% ',
-                    style: TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold),
+                    text: t.v2.onboarding.aiAnalysis.showcase.result.messagePart1,
+                    style: const TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold),
                   ),
                   TextSpan(
-                    text: 'más que la media de las personas, esto ',
+                    text: t.v2.onboarding.aiAnalysis.showcase.result.messagePart2,
                   ),
                   TextSpan(
-                    text: 'afecta brutalmente\n',
-                    style: TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold),
+                    text: t.v2.onboarding.aiAnalysis.showcase.result.messagePart3,
+                    style: const TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold),
                   ),
                   TextSpan(
-                    text: 'a tus metas en corto y mediano plazo',
-                    style: TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold),
+                    text: t.v2.onboarding.aiAnalysis.showcase.result.messagePart4,
+                    style: const TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -361,9 +362,9 @@ class _AIAnalysisShowcasePageState extends State<AIAnalysisShowcasePage>
     );
 
     if (widget.selectedCategories.isEmpty || widget.selectedPainPoint == null) {
-      return const TextSpan(
+      return TextSpan(
         style: baseStyle,
-        text: 'Tus gastos consumen gran parte de tu presupuesto, parece que tus métodos actuales ya no están funcionando.',
+        text: t.v2.onboarding.aiAnalysis.showcase.dynamicText.kDefault,
       );
     }
 
@@ -371,38 +372,38 @@ class _AIAnalysisShowcasePageState extends State<AIAnalysisShowcasePage>
     String gastosStr;
     switch (category) {
       case ExpenseCategory.diningOut:
-        gastosStr = 'Comer fuera consume';
+        gastosStr = t.v2.onboarding.aiAnalysis.showcase.dynamicText.categories.diningOut;
         break;
       case ExpenseCategory.cravings:
-        gastosStr = 'Los antojos consumen';
+        gastosStr = t.v2.onboarding.aiAnalysis.showcase.dynamicText.categories.cravings;
         break;
       case ExpenseCategory.subscriptions:
-        gastosStr = 'Las suscripciones consumen';
+        gastosStr = t.v2.onboarding.aiAnalysis.showcase.dynamicText.categories.subscriptions;
         break;
       case ExpenseCategory.outings:
-        gastosStr = 'Las salidas consumen';
+        gastosStr = t.v2.onboarding.aiAnalysis.showcase.dynamicText.categories.outings;
         break;
       case ExpenseCategory.shopping:
-        gastosStr = 'Las compras impulsivas consumen';
+        gastosStr = t.v2.onboarding.aiAnalysis.showcase.dynamicText.categories.shopping;
         break;
       case ExpenseCategory.delivery:
-        gastosStr = 'Los domicilios consumen';
+        gastosStr = t.v2.onboarding.aiAnalysis.showcase.dynamicText.categories.delivery;
         break;
     }
 
     String intentosStr;
     switch (widget.selectedPainPoint!) {
       case PainPoint.trackMoney:
-        intentosStr = 'entender exactamente a dónde va tu dinero';
+        intentosStr = t.v2.onboarding.aiAnalysis.showcase.dynamicText.intentions.trackMoney;
         break;
       case PainPoint.spendLess:
-        intentosStr = 'intentar gastar menos por tu cuenta';
+        intentosStr = t.v2.onboarding.aiAnalysis.showcase.dynamicText.intentions.spendLess;
         break;
       case PainPoint.lessStress:
-        intentosStr = 'preocuparte menos por el dinero';
+        intentosStr = t.v2.onboarding.aiAnalysis.showcase.dynamicText.intentions.lessStress;
         break;
       case PainPoint.saveMoney:
-        intentosStr = 'tratar de ahorrar sin una guía clara';
+        intentosStr = t.v2.onboarding.aiAnalysis.showcase.dynamicText.intentions.saveMoney;
         break;
     }
 
@@ -410,9 +411,9 @@ class _AIAnalysisShowcasePageState extends State<AIAnalysisShowcasePage>
       style: baseStyle,
       children: [
         TextSpan(text: gastosStr, style: highlightStyle),
-        const TextSpan(text: ' gran parte de tu presupuesto, parece que '),
+        TextSpan(text: t.v2.onboarding.aiAnalysis.showcase.dynamicText.part2),
         TextSpan(text: intentosStr, style: highlightStyle),
-        const TextSpan(text: ' ya no está funcionando.'),
+        TextSpan(text: t.v2.onboarding.aiAnalysis.showcase.dynamicText.part3),
       ],
     );
   }

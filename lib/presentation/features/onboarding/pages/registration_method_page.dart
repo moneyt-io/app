@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 enum CurrentMethod {
   voice('voice'),
@@ -59,9 +60,9 @@ class RegistrationMethodPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            '¿Cómo preferirías\nregistrar tus gastos?',
-            style: TextStyle(
+          Text(
+            t.v2.onboarding.registrationMethod.title,
+            style: const TextStyle(
               fontSize: 28,
               height: 1.1,
               fontWeight: FontWeight.bold,
@@ -70,9 +71,9 @@ class RegistrationMethodPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Elige una',
-            style: TextStyle(
+          Text(
+            t.v2.onboarding.registrationMethod.subtitle,
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Color(0xFF64748B),
@@ -82,25 +83,25 @@ class RegistrationMethodPage extends StatelessWidget {
           _buildOption(
             value: CurrentMethod.voice,
             emoji: '🗣️',
-            text: 'Solo decirlo en voz alta',
+            text: t.v2.onboarding.registrationMethod.voice,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: CurrentMethod.auto,
             emoji: '💳',
-            text: 'Automáticamente al pagar',
+            text: t.v2.onboarding.registrationMethod.auto,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: CurrentMethod.write,
             emoji: '⌨️',
-            text: 'Escribirlo – ordenar\nautomáticamente',
+            text: t.v2.onboarding.registrationMethod.write,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: CurrentMethod.easy,
             emoji: '🤷‍♂️',
-            text: 'Lo que sea más fácil en el\nmomento',
+            text: t.v2.onboarding.registrationMethod.easy,
           ),
         ],
       ),

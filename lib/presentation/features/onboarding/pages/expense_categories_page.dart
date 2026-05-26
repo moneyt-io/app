@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 enum ExpenseCategory {
   diningOut('comer_fuera'),
@@ -62,8 +63,8 @@ class ExpenseCategoriesPage extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           RichText(
-            text: const TextSpan(
-              style: TextStyle(
+            text: TextSpan(
+              style: const TextStyle(
                 fontSize: 26,
                 height: 1.2,
                 fontWeight: FontWeight.bold,
@@ -71,18 +72,18 @@ class ExpenseCategoriesPage extends StatelessWidget {
                 letterSpacing: -0.5,
               ),
               children: [
-                TextSpan(
+                const TextSpan(
                   text: '¿',
                   style: TextStyle(color: Color(0xFF2563EB)),
                 ),
-                TextSpan(text: 'Cuáles de estos se comen la mayor parte de tu dinero?'),
+                TextSpan(text: t.v2.onboarding.expenseCategories.title1.replaceAll('¿', '')),
               ],
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Elige hasta 3',
-            style: TextStyle(
+          Text(
+            t.v2.onboarding.expenseCategories.subtitle,
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Color(0xFF64748B),
@@ -92,37 +93,37 @@ class ExpenseCategoriesPage extends StatelessWidget {
           _buildOption(
             value: ExpenseCategory.diningOut,
             emoji: '🍔',
-            text: 'Comer fuera',
+            text: t.v2.onboarding.expenseCategories.diningOut,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: ExpenseCategory.cravings,
             emoji: '☕',
-            text: 'Antojos',
+            text: t.v2.onboarding.expenseCategories.cravings,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: ExpenseCategory.subscriptions,
             emoji: '📺',
-            text: 'Suscripciones',
+            text: t.v2.onboarding.expenseCategories.subscriptions,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: ExpenseCategory.outings,
             emoji: '🎉',
-            text: 'Salidas',
+            text: t.v2.onboarding.expenseCategories.outings,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: ExpenseCategory.shopping,
             emoji: '🛍️',
-            text: 'Compras',
+            text: t.v2.onboarding.expenseCategories.shopping,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: ExpenseCategory.delivery,
             emoji: '🛵',
-            text: 'Domicilios',
+            text: t.v2.onboarding.expenseCategories.delivery,
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 class OnboardingSplashPage extends StatelessWidget {
   const OnboardingSplashPage({super.key});
@@ -16,8 +17,8 @@ class OnboardingSplashPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           RichText(
-            text: const TextSpan(
-              style: TextStyle(
+            text: TextSpan(
+              style: const TextStyle(
                 fontSize: 34,
                 height: 1.15,
                 fontWeight: FontWeight.w800,
@@ -25,20 +26,20 @@ class OnboardingSplashPage extends StatelessWidget {
                 letterSpacing: -0.5,
               ),
               children: [
-                TextSpan(text: '¿Y si la Inteligencia\nArtificial (IA)\n'),
+                TextSpan(text: t.v2.onboarding.splash.title1),
                 TextSpan(
-                  text: 'organiza tu dinero\nmejor que tú?',
-                  style: TextStyle(color: Color(0xFF3B82F6)),
+                  text: t.v2.onboarding.splash.title2,
+                  style: const TextStyle(color: Color(0xFF3B82F6)),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 40),
-          const _BenefitItem(text: 'Menos esfuerzo.'),
+          _BenefitItem(text: t.v2.onboarding.splash.benefit1),
           const SizedBox(height: 8),
-          const _BenefitItem(text: 'Más claridad.'),
+          _BenefitItem(text: t.v2.onboarding.splash.benefit2),
           const SizedBox(height: 8),
-          const _BenefitItem(text: 'Mejores decisiones.'),
+          _BenefitItem(text: t.v2.onboarding.splash.benefit3),
           const SizedBox(height: 64),
           Center(
             child: Image.network(

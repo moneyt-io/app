@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 enum PainPoint {
   trackMoney('track_money'),
@@ -59,9 +60,9 @@ class FinancialGoalsPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            '¿Qué cambiaría más tus\nfinanzas?',
-            style: TextStyle(
+          Text(
+            t.v2.onboarding.financialGoals.title,
+            style: const TextStyle(
               fontSize: 28,
               height: 1.1,
               fontWeight: FontWeight.bold,
@@ -70,9 +71,9 @@ class FinancialGoalsPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Elige una',
-            style: TextStyle(
+          Text(
+            t.v2.onboarding.financialGoals.subtitle,
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Color(0xFF6B7280),
@@ -82,25 +83,25 @@ class FinancialGoalsPage extends StatelessWidget {
           _buildOption(
             value: PainPoint.trackMoney,
             emoji: '🧠',
-            text: 'Saber exactamente a dónde va mi dinero',
+            text: t.v2.onboarding.financialGoals.trackMoney,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: PainPoint.spendLess,
             emoji: '🤷‍♀️',
-            text: 'Gastar menos en cosas que no necesito',
+            text: t.v2.onboarding.financialGoals.spendLess,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: PainPoint.lessStress,
             emoji: '😌',
-            text: 'Dejar de estresarme por el dinero',
+            text: t.v2.onboarding.financialGoals.lessStress,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: PainPoint.saveMoney,
             emoji: '💰',
-            text: 'Empezar a ahorrar para algo específico',
+            text: t.v2.onboarding.financialGoals.saveMoney,
           ),
         ],
       ),

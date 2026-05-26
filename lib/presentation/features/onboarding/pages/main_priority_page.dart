@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/l10n/generated/strings.g.dart';
 
 enum PersonalGoal {
   breakHabits('break_habits'),
@@ -60,9 +61,9 @@ class MainPriorityPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            '¿Cuál es tu prioridad\nprincipal?',
-            style: TextStyle(
+          Text(
+            t.v2.onboarding.mainPriority.title,
+            style: const TextStyle(
               fontSize: 28,
               height: 1.1,
               fontWeight: FontWeight.bold,
@@ -71,9 +72,9 @@ class MainPriorityPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Elige la opción que más quieres que te ayude MoneyT',
-            style: TextStyle(
+          Text(
+            t.v2.onboarding.mainPriority.subtitle,
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Color(0xFF6B7280),
@@ -83,31 +84,31 @@ class MainPriorityPage extends StatelessWidget {
           _buildOption(
             value: PersonalGoal.breakHabits,
             emoji: '💊',
-            text: 'Romper malos hábitos',
+            text: t.v2.onboarding.mainPriority.breakHabits,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: PersonalGoal.stopStress,
             emoji: '😥',
-            text: 'Dejar de estresarme por el dinero',
+            text: t.v2.onboarding.mainPriority.stopStress,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: PersonalGoal.buildFuture,
             emoji: '🏡',
-            text: 'Construir un futuro abundante',
+            text: t.v2.onboarding.mainPriority.buildFuture,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: PersonalGoal.feelControl,
             emoji: '👑',
-            text: 'Sentir que controlo mis finanzas',
+            text: t.v2.onboarding.mainPriority.feelControl,
           ),
           const SizedBox(height: 12),
           _buildOption(
             value: PersonalGoal.saveGoal,
             emoji: '🌟',
-            text: 'Ahorrar para una meta',
+            text: t.v2.onboarding.mainPriority.saveGoal,
           ),
         ],
       ),

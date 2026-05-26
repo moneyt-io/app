@@ -1076,6 +1076,112 @@
         "nameLabel": "Category Name",
         "save": "Save Category"
       }
+    },
+    "onboarding": {
+      "buttons": {
+        "start": "Start",
+        "actionContinue": "Continue",
+        "great": "Great",
+        "setGoal": "Set goal",
+        "skip": "Skip"
+      },
+      "splash": {
+        "title1": "What if Artificial\nIntelligence (AI)\n",
+        "title2": "organizes your money\nbetter than you?",
+        "benefit1": "Less effort.",
+        "benefit2": "More clarity.",
+        "benefit3": "Better decisions."
+      },
+      "expenseCategories": {
+        "title1": "Which of these eat up most of your money?",
+        "subtitle": "Choose up to 3",
+        "diningOut": "Dining out",
+        "cravings": "Cravings",
+        "subscriptions": "Subscriptions",
+        "outings": "Outings",
+        "shopping": "Shopping",
+        "delivery": "Delivery"
+      },
+      "financialGoals": {
+        "title": "What would change your\nfinances the most?",
+        "subtitle": "Choose one",
+        "trackMoney": "Knowing exactly where my money goes",
+        "spendLess": "Spending less on things I don't need",
+        "lessStress": "Stop stressing about money",
+        "saveMoney": "Start saving for something specific"
+      },
+      "registrationMethod": {
+        "title": "How would you prefer to\nrecord your expenses?",
+        "subtitle": "Choose one",
+        "voice": "Just say it out loud",
+        "auto": "Automatically when paying",
+        "write": "Type it – auto sort",
+        "easy": "Whatever is easiest at the moment"
+      },
+      "aiAnalysis": {
+        "loading": {
+          "title": "CONFIGURING APP BASED ON\nYOUR ANSWERS",
+          "subtitle": "Analyzing",
+          "messages": [
+            "Reviewing your daily expenses...",
+            "Categorizing your transactions...",
+            "Finding spending patterns...",
+            "Generating recommendations..."
+          ]
+        },
+        "showcase": {
+          "title": "Analysis complete",
+          "dynamicText": {
+            "default": "Your expenses consume a large part of your budget, it seems your current methods are no longer working.",
+            "part2": " a large part of your budget, it seems that ",
+            "part3": " is no longer working.",
+            "categories": {
+              "diningOut": "Dining out consumes",
+              "cravings": "Cravings consume",
+              "subscriptions": "Subscriptions consume",
+              "outings": "Outings consume",
+              "shopping": "Impulsive shopping consumes",
+              "delivery": "Deliveries consume"
+            },
+            "intentions": {
+              "trackMoney": "trying to understand exactly where your money goes",
+              "spendLess": "trying to spend less on your own",
+              "lessStress": "worrying less about money",
+              "saveMoney": "trying to save without a clear guide"
+            }
+          },
+          "result": {
+            "yourResult": "Your result",
+            "average": "Average",
+            "messagePart1": "You are spending 68% ",
+            "messagePart2": "more than the average person, this ",
+            "messagePart3": "brutally affects\n",
+            "messagePart4": "your short and medium term goals"
+          }
+        }
+      },
+      "mainPriority": {
+        "title": "What is your main\npriority?",
+        "subtitle": "Choose the option you most want MoneyT to help you with",
+        "breakHabits": "Break bad habits",
+        "stopStress": "Stop stressing about money",
+        "buildFuture": "Build an abundant future",
+        "feelControl": "Feel in control of my finances",
+        "saveGoal": "Save for a goal"
+      },
+      "aiVoice": {
+        "title": {
+          "default": "Achieving your goal",
+          "breakHabits": "Breaking your bad financial habits",
+          "stopStress": "Stop worrying about money",
+          "buildFuture": "Building a more abundant future",
+          "feelControl": "Feeling back in control of your money",
+          "saveGoal": "Saving for your important goals",
+          "suffix": " will be effortless with artificial intelligence."
+        },
+        "subtitle": "Record your expenses just by\nsaying it to your phone",
+        "listening": "Listening..."
+      }
     }
   }
 }
