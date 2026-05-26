@@ -134,15 +134,13 @@ class _AnimatedMoneyTLogoState extends State<AnimatedMoneyTLogo>
                 width: widget.size,
                 height: widget.size,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF14B8A6), // Teal de MoneyT
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF14B8A6).withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
+                  gradient: RadialGradient(
+                    colors: [
+                      const Color(0xFF3B82F6).withValues(alpha: 0.9), // Azul claro (centro)
+                      const Color(0xFF1D4ED8).withValues(alpha: 0.0), // Azul oscuro (borde difuminado)
+                    ],
+                    stops: const [0.3, 1.0],
+                  ),
                 ),
                 child: Icon(
                   Icons.account_balance_wallet,

@@ -551,8 +551,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
             ),
           ),
           Positioned(
-            right: 20,
-            bottom: 64, // Raised to clear the overlap
+            right: 14, // Ajustado para alinear perfectamente el centro con el icono de settings de arriba
+            bottom: 58, // Raised to clear the overlap
             child: _buildCameraFab(context),
           ),
         ],

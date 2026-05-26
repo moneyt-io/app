@@ -8,8 +8,7 @@ import '../../domain/entities/wallet.dart';
 class AITransactionResult {
   final String type; // 'E' or 'I'
   final double amount;
-  final int? categoryId;
-  final String? suggestedCategoryName;
+  final List<AICategorySuggestionItem> categorySuggestions;
   final int? walletId;
   final String description;
   final DateTime? date;
@@ -17,22 +16,51 @@ class AITransactionResult {
   AITransactionResult({
     required this.type,
     required this.amount,
-    this.categoryId,
-    this.suggestedCategoryName,
+    required this.categorySuggestions,
     this.walletId,
     required this.description,
     this.date,
   });
 
   factory AITransactionResult.fromJson(Map<String, dynamic> json) {
+    List<AICategorySuggestionItem> suggestions = [];
+    if (json['categorySuggestions'] != null) {
+      for (var item in json['categorySuggestions']) {
+        suggestions.add(AICategorySuggestionItem.fromJson(item as Map<String, dynamic>));
+      }
+    }
+    // Fallback if the AI uses the old format
+    if (suggestions.isEmpty) {
+      suggestions.add(AICategorySuggestionItem(
+        categoryId: json['categoryId'] as int?,
+        newCategoryName: json['suggestedCategoryName']?.toString(),
+      ));
+    }
+
     return AITransactionResult(
       type: json['type']?.toString() ?? 'E',
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
-      categoryId: json['categoryId'] as int?,
-      suggestedCategoryName: json['suggestedCategoryName']?.toString(),
+      categorySuggestions: suggestions,
       walletId: json['walletId'] as int?,
       description: json['description']?.toString() ?? '',
       date: json['date'] != null ? DateTime.tryParse(json['date']) : null,
+    );
+  }
+}
+
+class AICategorySuggestionItem {
+  final int? categoryId;
+  final String? newCategoryName;
+
+  AICategorySuggestionItem({
+    this.categoryId,
+    this.newCategoryName,
+  });
+
+  factory AICategorySuggestionItem.fromJson(Map<String, dynamic> json) {
+    return AICategorySuggestionItem(
+      categoryId: json['categoryId'] as int?,
+      newCategoryName: json['newCategoryName']?.toString(),
     );
   }
 }
@@ -70,8 +98,13 @@ class AITransactionService {
     {
       "type": "E" (si es un gasto/pago) o "I" (si es un ingreso/cobro),
       "amount": (número positivo flotante, ej: 50.0),
-      "categoryId": (el ID de la categoría que coincida exactamente de las Opciones. Si no encuentras ninguna adecuada, DEBES enviar null),
-      "suggestedCategoryName": (Si mandaste categoryId nulo, DEBES escribir aquí el nombre de una nueva categoría de 1 o 2 palabras, ej: "Suscripciones", "Uber". De lo contrario, null),
+      "categorySuggestions": [
+         // DEBES sugerir EXACTAMENTE 3 opciones de categorías. El formato de cada opción es:
+         // {"categoryId": ID_de_la_lista_o_null, "newCategoryName": "NombreNuevo_o_null"}
+         // Si encuentras una categoría existente que coincide, envía su categoryId y newCategoryName nulo.
+         // Si no coincide o quieres proponer una nueva alternativa, envía categoryId nulo y un newCategoryName (1 o 2 palabras).
+         // La primera opción debe ser la más acertada.
+      ],
       "walletId": (el ID de la billetera/cuenta que mejor coincida, o null),
       "description": (Un resumen de 1 a 3 palabras de lo que fue, ej: "Café Starbucks"),
       "date": (Calcula la fecha a la que se refiere el usuario en formato "YYYY-MM-DD", si dice ayer u otro día, calcúlalo en base a hoy. Si no menciona ninguna fecha explícita, devuelve null)
@@ -107,31 +140,32 @@ class AITransactionService {
         
         final result = AITransactionResult.fromJson(data);
         
-        // Validar que el categoryId realmente exista en nuestra lista
-        int? validCategoryId = result.categoryId;
-        if (validCategoryId != null) {
-          final exists = categories.any((c) => c.id == validCategoryId);
-          if (!exists) {
-            validCategoryId = null; // Forzar a nulo si la IA inventó un ID
+        // Validar y limpiar las sugerencias
+        List<AICategorySuggestionItem> validSuggestions = [];
+        for (var sugg in result.categorySuggestions) {
+          int? validId = sugg.categoryId;
+          if (validId != null && !categories.any((c) => c.id == validId)) {
+            validId = null;
           }
-        }
-        
-        // Si el ID es nulo, ASEGURARNOS de que haya un suggestedCategoryName
-        String? finalSuggestion = result.suggestedCategoryName;
-        if (validCategoryId == null && (finalSuggestion == null || finalSuggestion.trim().isEmpty || finalSuggestion.toLowerCase() == 'null')) {
-          // Fallback: Si la IA falló en dar un nombre, intentamos extraer de la descripción o usar un genérico
-          finalSuggestion = result.description.isNotEmpty ? result.description.split(' ').first : 'Varios';
-          // Capitalizar
-          if (finalSuggestion.isNotEmpty) {
-            finalSuggestion = finalSuggestion[0].toUpperCase() + finalSuggestion.substring(1).toLowerCase();
+          
+          String? validName = sugg.newCategoryName;
+          if (validId == null && (validName == null || validName.trim().isEmpty || validName.toLowerCase() == 'null')) {
+            validName = result.description.isNotEmpty ? result.description.split(' ').first : 'Varios';
+            if (validName.isNotEmpty) {
+              validName = validName[0].toUpperCase() + validName.substring(1).toLowerCase();
+            }
           }
+          
+          validSuggestions.add(AICategorySuggestionItem(
+            categoryId: validId,
+            newCategoryName: validId == null ? validName : null,
+          ));
         }
 
         return AITransactionResult(
           type: result.type,
           amount: result.amount,
-          categoryId: validCategoryId,
-          suggestedCategoryName: finalSuggestion,
+          categorySuggestions: validSuggestions,
           walletId: result.walletId,
           description: result.description,
           date: result.date,
@@ -179,5 +213,86 @@ class AITransactionService {
       print(e);
       return ['🏷️', '💰', '✨'];
     }
+  }
+
+  Future<List<AICategorySuggestionItem>> suggestCategoriesForTransaction(
+    String description,
+    List<Category> categories,
+  ) async {
+    final apiKey = dotenv.env['GEMINI_API_KEY'];
+    if (apiKey == null || apiKey.isEmpty) return [];
+
+    final model = GenerativeModel(
+      model: 'gemini-flash-lite-latest',
+      apiKey: apiKey,
+      generationConfig: GenerationConfig(
+        responseMimeType: 'application/json',
+      ),
+    );
+
+    final categoriesJson = categories.map((c) => {'id': c.id, 'name': c.name, 'type': c.documentTypeId}).toList();
+
+    final prompt = '''
+    Analiza la siguiente descripción de una transacción financiera: "$description".
+    
+    Tu tarea es sugerir exactamente 3 categorías posibles para esta transacción.
+    DEBES devolver ÚNICAMENTE un arreglo JSON con exactamente 3 objetos.
+    IMPORTANTE SOBRE EL IDIOMA: Si la descripción está en español, sugiere nombres en español. Si está en inglés, en inglés, etc. Adáptate al idioma de la descripción, ignorando el idioma del sistema.
+    
+    Reglas para cada objeto:
+    - Si la descripción coincide bien con una de las categorías existentes, devuelve su "categoryId" y "newCategoryName" en null.
+    - Si ninguna categoría existente es un buen match, devuelve "categoryId" en null y propón un "newCategoryName" corto (1 o 2 palabras) en el MISMO IDIOMA de la descripción.
+    - El primer objeto del arreglo debe ser tu mejor sugerencia absoluta (la que se autoseleccionará).
+    - El formato exacto de cada objeto debe ser: {"categoryId": numero_o_null, "newCategoryName": "String_o_null"}
+    
+    Categorías existentes disponibles:
+    ${jsonEncode(categoriesJson)}
+    ''';
+
+    try {
+      final response = await model.generateContent([Content.text(prompt)]);
+      final String? responseText = response.text;
+      
+      if (responseText != null) {
+        String cleanText = responseText.trim();
+        if (cleanText.startsWith('```json')) cleanText = cleanText.substring(7);
+        else if (cleanText.startsWith('```')) cleanText = cleanText.substring(3);
+        if (cleanText.endsWith('```')) cleanText = cleanText.substring(0, cleanText.length - 3);
+        
+        final List<dynamic> data = jsonDecode(cleanText.trim());
+        
+        final List<AICategorySuggestionItem> results = [];
+        for (var item in data) {
+          final suggestion = AICategorySuggestionItem.fromJson(item as Map<String, dynamic>);
+          
+          int? validId = suggestion.categoryId;
+          if (validId != null) {
+            if (!categories.any((c) => c.id == validId)) {
+              validId = null;
+            }
+          }
+          
+          String? validName = suggestion.newCategoryName;
+          if (validId == null && (validName == null || validName.trim().isEmpty || validName.toLowerCase() == 'null')) {
+            validName = 'Varios';
+          }
+          
+          if (validId == null && validName != null && validName.isNotEmpty) {
+             validName = validName[0].toUpperCase() + validName.substring(1).toLowerCase();
+          }
+          
+          results.add(AICategorySuggestionItem(
+            categoryId: validId,
+            newCategoryName: validId == null ? validName : null,
+          ));
+        }
+        
+        return results;
+      }
+    } catch (e) {
+      print('=== AI Category Suggestion Error ===');
+      print(e);
+    }
+    return [];
   }
 }

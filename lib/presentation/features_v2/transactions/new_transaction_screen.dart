@@ -12,6 +12,8 @@ import '../../core/organisms/account_selector_modal.dart'
 
 import '../../../core/utils/icon_to_emoji_mapper.dart';
 import '../../../core/utils/financial_emoji_dictionary.dart';
+import '../../../core/services/ai_transaction_service.dart';
+import 'dart:async';
 import 'widgets/v2_account_selection_sheet.dart';
 import 'widgets/v2_category_selection_sheet.dart';
 import '../shared/widgets/v2_date_selection_sheet.dart';
@@ -27,7 +29,7 @@ class NewTransactionScreen extends StatefulWidget {
   final double? initialAmount;
   final String? initialDescription;
   final int? initialCategoryId;
-  final String? suggestedCategoryName;
+  final List<AICategorySuggestionItem>? initialCategorySuggestions;
   final int? initialWalletId;
   final int? transactionIdToEdit;
   final DateTime? initialDate;
@@ -39,7 +41,7 @@ class NewTransactionScreen extends StatefulWidget {
     this.initialAmount,
     this.initialDescription,
     this.initialCategoryId,
-    this.suggestedCategoryName,
+    this.initialCategorySuggestions,
     this.initialWalletId,
     this.transactionIdToEdit,
     this.initialDate,
@@ -62,6 +64,10 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
 
   // Para manejar categorías sugeridas por IA
   String? _pendingSuggestedCategoryName;
+  List<AICategorySuggestionItem> _aiCategorySuggestions = [];
+  Timer? _debounceTimer;
+  bool _hasManuallySelectedCategory = false;
+  bool _isAnalyzingCategory = false;
 
   List<Category> _categories = [];
   Map<int, SelectableAccount> _accountsMap = {};
@@ -92,13 +98,14 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     }
     _selectedCategoryId = widget.initialCategoryId;
 
-    // Si la IA no encontró el ID pero sugirió un nombre
-    if (_selectedCategoryId == null &&
-        widget.suggestedCategoryName != null &&
-        widget.suggestedCategoryName!.isNotEmpty) {
-      final name = widget.suggestedCategoryName!.trim();
-      if (name.toLowerCase() != 'null') {
-        _pendingSuggestedCategoryName = name;
+    if (widget.initialCategorySuggestions != null && widget.initialCategorySuggestions!.isNotEmpty) {
+      _aiCategorySuggestions = List.from(widget.initialCategorySuggestions!);
+      // Auto select the first one
+      final first = _aiCategorySuggestions.first;
+      if (first.categoryId != null) {
+        _selectedCategoryId = first.categoryId;
+      } else if (first.newCategoryName != null) {
+        _pendingSuggestedCategoryName = first.newCategoryName;
       }
     }
 
@@ -107,6 +114,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _amountController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -151,6 +159,46 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+
+  void _onDescriptionChanged(String text) {
+    _debounceTimer?.cancel();
+    if (_hasManuallySelectedCategory) return;
+    
+    _debounceTimer = Timer(const Duration(milliseconds: 1000), () {
+      if (text.trim().isNotEmpty) {
+        _analyzeDescriptionWithAI(text.trim());
+      }
+    });
+  }
+
+  Future<void> _analyzeDescriptionWithAI(String description) async {
+    if (!mounted) return;
+    setState(() => _isAnalyzingCategory = true);
+    
+    final service = AITransactionService();
+    // Enviar todas las categorías hijas del tipo actual
+    final typeCategories = _categories.where((c) => c.documentTypeId == _selectedType && c.parentId != null).toList();
+    
+    final results = await service.suggestCategoriesForTransaction(description, typeCategories);
+    
+    if (mounted && results.isNotEmpty && !_hasManuallySelectedCategory) {
+      setState(() {
+        _aiCategorySuggestions = results;
+        final first = results.first;
+        if (first.categoryId != null) {
+          _selectedCategoryId = first.categoryId;
+          _pendingSuggestedCategoryName = null;
+        } else if (first.newCategoryName != null) {
+          _selectedCategoryId = null;
+          _pendingSuggestedCategoryName = first.newCategoryName;
+        }
+        _isAnalyzingCategory = false;
+      });
+    } else if (mounted) {
+      setState(() => _isAnalyzingCategory = false);
     }
   }
 
@@ -511,8 +559,9 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                   const SizedBox(height: 4),
                   TextField(
                     controller: _descriptionController,
+                    onChanged: _onDescriptionChanged,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: theme.colorScheme.onBackground,
+                      color: theme.colorScheme.onSurface,
                     ),
                     decoration: InputDecoration(
                       hintText: t.v2.transactions.addNote,
@@ -542,18 +591,59 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     spacing: 12,
                     runSpacing: 12,
                     children: [
-                      if (_pendingSuggestedCategoryName != null)
+                      if (_isAnalyzingCategory)
+                         const AILoadingPill(),
+                         
+                      if (_aiCategorySuggestions.isNotEmpty)
+                        ..._aiCategorySuggestions.map((sugg) {
+                          final isSelected = (sugg.categoryId != null && _selectedCategoryId == sugg.categoryId) ||
+                                             (sugg.newCategoryName != null && _pendingSuggestedCategoryName == sugg.newCategoryName);
+                                             
+                          if (sugg.categoryId != null) {
+                            final cat = _categories.where((c) => c.id == sugg.categoryId).firstOrNull;
+                            if (cat == null) return const SizedBox.shrink();
+                            return _buildCategoryPill(
+                              context,
+                              IconToEmojiMapper.getEmoji(cat.icon),
+                              cat.name,
+                              isSelected,
+                              () => setState(() {
+                                _selectedCategoryId = cat.id;
+                                _pendingSuggestedCategoryName = null;
+                                _hasManuallySelectedCategory = true;
+                              }),
+                            );
+                          } else if (sugg.newCategoryName != null) {
+                            return _buildSuggestedCategoryPill(
+                              context, 
+                              sugg.newCategoryName!,
+                              isSelected: isSelected,
+                              onTap: () => setState(() {
+                                _selectedCategoryId = null;
+                                _pendingSuggestedCategoryName = sugg.newCategoryName;
+                                _hasManuallySelectedCategory = true;
+                              }),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        }),
+                        
+                      if (_aiCategorySuggestions.isEmpty && _pendingSuggestedCategoryName != null)
                         _buildSuggestedCategoryPill(
                             context, _pendingSuggestedCategoryName!),
-                      ...displayCategories.map((c) => _buildCategoryPill(
-                            context,
-                            IconToEmojiMapper.getEmoji(c.icon),
-                            c.name,
-                            _selectedCategoryId == c.id,
-                            () => setState(() {
-                              _selectedCategoryId = c.id;
-                            }),
-                          )),
+                      
+                      if (_aiCategorySuggestions.isEmpty)
+                        ...displayCategories.map((c) => _buildCategoryPill(
+                              context,
+                              IconToEmojiMapper.getEmoji(c.icon),
+                              c.name,
+                              _selectedCategoryId == c.id,
+                              () => setState(() {
+                                _selectedCategoryId = c.id;
+                                _pendingSuggestedCategoryName = null;
+                                _hasManuallySelectedCategory = true;
+                              }),
+                            )),
                       // More Categories Button
                       _buildAddCategoryButton(context, _selectMoreCategories),
                     ],
@@ -791,24 +881,22 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     );
   }
 
-  Widget _buildSuggestedCategoryPill(BuildContext context, String name) {
+  Widget _buildSuggestedCategoryPill(BuildContext context, String name, {bool isSelected = false, VoidCallback? onTap}) {
     final theme = Theme.of(context);
-    final emoji = FinancialEmojiDictionary.getEmojiForKeyword(name) ?? '🏷️';
-    final selected = _selectedCategoryId ==
-        null; // Está seleccionada si no hay ningún ID seleccionado
+    final emoji = FinancialEmojiDictionary.getEmojiForKeyword(name) ?? '✨';
+    final selected = isSelected || (_aiCategorySuggestions.isEmpty && _selectedCategoryId == null);
 
     return GestureDetector(
-      onTap: () {
+      onTap: onTap ?? () {
         setState(() {
           _selectedCategoryId = null; // Volver a seleccionarla
+          _pendingSuggestedCategoryName = name;
         });
       },
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Container(
-            margin: const EdgeInsets.only(
-                top: 6, right: 6), // Espacio para el badge que sobresale
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: selected
@@ -856,8 +944,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             ),
           ),
           Positioned(
-            top: 0,
-            right: 0,
+            top: -6,
+            right: -6,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
               decoration: BoxDecoration(
@@ -945,3 +1033,67 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     );
   }
 }
+
+class AILoadingPill extends StatefulWidget {
+  const AILoadingPill({super.key});
+
+  @override
+  State<AILoadingPill> createState() => _AILoadingPillState();
+}
+
+class _AILoadingPillState extends State<AILoadingPill> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat(reverse: true);
+  }
+  
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0.4, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut)),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF8B5CF6), Color(0xFF3B82F6)], // Morado a Azul AI
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+             BoxShadow(
+               color: const Color(0xFF8B5CF6).withValues(alpha: 0.3), 
+               blurRadius: 8, 
+               offset: const Offset(0, 4)
+             )
+          ]
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('✨', style: TextStyle(fontSize: 18)),
+            const SizedBox(width: 8),
+            Text(
+              'Analizando...', 
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: Colors.white, 
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              )
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

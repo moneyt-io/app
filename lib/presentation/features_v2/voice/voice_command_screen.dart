@@ -111,11 +111,10 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen>
             builder: (_) => NewTransactionScreen(
               initialType: result.type,
               initialAmount: result.amount > 0 ? result.amount : null,
-              initialCategoryId: result.categoryId,
+              initialCategorySuggestions: result.categorySuggestions,
               initialWalletId: result.walletId,
               initialDescription: result.description,
               initialDate: result.date,
-              suggestedCategoryName: result.suggestedCategoryName,
               autoOpenKeyboard:
                   false, // Keyboard starts closed since data is prefilled
             ),
