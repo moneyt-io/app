@@ -146,10 +146,10 @@ class AITransactionService {
     }
   }
 
-  Future<String> suggestEmojiForCategory(String categoryName) async {
+  Future<List<String>> suggestEmojiForCategory(String categoryName) async {
     final apiKey = dotenv.env['GEMINI_API_KEY'];
     if (apiKey == null || apiKey.isEmpty) {
-      return '🏷️';
+      return ['🏷️', '💰', '✨'];
     }
 
     final model = GenerativeModel(
@@ -157,24 +157,27 @@ class AITransactionService {
       apiKey: apiKey,
     );
 
-    final prompt = 'Sugiere el emoji que mejor represente la siguiente categoría financiera o tipo de gasto/ingreso: "$categoryName". Devuelve ÚNICAMENTE un emoji, sin texto adicional.';
+    final prompt = 'Sugiere 3 emojis que mejor representen la siguiente categoría financiera o tipo de gasto/ingreso: "$categoryName". Devuelve ÚNICAMENTE los 3 emojis seguidos, sin espacios ni texto adicional (ejemplo: 🍔🍕🌮).';
 
     try {
       final response = await model.generateContent([Content.text(prompt)]);
       final String? responseText = response.text;
       
       if (responseText != null && responseText.trim().isNotEmpty) {
-        // En caso de que la IA responda algo como "🍔 - Hamburguesa", agarramos solo el primer character/emoji
-        final chars = responseText.trim().characters;
+        final chars = responseText.trim().characters.toList();
         if (chars.isNotEmpty) {
-          return chars.first;
+          final emojis = chars.take(3).toList();
+          while (emojis.length < 3) {
+            emojis.add('🏷️');
+          }
+          return emojis;
         }
       }
-      return '🏷️';
+      return ['🏷️', '💰', '✨'];
     } catch (e) {
       print('=== AI Emoji Error ===');
       print(e);
-      return '🏷️';
+      return ['🏷️', '💰', '✨'];
     }
   }
 }
