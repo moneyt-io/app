@@ -1180,7 +1180,17 @@
           "suffix": " será posible sin esfuerzo con la inteligencia artificial."
         },
         "subtitle": "Registra tus gastos con solo\ndecirlo a tu celular",
-        "listening": "Escuchando..."
+        "listening": "Habla tranquilo, te escucho...",
+        "examples": [
+          "Café \\$3.50",
+          "Uber \\$12.00",
+          "Cine \\$15.00",
+          "Súper \\$45.20",
+          "Gasolina \\$30.00",
+          "Netflix \\$10.99",
+          "Cena \\$25.00",
+          "Farmacia \\$18.50"
+        ]
       }
     }
   }

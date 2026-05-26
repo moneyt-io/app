@@ -3998,8 +3998,19 @@ class AppStringsV2OnboardingAiVoiceEn {
 	/// en: 'Record your expenses just by saying it to your phone'
 	String get subtitle => 'Record your expenses just by\nsaying it to your phone';
 
-	/// en: 'Listening...'
-	String get listening => 'Listening...';
+	/// en: 'Just talk, I'm listening...'
+	String get listening => 'Just talk, I\'m listening...';
+
+	List<String> get examples => [
+		'Coffee \$3.50',
+		'Uber \$12.00',
+		'Movies \$15.00',
+		'Groceries \$45.20',
+		'Gas \$30.00',
+		'Netflix \$10.99',
+		'Dinner \$25.00',
+		'Pharmacy \$18.50',
+	];
 }
 
 // Path: dashboard.widgets.settings.reset
@@ -5098,7 +5109,15 @@ extension on AppStrings {
 			case 'v2.onboarding.aiVoice.title.saveGoal': return 'Saving for your important goals';
 			case 'v2.onboarding.aiVoice.title.suffix': return ' will be effortless with artificial intelligence.';
 			case 'v2.onboarding.aiVoice.subtitle': return 'Record your expenses just by\nsaying it to your phone';
-			case 'v2.onboarding.aiVoice.listening': return 'Listening...';
+			case 'v2.onboarding.aiVoice.listening': return 'Just talk, I\'m listening...';
+			case 'v2.onboarding.aiVoice.examples.0': return 'Coffee \$3.50';
+			case 'v2.onboarding.aiVoice.examples.1': return 'Uber \$12.00';
+			case 'v2.onboarding.aiVoice.examples.2': return 'Movies \$15.00';
+			case 'v2.onboarding.aiVoice.examples.3': return 'Groceries \$45.20';
+			case 'v2.onboarding.aiVoice.examples.4': return 'Gas \$30.00';
+			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix \$10.99';
+			case 'v2.onboarding.aiVoice.examples.6': return 'Dinner \$25.00';
+			case 'v2.onboarding.aiVoice.examples.7': return 'Pharmacy \$18.50';
 			default: return null;
 		}
 	}

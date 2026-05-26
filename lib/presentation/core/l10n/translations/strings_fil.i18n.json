@@ -1,0 +1,1197 @@
+{
+  "app": {
+    "name": "MoneyT",
+    "description": "Tagapamahala ng Pera"
+  },
+  "common": {
+    "save": "I-save",
+    "cancel": "Kanselahin",
+    "delete": "Burahin",
+    "edit": "I-edit",
+    "loading": "Naglo-load...",
+    "error": "Error",
+    "success": "Tagumpay",
+    "search": "Maghanap",
+    "clearSearch": "I-clear ang paghahanap",
+    "viewAll": "Tingnan lahat",
+    "retry": "Subukang muli",
+    "add": "Magdagdag",
+    "remove": "Alisin",
+    "moreOptions": "Iba pang opsyon",
+    "addToFavorites": "Idagdag sa paborito",
+    "removeFromFavorites": "Alisin sa paborito",
+    "today": "Ngayon",
+    "yesterday": "Kahapon"
+  },
+  "components": {
+    "dateSelection": {
+      "title": "Pumili ng petsa",
+      "subtitle": "Piliin ang petsa ng transaksyon",
+      "selectedDate": "Napiling petsa",
+      "confirm": "Kumpirmahin"
+    },
+    "selection": {
+      "cancel": "Kanselahin",
+      "confirm": "Kumpirmahin",
+      "select": "Piliin"
+    },
+    "contactSelection": {
+      "title": "Pumili ng contact",
+      "subtitle": "Kanino ang transaksyon",
+      "searchPlaceholder": "Maghanap ng contact",
+      "noContact": "Walang contact",
+      "noContactDetails": "Transaksyon na walang contact",
+      "allContacts": "Lahat ng contact",
+      "create": "Lumikha ng bago"
+    },
+    "categorySelection": {
+      "title": "Pumili ng kategorya",
+      "subtitle": "Piliin ang kategorya para sa transaksyong ito",
+      "searchPlaceholder": "Maghanap ng kategorya"
+    },
+    "currencySelection": {
+      "title": "Pumili ng pera",
+      "subtitle": "Piliin ang pera (currency)",
+      "searchPlaceholder": "Maghanap ng pera"
+    },
+    "accountSelection": {
+      "title": "Pumili ng account",
+      "subtitle": "Piliin ang account para dito",
+      "searchPlaceholder": "Maghanap ng account",
+      "wallets": "Mga Wallet",
+      "creditCards": "Credit Cards",
+      "selectAccount": "Pumili ng account",
+      "confirm": "Kumpirmahin"
+    },
+    "parentWalletSelection": {
+      "title": "Pangunahing wallet",
+      "subtitle": "Piliin ang parent wallet",
+      "searchPlaceholder": "Maghanap ng wallet",
+      "noParent": "Walang parent wallet",
+      "createRoot": "Gawing pangunahin",
+      "available": "Available na Wallet"
+    },
+    "walletTypes": {
+      "checking": "Checking Account",
+      "savings": "Savings",
+      "cash": "Cash",
+      "creditCard": "Credit Card"
+    }
+  },
+  "navigation": {
+    "home": "Home",
+    "transactions": "Transaksyon",
+    "contacts": "Mga Contact",
+    "settings": "Mga Setting",
+    "wallets": "Mga Wallet",
+    "categories": "Mga Kategorya",
+    "loans": "Mga Utang",
+    "charts": "Chart of Accounts",
+    "backups": "Mga Backup",
+    "creditCards": "Credit Cards",
+    "sections": {
+      "operations": "MGA OPERASYON",
+      "financialTools": "MGA TOOLS",
+      "management": "PAMAMAHALA",
+      "advanced": "ADVANCED"
+    }
+  },
+  "transactions": {
+    "title": "Mga Transaksyon",
+    "types": {
+      "all": "Lahat",
+      "income": "Kita",
+      "expense": "Gastos",
+      "transfer": "Paglipat"
+    },
+    "filter": {
+      "title": "I-filter ang Transaksyon",
+      "date": "Petsa",
+      "categories": "Kategorya",
+      "accounts": "Mga Account",
+      "contacts": "Mga Contact",
+      "amount": "Halaga",
+      "apply": "I-apply",
+      "clear": "I-clear",
+      "add": "Magdagdag ng filter",
+      "minAmount": "Min Halaga",
+      "maxAmount": "Max Halaga",
+      "selectDate": "Piliin ang petsa",
+      "selectCategory": "Piliin ang kategorya",
+      "selectAccount": "Piliin ang account",
+      "selectContact": "Piliin ang contact",
+      "quickFilters": "Mabilisang Filter",
+      "ranges": {
+        "thisMonth": "Ngayong buwan",
+        "lastMonth": "Nakaraang buwan",
+        "thisYear": "Ngayong taon",
+        "lastYear": "Nakaraang taon"
+      },
+      "customRange": "Pasadyang Petsa",
+      "startDate": "Petsa ng Simula",
+      "endDate": "Petsa ng Pagtatapos",
+      "active": "Mga Aktibong Filter",
+      "subtitles": {
+        "income": "Pera na pumasok",
+        "expense": "Pera na lumabas",
+        "transfer": "Pera na inilipat"
+      }
+    },
+    "form": {
+      "newTitle": "Bagong Transaksyon",
+      "editTitle": "I-edit ang Transaksyon",
+      "amount": "Halaga",
+      "type": "Uri ng transaksyon",
+      "amountRequired": "Kailangan ng halaga",
+      "date": "Petsa",
+      "account": "Account",
+      "toAccount": "Papunta sa Account",
+      "category": "Kategorya",
+      "contact": "Contact",
+      "contactOptional": "Contact (Opsyonal)",
+      "description": "Paglalarawan",
+      "descriptionOptional": "Paglalarawan (Opsyonal)",
+      "selectAccount": "Pumili ng account",
+      "selectDestination": "Pumili ng destinasyon",
+      "selectCategory": "Pumili ng kategorya",
+      "selectContact": "Pumili ng contact",
+      "saveSuccess": "Nai-save ang transaksyon",
+      "updateSuccess": "Na-update ang transaksyon",
+      "saveError": "May error sa pag-save",
+      "share": "I-share",
+      "created": "Nagawa ang transaksyon",
+      "crossCurrencyConversion": "Palitan ng Pera",
+      "receivedAmount": "Halagang natanggap",
+      "exchangeRate": "Exchange rate",
+      "receivedAmountRequired": "Ilagay ang natanggap",
+      "exchangeRateLabel": "1 $from = $rate $to"
+    },
+    "errors": {
+      "load": "May error sa pag-load"
+    },
+    "empty": {
+      "title": "Walang transaksyon",
+      "message": "Walang nakitang transaksyon",
+      "clearFilters": "I-clear ang filter"
+    },
+    "list": {
+      "count": "$n transaksyon"
+    },
+    "detail": {
+      "title": "Detalye ng Transaksyon",
+      "delete": "Burahin",
+      "deleteConfirmation": "Sigurado ka ba? Hindi na ito mababawi.",
+      "deleted": "Nabura na",
+      "duplicate": "Doblehin",
+      "duplicateNotImplemented": "Hindi pa available ang duplicate",
+      "edit": "I-edit",
+      "errorLoad": "Error sa pag-load",
+      "errorPrepareEdit": "Error: $error",
+      "errorDelete": "Error: $error",
+      "category": "Kategorya",
+      "account": "Account",
+      "contact": "Contact",
+      "description": "Paglalarawan",
+      "transferDetails": "Detalye ng Paglipat",
+      "from": "Mula",
+      "to": "Papunta",
+      "unknownAccount": "Hindi kilalang Account",
+      "errorUrl": "Hindi mabuksan ang $url",
+      "date": "Petsa",
+      "time": "Oras",
+      "loanLinkedWarning": "Ang transaksyong ito ay nakaugnay sa isang utang."
+    },
+    "share": {
+      "title": "I-share",
+      "copyText": "Kopyahin",
+      "shareButton": "I-share",
+      "shareMessage": "Ito ang aking resibo:",
+      "copied": "Nakopya na sa clipboard!",
+      "paymentMethod": "Paraan ng pagbabayad",
+      "receiptTitle": "Resibo",
+      "poweredBy": "Pinapagana ng MoneyT • moneyt.io",
+      "errorImage": "Error sa larawan: $error",
+      "receipt": {
+        "title": "--- Detalye ---",
+        "amount": "Halaga: $amount",
+        "description": "Deskripsyon: $description",
+        "category": "Kategorya: $category",
+        "date": "Petsa: $date",
+        "time": "Oras: $time",
+        "wallet": "Account: $wallet",
+        "contact": "Contact: $contact",
+        "id": "ID: $id",
+        "separator": "--------------------------"
+      },
+      "generatedOn": "Nagawa noong $date"
+    }
+  },
+  "contacts": {
+    "title": "Mga Contact",
+    "addContact": "Magdagdag",
+    "editContact": "I-edit",
+    "newContact": "Bagong contact",
+    "noContacts": "Walang contact",
+    "noContactsMessage": "Magdagdag ng iyong unang contact gamit ang \"+\"",
+    "searchContacts": "Maghanap",
+    "deleteContact": "Burahin",
+    "confirmDelete": "Gusto mo bang burahin ang",
+    "contactDeleted": "Nabura na",
+    "errorDeleting": "Error sa pagbura",
+    "noSearchResults": "Walang nahanap",
+    "noContactsMatch": "Walang tumutugma sa \"$query\".",
+    "errorLoading": "Error sa pag-load",
+    "contactSaved": "Nai-save na",
+    "errorSaving": "Error sa pag-save",
+    "noContactInfo": "Walang impormasyon",
+    "importContact": "Mag-import",
+    "importContacts": "Mag-import ng mga contact",
+    "importContactSoon": "Malapit nang dumating",
+    "fields": {
+      "name": "Pangalan",
+      "fullName": "Buong pangalan",
+      "email": "Email",
+      "phone": "Telepono",
+      "address": "Address",
+      "notes": "Mga Tala"
+    },
+    "placeholders": {
+      "enterFullName": "Ilagay ang buong pangalan",
+      "enterPhone": "Ilagay ang numero",
+      "enterEmail": "Ilagay ang email"
+    },
+    "validation": {
+      "nameRequired": "Kailangan ang pangalan",
+      "invalidEmail": "Maling email",
+      "invalidPhone": "Maling numero"
+    }
+  },
+  "errors": {
+    "loadingAccounts": "Error: $error",
+    "unexpected": "Hindi inaasahang error"
+  },
+  "settings": {
+    "title": "Mga Setting",
+    "account": {
+      "title": "Account",
+      "profile": "Profile",
+      "profileSubtitle": "Pamahalaan ang impormasyon"
+    },
+    "appearance": {
+      "title": "Itsura",
+      "darkMode": "Dark Mode",
+      "darkModeSubtitle": "Gamitin ang dark theme",
+      "language": "Wika",
+      "currency": "Pangunahing Pera",
+      "currencySubtitle": "Default na pera para sa bagong accounts",
+      "darkTheme": "Dark Theme",
+      "lightTheme": "Light Theme",
+      "systemTheme": "Tema ng system"
+    },
+    "data": {
+      "title": "Data at Storage",
+      "backup": "Mga Backup",
+      "backupSubtitle": "Pamahalaan ang backups"
+    },
+    "info": {
+      "title": "Impormasyon",
+      "contact": "Contact & Social Media",
+      "contactSubtitle": "Para sa suporta",
+      "privacy": "Privacy Policy",
+      "privacySubtitle": "Basahin ang aming polisiya",
+      "share": "I-share ang MoneyT",
+      "shareSubtitle": "Irekumenda sa kaibigan"
+    },
+    "logout": {
+      "button": "Mag-logout",
+      "dialogTitle": "Mag-logout",
+      "dialogMessage": "Sigurado ka bang gusto mong mag-logout?",
+      "cancel": "Kanselahin",
+      "confirm": "Mag-logout"
+    },
+    "social": {
+      "title": "Contact at Social",
+      "follow": "I-follow ang MoneyT",
+      "description": "Manatiling konektado sa komunidad.",
+      "networks": "Social Media",
+      "github": "GitHub",
+      "githubSubtitle": "Tingnan ang code",
+      "linkedin": "LinkedIn",
+      "linkedinSubtitle": "Balitang propesyonal",
+      "twitter": "X (Twitter)",
+      "twitterSubtitle": "Balita at updates",
+      "reddit": "Reddit",
+      "redditSubtitle": "Komunidad",
+      "discord": "Discord",
+      "discordSubtitle": "Live chat",
+      "contact": "Support",
+      "email": "Email Support",
+      "website": "Opisyal na Website"
+    },
+    "language": {
+      "title": "Wika",
+      "available": "MGA WIKA",
+      "apply": "I-apply ang Wika"
+    },
+    "currency": {
+      "title": "Pangunahing Pera",
+      "available": "MGA PERA",
+      "apply": "I-apply ang Pera"
+    },
+    "messages": {
+      "profileComingSoon": "Malapit na ang profile",
+      "privacyError": "Hindi mabuksan ang privacy policy",
+      "logoutComingSoon": "Malapit na ang logout"
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome sa MoneyT 👋",
+      "subtitle": "Hawak mo na ang pera mo ✨"
+    },
+    "problemStatement": {
+      "title": "Parang naglalaho lang ang pera mo?",
+      "subtitle": "Hindi ka nag-iisa. 70% ng mga tao hindi alam kung saan napupunta ang pera nila."
+    },
+    "specificProblem": {
+      "title": "Ano ang pinakamalaking problema mo?",
+      "options": {
+        "debts": "Mga utang",
+        "savings": "Hindi makapag-ipon",
+        "unknown": "Hindi ko alam kung saan nauubos",
+        "chaos": "Magulo talaga ang pera ko"
+      }
+    },
+    "personalGoal": {
+      "title": "Ano ang focus mo ngayon?",
+      "options": {
+        "debtFree": "Makawala sa utang",
+        "saveTrip": "Mag-ipon para sa travel",
+        "invest": "Magsimulang mag-invest",
+        "peace": "Peace of mind"
+      }
+    },
+    "solutionPreview": {
+      "title": "Bibigyan ka ng linaw ng MoneyT",
+      "subtitle": "Tingnan lahat ng accounts at utang sa isang lugar. Wala nang nakakahilong excel.",
+      "benefits": {
+        "visualize": "Tingnan ang gastos in real-time",
+        "goals": "Abutin ang goals",
+        "smart": "Maging matalino sa desisyon"
+      }
+    },
+    "currentMethod": {
+      "title": "Paano mo tina-track ang pera mo ngayon?",
+      "subtitle": "Piliin ang pinakakatulad mo.",
+      "options": {
+        "excel": "Excel / Spreadsheets",
+        "notebook": "Notebook at Ballpen",
+        "mental": "Sa isip lang",
+        "none": "Wala, bahala na"
+      }
+    },
+    "featuresShowcase": {
+      "title": "Mga features at mga susunod pa ✨",
+      "subtitle": "Ready to use na, pero marami pang paparating.",
+      "available": "AVAILABLE NA",
+      "comingSoon": "MALAPIT NA",
+      "features": {
+        "income": "Pera Pumasok",
+        "expense": "Pera Lumabas",
+        "transfer": "Lipat Pera",
+        "loans": "Mga Utang",
+        "goals": "Mga Target",
+        "budgets": "Badget",
+        "investments": "Investments",
+        "cloud": "Cloud Sync",
+        "openBanking": "Bank Sync"
+      }
+    },
+    "complete": {
+      "title": "Ready to go! 🚀",
+      "subtitle": "Ilagay ang unang gastos mo at tingnan ang magic 📈",
+      "stats": {
+        "title": "Pag-asang Magtagumpay",
+        "before": "Bago ang MoneyT",
+        "after": "Gamit ang MoneyT"
+      }
+    },
+    "buttons": {
+      "start": "Tara, simulan na 🚀",
+      "fixIt": "Ayusin natin 'to ⚡",
+      "actionContinue": "Tuloy",
+      "setGoal": "I-set ang Goal 🎯",
+      "wantControl": "Gusto ko 'yan!",
+      "great": "Ayos, patingin!",
+      "firstTransaction": "I-record ang una ➕",
+      "skip": "Skip muna"
+    }
+  },
+  "dashboard": {
+    "greeting": "Mabuhay!",
+    "balance": {
+      "total": "KABUUANG BALANSE",
+      "income": "KITA",
+      "expenses": "GASTOS",
+      "thisMonth": "ngayong buwan"
+    },
+    "actions": {
+      "income": "Kita",
+      "expense": "Gastos",
+      "transfer": "Lipat",
+      "all": "Lahat"
+    },
+    "wallets": {
+      "title": "Mga Wallet",
+      "count": "$n account",
+      "more": "+$n pa",
+      "viewDetails": "Tingnan ang detalye ni $name"
+    },
+    "transactions": {
+      "title": "Kamakailang Transaksyon",
+      "subtitle": "5 pinakabago",
+      "empty": "Walang bago",
+      "emptySubtitle": "Lalabas dito ang transaksyon mo",
+      "more": "+$n pa"
+    },
+    "customize": "I-customize",
+    "widgets": {
+      "balance": {
+        "title": "Kabuuang Balanse",
+        "description": "General status ng pera mo"
+      },
+      "quickActions": {
+        "title": "Quick Actions",
+        "description": "Shortcuts"
+      },
+      "wallets": {
+        "title": "Wallets",
+        "description": "Kung magkano pera mo"
+      },
+      "loans": {
+        "title": "Mga Utang",
+        "description": "Pautang at inutang"
+      },
+      "transactions": {
+        "title": "Mga Transaksyon",
+        "description": "Mga huling galaw ng pera"
+      },
+      "categoryBreakdown": {
+        "title": "Gastos kada Kategorya",
+        "description": "Gastos mo ngayong buwan",
+        "empty_message": "Walang gastos. Tipid ah!",
+        "others": "Iba pa",
+        "back": "Bumalik",
+        "monthlyBudget": "Budget sa buwan",
+        "leftover": "May natitira kang $amount.",
+        "exceeded": "Sobra ka ng $amount sa budget.",
+        "noIncome": "Gastos mo: $amount (Walang kita)"
+      },
+      "chartAccounts": {
+        "title": "Chart of Accounts",
+        "description": "Struktura ng accounts"
+      },
+      "creditCards": {
+        "title": "Credit Cards",
+        "description": "Mga Limit at Utang"
+      },
+      "settings": {
+        "title": "I-ayos ang Dashboard",
+        "subtitle": "I-drag and drop para ayusin ang itsura.",
+        "reset": {
+          "button": "I-reset sa default",
+          "dialogTitle": "I-reset ang Layout",
+          "dialogContent": "Gusto mo bang ibalik sa original na layout?",
+          "cancel": "Cancel",
+          "confirm": "I-reset",
+          "success": "Na-reset na ang layout"
+        },
+        "saveSuccess": "Nai-save ang layout!",
+        "saveError": "Error sa pag-save: $error",
+        "saving": "Sini-save...",
+        "save": "I-save ang Layout"
+      }
+    }
+  },
+  "wallets": {
+    "title": "Mga Wallet",
+    "empty": {
+      "title": "Walang wallet na nakita",
+      "message": "Gumawa ng wallet para makapagsimula.",
+      "action": "Gumawa ng Wallet"
+    },
+    "emptyArchived": {
+      "title": "Walang naka-archive",
+      "message": "Dito mapupunta ang archived wallets."
+    },
+    "filter": {
+      "active": "Aktibo",
+      "archived": "Naka-archive",
+      "all": "Lahat"
+    },
+    "form": {
+      "newTitle": "Bagong Wallet",
+      "editTitle": "I-edit ang Wallet",
+      "name": "Pangalan ng Wallet",
+      "namePlaceholder": "Hal: BDO, GCash, Cash sa wallet",
+      "nameRequired": "Kailangan ng pangalan",
+      "description": "Paglalarawan",
+      "descriptionPlaceholder": "Para saan ito? (Opsyonal)",
+      "currency": "Pera (Currency)",
+      "currencyLockedByParent": "Naka-lock sa parent wallet",
+      "parent": "Parent Wallet (Opsyonal)",
+      "parentEmpty": "Walang parent wallet",
+      "chartAccount": "Chart of Account",
+      "chartAccountLocked": "Hindi mapalitan ang account",
+      "createSuccess": "Nagawa ang wallet",
+      "updateSuccess": "Na-update ang wallet",
+      "loadParentError": "Error: $error",
+      "loadChartAccountError": "Error: $error"
+    },
+    "delete": {
+      "dialogTitle": "Burahin ang Wallet",
+      "dialogMessage": "Sigurado ka ba? Mabubura ang $name at lahat ng nasa loob nito.",
+      "cancel": "Kanselahin",
+      "confirm": "Burahin",
+      "success": "Nabura na",
+      "error": "May error: $error"
+    },
+    "errors": {
+      "load": "Error sa pag-load",
+      "retry": "Subukang muli",
+      "comingSoon": "$name ay malapit na"
+    },
+    "subtitle": {
+      "mainAccount": "Main Account",
+      "cashDigital": "Cash at Digital",
+      "count": {
+        "one": "$n wallet",
+        "other": "$n wallets"
+      },
+      "account": "Account",
+      "physicalCash": "Pisikal na Pera",
+      "digitalWallet": "Digital Wallet"
+    },
+    "options": {
+      "viewTransactions": "Tingnan ang transaksyon",
+      "viewTransactionsSubtitle": "Tingnan ang history",
+      "transferFunds": "Maglipat ng pondo",
+      "transferFundsSubtitle": "Ilipat sa ibang wallet",
+      "editWallet": "I-edit",
+      "editWalletSubtitle": "Palitan ang pangalan at kulay",
+      "duplicateWallet": "Doblehin",
+      "duplicateWalletSubtitle": "Kopyahin ito",
+      "archiveWallet": "I-archive",
+      "archiveWalletSubtitle": "Itago muna ang wallet",
+      "unarchiveWallet": "I-unarchive",
+      "unarchiveWalletSubtitle": "Ibalik sa listahan",
+      "deleteWallet": "Burahin",
+      "deleteWalletSubtitle": "Permanente itong burahin",
+      "defaultTitle": "Wallet"
+    }
+  },
+  "loans": {
+    "title": "Mga Utang",
+    "filter": {
+      "active": "Aktibo",
+      "history": "History",
+      "all": "Lahat",
+      "pending": "Pending",
+      "lent": "Pinahiram",
+      "borrowed": "Hiniram"
+    },
+    "summary": {
+      "netBalance": "NET BALANCE",
+      "activeLoans": "AKTIBONG UTANG",
+      "noActive": "Walang utang, yay!",
+      "lent": "$n pinahiram",
+      "borrowed": "$n hiniram",
+      "pending": "$n pending"
+    },
+    "card": {
+      "lent": "May Utang Sayo",
+      "borrowed": "Utang Mo",
+      "active": "$n aktibo",
+      "multiple": "$n utang",
+      "transactions": "$n transaksyon",
+      "overdue": "Late ng $n araw",
+      "due": "Due sa $date"
+    },
+    "form": {
+      "newTitle": "Bagong Utang",
+      "editTitle": "I-edit ang Utang",
+      "type": "Uri ng utang",
+      "lend": "Nagpautang Ako",
+      "borrow": "Nangutang Ako",
+      "contact": "Contact",
+      "contactPlaceholder": "Kanino?",
+      "account": "Mula sa Account",
+      "accountPlaceholder": "Piliin ang account",
+      "amount": "Halaga",
+      "description": "Paglalarawan",
+      "date": "Petsa",
+      "dueDate": "Kelan babayaran",
+      "selectDate": "Pumili ng petsa",
+      "optional": "(Opsyonal)",
+      "createTransaction": "Gawan ng record sa wallet",
+      "recordAutomatically": "Awtomatikong i-record",
+      "transactionCategory": "Kategorya ng transaksyon",
+      "category": "Kategorya",
+      "categoryPlaceholder": "Pumili ng kategorya",
+      "save": "I-save",
+      "successCreate": "Na-record na ang utang!",
+      "successUpdate": "Na-update ang utang",
+      "contactRequired": "Kailangan ng contact",
+      "accountRequired": "Kailangan ng account",
+      "amountRequired": "Magkano?"
+    },
+    "detail": {
+      "title": "Detalye",
+      "deleteTitle": "Burahin ang Utang",
+      "deleteMessage": "Sigurado ka? Gusto mong burahin 'to?",
+      "deleteSuccess": "Nabura na.",
+      "deleteError": "May error: $error",
+      "notFound": "Hindi nahanap",
+      "progress": "Progress ng Pagbabayad",
+      "info": "Impormasyon",
+      "pay": "Magbayad / Tumanggap",
+      "viewHistory": "Buong History",
+      "original": "Orihinal na halaga: $amount",
+      "section": "Detalye",
+      "activeSummary": "Buod",
+      "activeLent": "Pinahiram",
+      "activeBorrowed": "Inutang",
+      "activeNet": "Net Balance",
+      "activeTotal": "Kabuuan",
+      "startDate": "Nagsimula",
+      "dueDate": "Due Date",
+      "type": {
+        "label": "Uri",
+        "personal": "Personal na Utang",
+        "borrowed": "Hiniram na Pera",
+        "auto": "Utang sa Sasakyan",
+        "mortgage": "Utang sa Bahay",
+        "student": "Student Loan"
+      },
+      "payment": {
+        "history": "History ng Bayad",
+        "date": "Nagbayad noong $date",
+        "transactionId": "ID: $id",
+        "paid": "Bayad: $amount",
+        "remaining": "Balanse: $amount"
+      }
+    },
+    "history": {
+      "title": "History ng Utang",
+      "section": "Lahat ng Utang",
+      "totalLoaned": "Kabuuang halaga",
+      "noLoans": "Walang utang na nakita.",
+      "filter": {
+        "all": "Lahat",
+        "lent": "Pinahiram",
+        "borrowed": "Hiniram",
+        "completed": "Bayad Na",
+        "title": "Mga Filter",
+        "reset": "I-reset",
+        "apply": "I-apply",
+        "dateRange": "Petsa",
+        "amountRange": "Halaga",
+        "startDate": "Simula",
+        "endDate": "Katapusan",
+        "select": "Piliin"
+      },
+      "headers": {
+        "lent": "Pera Mo na Pinahiram",
+        "borrowed": "Perang Hiniram Mo",
+        "completed": "Mga Bayad Na",
+        "active": "Mga Aktibo Pa",
+        "cancelled": "Kinansela",
+        "writtenOff": "Hindi na babayaran / TY"
+      },
+      "item": {
+        "defaultTitle": "Utang",
+        "date": "Petsa: $date",
+        "lent": "Pinahiram",
+        "borrowed": "Hiniram",
+        "status": {
+          "completed": "Bayad Na",
+          "active": "Aktibo Pa",
+          "cancelled": "Cancel",
+          "writtenOff": "TY na"
+        }
+      },
+      "summary": {
+        "title": "Buod ng Pautang",
+        "viewDetails": "Tingnan ang detalye",
+        "hideDetails": "Itago",
+        "outstandingLent": "Pera mo sa kanila",
+        "outstandingBorrowed": "Pera nila sayo",
+        "netPosition": "Net Balance",
+        "totalLent": "Total na Pinahiram",
+        "totalBorrowed": "Total na Hiniram",
+        "totalRepaidToYou": "Ibinayad Sayo",
+        "totalYouRepaid": "Ibinayad Mo",
+        "totalLoans": "Total Loans",
+        "completedLoans": "Mga Bayad Na"
+      }
+    },
+    "contactDetail": {
+      "titleWith": "Mga utang kay $name"
+    },
+    "share": {
+      "title": "I-share",
+      "contactTitle": "I-share ang buod",
+      "button": "Ipadala",
+      "copy": "Kopyahin",
+      "message": "Pre/Sis, ito ang buod ng utang:",
+      "contactMessage": "Buod ng utang kay $name:",
+      "error": "Error: $error",
+      "contactCopied": "Nakopya na!",
+      "activeLoans": "Mga Aktibo ($n):",
+      "loanItem": "• $description: $amount ($date) - $percent% bayad",
+      "loanStatement": "MoneyT - Statement ng Utang",
+      "loanSummary": "MoneyT - Buod",
+      "personalLoan": "Personal Loan",
+      "remaining": "Balanse: $amount",
+      "remainingLabel": "Natitirang balanse",
+      "original": "mula sa $amount",
+      "progress": "$percent% na ang bayad",
+      "progressLabel": "Progress",
+      "paidSuffix": "Bayad Na",
+      "date": "Petsa: $date",
+      "dateLabel": "Petsa",
+      "contact": "Contact: $name",
+      "contactLabel": "Pangalan",
+      "generated": "Ginawa noong $date",
+      "generatedLabel": "Ginawa noong $date",
+      "totalActive": "Kabuuan: $n",
+      "active": "aktibo",
+      "poweredBy": "Powered by MoneyT • moneyt.io",
+      "copied": "Nakopya na!",
+      "netBalance": "Net Balance: $amount ($status)",
+      "netBalanceLabel": "Net Balance",
+      "owed": "Babayaran ka",
+      "owe": "Magbabayad ka",
+      "lent": "Pinahiram mo: $amount",
+      "lentLabel": "Pinahiram mo",
+      "borrowed": "Hiniram mo: $amount",
+      "borrowedLabel": "Hiniram mo",
+      "contactSummary": "Buod ni $name"
+    },
+    "payment": {
+      "title": "I-record ang Bayad",
+      "amount": "Magkano?",
+      "amountPlaceholder": "0.00",
+      "amountRequired": "Ilagay ang halaga",
+      "invalidAmount": "Maling halaga",
+      "exceedsBalance": "Sobra sa balanse yung binayad mo boss",
+      "date": "Petsa ng bayad",
+      "account": "Saang account papasok/lalabas?",
+      "selectAccount": "Piliin ang account",
+      "details": "Karagdagang detalye",
+      "detailsPlaceholder": "Mga tala... (Opsyonal)",
+      "success": "Nice, na-record ang bayad!",
+      "error": "Error: $error",
+      "errorAmount": "Maling halaga",
+      "errorAccount": "Pumili ng account",
+      "errorLoading": "Error: $error",
+      "summary": {
+        "title": "Buod ng pagbabayad",
+        "defaultTitle": "Utang",
+        "amount": "Halagang babayaran",
+        "remaining": "Matitirang balanse",
+        "progress": "Bagong progress",
+        "description": "$loan kay $contact",
+        "unknownContact": "Di Kilala",
+        "total": "Total: $amount",
+        "paid": "Bayad na: $amount",
+        "remainingLabel": "Balanse: $amount"
+      },
+      "quick": {
+        "full": "Bayaran Lahat ($amount)",
+        "half": "Kalahati ($amount)"
+      }
+    },
+    "given": "Pinahiram",
+    "received": "Hiniram",
+    "item": {
+      "due": "Due: $date",
+      "paidAmount": "Bayad: $amount",
+      "remaining": "Balanse: $amount",
+      "percentPaid": "$percent%"
+    },
+    "section": {
+      "activeLoans": "Mga Aktibong Utang",
+      "loansCount": "$n loans"
+    },
+    "empty": {
+      "title": "Walang mga utang",
+      "message": "Masarap ang tulog kapag walang utang.",
+      "action": "Gumawa ng Utang"
+    }
+  },
+  "categories": {
+    "title": "Mga Kategorya",
+    "form": {
+      "newTitle": "Bagong Kategorya",
+      "editTitle": "I-edit ang Kategorya",
+      "name": "Pangalan",
+      "namePlaceholder": "Hal: Pagkain, Pamasahe, Shopee",
+      "nameRequired": "Kailangan ang pangalan",
+      "parent": "Parent Category (Opsyonal)",
+      "noParent": "Gawing pangunahin",
+      "asSubcategory": "Ito ay magiging subcategory",
+      "asRoot": "Ito ay magiging main category",
+      "active": "Aktibo",
+      "activeDescription": "Ipapakita sa paggawa ng transaksyon",
+      "selectIcon": "Pumili ng Icon",
+      "selectColor": "Pumili ng Kulay",
+      "saveSuccess": "Nai-save na!",
+      "saveError": "May error sa pag-save: $error"
+    },
+    "parentSelection": {
+      "title": "Pumili ng parent category",
+      "subtitle": "Saan ito kabilang?",
+      "noParent": "Walang parent (Main)"
+    },
+    "incomeCategory": "Kategorya ng Kita",
+    "expenseCategory": "Kategorya ng Gastos",
+    "report": {
+      "title": "Advanced Report",
+      "timeFilter": "Panahon",
+      "thisMonth": "Ngayong Buwan",
+      "lastMonth": "Nakaraang Buwan",
+      "thisYear": "Ngayong Taon",
+      "allTime": "Lahat ng Panahon",
+      "details": "Mga Detalye",
+      "noTransactions": "Walang transaksyon",
+      "income": "Kita",
+      "expense": "Gastos"
+    }
+  },
+  "backups": {
+    "title": "Mga Backup",
+    "menu": {
+      "settings": "Backup Settings",
+      "comingSoon": "Malapit na"
+    },
+    "filters": {
+      "all": "Lahat",
+      "auto": "Automatic",
+      "manual": "Manual",
+      "thisMonth": "Ngayong Buwan",
+      "lastMonth": "Nakaraang Buwan",
+      "thisYear": "Ngayong Taon",
+      "lastYear": "Nakaraang Taon"
+    },
+    "status": {
+      "loading": "Naglo-load...",
+      "error": "May error",
+      "empty": "Walang backup",
+      "emptyAction": "Pindutin ang + para gumawa",
+      "success": "Tagumpay!",
+      "created": "Gawa na ang backup.",
+      "createError": "Error sa paggawa: $error",
+      "restoreError": "Error sa pag-restore: $error",
+      "deleteError": "Error sa pagbura: $error"
+    },
+    "actions": {
+      "create": "Gumawa ng Backup",
+      "import": "Mag-import",
+      "restore": "I-restore",
+      "delete": "Burahin",
+      "share": "I-share",
+      "cancel": "Kanselahin",
+      "retry": "Subukan Ulit",
+      "ok": "OK"
+    },
+    "dialogs": {
+      "info": {
+        "title": "Impormasyon",
+        "file": "File:",
+        "size": "Laki:",
+        "created": "Petsa:",
+        "transactions": "Transaksyon:"
+      },
+      "restore": {
+        "title": "I-restore ang Data",
+        "content": "Sigurado ka bang gusto mong i-restore ang \"$file\"? Mapapalitan ang kasalukuyang data mo.",
+        "success": "Nire-restore na... Mag-rereset ang app."
+      },
+      "delete": {
+        "title": "Burahin ang Backup",
+        "content": "Gusto mo ba talagang burahin ang \"$file\"?",
+        "success": "Nabura na ang backup."
+      }
+    },
+    "stats": {
+      "title": "Backup Stats",
+      "totalBackups": "Kabuuan",
+      "totalSize": "Kabuuang Laki",
+      "oldest": "Pinakaluma",
+      "latest": "Pinakabago",
+      "autoBackupStatus": "Auto Backup",
+      "active": "Bukas",
+      "inactive": "Patay"
+    },
+    "options": {
+      "restore": {
+        "title": "I-restore",
+        "subtitle": "Palitan ang kasalukuyang data"
+      },
+      "share": {
+        "title": "I-share",
+        "subtitle": "I-export ang file"
+      },
+      "delete": {
+        "title": "Burahin",
+        "subtitle": "Hindi na ito mababawi"
+      },
+      "latestBadge": "Latest",
+      "latestFile": "Pinakabago",
+      "backupFile": "Backup na file"
+    },
+    "format": {
+      "auto": "Auto - $date",
+      "manual": "Manual - $date",
+      "initial": "Initial Backup",
+      "generic": "Backup - $date"
+    }
+  },
+  "v2": {
+    "voice": {
+      "errorProcessing": "Hindi ko na-gets. Paki-ulit nga?",
+      "tapMicrophone": "Pindutin ang mic para magsalita",
+      "listening": "Nakikinig...",
+      "missingApiKey": "Wala kasing GEMINI_API_KEY sa .env file mo.",
+      "aiError": "AI Error: $error",
+      "cancel": "Kanselahin",
+      "scan": "I-scan"
+    },
+    "transactions": {
+      "invalidAmount": "Maling halaga. Paki-ayos.",
+      "selectAccount": "Saan nanggaling ang pera?",
+      "selectCategory": "Anong klaseng gastos 'to?",
+      "errorCreatingCategory": "Error sa kategorya: $error",
+      "error": "May error: $error",
+      "more": "More",
+      "expense": "Gastos",
+      "income": "Pumasok",
+      "deleteTransaction": "Burahin 'tong transaksyon?",
+      "cancel": "Cancel",
+      "delete": "Burahin",
+      "yesterday": "Kahapon",
+      "usedCategories": "MADALAS GAMITIN",
+      "noTransactions": "Walang nangyari ngayon",
+      "recentActivity": "Kamakailan",
+      "searchTransaction": "Hanapin ang gastos...",
+      "date": "Kailan",
+      "wallet": "Mula saan",
+      "transactionDeleted": "Nabura na.",
+      "selectCategoryTitle": "Saan 'to papasok?",
+      "searchCategory": "Maghanap ng kategorya...",
+      "noCategoriesAvailable": "Walang kategorya",
+      "createNewCategory": "Gumawa ng bago",
+      "amount": "HALAGA",
+      "description": "PARA SAAN",
+      "category": "KATEGORYA",
+      "addNote": "Magdagdag ng note (optional)...",
+      "today": "Ngayon",
+      "editTransaction": "Ayusin 'to",
+      "newTransaction": "Bagong Record",
+      "selectWallet": "Pumili ng Wallet",
+      "save": "I-save",
+      "transactionUpdated": "Ayos, na-update na.",
+      "transactionSaved": "Na-save na, boss."
+    },
+    "settings": {
+      "title": "I-customize",
+      "categories": "Mga Kategorya ng Gastos",
+      "wallets": "Mga Pera at Account Mo",
+      "language": "Wika",
+      "currency": "Pera",
+      "contact": "Kausapin Kami",
+      "legacyView": "Bumalik sa Lumang Hitsura",
+      "deleteCategory": "Burahin 'tong kategorya?",
+      "deleteWallet": "Burahin ang wallet na 'to?",
+      "cannotUndo": "Sigurado ka ba? Hindi mo na 'to maibabalik.",
+      "deleteWalletWarning": "Mabubura rin ang lahat ng gastos na nakalista sa wallet na 'to.",
+      "deleteError": "May mali: $error",
+      "noCategoriesCreated": "Wala pang kategorya.\nGumawa ka muna.",
+      "noWalletsCreated": "Wala ka pang nilalagay na account.\nAdd mo na.",
+      "walletDeleted": "Boom, nabura na.",
+      "cancel": "Wag muna",
+      "delete": "Sige, burahin",
+      "expenses": "Gastos",
+      "income": "Kita",
+      "newWallet": "Bagong Wallet",
+      "editWallet": "Ayusin ang Wallet",
+      "walletName": "Pangalan ng Wallet",
+      "saveWallet": "I-save ang Wallet"
+    },
+    "dashboard": {
+      "greetingMorning": "Magandang umaga!",
+      "totalBalance": "KABUUANG PERA",
+      "dateFilters": {
+        "thisMonth": "Ngayong buwan",
+        "lastMonth": "Nakaraang buwan",
+        "customRange": "Pumili ng petsa..."
+      },
+      "walletFilters": {
+        "all": "Lahat",
+        "allWallets": "Lahat ng Accounts"
+      },
+      "background": {
+        "title": "Palitan ang Background",
+        "chooseFromGallery": "Pumili sa Gallery",
+        "restoreDefault": "Ibalik sa Dati"
+      },
+      "incomeExpense": {
+        "income": "KITA",
+        "expenses": "GASTOS"
+      },
+      "gauge": {
+        "exceeded": "SUMOBRA NA",
+        "spent": "NAGASTOS NA",
+        "available": "NATITIRA",
+        "overdrawn": "UBOS NA UBOS"
+      },
+      "activityList": {
+        "seeAll": "Tingnan lahat",
+        "newUi": "Bagong Itsura",
+        "expensesByCategory": "Kung Saan Napupunta ang Pera Mo",
+        "noRecentExpenses": "Wow, walang gastos!",
+        "percentOfTotal": "$percent% ng kabuuan",
+        "topExpenses": "Top $count mong gastos",
+        "others": "Iba pa"
+      }
+    },
+    "categories": {
+      "title": "Mga Kategorya",
+      "searchPlaceholder": "Maghanap...",
+      "newCategory": "Gumawa",
+      "editCategory": "I-edit",
+      "noCategories": "Wala pang laman",
+      "form": {
+        "nameLabel": "Pangalan",
+        "save": "I-save"
+      }
+    },
+    "onboarding": {
+      "buttons": {
+        "start": "Tara, simulan na! 🚀",
+        "actionContinue": "Tuloy",
+        "great": "Astig!",
+        "setGoal": "I-set ang Goal",
+        "skip": "Skip muna"
+      },
+      "splash": {
+        "title1": "Paano kung ang AI na ",
+        "title2": "ang bahala mag-ayos\nng pera mo?",
+        "benefit1": "Walang kahirap-hirap.",
+        "benefit2": "Mas malinaw ang lahat.",
+        "benefit3": "Matalinong desisyon."
+      },
+      "expenseCategories": {
+        "title1": "Saan nauubos ang pera mo tuwing buwan?",
+        "subtitle": "Pumili ng hanggang 3",
+        "diningOut": "Kakakain sa labas",
+        "cravings": "Mga milktea at snacks",
+        "subscriptions": "Mga app at Netflix",
+        "outings": "Gimik at inuman",
+        "shopping": "Online shopping (Shopee/Lazada)",
+        "delivery": "Puro GrabFood/FoodPanda"
+      },
+      "financialGoals": {
+        "title": "Ano ang magpapabago ng\nbuhay mo ngayon?",
+        "subtitle": "Pumili ng isa",
+        "trackMoney": "Malaman lang talaga kung saan napupunta pera ko",
+        "spendLess": "Tigilan ang pagbili ng mga walang kwentang bagay",
+        "lessStress": "Tumigil ma-stress tuwing petsa de peligro",
+        "saveMoney": "Makapag-ipon man lang kahit papaano"
+      },
+      "registrationMethod": {
+        "title": "Paano mo gustong ilista\nang mga gastos mo?",
+        "subtitle": "Piliin yung pinakamadali",
+        "voice": "Pagsalita na lang sa phone ko",
+        "auto": "Auto-sync sa bank account",
+        "write": "Ita-type ko isa-isa",
+        "easy": "Basta kung ano yung hindi nakakatamad"
+      },
+      "aiAnalysis": {
+        "loading": {
+          "title": "SINI-SETUP NA NAMIN\nANG APP PARA SAYO",
+          "subtitle": "Pinoproseso...",
+          "messages": [
+            "Tinitingnan kung pano ka gumastos...",
+            "Sini-setup yung mga kategorya mo...",
+            "Hinahanap kung saan ka laging nabubutas...",
+            "Gumagawa ng magandang plano..."
+          ]
+        },
+        "showcase": {
+          "title": "Ayan na, tapos na!",
+          "dynamicText": {
+            "default": "Sobrang bilis maubos ng pera mo. Parang hindi na nagwo-work yung ginagawa mo ngayon.",
+            "part2": " ang umuubos ng malaking parte ng budget mo, at dahil gusto mong ",
+            "part3": " ibig sabihin kailangan mo nang magbago ng diskarte.",
+            "categories": {
+              "diningOut": "Puro kain sa labas",
+              "cravings": "Mga snacks at cravings",
+              "subscriptions": "Mga subscriptions",
+              "outings": "Pag-gimik lagi",
+              "shopping": "Kakacheck-out online",
+              "delivery": "Puro padeliver ng pagkain"
+            },
+            "intentions": {
+              "trackMoney": "ma-track kung saan napupunta pera mo",
+              "spendLess": "mabawasan mga gastos",
+              "lessStress": "mabawasan stress mo",
+              "saveMoney": "makapag-ipon na talaga"
+            }
+          },
+          "result": {
+            "yourResult": "Resulta mo",
+            "average": "Normal na Tao",
+            "messagePart1": "Mas malaki ng 68% ",
+            "messagePart2": "ang ginagastos mo dyan kumpara sa iba, ",
+            "messagePart3": "at ito ang unti-unting sumisira\n",
+            "messagePart4": "sa mga pangarap mo"
+          }
+        }
+      },
+      "mainPriority": {
+        "title": "Ano yung pinaka-priority\nmo ngayon?",
+        "subtitle": "Pumili ng isa na gusto mong tulungan ka ng MoneyT",
+        "breakHabits": "Mawala yung mga bad habits ko sa pera",
+        "stopStress": "Mawala na ang kaba pag malapit na katapusan",
+        "buildFuture": "Magsimulang yumaman pakonti-konti",
+        "feelControl": "Ako ang may kontrol sa pera, hindi yung pera sakin",
+        "saveGoal": "Maka-ipon para sa isang bibilhin"
+      },
+      "aiVoice": {
+        "title": {
+          "default": "Ang abutin ang goal mo",
+          "breakHabits": "Ang alisin ang bad habits",
+          "stopStress": "Ang tanggalin ang stress sa pera",
+          "buildFuture": "Ang yumaman balang araw",
+          "feelControl": "Ang hawakan nang maayos ang pera",
+          "saveGoal": "Ang maipon yung target mong pera",
+          "suffix": " ay mas madali na ngayon dahil may AI Assistant ka na."
+        },
+        "subtitle": "Wag mo nang i-type isa-isa, kausapin mo na lang yung AI, siya na bahala.",
+        "listening": "Magsalita ka lang, nakikinig ako...",
+        "examples": [
+          "Kape ₱150",
+          "Grab ₱250",
+          "Sine ₱350",
+          "Grocery ₱1,200",
+          "Gas ₱1,000",
+          "Netflix ₱549",
+          "Dinner ₱800",
+          "Gamot ₱450"
+        ]
+      }
+    }
+  }
+}

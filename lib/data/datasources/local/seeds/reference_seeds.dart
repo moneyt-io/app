@@ -139,6 +139,24 @@ class ReferenceSeeds {
              symbol: '\$',
              rateExchange: 1.0 // Ajustar tasa si es necesario
            ),
+           CurrenciesCompanion.insert(
+             id: 'VND',
+             name: 'Vietnamese Đồng',
+             symbol: '₫',
+             rateExchange: 1.0,
+           ),
+           CurrenciesCompanion.insert(
+             id: 'PHP',
+             name: 'Philippine Peso',
+             symbol: '₱',
+             rateExchange: 1.0,
+           ),
+           CurrenciesCompanion.insert(
+             id: 'IDR',
+             name: 'Indonesian Rupiah',
+             symbol: 'Rp',
+             rateExchange: 1.0,
+           ),
         ],
         mode: InsertMode.insertOrIgnore,
       );

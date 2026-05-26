@@ -2300,7 +2300,17 @@ class _AppStringsV2OnboardingAiVoiceEs extends AppStringsV2OnboardingAiVoiceEn {
 	// Translations
 	@override late final _AppStringsV2OnboardingAiVoiceTitleEs title = _AppStringsV2OnboardingAiVoiceTitleEs._(_root);
 	@override String get subtitle => 'Registra tus gastos con solo\ndecirlo a tu celular';
-	@override String get listening => 'Escuchando...';
+	@override String get listening => 'Habla tranquilo, te escucho...';
+	@override List<String> get examples => [
+		'Café \$3.50',
+		'Uber \$12.00',
+		'Cine \$15.00',
+		'Súper \$45.20',
+		'Gasolina \$30.00',
+		'Netflix \$10.99',
+		'Cena \$25.00',
+		'Farmacia \$18.50',
+	];
 }
 
 // Path: dashboard.widgets.settings.reset
@@ -3318,7 +3328,15 @@ extension on AppStringsEs {
 			case 'v2.onboarding.aiVoice.title.saveGoal': return 'Ahorrar para tus metas importantes';
 			case 'v2.onboarding.aiVoice.title.suffix': return ' será posible sin esfuerzo con la inteligencia artificial.';
 			case 'v2.onboarding.aiVoice.subtitle': return 'Registra tus gastos con solo\ndecirlo a tu celular';
-			case 'v2.onboarding.aiVoice.listening': return 'Escuchando...';
+			case 'v2.onboarding.aiVoice.listening': return 'Habla tranquilo, te escucho...';
+			case 'v2.onboarding.aiVoice.examples.0': return 'Café \$3.50';
+			case 'v2.onboarding.aiVoice.examples.1': return 'Uber \$12.00';
+			case 'v2.onboarding.aiVoice.examples.2': return 'Cine \$15.00';
+			case 'v2.onboarding.aiVoice.examples.3': return 'Súper \$45.20';
+			case 'v2.onboarding.aiVoice.examples.4': return 'Gasolina \$30.00';
+			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix \$10.99';
+			case 'v2.onboarding.aiVoice.examples.6': return 'Cena \$25.00';
+			case 'v2.onboarding.aiVoice.examples.7': return 'Farmacia \$18.50';
 			default: return null;
 		}
 	}

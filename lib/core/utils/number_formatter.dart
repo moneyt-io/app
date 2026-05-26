@@ -43,6 +43,9 @@ class NumberFormatter {
     'AUD': _CurrencyMeta('en_US', r'A$',  2),
     'JPY': _CurrencyMeta('en_US', '¥',    0),
     'VES': _CurrencyMeta('en_US', 'Bs',   2),
+    'VND': _CurrencyMeta('vi_VN', '₫',    0),
+    'PHP': _CurrencyMeta('en_PH', '₱',    2),
+    'IDR': _CurrencyMeta('id_ID', 'Rp',   0),
   };
 
   // ─── API pública ──────────────────────────────────────────────────────────

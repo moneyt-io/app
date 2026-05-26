@@ -47,7 +47,7 @@ class _AIAnalysisShowcasePageState extends State<AIAnalysisShowcasePage>
   void _startAnalysis() {
     _loadingController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 4),
+      duration: const Duration(seconds: 7),
     );
     _loadingProgress = Tween<double>(begin: 0, end: 100).animate(CurvedAnimation(
       parent: _loadingController,

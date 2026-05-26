@@ -57,6 +57,9 @@ class CurrencyProvider extends ChangeNotifier {
     CurrencyInfo(id: 'CAD', name: 'Canadian Dollar',    symbol: r'CA$', flag: '🇨🇦', backgroundColor: Color(0xFFECFDF5)),
     CurrencyInfo(id: 'AUD', name: 'Australian Dollar',  symbol: r'A$',  flag: '🇦🇺', backgroundColor: Color(0xFFFFF7ED)),
     CurrencyInfo(id: 'JPY', name: 'Japanese Yen',       symbol: '¥',    flag: '🇯🇵', backgroundColor: Color(0xFFFEF2F2)),
+    CurrencyInfo(id: 'VND', name: 'Vietnamese Đồng',    symbol: '₫',    flag: '🇻🇳', backgroundColor: Color(0xFFFEE2E2)),
+    CurrencyInfo(id: 'PHP', name: 'Philippine Peso',    symbol: '₱',    flag: '🇵🇭', backgroundColor: Color(0xFFE0E7FF)),
+    CurrencyInfo(id: 'IDR', name: 'Indonesian Rupiah',  symbol: 'Rp',   flag: '🇮🇩', backgroundColor: Color(0xFFFCE7F3)),
   ];
 
   /// Cambia la moneda por defecto, persiste y actualiza el formatter.
@@ -101,6 +104,9 @@ class CurrencyProvider extends ChangeNotifier {
       if (locale.contains('JP')) return 'JPY';
       if (locale.contains('CA')) return 'CAD';
       if (locale.contains('AU')) return 'AUD';
+      if (locale.contains('VN')) return 'VND';
+      if (locale.contains('PH')) return 'PHP';
+      if (locale.contains('ID')) return 'IDR';
     } catch (_) {}
     return 'USD';
   }

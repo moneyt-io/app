@@ -1,0 +1,1197 @@
+{
+  "app": {
+    "name": "MoneyT",
+    "description": "Pengatur Keuangan"
+  },
+  "common": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Ubah",
+    "loading": "Memuat...",
+    "error": "Kesalahan",
+    "success": "Berhasil",
+    "search": "Cari",
+    "clearSearch": "Hapus pencarian",
+    "viewAll": "Lihat semua",
+    "retry": "Coba lagi",
+    "add": "Tambah",
+    "remove": "Hapus",
+    "moreOptions": "Opsi lainnya",
+    "addToFavorites": "Tambah ke favorit",
+    "removeFromFavorites": "Hapus dari favorit",
+    "today": "Hari ini",
+    "yesterday": "Kemarin"
+  },
+  "components": {
+    "dateSelection": {
+      "title": "Pilih tanggal",
+      "subtitle": "Pilih tanggal transaksi",
+      "selectedDate": "Tanggal dipilih",
+      "confirm": "Konfirmasi"
+    },
+    "selection": {
+      "cancel": "Batal",
+      "confirm": "Konfirmasi",
+      "select": "Pilih"
+    },
+    "contactSelection": {
+      "title": "Pilih kontak",
+      "subtitle": "Dengan siapa transaksi ini",
+      "searchPlaceholder": "Cari kontak",
+      "noContact": "Tanpa kontak",
+      "noContactDetails": "Transaksi tanpa kontak",
+      "allContacts": "Semua kontak",
+      "create": "Buat kontak baru"
+    },
+    "categorySelection": {
+      "title": "Pilih kategori",
+      "subtitle": "Pilih kategori transaksi ini",
+      "searchPlaceholder": "Cari kategori"
+    },
+    "currencySelection": {
+      "title": "Pilih mata uang",
+      "subtitle": "Pilih mata uang",
+      "searchPlaceholder": "Cari mata uang"
+    },
+    "accountSelection": {
+      "title": "Pilih akun",
+      "subtitle": "Pilih akun untuk transaksi ini",
+      "searchPlaceholder": "Cari akun",
+      "wallets": "Dompet",
+      "creditCards": "Kartu Kredit",
+      "selectAccount": "Pilih akun",
+      "confirm": "Konfirmasi"
+    },
+    "parentWalletSelection": {
+      "title": "Dompet utama",
+      "subtitle": "Pilih dompet utama",
+      "searchPlaceholder": "Cari dompet",
+      "noParent": "Tidak ada dompet utama",
+      "createRoot": "Buat sebagai utama",
+      "available": "Dompet Tersedia"
+    },
+    "walletTypes": {
+      "checking": "Rekening Giro",
+      "savings": "Tabungan",
+      "cash": "Uang Tunai",
+      "creditCard": "Kartu Kredit"
+    }
+  },
+  "navigation": {
+    "home": "Beranda",
+    "transactions": "Transaksi",
+    "contacts": "Kontak",
+    "settings": "Pengaturan",
+    "wallets": "Dompet",
+    "categories": "Kategori",
+    "loans": "Pinjaman",
+    "charts": "Bagan Akun",
+    "backups": "Cadangan",
+    "creditCards": "Kartu Kredit",
+    "sections": {
+      "operations": "OPERASI",
+      "financialTools": "ALAT KEUANGAN",
+      "management": "MANAJEMEN",
+      "advanced": "LANJUTAN"
+    }
+  },
+  "transactions": {
+    "title": "Transaksi",
+    "types": {
+      "all": "Semua",
+      "income": "Pemasukan",
+      "expense": "Pengeluaran",
+      "transfer": "Transfer"
+    },
+    "filter": {
+      "title": "Saring Transaksi",
+      "date": "Tanggal",
+      "categories": "Kategori",
+      "accounts": "Akun",
+      "contacts": "Kontak",
+      "amount": "Jumlah",
+      "apply": "Terapkan",
+      "clear": "Bersihkan filter",
+      "add": "Tambah filter",
+      "minAmount": "Jumlah Min",
+      "maxAmount": "Jumlah Max",
+      "selectDate": "Pilih tanggal",
+      "selectCategory": "Pilih kategori",
+      "selectAccount": "Pilih akun",
+      "selectContact": "Pilih kontak",
+      "quickFilters": "Filter cepat",
+      "ranges": {
+        "thisMonth": "Bulan ini",
+        "lastMonth": "Bulan lalu",
+        "thisYear": "Tahun ini",
+        "lastYear": "Tahun lalu"
+      },
+      "customRange": "Kustom",
+      "startDate": "Tanggal Mulai",
+      "endDate": "Tanggal Selesai",
+      "active": "Filter Aktif",
+      "subtitles": {
+        "income": "Uang masuk",
+        "expense": "Uang keluar",
+        "transfer": "Uang dipindah"
+      }
+    },
+    "form": {
+      "newTitle": "Transaksi Baru",
+      "editTitle": "Ubah Transaksi",
+      "amount": "Jumlah",
+      "type": "Jenis transaksi",
+      "amountRequired": "Jumlah wajib diisi",
+      "date": "Tanggal",
+      "account": "Akun",
+      "toAccount": "Ke Akun",
+      "category": "Kategori",
+      "contact": "Kontak",
+      "contactOptional": "Kontak (opsional)",
+      "description": "Keterangan",
+      "descriptionOptional": "Keterangan (opsional)",
+      "selectAccount": "Pilih akun",
+      "selectDestination": "Pilih tujuan",
+      "selectCategory": "Pilih kategori",
+      "selectContact": "Pilih kontak",
+      "saveSuccess": "Transaksi berhasil disimpan",
+      "updateSuccess": "Transaksi berhasil diubah",
+      "saveError": "Gagal menyimpan transaksi",
+      "share": "Bagikan",
+      "created": "Transaksi berhasil dibuat",
+      "crossCurrencyConversion": "Konversi mata uang",
+      "receivedAmount": "Jumlah diterima",
+      "exchangeRate": "Nilai tukar",
+      "receivedAmountRequired": "Masukkan jumlah diterima",
+      "exchangeRateLabel": "1 $from = $rate $to"
+    },
+    "errors": {
+      "load": "Gagal memuat transaksi"
+    },
+    "empty": {
+      "title": "Tidak ada transaksi",
+      "message": "Tidak ada transaksi yang sesuai",
+      "clearFilters": "Bersihkan filter"
+    },
+    "list": {
+      "count": "$n transaksi"
+    },
+    "detail": {
+      "title": "Detail Transaksi",
+      "delete": "Hapus Transaksi",
+      "deleteConfirmation": "Anda yakin? Ini tidak dapat dikembalikan.",
+      "deleted": "Transaksi dihapus",
+      "duplicate": "Duplikat",
+      "duplicateNotImplemented": "Duplikat belum tersedia",
+      "edit": "Ubah",
+      "errorLoad": "Gagal memuat detail",
+      "errorPrepareEdit": "Error: $error",
+      "errorDelete": "Error: $error",
+      "category": "Kategori",
+      "account": "Akun",
+      "contact": "Kontak",
+      "description": "Keterangan",
+      "transferDetails": "Detail Transfer",
+      "from": "Dari",
+      "to": "Ke",
+      "unknownAccount": "Akun Tidak Dikenal",
+      "errorUrl": "Tidak dapat membuka $url",
+      "date": "Tanggal",
+      "time": "Waktu",
+      "loanLinkedWarning": "Transaksi ini terkait dengan pinjaman dan diatur secara otomatis."
+    },
+    "share": {
+      "title": "Bagikan",
+      "copyText": "Salin Teks",
+      "shareButton": "Bagikan",
+      "shareMessage": "Berikut bukti transaksi saya:",
+      "copied": "Berhasil disalin ke papan klip!",
+      "paymentMethod": "Metode Pembayaran",
+      "receiptTitle": "Bukti Transaksi",
+      "poweredBy": "Didukung oleh MoneyT • moneyt.io",
+      "errorImage": "Gagal: $error",
+      "receipt": {
+        "title": "--- Detail ---",
+        "amount": "Jumlah: $amount",
+        "description": "Keterangan: $description",
+        "category": "Kategori: $category",
+        "date": "Tanggal: $date",
+        "time": "Waktu: $time",
+        "wallet": "Akun: $wallet",
+        "contact": "Kontak: $contact",
+        "id": "ID: $id",
+        "separator": "--------------------------"
+      },
+      "generatedOn": "Dibuat pada $date"
+    }
+  },
+  "contacts": {
+    "title": "Kontak",
+    "addContact": "Tambah Kontak",
+    "editContact": "Ubah Kontak",
+    "newContact": "Kontak baru",
+    "noContacts": "Belum ada kontak",
+    "noContactsMessage": "Tambahkan kontak pertama Anda",
+    "searchContacts": "Cari kontak",
+    "deleteContact": "Hapus",
+    "confirmDelete": "Anda yakin ingin menghapus",
+    "contactDeleted": "Berhasil dihapus",
+    "errorDeleting": "Gagal menghapus",
+    "noSearchResults": "Tidak ditemukan",
+    "noContactsMatch": "Tidak ada kecocokan dengan \"$query\".",
+    "errorLoading": "Gagal memuat kontak",
+    "contactSaved": "Berhasil disimpan",
+    "errorSaving": "Gagal menyimpan",
+    "noContactInfo": "Tidak ada info kontak",
+    "importContact": "Impor kontak",
+    "importContacts": "Impor banyak kontak",
+    "importContactSoon": "Akan segera hadir",
+    "fields": {
+      "name": "Nama",
+      "fullName": "Nama lengkap",
+      "email": "Email",
+      "phone": "Telepon",
+      "address": "Alamat",
+      "notes": "Catatan"
+    },
+    "placeholders": {
+      "enterFullName": "Masukkan nama lengkap",
+      "enterPhone": "Masukkan nomor",
+      "enterEmail": "Masukkan email"
+    },
+    "validation": {
+      "nameRequired": "Nama wajib diisi",
+      "invalidEmail": "Email tidak valid",
+      "invalidPhone": "Nomor tidak valid"
+    }
+  },
+  "errors": {
+    "loadingAccounts": "Gagal memuat akun: $error",
+    "unexpected": "Kesalahan tak terduga"
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "account": {
+      "title": "Akun",
+      "profile": "Profil",
+      "profileSubtitle": "Kelola informasi akun"
+    },
+    "appearance": {
+      "title": "Tampilan",
+      "darkMode": "Mode gelap",
+      "darkModeSubtitle": "Gunakan tema gelap",
+      "language": "Bahasa",
+      "currency": "Mata Uang Utama",
+      "currencySubtitle": "Mata uang default untuk akun baru",
+      "darkTheme": "Tema Gelap",
+      "lightTheme": "Tema Terang",
+      "systemTheme": "Tema Sistem"
+    },
+    "data": {
+      "title": "Data & Penyimpanan",
+      "backup": "Cadangan Data",
+      "backupSubtitle": "Kelola pencadangan Anda"
+    },
+    "info": {
+      "title": "Informasi",
+      "contact": "Kontak & Media Sosial",
+      "contactSubtitle": "Hubungi kami atau ikuti komunitas",
+      "privacy": "Kebijakan Privasi",
+      "privacySubtitle": "Baca kebijakan kami",
+      "share": "Bagikan MoneyT",
+      "shareSubtitle": "Rekomendasikan ke teman"
+    },
+    "logout": {
+      "button": "Keluar",
+      "dialogTitle": "Keluar",
+      "dialogMessage": "Anda yakin ingin keluar dari akun?",
+      "cancel": "Batal",
+      "confirm": "Keluar"
+    },
+    "social": {
+      "title": "Kontak dan Sosial",
+      "follow": "Ikuti MoneyT",
+      "description": "Tetap terhubung dengan pembaruan.",
+      "networks": "Media Sosial",
+      "github": "GitHub",
+      "githubSubtitle": "Lihat kode sumber",
+      "linkedin": "LinkedIn",
+      "linkedinSubtitle": "Berita profesional",
+      "twitter": "X (Twitter)",
+      "twitterSubtitle": "Pembaruan langsung",
+      "reddit": "Reddit",
+      "redditSubtitle": "Komunitas",
+      "discord": "Discord",
+      "discordSubtitle": "Obrolan komunitas",
+      "contact": "Dukungan",
+      "email": "Kirim Email",
+      "website": "Situs Web Resmi"
+    },
+    "language": {
+      "title": "Bahasa",
+      "available": "BAHASA TERSEDIA",
+      "apply": "Terapkan Bahasa"
+    },
+    "currency": {
+      "title": "Mata Uang",
+      "available": "MATA UANG",
+      "apply": "Terapkan"
+    },
+    "messages": {
+      "profileComingSoon": "Profil akan segera hadir",
+      "privacyError": "Tidak dapat membuka kebijakan privasi",
+      "logoutComingSoon": "Fitur keluar segera hadir"
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Selamat Datang di MoneyT 👋",
+      "subtitle": "Kendalikan keuanganmu dalam hitungan menit ✨"
+    },
+    "problemStatement": {
+      "title": "Merasa uang cepat habis tanpa jejak?",
+      "subtitle": "Kamu tidak sendirian. 70% orang tidak tahu ke mana uang mereka pergi."
+    },
+    "specificProblem": {
+      "title": "Apa masalah terbesarmu saat ini?",
+      "options": {
+        "debts": "Terlilit pinjaman/utang",
+        "savings": "Susah banget nabung",
+        "unknown": "Gak tau duit abis buat apa",
+        "chaos": "Keuangan berantakan banget"
+      }
+    },
+    "personalGoal": {
+      "title": "Apa fokus utamamu?",
+      "options": {
+        "debtFree": "Bebas dari utang",
+        "saveTrip": "Nabung buat liburan/barang",
+        "invest": "Mulai berinvestasi",
+        "peace": "Hidup tenang tanpa mikirin uang"
+      }
+    },
+    "solutionPreview": {
+      "title": "MoneyT memberikan kejelasan",
+      "subtitle": "Pantau semua akun, utang, dan pengeluaran di satu tempat. Gak perlu Excel lagi.",
+      "benefits": {
+        "visualize": "Lacak pengeluaran secara real-time",
+        "goals": "Capai target keuangan",
+        "smart": "Buat keputusan yang cerdas"
+      }
+    },
+    "currentMethod": {
+      "title": "Bagaimana kamu mengatur uang saat ini?",
+      "subtitle": "Pilih yang paling mirip denganmu.",
+      "options": {
+        "excel": "Pakai Excel/Spreadsheet",
+        "notebook": "Catat di buku",
+        "mental": "Cuma diingat di kepala aja",
+        "none": "Gak diatur sama sekali"
+      }
+    },
+    "featuresShowcase": {
+      "title": "Fitur saat ini dan yang akan datang ✨",
+      "subtitle": "Sudah siap dipakai, dengan lebih banyak fitur sedang dibuat.",
+      "available": "SUDAH TERSEDIA",
+      "comingSoon": "SEGERA HADIR",
+      "features": {
+        "income": "Pemasukan",
+        "expense": "Pengeluaran",
+        "transfer": "Transfer",
+        "loans": "Utang Piutang",
+        "goals": "Target",
+        "budgets": "Anggaran",
+        "investments": "Investasi",
+        "cloud": "Sinkronisasi Cloud",
+        "openBanking": "Sambung Rekening Bank"
+      }
+    },
+    "complete": {
+      "title": "Siap meluncur! 🚀",
+      "subtitle": "Catat pengeluaran pertamamu dan lihat perubahannya 📈",
+      "stats": {
+        "title": "Peluang Sukses",
+        "before": "Sebelum MoneyT",
+        "after": "Dengan MoneyT"
+      }
+    },
+    "buttons": {
+      "start": "Mulai sekarang 🚀",
+      "fixIt": "Ayo beresin hari ini ⚡",
+      "actionContinue": "Lanjut",
+      "setGoal": "Tentukan Target 🎯",
+      "wantControl": "Gue mau kendali ini!",
+      "great": "Mantap, lanjut!",
+      "firstTransaction": "Catat transaksi pertama ➕",
+      "skip": "Lewati"
+    }
+  },
+  "dashboard": {
+    "greeting": "Halo!",
+    "balance": {
+      "total": "TOTAL SALDO",
+      "income": "PEMASUKAN",
+      "expenses": "PENGELUARAN",
+      "thisMonth": "bulan ini"
+    },
+    "actions": {
+      "income": "Pemasukan",
+      "expense": "Pengeluaran",
+      "transfer": "Transfer",
+      "all": "Semua"
+    },
+    "wallets": {
+      "title": "Dompet",
+      "count": "$n akun",
+      "more": "+$n lainnya",
+      "viewDetails": "Lihat detail $name"
+    },
+    "transactions": {
+      "title": "Transaksi Terakhir",
+      "subtitle": "5 transaksi terbaru",
+      "empty": "Belum ada transaksi",
+      "emptySubtitle": "Transaksi barumu akan muncul di sini",
+      "more": "+$n lagi"
+    },
+    "customize": "Sesuaikan",
+    "widgets": {
+      "balance": {
+        "title": "Total Saldo",
+        "description": "Status keuangan menyeluruh"
+      },
+      "quickActions": {
+        "title": "Aksi Cepat",
+        "description": "Pintasan cepat"
+      },
+      "wallets": {
+        "title": "Dompet",
+        "description": "Ringkasan jumlah uang"
+      },
+      "loans": {
+        "title": "Pinjaman",
+        "description": "Uang masuk dan keluar dari pinjaman"
+      },
+      "transactions": {
+        "title": "Transaksi",
+        "description": "Aktivitas terbaru"
+      },
+      "categoryBreakdown": {
+        "title": "Rincian Kategori",
+        "description": "Pengeluaran bulan ini",
+        "empty_message": "Belum ada pengeluaran.",
+        "others": "Lainnya",
+        "back": "Kembali",
+        "monthlyBudget": "Anggaran bulanan",
+        "leftover": "Tersisa $amount dari penghasilan.",
+        "exceeded": "Pengeluaran melebih penghasilan sebesar $amount.",
+        "noIncome": "Pengeluaran: $amount (Belum ada penghasilan)"
+      },
+      "chartAccounts": {
+        "title": "Bagan Akun",
+        "description": "Struktur semua akun"
+      },
+      "creditCards": {
+        "title": "Kartu Kredit",
+        "description": "Batas dan tagihan kartu"
+      },
+      "settings": {
+        "title": "Atur Dashboard",
+        "subtitle": "Geser dan atur widget sesuai keinginanmu.",
+        "reset": {
+          "button": "Kembalikan ke awal",
+          "dialogTitle": "Atur Ulang Tata Letak",
+          "dialogContent": "Ingin mengatur ulang dashboard seperti semula?",
+          "cancel": "Batal",
+          "confirm": "Atur ulang",
+          "success": "Tata letak berhasil diatur ulang"
+        },
+        "saveSuccess": "Berhasil disimpan!",
+        "saveError": "Gagal menyimpan: $error",
+        "saving": "Menyimpan...",
+        "save": "Simpan Layout"
+      }
+    }
+  },
+  "wallets": {
+    "title": "Dompet",
+    "empty": {
+      "title": "Tidak ada dompet",
+      "message": "Buat dompet pertamamu untuk mulai melacak uang.",
+      "action": "Buat Dompet"
+    },
+    "emptyArchived": {
+      "title": "Tidak ada yang diarsipkan",
+      "message": "Dompet yang diarsipkan akan muncul di sini."
+    },
+    "filter": {
+      "active": "Aktif",
+      "archived": "Diarsipkan",
+      "all": "Semua"
+    },
+    "form": {
+      "newTitle": "Dompet Baru",
+      "editTitle": "Ubah Dompet",
+      "name": "Nama dompet",
+      "namePlaceholder": "Contoh: BCA, OVO, Dompet Tunai",
+      "nameRequired": "Nama wajib diisi",
+      "description": "Keterangan",
+      "descriptionPlaceholder": "Untuk apa dompet ini? (opsional)",
+      "currency": "Mata uang",
+      "currencyLockedByParent": "Terkunci pada dompet utama",
+      "parent": "Dompet Induk (opsional)",
+      "parentEmpty": "Tidak ada dompet induk",
+      "chartAccount": "Bagan akun",
+      "chartAccountLocked": "Tidak dapat diubah",
+      "createSuccess": "Dompet berhasil dibuat",
+      "updateSuccess": "Berhasil diubah",
+      "loadParentError": "Error: $error",
+      "loadChartAccountError": "Error: $error"
+    },
+    "delete": {
+      "dialogTitle": "Hapus Dompet",
+      "dialogMessage": "Kamu yakin? $name dan seluruh isinya akan dihapus permanen.",
+      "cancel": "Batal",
+      "confirm": "Hapus",
+      "success": "Dompet dihapus",
+      "error": "Gagal: $error"
+    },
+    "errors": {
+      "load": "Gagal memuat dompet",
+      "retry": "Coba lagi",
+      "comingSoon": "$name segera hadir"
+    },
+    "subtitle": {
+      "mainAccount": "Akun utama",
+      "cashDigital": "Tunai & Digital",
+      "count": {
+        "one": "$n dompet",
+        "other": "$n dompet"
+      },
+      "account": "Akun",
+      "physicalCash": "Uang Tunai Fisik",
+      "digitalWallet": "Dompet Digital"
+    },
+    "options": {
+      "viewTransactions": "Lihat transaksi",
+      "viewTransactionsSubtitle": "Lihat riwayat dompet",
+      "transferFunds": "Transfer uang",
+      "transferFundsSubtitle": "Pindahkan uang ke dompet lain",
+      "editWallet": "Ubah",
+      "editWalletSubtitle": "Ganti nama dan warna dompet",
+      "duplicateWallet": "Duplikat",
+      "duplicateWalletSubtitle": "Buat salinan",
+      "archiveWallet": "Arsipkan",
+      "archiveWalletSubtitle": "Sembunyikan dompet ini",
+      "unarchiveWallet": "Batal arsip",
+      "unarchiveWalletSubtitle": "Kembalikan dompet ini",
+      "deleteWallet": "Hapus",
+      "deleteWalletSubtitle": "Hapus permanen",
+      "defaultTitle": "Dompet"
+    }
+  },
+  "loans": {
+    "title": "Pinjaman",
+    "filter": {
+      "active": "Aktif",
+      "history": "Riwayat",
+      "all": "Semua",
+      "pending": "Tertunda",
+      "lent": "Diutangkan",
+      "borrowed": "Dihutangkan"
+    },
+    "summary": {
+      "netBalance": "SALDO BERSIH",
+      "activeLoans": "PINJAMAN AKTIF",
+      "noActive": "Semua bersih",
+      "lent": "$n dipinjam",
+      "borrowed": "$n meminjam",
+      "pending": "$n tertunda"
+    },
+    "card": {
+      "lent": "Uang Keluar",
+      "borrowed": "Uang Masuk",
+      "active": "$n aktif",
+      "multiple": "$n pinjaman",
+      "transactions": "$n transaksi",
+      "overdue": "Telat $n hari",
+      "due": "Jatuh tempo $date"
+    },
+    "form": {
+      "newTitle": "Pinjaman Baru",
+      "editTitle": "Ubah Pinjaman",
+      "type": "Jenis",
+      "lend": "Saya meminjamkan",
+      "borrow": "Saya berutang",
+      "contact": "Kontak",
+      "contactPlaceholder": "Kepada/Dari siapa?",
+      "account": "Dari Akun",
+      "accountPlaceholder": "Pilih akun",
+      "amount": "Jumlah",
+      "description": "Keterangan",
+      "date": "Tanggal",
+      "dueDate": "Jatuh Tempo",
+      "selectDate": "Pilih tanggal",
+      "optional": "(Opsional)",
+      "createTransaction": "Buat transaksi di dompet",
+      "recordAutomatically": "Catat otomatis",
+      "transactionCategory": "Kategori transaksi",
+      "category": "Kategori",
+      "categoryPlaceholder": "Pilih kategori",
+      "save": "Simpan",
+      "successCreate": "Pinjaman berhasil dicatat!",
+      "successUpdate": "Pinjaman diperbarui",
+      "contactRequired": "Kontak wajib diisi",
+      "accountRequired": "Akun wajib diisi",
+      "amountRequired": "Jumlah wajib diisi"
+    },
+    "detail": {
+      "title": "Detail",
+      "deleteTitle": "Hapus Pinjaman",
+      "deleteMessage": "Kamu yakin ingin menghapus catatan pinjaman ini?",
+      "deleteSuccess": "Berhasil dihapus.",
+      "deleteError": "Gagal menghapus: $error",
+      "notFound": "Tidak ditemukan",
+      "progress": "Progres Pembayaran",
+      "info": "Informasi",
+      "pay": "Bayar / Terima",
+      "viewHistory": "Lihat Seluruh Riwayat",
+      "original": "Jumlah awal: $amount",
+      "section": "Detail",
+      "activeSummary": "Ringkasan",
+      "activeLent": "Diutangkan (Aktif)",
+      "activeBorrowed": "Meminjam (Aktif)",
+      "activeNet": "Saldo Bersih (Aktif)",
+      "activeTotal": "Total Aktif",
+      "startDate": "Tanggal Mulai",
+      "dueDate": "Tanggal Jatuh Tempo",
+      "type": {
+        "label": "Jenis",
+        "personal": "Pinjaman Pribadi",
+        "borrowed": "Uang Pinjaman",
+        "auto": "Kredit Kendaraan",
+        "mortgage": "KPR / Hipotek",
+        "student": "Pinjaman Pendidikan"
+      },
+      "payment": {
+        "history": "Riwayat Pembayaran",
+        "date": "Dibayar $date",
+        "transactionId": "ID: $id",
+        "paid": "Terbayar $amount",
+        "remaining": "Sisa $amount"
+      }
+    },
+    "history": {
+      "title": "Riwayat Pinjaman",
+      "section": "Semua Pinjaman",
+      "totalLoaned": "Total jumlah",
+      "noLoans": "Tidak ada pinjaman ditemukan.",
+      "filter": {
+        "all": "Semua",
+        "lent": "Diutangkan",
+        "borrowed": "Meminjam",
+        "completed": "Lunas",
+        "title": "Filter",
+        "reset": "Reset",
+        "apply": "Terapkan",
+        "dateRange": "Rentang waktu",
+        "amountRange": "Rentang jumlah",
+        "startDate": "Mulai",
+        "endDate": "Selesai",
+        "select": "Pilih"
+      },
+      "headers": {
+        "lent": "Uang yang Kamu Pinjamkan",
+        "borrowed": "Uang yang Kamu Pinjam",
+        "completed": "Sudah Lunas",
+        "active": "Pinjaman Aktif",
+        "cancelled": "Dibatalkan",
+        "writtenOff": "Diikhlaskan / Dihapus"
+      },
+      "item": {
+        "defaultTitle": "Pinjaman",
+        "date": "Tanggal: $date",
+        "lent": "Meminjamkan",
+        "borrowed": "Berutang",
+        "status": {
+          "completed": "Lunas",
+          "active": "Aktif",
+          "cancelled": "Batal",
+          "writtenOff": "Dihapus"
+        }
+      },
+      "summary": {
+        "title": "Ringkasan Pinjaman",
+        "viewDetails": "Lihat detail",
+        "hideDetails": "Sembunyikan detail",
+        "outstandingLent": "Orang lain berutang ke kamu",
+        "outstandingBorrowed": "Kamu berutang ke orang lain",
+        "netPosition": "Posisi Bersih",
+        "totalLent": "Total Dipinjamkan",
+        "totalBorrowed": "Total Berutang",
+        "totalRepaidToYou": "Total Dibayar Kepadamu",
+        "totalYouRepaid": "Total Kamu Bayar",
+        "totalLoans": "Total Jumlah Pinjaman",
+        "completedLoans": "Pinjaman Lunas"
+      }
+    },
+    "contactDetail": {
+      "titleWith": "Pinjaman dengan $name"
+    },
+    "share": {
+      "title": "Bagikan",
+      "contactTitle": "Bagikan Ringkasan",
+      "button": "Kirim",
+      "copy": "Salin",
+      "message": "Berikut ringkasan pinjamannya:",
+      "contactMessage": "Ringkasan utang dengan $name:",
+      "error": "Gagal: $error",
+      "contactCopied": "Disalin ke papan klip!",
+      "activeLoans": "Pinjaman Aktif ($n):",
+      "loanItem": "• $description: $amount ($date) - $percent% lunas",
+      "loanStatement": "MoneyT - Rekap Pinjaman",
+      "loanSummary": "MoneyT - Ringkasan",
+      "personalLoan": "Pinjaman Pribadi",
+      "remaining": "Sisa: $amount",
+      "remainingLabel": "Sisa saldo",
+      "original": "dari total $amount",
+      "progress": "Progres: $percent% lunas",
+      "progressLabel": "Progres",
+      "paidSuffix": "Lunas",
+      "date": "Tanggal: $date",
+      "dateLabel": "Tanggal",
+      "contact": "Kontak: $name",
+      "contactLabel": "Kontak",
+      "generated": "Dibuat pada $date",
+      "generatedLabel": "Dibuat pada $date",
+      "totalActive": "Total Aktif: $n",
+      "active": "aktif",
+      "poweredBy": "Didukung oleh MoneyT • moneyt.io",
+      "copied": "Berhasil disalin!",
+      "netBalance": "Saldo Bersih: $amount ($status)",
+      "netBalanceLabel": "Saldo Bersih",
+      "owed": "Kamu menerima",
+      "owe": "Kamu berutang",
+      "lent": "Kamu meminjamkan: $amount",
+      "lentLabel": "Kamu meminjamkan",
+      "borrowed": "Kamu meminjam: $amount",
+      "borrowedLabel": "Kamu meminjam",
+      "contactSummary": "Ringkasan - $name"
+    },
+    "payment": {
+      "title": "Catat Pembayaran",
+      "amount": "Berapa jumlahnya?",
+      "amountPlaceholder": "0",
+      "amountRequired": "Masukkan jumlah",
+      "invalidAmount": "Jumlah tidak valid",
+      "exceedsBalance": "Melebihi sisa pinjaman",
+      "date": "Tanggal pembayaran",
+      "account": "Melalui akun mana?",
+      "selectAccount": "Pilih akun",
+      "details": "Catatan tambahan",
+      "detailsPlaceholder": "Tambahkan catatan... (opsional)",
+      "success": "Pembayaran berhasil dicatat",
+      "error": "Gagal: $error",
+      "errorAmount": "Jumlah tidak valid",
+      "errorAccount": "Pilih akun",
+      "errorLoading": "Gagal memuat: $error",
+      "summary": {
+        "title": "Ringkasan",
+        "defaultTitle": "Pinjaman",
+        "amount": "Jumlah pembayaran",
+        "remaining": "Sisa saldo",
+        "progress": "Progres terbaru",
+        "description": "$loan untuk $contact",
+        "unknownContact": "Tidak Dikenal",
+        "total": "Total $amount",
+        "paid": "Lunas $amount",
+        "remainingLabel": "Sisa $amount"
+      },
+      "quick": {
+        "full": "Lunas Penuh ($amount)",
+        "half": "Setengah ($amount)"
+      }
+    },
+    "given": "Diberikan",
+    "received": "Diterima",
+    "item": {
+      "due": "Batas: $date",
+      "paidAmount": "Lunas: $amount",
+      "remaining": "Sisa: $amount",
+      "percentPaid": "$percent%"
+    },
+    "section": {
+      "activeLoans": "Pinjaman Aktif",
+      "loansCount": "$n pinjaman"
+    },
+    "empty": {
+      "title": "Tidak ada pinjaman aktif",
+      "message": "Tenang rasanya tanpa utang piutang.",
+      "action": "Catat Pinjaman"
+    }
+  },
+  "categories": {
+    "title": "Kategori",
+    "form": {
+      "newTitle": "Kategori Baru",
+      "editTitle": "Ubah Kategori",
+      "name": "Nama kategori",
+      "namePlaceholder": "Contoh: Makanan, Transport, Belanja",
+      "nameRequired": "Nama kategori wajib",
+      "parent": "Kategori Induk (opsional)",
+      "noParent": "Tanpa kategori induk",
+      "asSubcategory": "Akan menjadi sub-kategori",
+      "asRoot": "Akan menjadi kategori utama",
+      "active": "Aktif",
+      "activeDescription": "Bisa dipilih saat membuat transaksi",
+      "selectIcon": "Pilih Ikon",
+      "selectColor": "Pilih Warna",
+      "saveSuccess": "Kategori disimpan!",
+      "saveError": "Gagal menyimpan: $error"
+    },
+    "parentSelection": {
+      "title": "Pilih induk kategori",
+      "subtitle": "Ke mana kategori ini masuk?",
+      "noParent": "Tanpa induk (Utama)"
+    },
+    "incomeCategory": "Kategori Pemasukan",
+    "expenseCategory": "Kategori Pengeluaran",
+    "report": {
+      "title": "Laporan Lanjutan",
+      "timeFilter": "Rentang Waktu",
+      "thisMonth": "Bulan Ini",
+      "lastMonth": "Bulan Lalu",
+      "thisYear": "Tahun Ini",
+      "allTime": "Sepanjang Waktu",
+      "details": "Detail",
+      "noTransactions": "Tidak ada transaksi",
+      "income": "Pemasukan",
+      "expense": "Pengeluaran"
+    }
+  },
+  "backups": {
+    "title": "Cadangan Data",
+    "menu": {
+      "settings": "Pengaturan Cadangan",
+      "comingSoon": "Akan segera hadir"
+    },
+    "filters": {
+      "all": "Semua",
+      "auto": "Otomatis",
+      "manual": "Manual",
+      "thisMonth": "Bulan Ini",
+      "lastMonth": "Bulan Lalu",
+      "thisYear": "Tahun Ini",
+      "lastYear": "Tahun Lalu"
+    },
+    "status": {
+      "loading": "Memuat...",
+      "error": "Gagal memuat daftar",
+      "empty": "Belum ada cadangan",
+      "emptyAction": "Tekan tombol + untuk mencadangkan data",
+      "success": "Selesai!",
+      "created": "Data berhasil diamankan.",
+      "createError": "Gagal membuat: $error",
+      "restoreError": "Gagal memulihkan: $error",
+      "deleteError": "Gagal menghapus: $error"
+    },
+    "actions": {
+      "create": "Buat Cadangan",
+      "import": "Impor File",
+      "restore": "Pulihkan Data",
+      "delete": "Hapus",
+      "share": "Bagikan",
+      "cancel": "Batal",
+      "retry": "Coba Lagi",
+      "ok": "OK"
+    },
+    "dialogs": {
+      "info": {
+        "title": "Informasi File",
+        "file": "Nama:",
+        "size": "Ukuran:",
+        "created": "Dibuat pada:",
+        "transactions": "Transaksi:"
+      },
+      "restore": {
+        "title": "Pulihkan Data",
+        "content": "Anda yakin ingin memulihkan dari file \"$file\"? Data saat ini akan ditimpa seluruhnya.",
+        "success": "Memulihkan data... Aplikasi akan dimulai ulang."
+      },
+      "delete": {
+        "title": "Hapus Cadangan",
+        "content": "Yakin ingin menghapus \"$file\"? File ini akan hilang secara permanen.",
+        "success": "Berhasil dihapus."
+      }
+    },
+    "stats": {
+      "title": "Statistik Cadangan",
+      "totalBackups": "Total Cadangan",
+      "totalSize": "Total Ukuran",
+      "oldest": "Paling Lama",
+      "latest": "Terbaru",
+      "autoBackupStatus": "Cadangan Otomatis",
+      "active": "Menyala",
+      "inactive": "Mati"
+    },
+    "options": {
+      "restore": {
+        "title": "Pulihkan",
+        "subtitle": "Timpa data saat ini dengan file ini"
+      },
+      "share": {
+        "title": "Bagikan",
+        "subtitle": "Kirim file ini"
+      },
+      "delete": {
+        "title": "Hapus",
+        "subtitle": "Ini tidak dapat dikembalikan"
+      },
+      "latestBadge": "Terbaru",
+      "latestFile": "File paling baru",
+      "backupFile": "File zip cadangan"
+    },
+    "format": {
+      "auto": "Otomatis - $date",
+      "manual": "Manual - $date",
+      "initial": "Cadangan Awal",
+      "generic": "Cadangan - $date"
+    }
+  },
+  "v2": {
+    "voice": {
+      "errorProcessing": "Gak kedengeran, bos. Coba ulang lagi?",
+      "tapMicrophone": "Tekan mic buat mulai ngomong",
+      "listening": "Lagi dengerin nih...",
+      "missingApiKey": "Bro, GEMINI_API_KEY di file .env nya belum ada.",
+      "aiError": "AI lagi error: $error",
+      "cancel": "Batalin",
+      "scan": "Scan struk"
+    },
+    "transactions": {
+      "invalidAmount": "Angka yang bener dong masukinnya.",
+      "selectAccount": "Ini keluar dari dompet mana?",
+      "selectCategory": "Kategori apaan nih?",
+      "errorCreatingCategory": "Gagal bikin kategori baru: $error",
+      "error": "Error euy: $error",
+      "more": "Lainnya",
+      "expense": "Pengeluaran",
+      "income": "Pemasukan",
+      "deleteTransaction": "Beneran mau hapus catatan ini?",
+      "cancel": "Gak jadi",
+      "delete": "Hapus",
+      "yesterday": "Kemarin",
+      "usedCategories": "SERING DIPAKAI",
+      "noTransactions": "Belum ada pengeluaran hari ini",
+      "recentActivity": "Aktivitas Terakhir",
+      "searchTransaction": "Nyari pengeluaran apa...",
+      "date": "Kapan",
+      "wallet": "Dari Mana",
+      "transactionDeleted": "Udah dihapus.",
+      "selectCategoryTitle": "Masuk ke mana?",
+      "searchCategory": "Cari kategori...",
+      "noCategoriesAvailable": "Masih kosong",
+      "createNewCategory": "Bikin kategori baru",
+      "amount": "BERAPA",
+      "description": "BUAT APA",
+      "category": "KATEGORI",
+      "addNote": "Kasih catatan tambahan...",
+      "today": "Hari Ini",
+      "editTransaction": "Edit dulu",
+      "newTransaction": "Catat Baru",
+      "selectWallet": "Pilih Dompet",
+      "save": "Simpan",
+      "transactionUpdated": "Sip, udah diupdate.",
+      "transactionSaved": "Oke, udah kesimpen."
+    },
+    "settings": {
+      "title": "Atur-atur",
+      "categories": "Kategori Pengeluaran",
+      "wallets": "Akun & Dompet",
+      "language": "Bahasa",
+      "currency": "Mata Uang",
+      "contact": "Hubungi Kita",
+      "legacyView": "Balik ke Tampilan Lama",
+      "deleteCategory": "Hapus kategori ini?",
+      "deleteWallet": "Hapus dompet ini?",
+      "cannotUndo": "Yakin nih? Kalo udah ilang gak bisa balik lho.",
+      "deleteWalletWarning": "Awas, semua riwayat pengeluaran di dompet ini bakal ikut kehapus.",
+      "deleteError": "Gagal hapus: $error",
+      "noCategoriesCreated": "Belum ada kategori nih.\nBikin satu dulu gih.",
+      "noWalletsCreated": "Dompet aja belum punya.\nTambahin dulu lah.",
+      "walletDeleted": "Dompet dihapus, bye.",
+      "cancel": "Batal",
+      "delete": "Iya, Hapus",
+      "expenses": "Keluar",
+      "income": "Masuk",
+      "newWallet": "Dompet Baru",
+      "editWallet": "Edit Dompet",
+      "walletName": "Nama Dompet",
+      "saveWallet": "Simpan Dompet"
+    },
+    "dashboard": {
+      "greetingMorning": "Pagi, bos!",
+      "totalBalance": "TOTAL UANG",
+      "dateFilters": {
+        "thisMonth": "Bulan ini",
+        "lastMonth": "Bulan kemaren",
+        "customRange": "Tanggal lain..."
+      },
+      "walletFilters": {
+        "all": "Semua",
+        "allWallets": "Semua Dompet"
+      },
+      "background": {
+        "title": "Ganti Wallpaper",
+        "chooseFromGallery": "Pilih dari Galeri",
+        "restoreDefault": "Balikin kaya semula"
+      },
+      "incomeExpense": {
+        "income": "PEMASUKAN",
+        "expenses": "PENGELUARAN"
+      },
+      "gauge": {
+        "exceeded": "BONCOS",
+        "spent": "KEPAKAI",
+        "available": "SISA",
+        "overdrawn": "MINUS BOS"
+      },
+      "activityList": {
+        "seeAll": "Lihat semua",
+        "newUi": "Tampilan Baru",
+        "expensesByCategory": "Uang Lo Abis Buat Apa Aja",
+        "noRecentExpenses": "Widih, belum jajan!",
+        "percentOfTotal": "$percent% dari total",
+        "topExpenses": "Top $count pengeluaran terboros",
+        "others": "Lain-lain"
+      }
+    },
+    "categories": {
+      "title": "Kategori",
+      "searchPlaceholder": "Cari kategori...",
+      "newCategory": "Buat Baru",
+      "editCategory": "Edit",
+      "noCategories": "Kosong melompong",
+      "form": {
+        "nameLabel": "Nama Kategori",
+        "save": "Simpan"
+      }
+    },
+    "onboarding": {
+      "buttons": {
+        "start": "Gas, mulai! 🚀",
+        "actionContinue": "Lanjut",
+        "great": "Mantul!",
+        "setGoal": "Pilih Target",
+        "skip": "Lewatin aja"
+      },
+      "splash": {
+        "title1": "Gimana jadinya kalau\nKecerdasan Buatan (AI) ",
+        "title2": "ngurusin keuanganmu\nlebih jago dari kamu?",
+        "benefit1": "Bebas ribet.",
+        "benefit2": "Lebih terpantau.",
+        "benefit3": "Keputusan lebih cerdas."
+      },
+      "expenseCategories": {
+        "title1": "Paling sering boncos buat apa tiap bulan?",
+        "subtitle": "Pilih maksimal 3 ya",
+        "diningOut": "Makan di luar / Nongkrong",
+        "cravings": "Ngopi / Jajan receh",
+        "subscriptions": "Langganan Netflix dkk",
+        "outings": "Main sama temen",
+        "shopping": "Check-out Shopee/Tokped",
+        "delivery": "GoFood / GrabFood"
+      },
+      "financialGoals": {
+        "title": "Apa yang bisa ngubah\nhidup lo sekarang?",
+        "subtitle": "Pilih satu aja yang paling pengen diraih",
+        "trackMoney": "Cuma pengen tau duit gue larinya ke mana",
+        "spendLess": "Berhenti beli barang gak penting",
+        "lessStress": "Gak mau pusing mikirin duit pas akhir bulan",
+        "saveMoney": "Beneran bisa nabung buat sesuatu"
+      },
+      "registrationMethod": {
+        "title": "Lo prefer nyatet pengeluaran\npakai cara apa?",
+        "subtitle": "Pilih yang gak bikin males",
+        "voice": "Tinggal ngomong ke hp, beres",
+        "auto": "Tarik data dari mutasi bank",
+        "write": "Ketik satu-satu secara manual",
+        "easy": "Pokoknya yang paling cepet aja"
+      },
+      "aiAnalysis": {
+        "loading": {
+          "title": "BENTAR, LAGI DISIAPIN\nAPP-NYA BUAT LO",
+          "subtitle": "Sedang dianalisis...",
+          "messages": [
+            "Lagi merhatiin gaya belanja lo...",
+            "Nyusun kategori biar pas...",
+            "Nyari tau di mana lo sering boncos...",
+            "Ngebangun strategi keuangannya..."
+          ]
+        },
+        "showcase": {
+          "title": "Oke, udah kelar!",
+          "dynamicText": {
+            "default": "Duit lo bocornya cepet banget. Kayaknya cara lo ngatur uang selama ini emang keliru deh.",
+            "part2": " ngabisin jatah uang lo paling gede, dan karena lo pengen ",
+            "part3": " ini tandanya lo butuh ngerubah kebiasaan.",
+            "categories": {
+              "diningOut": "Sering nongkrong di luar",
+              "cravings": "Jajan receh yang numpuk",
+              "subscriptions": "Langganan numpuk",
+              "outings": "Main terus-terusan",
+              "shopping": "Hobi check-out barang",
+              "delivery": "Ongkir dan pesen antar"
+            },
+            "intentions": {
+              "trackMoney": "nge-track ke mana duit lari",
+              "spendLess": "ngurangin pemborosan",
+              "lessStress": "hidup lebih tenang soal uang",
+              "saveMoney": "mulai serius nabung"
+            }
+          },
+          "result": {
+            "yourResult": "Statistik Lo",
+            "average": "Orang Biasa",
+            "messagePart1": "Lo boros 68% ",
+            "messagePart2": "lebih banyak dibanding rata-rata orang, ",
+            "messagePart3": "dan jujur ini pelan-pelan\n",
+            "messagePart4": "ngerusak masa depan keuangan lo"
+          }
+        }
+      },
+      "mainPriority": {
+        "title": "Prioritas utama lo\nsekarang apaan?",
+        "subtitle": "Pilih satu hal di mana MoneyT bakal bantu banget",
+        "breakHabits": "Ngilangin kebiasaan buruk finansial",
+        "stopStress": "Gak mau deg-degan tiap buka dompet",
+        "buildFuture": "Pelan-pelan nabung buat masa depan",
+        "feelControl": "Gue yang megang kendali duit gue",
+        "saveGoal": "Nabung demi satu barang impian"
+      },
+      "aiVoice": {
+        "title": {
+          "default": "Mencapai target lo",
+          "breakHabits": "Menghilangkan kebiasaan boncos",
+          "stopStress": "Bikin pikiran tenang tiap bulan",
+          "buildFuture": "Membangun masa depan mapan",
+          "feelControl": "Menguasai arus keuangan",
+          "saveGoal": "Mencapai target nabung lo",
+          "suffix": " bakal jauh lebih gampang dibantuin Asisten AI."
+        },
+        "subtitle": "Gak usah ribet ngetik lagi, tinggal tekan mic dan ngomong santai ke dia.",
+        "listening": "Ngomong aja, gue dengerin...",
+        "examples": [
+          "Kopi Rp 35.000",
+          "Gojek Rp 45.000",
+          "Bioskop Rp 150.000",
+          "Belanja Rp 450.000",
+          "Bensin Rp 100.000",
+          "Netflix Rp 186.000",
+          "Makan Rp 120.000",
+          "Apotek Rp 85.000"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,1197 @@
+{
+  "app": {
+    "name": "MoneyT",
+    "description": "Gestionnaire Financier"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "search": "Rechercher",
+    "clearSearch": "Effacer la recherche",
+    "viewAll": "Voir tout",
+    "retry": "Réessayer",
+    "add": "Ajouter",
+    "remove": "Retirer",
+    "moreOptions": "Plus d'options",
+    "addToFavorites": "Ajouter aux favoris",
+    "removeFromFavorites": "Retirer des favoris",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier"
+  },
+  "components": {
+    "dateSelection": {
+      "title": "Choisir la date",
+      "subtitle": "Sélectionne la date",
+      "selectedDate": "Date sélectionnée",
+      "confirm": "Confirmer"
+    },
+    "selection": {
+      "cancel": "Annuler",
+      "confirm": "Confirmer",
+      "select": "Sélectionner"
+    },
+    "contactSelection": {
+      "title": "Sélectionner le contact",
+      "subtitle": "Avec qui se fait la transaction",
+      "searchPlaceholder": "Chercher un contact",
+      "noContact": "Aucun contact",
+      "noContactDetails": "Transaction sans contact",
+      "allContacts": "Tous les contacts",
+      "create": "Créer un contact"
+    },
+    "categorySelection": {
+      "title": "Choisir une catégorie",
+      "subtitle": "Trouve la bonne catégorie",
+      "searchPlaceholder": "Chercher..."
+    },
+    "currencySelection": {
+      "title": "Devise",
+      "subtitle": "Choisis la monnaie",
+      "searchPlaceholder": "Chercher..."
+    },
+    "accountSelection": {
+      "title": "Sélectionner le compte",
+      "subtitle": "D'où vient l'argent",
+      "searchPlaceholder": "Chercher un compte",
+      "wallets": "Portefeuilles",
+      "creditCards": "Cartes de Crédit",
+      "selectAccount": "Choisir",
+      "confirm": "Confirmer"
+    },
+    "parentWalletSelection": {
+      "title": "Portefeuille principal",
+      "subtitle": "Lier à un portefeuille parent",
+      "searchPlaceholder": "Chercher...",
+      "noParent": "Aucun parent",
+      "createRoot": "Créer comme principal",
+      "available": "Disponibles"
+    },
+    "walletTypes": {
+      "checking": "Compte Courant",
+      "savings": "Épargne",
+      "cash": "Espèces",
+      "creditCard": "Carte de Crédit"
+    }
+  },
+  "navigation": {
+    "home": "Accueil",
+    "transactions": "Transactions",
+    "contacts": "Contacts",
+    "settings": "Paramètres",
+    "wallets": "Comptes",
+    "categories": "Catégories",
+    "loans": "Prêts",
+    "charts": "Plan comptable",
+    "backups": "Sauvegardes",
+    "creditCards": "Cartes",
+    "sections": {
+      "operations": "OPÉRATIONS",
+      "financialTools": "OUTILS FINANCIERS",
+      "management": "GESTION",
+      "advanced": "AVANCÉ"
+    }
+  },
+  "transactions": {
+    "title": "Transactions",
+    "types": {
+      "all": "Tout",
+      "income": "Revenu",
+      "expense": "Dépense",
+      "transfer": "Virement"
+    },
+    "filter": {
+      "title": "Filtres",
+      "date": "Date",
+      "categories": "Catégories",
+      "accounts": "Comptes",
+      "contacts": "Contacts",
+      "amount": "Montant",
+      "apply": "Appliquer",
+      "clear": "Effacer",
+      "add": "Ajouter filtre",
+      "minAmount": "Min",
+      "maxAmount": "Max",
+      "selectDate": "Date",
+      "selectCategory": "Catégorie",
+      "selectAccount": "Compte",
+      "selectContact": "Contact",
+      "quickFilters": "Filtres rapides",
+      "ranges": {
+        "thisMonth": "Ce mois",
+        "lastMonth": "Mois dernier",
+        "thisYear": "Cette année",
+        "lastYear": "L'an dernier"
+      },
+      "customRange": "Période personnalisée",
+      "startDate": "Début",
+      "endDate": "Fin",
+      "active": "Filtres actifs",
+      "subtitles": {
+        "income": "Argent reçu",
+        "expense": "Argent dépensé",
+        "transfer": "Argent déplacé"
+      }
+    },
+    "form": {
+      "newTitle": "Nouvelle Transaction",
+      "editTitle": "Modifier Transaction",
+      "amount": "Montant",
+      "type": "Type",
+      "amountRequired": "Montant requis",
+      "date": "Date",
+      "account": "Compte",
+      "toAccount": "Vers",
+      "category": "Catégorie",
+      "contact": "Contact",
+      "contactOptional": "Contact (optionnel)",
+      "description": "Description",
+      "descriptionOptional": "Description (optionnelle)",
+      "selectAccount": "Choisir le compte",
+      "selectDestination": "Choisir la destination",
+      "selectCategory": "Choisir la catégorie",
+      "selectContact": "Choisir le contact",
+      "saveSuccess": "Transaction enregistrée",
+      "updateSuccess": "Transaction mise à jour",
+      "saveError": "Erreur d'enregistrement",
+      "share": "Partager",
+      "created": "Créée avec succès",
+      "crossCurrencyConversion": "Conversion de devise",
+      "receivedAmount": "Montant reçu",
+      "exchangeRate": "Taux de change",
+      "receivedAmountRequired": "Veuillez entrer le montant",
+      "exchangeRateLabel": "1 $from = $rate $to"
+    },
+    "errors": {
+      "load": "Erreur de chargement"
+    },
+    "empty": {
+      "title": "Rien à afficher",
+      "message": "Aucune transaction avec ces filtres",
+      "clearFilters": "Effacer les filtres"
+    },
+    "list": {
+      "count": "$n transactions"
+    },
+    "detail": {
+      "title": "Détails",
+      "delete": "Supprimer",
+      "deleteConfirmation": "Tu es sûr ? Irréversible.",
+      "deleted": "Transaction supprimée",
+      "duplicate": "Dupliquer",
+      "duplicateNotImplemented": "Bientôt",
+      "edit": "Modifier",
+      "errorLoad": "Erreur",
+      "errorPrepareEdit": "Erreur d'édition: $error",
+      "errorDelete": "Erreur de suppression: $error",
+      "category": "Catégorie",
+      "account": "Compte",
+      "contact": "Contact",
+      "description": "Description",
+      "transferDetails": "Virement",
+      "from": "De",
+      "to": "À",
+      "unknownAccount": "Inconnu",
+      "errorUrl": "Impossible d'ouvrir $url",
+      "date": "Date",
+      "time": "Heure",
+      "loanLinkedWarning": "Géré automatiquement via un prêt."
+    },
+    "share": {
+      "title": "Partager",
+      "copyText": "Copier",
+      "shareButton": "Partager",
+      "shareMessage": "Voici mon reçu :",
+      "copied": "Copié dans le presse-papiers !",
+      "paymentMethod": "Méthode",
+      "receiptTitle": "Reçu",
+      "poweredBy": "Via MoneyT • moneyt.io",
+      "errorImage": "Erreur: $error",
+      "receipt": {
+        "title": "--- Détails ---",
+        "amount": "Montant : $amount",
+        "description": "Description : $description",
+        "category": "Catégorie : $category",
+        "date": "Date : $date",
+        "time": "Heure : $time",
+        "wallet": "Compte : $wallet",
+        "contact": "Contact : $contact",
+        "id": "ID : $id",
+        "separator": "--------------------------"
+      },
+      "generatedOn": "Généré le $date"
+    }
+  },
+  "contacts": {
+    "title": "Contacts",
+    "addContact": "Nouveau",
+    "editContact": "Modifier",
+    "newContact": "Nouveau contact",
+    "noContacts": "Aucun contact",
+    "noContactsMessage": "Ajoute ton premier contact",
+    "searchContacts": "Chercher",
+    "deleteContact": "Supprimer",
+    "confirmDelete": "Tu veux vraiment supprimer",
+    "contactDeleted": "Contact supprimé",
+    "errorDeleting": "Erreur",
+    "noSearchResults": "Aucun résultat",
+    "noContactsMatch": "Personne avec \"$query\".",
+    "errorLoading": "Erreur de chargement",
+    "contactSaved": "Contact enregistré",
+    "errorSaving": "Erreur",
+    "noContactInfo": "Aucune info",
+    "importContact": "Importer",
+    "importContacts": "Importer contacts",
+    "importContactSoon": "Bientôt disponible",
+    "fields": {
+      "name": "Nom",
+      "fullName": "Nom complet",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "address": "Adresse",
+      "notes": "Notes"
+    },
+    "placeholders": {
+      "enterFullName": "Nom complet",
+      "enterPhone": "Numéro",
+      "enterEmail": "Adresse e-mail"
+    },
+    "validation": {
+      "nameRequired": "Le nom est requis",
+      "invalidEmail": "E-mail invalide",
+      "invalidPhone": "Numéro invalide"
+    }
+  },
+  "errors": {
+    "loadingAccounts": "Erreur chargement : $error",
+    "unexpected": "Oups, erreur inattendue"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "account": {
+      "title": "Compte",
+      "profile": "Profil",
+      "profileSubtitle": "Gérer tes informations"
+    },
+    "appearance": {
+      "title": "Préférences",
+      "darkMode": "Mode sombre",
+      "darkModeSubtitle": "Passer au thème sombre",
+      "language": "Langue",
+      "currency": "Devise principale",
+      "currencySubtitle": "Devise par défaut",
+      "darkTheme": "Sombre",
+      "lightTheme": "Clair",
+      "systemTheme": "Système"
+    },
+    "data": {
+      "title": "Données",
+      "backup": "Sauvegardes",
+      "backupSubtitle": "Gère tes données"
+    },
+    "info": {
+      "title": "Informations",
+      "contact": "Contact & Réseaux",
+      "contactSubtitle": "Rejoins la communauté",
+      "privacy": "Confidentialité",
+      "privacySubtitle": "Notre politique",
+      "share": "Partager MoneyT",
+      "shareSubtitle": "Fais tourner l'app"
+    },
+    "logout": {
+      "button": "Se déconnecter",
+      "dialogTitle": "Déconnexion",
+      "dialogMessage": "Es-tu sûr de vouloir te déconnecter ?",
+      "cancel": "Annuler",
+      "confirm": "Oui"
+    },
+    "social": {
+      "title": "Contact & Réseaux",
+      "follow": "Suivre MoneyT",
+      "description": "Reste connecté avec la commu.",
+      "networks": "Réseaux Sociaux",
+      "github": "GitHub",
+      "githubSubtitle": "Voir le code",
+      "linkedin": "LinkedIn",
+      "linkedinSubtitle": "News pro",
+      "twitter": "X (Twitter)",
+      "twitterSubtitle": "News en direct",
+      "reddit": "Reddit",
+      "redditSubtitle": "Discussion",
+      "discord": "Discord",
+      "discordSubtitle": "Chat avec nous",
+      "contact": "Support",
+      "email": "Envoyer un e-mail",
+      "website": "Site Officiel"
+    },
+    "language": {
+      "title": "Langue",
+      "available": "LANGUES DISPONIBLES",
+      "apply": "Appliquer"
+    },
+    "currency": {
+      "title": "Devise par défaut",
+      "available": "DEVISES DISPONIBLES",
+      "apply": "Appliquer"
+    },
+    "messages": {
+      "profileComingSoon": "Profil à venir",
+      "privacyError": "Impossible d'ouvrir",
+      "logoutComingSoon": "Déconnexion à venir"
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Bienvenue sur MoneyT 👋",
+      "subtitle": "Gère ton argent en 2 minutes ✨"
+    },
+    "problemStatement": {
+      "title": "L'argent te file entre les doigts ?",
+      "subtitle": "T'es pas seul. 70% des gens ne savent pas où va leur salaire."
+    },
+    "specificProblem": {
+      "title": "C'est quoi ta galère ?",
+      "options": {
+        "debts": "Les dettes et prêts",
+        "savings": "Impossible de mettre de côté",
+        "unknown": "Je sais pas où ça part",
+        "chaos": "C'est le chaos total"
+      }
+    },
+    "personalGoal": {
+      "title": "C'est quoi ton objectif ?",
+      "options": {
+        "debtFree": "Sortir du rouge",
+        "saveTrip": "Épargner pour un projet",
+        "invest": "Commencer à investir",
+        "peace": "La tranquillité financière"
+      }
+    },
+    "solutionPreview": {
+      "title": "MoneyT t'éclaire",
+      "subtitle": "Tout voir au même endroit. Adieu les tableurs ennuyeux.",
+      "benefits": {
+        "visualize": "Suis tes dépenses en live",
+        "goals": "Atteins tes objectifs",
+        "smart": "Prends des décisions malines"
+      }
+    },
+    "currentMethod": {
+      "title": "Comment tu gères ton fric aujourd'hui ?",
+      "subtitle": "Choisis ce qui te ressemble.",
+      "options": {
+        "excel": "Excel / Tableurs",
+        "notebook": "Petit carnet",
+        "mental": "De tête (au pif)",
+        "none": "Je gère rien du tout"
+      }
+    },
+    "featuresShowcase": {
+      "title": "Ce qui est là et ce qui arrive ✨",
+      "subtitle": "Le basique est là, la suite arrive lourd.",
+      "available": "MAINTENANT",
+      "comingSoon": "À VENIR",
+      "features": {
+        "income": "Revenus",
+        "expense": "Dépenses",
+        "transfer": "Virements",
+        "loans": "Prêts",
+        "goals": "Objectifs",
+        "budgets": "Budgets",
+        "investments": "Investissements",
+        "cloud": "Cloud MoneyT",
+        "openBanking": "Open Banking"
+      }
+    },
+    "complete": {
+      "title": "Prêt au décollage ! 🚀",
+      "subtitle": "Note ta première dépense et vois la différence 📈",
+      "stats": {
+        "title": "Probabilité de succès",
+        "before": "Avant MoneyT",
+        "after": "Avec MoneyT"
+      }
+    },
+    "buttons": {
+      "start": "C'est parti 🚀",
+      "fixIt": "On règle ça ⚡",
+      "actionContinue": "Continuer",
+      "setGoal": "Fixer l'objectif 🎯",
+      "wantControl": "Je veux ce contrôle !",
+      "great": "Super, montre-moi !",
+      "firstTransaction": "Ma première dépense ➕",
+      "skip": "Passer"
+    }
+  },
+  "dashboard": {
+    "greeting": "Bienvenue",
+    "balance": {
+      "total": "SOLDE TOTAL",
+      "income": "REVENUS",
+      "expenses": "DÉPENSES",
+      "thisMonth": "ce mois-ci"
+    },
+    "actions": {
+      "income": "Revenu",
+      "expense": "Dépense",
+      "transfer": "Virement",
+      "all": "Tout"
+    },
+    "wallets": {
+      "title": "Portefeuilles",
+      "count": "$n comptes",
+      "more": "+$n comptes",
+      "viewDetails": "Voir $name"
+    },
+    "transactions": {
+      "title": "Transactions récentes",
+      "subtitle": "Les 5 dernières",
+      "empty": "Rien de récent",
+      "emptySubtitle": "Tes dépenses apparaîtront ici",
+      "more": "+$n de plus"
+    },
+    "customize": "Personnaliser",
+    "widgets": {
+      "balance": {
+        "title": "Solde",
+        "description": "Statut général"
+      },
+      "quickActions": {
+        "title": "Actions rapides",
+        "description": "Raccourcis"
+      },
+      "wallets": {
+        "title": "Portefeuilles",
+        "description": "Vue des comptes"
+      },
+      "loans": {
+        "title": "Prêts",
+        "description": "Prêts et emprunts"
+      },
+      "transactions": {
+        "title": "Transactions",
+        "description": "Activité récente"
+      },
+      "categoryBreakdown": {
+        "title": "Par catégorie",
+        "description": "Dépenses du mois",
+        "empty_message": "Rien ce mois-ci.",
+        "others": "Autres",
+        "back": "Retour",
+        "monthlyBudget": "Budget mensuel",
+        "leftover": "Il te reste $amount.",
+        "exceeded": "T'as dépassé de $amount.",
+        "noIncome": "Dépenses : $amount (Sans revenu)"
+      },
+      "chartAccounts": {
+        "title": "Plan comptable",
+        "description": "Structure"
+      },
+      "creditCards": {
+        "title": "Cartes",
+        "description": "Limites et dettes"
+      },
+      "settings": {
+        "title": "Layout",
+        "subtitle": "Organise tes widgets.",
+        "reset": {
+          "button": "Réinitialiser",
+          "dialogTitle": "Par défaut",
+          "dialogContent": "Remettre comme avant ?",
+          "cancel": "Annuler",
+          "confirm": "Oui",
+          "success": "Réinitialisé"
+        },
+        "saveSuccess": "Enregistré !",
+        "saveError": "Erreur : $error",
+        "saving": "Sauvegarde...",
+        "save": "Sauvegarder"
+      }
+    }
+  },
+  "wallets": {
+    "title": "Comptes",
+    "empty": {
+      "title": "Aucun compte",
+      "message": "Ajoute ton premier compte pour démarrer.",
+      "action": "Créer un compte"
+    },
+    "emptyArchived": {
+      "title": "Aucun compte archivé",
+      "message": "Les archives s'afficheront ici."
+    },
+    "filter": {
+      "active": "Actifs",
+      "archived": "Archivés",
+      "all": "Tous"
+    },
+    "form": {
+      "newTitle": "Nouveau",
+      "editTitle": "Modifier",
+      "name": "Nom du compte",
+      "namePlaceholder": "Ex: Banque, Espèces",
+      "nameRequired": "Nom requis",
+      "description": "Description (optionnel)",
+      "descriptionPlaceholder": "À quoi sert ce compte ?",
+      "currency": "Devise",
+      "currencyLockedByParent": "Devise héritée du parent",
+      "parent": "Compte parent (optionnel)",
+      "parentEmpty": "Aucun parent dispo",
+      "chartAccount": "Plan comptable",
+      "chartAccountLocked": "Verrouillé",
+      "createSuccess": "Créé avec succès",
+      "updateSuccess": "Modifié avec succès",
+      "loadParentError": "Erreur: $error",
+      "loadChartAccountError": "Erreur: $error"
+    },
+    "delete": {
+      "dialogTitle": "Supprimer",
+      "dialogMessage": "Sûr de supprimer $name ?",
+      "cancel": "Annuler",
+      "confirm": "Oui",
+      "success": "Supprimé",
+      "error": "Erreur: $error"
+    },
+    "errors": {
+      "load": "Erreur de chargement",
+      "retry": "Réessayer",
+      "comingSoon": "$name bientôt"
+    },
+    "subtitle": {
+      "mainAccount": "Compte principal",
+      "cashDigital": "Espèces & digital",
+      "count": {
+        "one": "$n compte",
+        "other": "$n comptes"
+      },
+      "account": "Compte",
+      "physicalCash": "Argent liquide",
+      "digitalWallet": "Digital"
+    },
+    "options": {
+      "viewTransactions": "Voir les transactions",
+      "viewTransactionsSubtitle": "Afficher l'historique",
+      "transferFunds": "Faire un virement",
+      "transferFundsSubtitle": "Déplacer de l'argent",
+      "editWallet": "Modifier",
+      "editWalletSubtitle": "Changer le nom ou la couleur",
+      "duplicateWallet": "Dupliquer",
+      "duplicateWalletSubtitle": "Copier ce compte",
+      "archiveWallet": "Archiver",
+      "archiveWalletSubtitle": "Cacher ce compte",
+      "unarchiveWallet": "Désarchiver",
+      "unarchiveWalletSubtitle": "Remettre",
+      "deleteWallet": "Supprimer",
+      "deleteWalletSubtitle": "Effacer définitivement",
+      "defaultTitle": "Compte"
+    }
+  },
+  "loans": {
+    "title": "Prêts",
+    "filter": {
+      "active": "En cours",
+      "history": "Histo",
+      "all": "Tout",
+      "pending": "En attente",
+      "lent": "Prêtés",
+      "borrowed": "Empruntés"
+    },
+    "summary": {
+      "netBalance": "SOLDE NET",
+      "activeLoans": "EN COURS",
+      "noActive": "Tout est propre",
+      "lent": "$n prêtés",
+      "borrowed": "$n dus",
+      "pending": "$n en attente"
+    },
+    "card": {
+      "lent": "À recevoir",
+      "borrowed": "À payer",
+      "active": "$n en cours",
+      "multiple": "$n prêts",
+      "transactions": "$n act.",
+      "overdue": "Retard de $n j",
+      "due": "Pour le $date"
+    },
+    "form": {
+      "newTitle": "Nouveau",
+      "editTitle": "Modifier",
+      "type": "Type",
+      "lend": "J'ai prêté",
+      "borrow": "J'ai emprunté",
+      "contact": "À qui ?",
+      "contactPlaceholder": "Choisir",
+      "account": "Depuis le compte",
+      "accountPlaceholder": "Choisir",
+      "amount": "Montant",
+      "description": "Motif",
+      "date": "Date",
+      "dueDate": "À rendre le",
+      "selectDate": "Choisir",
+      "optional": "(Optionnel)",
+      "createTransaction": "Enregistrer sur mon compte",
+      "recordAutomatically": "Créer la transaction",
+      "transactionCategory": "Catégorie",
+      "category": "Catégorie",
+      "categoryPlaceholder": "Choisir",
+      "save": "Valider",
+      "successCreate": "Enregistré !",
+      "successUpdate": "Mis à jour",
+      "contactRequired": "Contact requis",
+      "accountRequired": "Compte requis",
+      "amountRequired": "Montant requis"
+    },
+    "detail": {
+      "title": "Détails",
+      "deleteTitle": "Supprimer",
+      "deleteMessage": "Sûr de vouloir effacer ça ?",
+      "deleteSuccess": "Effacé",
+      "deleteError": "Erreur: $error",
+      "notFound": "Introuvable",
+      "progress": "Avancement",
+      "info": "Infos",
+      "pay": "Payer / Recevoir",
+      "viewHistory": "Historique complet",
+      "original": "Base: $amount",
+      "section": "Détails",
+      "activeSummary": "Résumé",
+      "activeLent": "À récupérer",
+      "activeBorrowed": "À rembourser",
+      "activeNet": "Solde Net",
+      "activeTotal": "Total",
+      "startDate": "Début",
+      "dueDate": "Date limite",
+      "type": {
+        "label": "Type",
+        "personal": "Prêt perso",
+        "borrowed": "Dette",
+        "auto": "Crédit auto",
+        "mortgage": "Prêt immo",
+        "student": "Prêt étudiant"
+      },
+      "payment": {
+        "history": "Paiements",
+        "date": "Le $date",
+        "transactionId": "ID: $id",
+        "paid": "$amount réglé",
+        "remaining": "Reste $amount"
+      }
+    },
+    "history": {
+      "title": "Historique",
+      "section": "Tout voir",
+      "totalLoaned": "Total global",
+      "noLoans": "Rien trouvé.",
+      "filter": {
+        "all": "Tout",
+        "lent": "Prêtés",
+        "borrowed": "Dus",
+        "completed": "Clôturés",
+        "title": "Filtres",
+        "reset": "Zéro",
+        "apply": "Appliquer",
+        "dateRange": "Période",
+        "amountRange": "Montant",
+        "startDate": "Du",
+        "endDate": "Au",
+        "select": "Choisir"
+      },
+      "headers": {
+        "lent": "Argent Prêté",
+        "borrowed": "Argent Emprunté",
+        "completed": "Remboursés",
+        "active": "En Cours",
+        "cancelled": "Annulés",
+        "writtenOff": "Pertes"
+      },
+      "item": {
+        "defaultTitle": "Prêt",
+        "date": "Date: $date",
+        "lent": "Prêté",
+        "borrowed": "Dû",
+        "status": {
+          "completed": "Clos",
+          "active": "En cours",
+          "cancelled": "Annulé",
+          "writtenOff": "Perdu"
+        }
+      },
+      "summary": {
+        "title": "Bilan",
+        "viewDetails": "Détails",
+        "hideDetails": "Cacher",
+        "outstandingLent": "On te doit",
+        "outstandingBorrowed": "Tu dois",
+        "netPosition": "Bilan net",
+        "totalLent": "Total prêté à vie",
+        "totalBorrowed": "Total emprunté à vie",
+        "totalRepaidToYou": "Remboursé à toi",
+        "totalYouRepaid": "Tu as remboursé",
+        "totalLoans": "Total de prêts",
+        "completedLoans": "Clôturés"
+      }
+    },
+    "contactDetail": {
+      "titleWith": "Prêts avec $name"
+    },
+    "share": {
+      "title": "Partager",
+      "contactTitle": "Bilan global",
+      "button": "Envoyer",
+      "copy": "Copier",
+      "message": "Voici notre bilan :",
+      "contactMessage": "Bilan avec $name :",
+      "error": "Erreur: $error",
+      "contactCopied": "Copié !",
+      "activeLoans": "En cours ($n):",
+      "loanItem": "• $description: $amount ($date) - $percent% payé",
+      "loanStatement": "MoneyT - Relevé",
+      "loanSummary": "MoneyT - Bilan",
+      "personalLoan": "Prêt Perso",
+      "remaining": "Reste : $amount",
+      "remainingLabel": "Restant",
+      "original": "sur $amount",
+      "progress": "Avancée : $percent%",
+      "progressLabel": "Avancée",
+      "paidSuffix": "Réglé",
+      "date": "Date : $date",
+      "dateLabel": "Date",
+      "contact": "Avec : $name",
+      "contactLabel": "Contact",
+      "generated": "Généré le $date",
+      "generatedLabel": "Généré le $date",
+      "totalActive": "Total en cours : $n",
+      "active": "en cours",
+      "poweredBy": "Via MoneyT • moneyt.io",
+      "copied": "Copié !",
+      "netBalance": "Solde Net : $amount ($status)",
+      "netBalanceLabel": "Solde Net",
+      "owed": "On te doit",
+      "owe": "Tu dois",
+      "lent": "Prêté : $amount",
+      "lentLabel": "Tu as prêté",
+      "borrowed": "Emprunté : $amount",
+      "borrowedLabel": "Tu as emprunté",
+      "contactSummary": "Bilan - $name"
+    },
+    "payment": {
+      "title": "Régler",
+      "amount": "Montant",
+      "amountPlaceholder": "0.00",
+      "amountRequired": "Montant requis",
+      "invalidAmount": "Montant invalide",
+      "exceedsBalance": "Ça dépasse le reste à payer",
+      "date": "Date",
+      "account": "Sur quel compte ?",
+      "selectAccount": "Choisir",
+      "details": "Détails (Optionnel)",
+      "detailsPlaceholder": "Notes...",
+      "success": "Paiement validé",
+      "error": "Erreur: $error",
+      "errorAmount": "Montant invalide",
+      "errorAccount": "Choisis un compte",
+      "errorLoading": "Erreur: $error",
+      "summary": {
+        "title": "Résumé",
+        "defaultTitle": "Prêt",
+        "amount": "Montant du règlement",
+        "remaining": "Reste",
+        "progress": "Nouveau solde",
+        "description": "$loan à $contact",
+        "unknownContact": "Inconnu",
+        "total": "$amount total",
+        "paid": "Réglé: $amount",
+        "remainingLabel": "Reste: $amount"
+      },
+      "quick": {
+        "full": "Payer tout ($amount)",
+        "half": "Moitié ($amount)"
+      }
+    },
+    "given": "J'ai Prêté",
+    "received": "J'ai Emprunté",
+    "item": {
+      "due": "Pour: $date",
+      "paidAmount": "Réglé: $amount",
+      "remaining": "Reste: $amount",
+      "percentPaid": "$percent% réglé"
+    },
+    "section": {
+      "activeLoans": "En Cours",
+      "loansCount": "$n prêts"
+    },
+    "empty": {
+      "title": "Aucun prêt",
+      "message": "Note ici ce qu'on te doit ou ce que tu dois.",
+      "action": "Ajouter"
+    }
+  },
+  "categories": {
+    "title": "Catégories",
+    "form": {
+      "newTitle": "Nouvelle Cat.",
+      "editTitle": "Modifier",
+      "name": "Nom",
+      "namePlaceholder": "Ex: Courses, Loyer, Sorties",
+      "nameRequired": "Il faut un nom",
+      "parent": "Sous-catégorie de ? (Optionnel)",
+      "noParent": "Catégorie principale",
+      "asSubcategory": "Sera une sous-catégorie",
+      "asRoot": "Sera principale",
+      "active": "Active",
+      "activeDescription": "Visible pour les nouvelles dépenses",
+      "selectIcon": "Choisir l'icône",
+      "selectColor": "Choisir la couleur",
+      "saveSuccess": "C'est bon !",
+      "saveError": "Oups : $error"
+    },
+    "parentSelection": {
+      "title": "Choisir le parent",
+      "subtitle": "Pour la grouper",
+      "noParent": "Principale"
+    },
+    "incomeCategory": "Catégorie Revenu",
+    "expenseCategory": "Catégorie Dépense",
+    "report": {
+      "title": "Bilan Avancé",
+      "timeFilter": "Période",
+      "thisMonth": "Ce Mois",
+      "lastMonth": "Mois Dernier",
+      "thisYear": "Cette Année",
+      "allTime": "Toujours",
+      "details": "Détails",
+      "noTransactions": "Rien à signaler",
+      "income": "L'argent qui rentre",
+      "expense": "L'argent qui sort"
+    }
+  },
+  "backups": {
+    "title": "Sauvegardes",
+    "menu": {
+      "settings": "Paramètres",
+      "comingSoon": "Bientôt"
+    },
+    "filters": {
+      "all": "Tout",
+      "auto": "Auto",
+      "manual": "Manuel",
+      "thisMonth": "Mois-ci",
+      "lastMonth": "Mois avant",
+      "thisYear": "Année",
+      "lastYear": "An. avant"
+    },
+    "status": {
+      "loading": "Chargement...",
+      "error": "Erreur",
+      "empty": "Aucune sauvegarde",
+      "emptyAction": "Crées-en une avec le bouton +",
+      "success": "Succès",
+      "created": "Données protégées !",
+      "createError": "Erreur: $error",
+      "restoreError": "Erreur: $error",
+      "deleteError": "Erreur: $error"
+    },
+    "actions": {
+      "create": "Créer",
+      "import": "Importer",
+      "restore": "Restaurer",
+      "delete": "Supprimer",
+      "share": "Partager",
+      "cancel": "Annuler",
+      "retry": "Réessayer",
+      "ok": "OK"
+    },
+    "dialogs": {
+      "info": {
+        "title": "Infos",
+        "file": "Fichier:",
+        "size": "Taille:",
+        "created": "Date:",
+        "transactions": "Transacs:"
+      },
+      "restore": {
+        "title": "Restaurer",
+        "content": "Sûr de vouloir restaurer \"$file\" ? Ça va remplacer les données actuelles.",
+        "success": "Restauration... L'app va redémarrer."
+      },
+      "delete": {
+        "title": "Supprimer",
+        "content": "Sûr d'effacer \"$file\" ? Irréversible.",
+        "success": "Sauvegarde supprimée."
+      }
+    },
+    "stats": {
+      "title": "Statistiques",
+      "totalBackups": "Total",
+      "totalSize": "Poids",
+      "oldest": "Plus vieille",
+      "latest": "Dernière",
+      "autoBackupStatus": "Sauvegarde Auto",
+      "active": "Activé",
+      "inactive": "Désactivé"
+    },
+    "options": {
+      "restore": {
+        "title": "Restaurer",
+        "subtitle": "Remplacer par cette version"
+      },
+      "share": {
+        "title": "Partager",
+        "subtitle": "Envoyer ailleurs"
+      },
+      "delete": {
+        "title": "Supprimer",
+        "subtitle": "C'est définitif"
+      },
+      "latestBadge": "Dernière",
+      "latestFile": "Le plus récent",
+      "backupFile": "Fichier de save"
+    },
+    "format": {
+      "auto": "Auto - $date",
+      "manual": "Manuel - $date",
+      "initial": "Premier backup",
+      "generic": "Backup - $date"
+    }
+  },
+  "v2": {
+    "voice": {
+      "errorProcessing": "Rien compris. Tu peux répéter ?",
+      "tapMicrophone": "Appuie sur le micro pour me parler",
+      "listening": "Je t'écoute...",
+      "missingApiKey": "Il manque la clé GEMINI_API_KEY dans le .env !",
+      "aiError": "Erreur IA: $error",
+      "cancel": "Laisse tomber",
+      "scan": "Scanner"
+    },
+    "transactions": {
+      "invalidAmount": "Mets un vrai montant.",
+      "selectAccount": "Choisis de quel compte ça sort.",
+      "selectCategory": "C'est quelle catégorie ?",
+      "errorCreatingCategory": "Erreur catégorie: $error",
+      "error": "Oups: $error",
+      "more": "Plus",
+      "expense": "Dépense",
+      "income": "Entrée",
+      "deleteTransaction": "On efface ça ?",
+      "cancel": "Annuler",
+      "delete": "Virer",
+      "yesterday": "Hier",
+      "usedCategories": "TES HABITUDES",
+      "noTransactions": "Rien de noté",
+      "recentActivity": "Derniers trucs",
+      "searchTransaction": "Chercher une dépense...",
+      "date": "Quand",
+      "wallet": "D'où",
+      "transactionDeleted": "C'est supprimé.",
+      "selectCategoryTitle": "C'est quoi ça ?",
+      "searchCategory": "Chercher la catégorie...",
+      "noCategoriesAvailable": "Aucune catégorie",
+      "createNewCategory": "Créer de zéro",
+      "amount": "MONTANT",
+      "description": "C'ÉTAIT POUR...",
+      "category": "CATÉGORIE",
+      "addNote": "Une note (facultatif)...",
+      "today": "Aujourd'hui",
+      "editTransaction": "Modifier le truc",
+      "newTransaction": "Nouveau Mouvement",
+      "selectWallet": "Choisis le compte",
+      "save": "Enregistrer",
+      "transactionUpdated": "C'est mis à jour.",
+      "transactionSaved": "C'est dans la boîte."
+    },
+    "settings": {
+      "title": "Personnaliser",
+      "categories": "Catégories",
+      "wallets": "Tes Comptes",
+      "language": "Langue",
+      "currency": "Devise",
+      "contact": "Contact",
+      "legacyView": "Ancienne Vue (V1)",
+      "deleteCategory": "Effacer la catégorie ?",
+      "deleteWallet": "Effacer le compte ?",
+      "cannotUndo": "T'es sûr ? Tu pourras pas revenir en arrière.",
+      "deleteWalletWarning": "Attention, tu vas perdre toutes les dépenses liées.",
+      "deleteError": "Oups : $error",
+      "noCategoriesCreated": "Aucune catégorie.\nIl faut en créer une.",
+      "noWalletsCreated": "T'as pas de compte.\nCommence par ça.",
+      "walletDeleted": "Compte effacé.",
+      "cancel": "Annuler",
+      "delete": "Poubelle",
+      "expenses": "Dépenses",
+      "income": "Revenus",
+      "newWallet": "Nouveau Compte",
+      "editWallet": "Modifier Compte",
+      "walletName": "Nom du compte",
+      "saveWallet": "Sauvegarder"
+    },
+    "dashboard": {
+      "greetingMorning": "Salut boss !",
+      "totalBalance": "LA THUNE GLOBALE",
+      "dateFilters": {
+        "thisMonth": "Ce mois-ci",
+        "lastMonth": "Le mois dernier",
+        "customRange": "Dates au choix..."
+      },
+      "walletFilters": {
+        "all": "Tout",
+        "allWallets": "Tous tes comptes"
+      },
+      "background": {
+        "title": "Fond d'écran focus",
+        "chooseFromGallery": "Prendre de la galerie",
+        "restoreDefault": "Remettre par défaut"
+      },
+      "incomeExpense": {
+        "income": "REVENUS",
+        "expenses": "DÉPENSES"
+      },
+      "gauge": {
+        "exceeded": "DÉPASSÉ",
+        "spent": "DÉPENSÉ",
+        "available": "DISPO",
+        "overdrawn": "À DÉCOUVERT"
+      },
+      "activityList": {
+        "seeAll": "Voir tout",
+        "newUi": "Nouvelle UI",
+        "expensesByCategory": "Où part ton fric",
+        "noRecentExpenses": "Rien dépensé. Bravo !",
+        "percentOfTotal": "$percent% du total",
+        "topExpenses": "Top $count des dépenses",
+        "others": "Le Reste"
+      }
+    },
+    "categories": {
+      "title": "Catégories",
+      "searchPlaceholder": "Rechercher...",
+      "newCategory": "Nouvelle",
+      "editCategory": "Modifier",
+      "noCategories": "Vide de chez vide",
+      "form": {
+        "nameLabel": "Nom de la catégorie",
+        "save": "Enregistrer"
+      }
+    },
+    "onboarding": {
+      "buttons": {
+        "start": "C'est parti !",
+        "actionContinue": "On continue",
+        "great": "Super !",
+        "setGoal": "Fixer un but",
+        "skip": "Zapper"
+      },
+      "splash": {
+        "title1": "Et si l'Intelligence\nArtificielle (IA) ",
+        "title2": "gérait ton argent\nmieux que toi ?",
+        "benefit1": "Zéro effort.",
+        "benefit2": "Hyper clair.",
+        "benefit3": "De meilleurs choix."
+      },
+      "expenseCategories": {
+        "title1": "Qu'est-ce qui te bouffe tout ton fric ?",
+        "subtitle": "Choisis jusqu'à 3 trucs",
+        "diningOut": "Manger dehors",
+        "cravings": "Les petits creux",
+        "subscriptions": "Les abonnements zappés",
+        "outings": "Les soirées",
+        "shopping": "Les achats impulsifs",
+        "delivery": "Les UberEats & co"
+      },
+      "financialGoals": {
+        "title": "Qu'est-ce qui changerait\ntes finances d'un coup ?",
+        "subtitle": "Choisis-en un",
+        "trackMoney": "Savoir où part exactement mon salaire",
+        "spendLess": "Arrêter d'acheter des trucs inutiles",
+        "lessStress": "Arrêter de stresser pour l'argent",
+        "saveMoney": "Réussir à épargner pour de vrai"
+      },
+      "registrationMethod": {
+        "title": "Tu préfères noter\ntes dépenses comment ?",
+        "subtitle": "Choisis ta méthode",
+        "voice": "Juste en parlant au tél",
+        "auto": "Automatique par la banque",
+        "write": "Taper comme à l'ancienne",
+        "easy": "Peu importe, le plus rapide possible"
+      },
+      "aiAnalysis": {
+        "loading": {
+          "title": "JE RÈGLE L'APP POUR\nTOI LÀ...",
+          "subtitle": "Analyse en cours",
+          "messages": [
+            "Je regarde comment tu dépenses...",
+            "Je prépare tes catégories...",
+            "Je cherche où ça coince...",
+            "Je te prépare une stratégie de dingue..."
+          ]
+        },
+        "showcase": {
+          "title": "Analyse finie. Boom.",
+          "dynamicText": {
+            "default": "Tes dépenses mangent ton budget. Clairement ta méthode actuelle marche plus.",
+            "part2": " bouffent une grosse partie, et le fait que tu veuilles ",
+            "part3": " prouve qu'il faut changer de méthode.",
+            "categories": {
+              "diningOut": "Les restos",
+              "cravings": "Les fringales",
+              "subscriptions": "Les abos",
+              "outings": "Les soirées",
+              "shopping": "Le shopping impulsif",
+              "delivery": "Les livraisons"
+            },
+            "intentions": {
+              "trackMoney": "savoir où va l'argent",
+              "spendLess": "dépenser moins",
+              "lessStress": "stresser moins",
+              "saveMoney": "enfin épargner"
+            }
+          },
+          "result": {
+            "yourResult": "Ton résultat",
+            "average": "Moyenne",
+            "messagePart1": "Tu dépenses 68% ",
+            "messagePart2": "de plus que la moyenne là-dedans, et ça ",
+            "messagePart3": "détruit complètement\n",
+            "messagePart4": "tes objectifs à moyen terme"
+          }
+        }
+      },
+      "mainPriority": {
+        "title": "C'est quoi ta\npriorité numéro 1 ?",
+        "subtitle": "Choisis où MoneyT va te sauver la vie",
+        "breakHabits": "Casser mes mauvaises habitudes",
+        "stopStress": "Arrêter de stresser fin du mois",
+        "buildFuture": "Me bâtir un avenir solide",
+        "feelControl": "Savoir exactement où j'en suis",
+        "saveGoal": "Mettre de côté pour un objectif"
+      },
+      "aiVoice": {
+        "title": {
+          "default": "Atteindre ton objectif",
+          "breakHabits": "Casser enfin tes vieilles habitudes",
+          "stopStress": "Retrouver la paix d'esprit",
+          "buildFuture": "Bâtir un bel avenir financier",
+          "feelControl": "Reprendre le contrôle total",
+          "saveGoal": "Atteindre ton objectif d'épargne",
+          "suffix": " sera un jeu d'enfant grâce à notre IA."
+        },
+        "subtitle": "T'as juste à lui parler, elle s'occupe de noter tes dépenses toute seule",
+        "listening": "Parle, je t'écoute...",
+        "examples": [
+          "Café 3,50 €",
+          "Uber 12,00 €",
+          "Ciné 15,00 €",
+          "Courses 45,20 €",
+          "Essence 30,00 €",
+          "Netflix 10,99 €",
+          "Dîner 25,00 €",
+          "Pharmacie 18,50 €"
+        ]
+      }
+    }
+  }
+}

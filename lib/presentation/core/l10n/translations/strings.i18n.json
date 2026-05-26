@@ -1180,7 +1180,17 @@
           "suffix": " will be effortless with artificial intelligence."
         },
         "subtitle": "Record your expenses just by\nsaying it to your phone",
-        "listening": "Listening..."
+        "listening": "Just talk, I'm listening...",
+        "examples": [
+          "Coffee \\$3.50",
+          "Uber \\$12.00",
+          "Movies \\$15.00",
+          "Groceries \\$45.20",
+          "Gas \\$30.00",
+          "Netflix \\$10.99",
+          "Dinner \\$25.00",
+          "Pharmacy \\$18.50"
+        ]
       }
     }
   }

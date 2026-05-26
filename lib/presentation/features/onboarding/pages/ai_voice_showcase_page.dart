@@ -20,16 +20,7 @@ class _AIVoiceShowcasePageState extends State<AIVoiceShowcasePage>
   
   final List<FloatingTransaction> _transactions = [];
   final Random _random = Random();
-  final List<String> _examples = [
-    'Café \$3.50',
-    'Uber \$12.00',
-    'Cine \$15.00',
-    'Súper \$45.20',
-    'Gasolina \$30.00',
-    'Netflix \$10.99',
-    'Cena \$25.00',
-    'Farmacia \$18.50'
-  ];
+  List<String> get _examples => t.v2.onboarding.aiVoice.examples.map((e) => e.toString()).toList();
 
   @override
   void initState() {

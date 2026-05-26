@@ -35,6 +35,36 @@ class LanguageSelectionScreen extends StatelessWidget {
       flag: '🇺🇸',
       backgroundColor: Color(0xFFDBEAFE),
     ),
+    LanguageInfo(
+      locale: AppLocale.pt,
+      name: 'Português',
+      flag: '🇧🇷',
+      backgroundColor: Color(0xFFD1FAE5),
+    ),
+    LanguageInfo(
+      locale: AppLocale.fr,
+      name: 'Français',
+      flag: '🇫🇷',
+      backgroundColor: Color(0xFFE0E7FF),
+    ),
+    LanguageInfo(
+      locale: AppLocale.vi,
+      name: 'Tiếng Việt',
+      flag: '🇻🇳',
+      backgroundColor: Color(0xFFFCE7F3),
+    ),
+    LanguageInfo(
+      locale: AppLocale.fil,
+      name: 'Filipino',
+      flag: '🇵🇭',
+      backgroundColor: Color(0xFFFEF08A),
+    ),
+    LanguageInfo(
+      locale: AppLocale.id,
+      name: 'Bahasa Indonesia',
+      flag: '🇮🇩',
+      backgroundColor: Color(0xFFFEE2E2),
+    ),
   ];
 
   @override

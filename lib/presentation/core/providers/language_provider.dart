@@ -72,6 +72,16 @@ class LanguageProvider extends ChangeNotifier {
         return 'English';
       case AppLocale.es:
         return 'Español';
+      case AppLocale.pt:
+        return 'Português';
+      case AppLocale.fr:
+        return 'Français';
+      case AppLocale.vi:
+        return 'Tiếng Việt';
+      case AppLocale.fil:
+        return 'Filipino';
+      case AppLocale.id:
+        return 'Bahasa Indonesia';
       default:
         return 'Unknown';
     }
