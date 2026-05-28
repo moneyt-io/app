@@ -47,6 +47,11 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
   void initState() {
     super.initState();
     _isSearchExpanded = widget.autoOpenSearch;
+    final now = DateTime.now();
+    _selectedDateRange = DateTimeRange(
+      start: DateTime(now.year, now.month, 1),
+      end: DateTime(now.year, now.month + 1, 0, 23, 59, 59),
+    );
   }
 
   @override
@@ -83,23 +88,29 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
   }
 
   List<Category> _getTopCategories(
-      List<TransactionEntry> transactions, Map<int, Category> categoryMap) {
-    final counts = <int, int>{};
-    for (final tx in transactions) {
-      if (tx.mainCategoryId != null) {
-        counts[tx.mainCategoryId!] = (counts[tx.mainCategoryId!] ?? 0) + 1;
+      List<TransactionEntry> transactions, Map<int, Category> categoryMap, Map<int, double> categoryAmounts) {
+    final activeCatIds = categoryAmounts.keys.toList();
+    
+    final expenses = <Category>[];
+    final incomes = <Category>[];
+    
+    for (final id in activeCatIds) {
+      final cat = categoryMap[id];
+      if (cat != null) {
+        if (cat.documentTypeId == 'E') {
+          expenses.add(cat);
+        } else if (cat.documentTypeId == 'I') {
+          incomes.add(cat);
+        }
       }
     }
-
-    final sortedIds = counts.keys.toList()
-      ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
-
-    return sortedIds
-        .take(10)
-        .map((id) => categoryMap[id])
-        .where((c) => c != null)
-        .cast<Category>()
-        .toList();
+    
+    // Sort expenses descending by amount
+    expenses.sort((a, b) => (categoryAmounts[b.id] ?? 0).compareTo(categoryAmounts[a.id] ?? 0));
+    // Sort incomes descending by amount
+    incomes.sort((a, b) => (categoryAmounts[b.id] ?? 0).compareTo(categoryAmounts[a.id] ?? 0));
+    
+    return [...expenses, ...incomes];
   }
 
   @override
@@ -118,26 +129,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                 .toList()
               ..sort((a, b) => b.date.compareTo(a.date));
 
-            // Extraer el top de categorías SIEMPRE en base a todas las transacciones (para que los chips no desaparezcan al filtrar)
-            final topCategories = _getTopCategories(
-                transactions, transactionProvider.categoriesDataMap);
-
-            // Aplicar filtro de categoría seleccionada
-            if (_selectedCategoryId != null) {
-              transactions = transactions
-                  .where((tx) => tx.mainCategoryId == _selectedCategoryId)
-                  .toList();
-            }
-
-            // Aplicar filtro de billetera seleccionada
-            if (_selectedWalletId != null) {
-              transactions = transactions
-                  .where((tx) =>
-                      tx.details.any((d) => d.paymentId == _selectedWalletId))
-                  .toList();
-            }
-
-            // Aplicar filtro de fecha
+            // Aplicar filtro de fecha (antes de extraer categorías)
             if (_selectedDateRange != null) {
               transactions = transactions.where((tx) {
                 final isAfterOrSame =
@@ -148,6 +140,53 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                         tx.date.isAtSameMomentAs(_selectedDateRange!.end);
                 return isAfterOrSame && isBeforeOrSame;
               }).toList();
+            }
+
+            // Aplicar filtro de billetera seleccionada (antes de extraer categorías)
+            if (_selectedWalletId != null) {
+              transactions = transactions
+                  .where((tx) =>
+                      tx.details.any((d) => d.paymentId == _selectedWalletId))
+                  .toList();
+            }
+
+            double totalIncome = 0.0;
+            final categoryAmounts = <int, double>{};
+            for (final tx in transactions) {
+              final amt = tx.amount.abs();
+              if (tx.isIncome) {
+                totalIncome += amt;
+              }
+              if (tx.mainCategoryId != null) {
+                categoryAmounts[tx.mainCategoryId!] = (categoryAmounts[tx.mainCategoryId!] ?? 0) + amt;
+              }
+            }
+
+            // Extraer el top de categorías SIEMPRE en base a todas las transacciones (filtradas por fecha/billetera)
+            final topCategories = _getTopCategories(
+                transactions, transactionProvider.categoriesDataMap, categoryAmounts);
+
+            final sortedCategoryIds = transactionProvider.categoriesDataMap.keys.toList()..sort();
+            final categoryColors = [
+              const Color(0xFF004AC6), // Royal Blue
+              const Color(0xFF0D9488), // Teal
+              const Color(0xFFD97706), // Amber
+              const Color(0xFF059669), // Emerald
+              const Color(0xFF7C3AED), // Violet
+              const Color(0xFFDC2626), // Soft Red
+              const Color(0xFF2563EB), // Blue 600
+              const Color(0xFFD946EF), // Fuchsia
+              const Color(0xFF0F766E), // Dark Teal
+              const Color(0xFFEA580C), // Orange
+              const Color(0xFF4F46E5), // Indigo
+              const Color(0xFFBE123C), // Rose
+            ];
+
+            // Aplicar filtro de categoría seleccionada
+            if (_selectedCategoryId != null) {
+              transactions = transactions
+                  .where((tx) => tx.mainCategoryId == _selectedCategoryId)
+                  .toList();
             }
 
             // Aplicar filtro de búsqueda
@@ -202,7 +241,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                       ),
                       SliverToBoxAdapter(
                         child: SizedBox(
-                          height: 64,
+                          height: 115,
                           child: ListView.builder(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
                             scrollDirection: Axis.horizontal,
@@ -212,16 +251,21 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                               final cat = topCategories[index];
 
                               final isIncome = cat.documentTypeId == 'I';
-                              final bgColor = isIncome
-                                  ? V2Colors.secondaryContainer
-                                      .withValues(alpha: 0.3)
-                                  : V2Colors.errorContainer
-                                      .withValues(alpha: 0.3);
+                              
+                              int colorIndex = 0;
+                              final idx = sortedCategoryIds.indexOf(cat.id);
+                              if (idx != -1) colorIndex = idx;
+                              final catColor = categoryColors[colorIndex % categoryColors.length];
+
+                              final bgColor = Colors.white;
 
                               final isSelected = _selectedCategoryId == cat.id;
 
                               String emoji =
                                   IconToEmojiMapper.getEmoji(cat.icon);
+
+                              final catAmount = categoryAmounts[cat.id] ?? 0.0;
+                              final percentage = (totalIncome > 0) ? (catAmount / totalIncome) : 0.0;
 
                               return GestureDetector(
                                 onTap: () {
@@ -233,46 +277,65 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                     }
                                   });
                                 },
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  width: 56,
-                                  height: 56,
-                                  margin: const EdgeInsets.only(right: 8),
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? bgColor.withValues(alpha: 0.5)
-                                        : bgColor,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: isSelected
-                                          ? V2Colors.primary
-                                              .withValues(alpha: 0.4)
-                                          : Colors.white.withValues(alpha: 0.5),
-                                      width: isSelected ? 1.5 : 1,
-                                    ),
-                                    boxShadow: [
-                                      if (isSelected)
-                                        BoxShadow(
-                                          color: Colors.black
-                                              .withValues(alpha: 0.06),
-                                          blurRadius: 12,
-                                          offset: const Offset(0, 4),
-                                        )
-                                      else
-                                        BoxShadow(
-                                          color: Colors.black
-                                              .withValues(alpha: 0.02),
-                                          blurRadius: 4,
-                                          offset: const Offset(0, 2),
+                                child: Container(
+                                  width: 76,
+                                  margin: const EdgeInsets.only(right: 12),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      AnimatedContainer(
+                                        duration: const Duration(milliseconds: 200),
+                                        width: 60,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                          color: catColor,
+                                          borderRadius: BorderRadius.circular(18),
+                                          boxShadow: [
+                                            if (isSelected)
+                                              BoxShadow(
+                                                color: catColor.withValues(alpha: 0.4),
+                                                blurRadius: 12,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                          ],
                                         ),
+                                        padding: EdgeInsets.all(isSelected ? 5.0 : 4.0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: bgColor,
+                                            borderRadius: BorderRadius.circular(14),
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            emoji,
+                                            style: TextStyle(
+                                              fontSize: isSelected ? 26 : 24,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        NumberFormatter.formatCurrency(catAmount),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w800,
+                                          color: V2Colors.onSurface,
+                                          fontFamily: 'Manrope',
+                                        ),
+                                      ),
+                                      Text(
+                                        '${(percentage * 100).toInt()}%',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: V2Colors.onSurfaceVariant,
+                                          fontFamily: 'Manrope',
+                                        ),
+                                      ),
                                     ],
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    emoji,
-                                    style: TextStyle(
-                                      fontSize: isSelected ? 30 : 28,
-                                    ),
                                   ),
                                 ),
                               );

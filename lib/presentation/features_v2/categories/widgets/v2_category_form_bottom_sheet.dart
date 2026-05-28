@@ -50,7 +50,8 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> w
     // Extraer emoji si existe
     if (widget.categoryToEdit != null) {
       _selectedEmoji = IconToEmojiMapper.getEmoji(widget.categoryToEdit!.icon);
-      _suggestedEmojis[0] = _selectedEmoji;
+      _suggestedEmojis = [_selectedEmoji];
+      _hasManuallySelectedEmoji = true; // Previene que al editar el nombre se cambie el emoji automáticamente
     }
   }
 
@@ -87,7 +88,9 @@ class _V2CategoryFormBottomSheetState extends State<V2CategoryFormBottomSheet> w
       _hasManuallySelectedEmoji = true;
       setState(() {
         _selectedEmoji = extractedEmoji;
-        if (!_suggestedEmojis.contains(extractedEmoji)) {
+        if (widget.categoryToEdit != null) {
+          _suggestedEmojis = [extractedEmoji];
+        } else if (!_suggestedEmojis.contains(extractedEmoji)) {
           _suggestedEmojis[0] = extractedEmoji;
         }
       });
