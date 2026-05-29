@@ -1,5 +1,11 @@
 import 'dart:io';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/services/ai_transaction_service.dart';
+import 'domain/usecases/transaction_usecases.dart';
+import 'domain/usecases/wallet_usecases.dart';
+import 'domain/usecases/category_usecases.dart';
+import 'domain/entities/category.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -161,4 +167,138 @@ Future<void> _initializeCriticalData() async {
   } catch (e) {
     debugPrint('Error during critical data initialization: $e');
   }
+}
+
+@pragma('vm:entry-point')
+void backgroundMain() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // 1. Cargar dependencias críticas
+  await dotenv.load(fileName: ".env");
+  await initializeDependencies();
+  
+  // Asegurar que las preferencias compartidas están listas
+  await SharedPreferences.getInstance();
+
+  const channel = MethodChannel('com.moneyt.app/background_intent');
+  
+  channel.setMethodCallHandler((call) async {
+    try {
+      final walletUseCases = GetIt.instance<WalletUseCases>();
+      final categoryUseCases = GetIt.instance<CategoryUseCases>();
+      final transactionUseCases = GetIt.instance<TransactionUseCases>();
+
+      if (call.method == 'parseTransaction') {
+        final String? text = call.arguments as String?;
+        if (text == null || text.isEmpty) {
+          return {"success": false, "message": "Texto vacío"};
+        }
+
+        final wallets = await walletUseCases.getAllWallets();
+        final categories = await categoryUseCases.getAllCategories();
+        final childCategories = categories.where((c) => c.parentId != null).toList();
+
+        final service = AITransactionService();
+        final result = await service.parseTransaction(text, childCategories, wallets);
+
+        if (result != null) {
+          final wallet = wallets.firstWhere((w) => w.id == result.walletId, orElse: () => wallets.first);
+          
+          List<Map<String, dynamic>> suggestions = [];
+          for (var sugg in result.categorySuggestions) {
+            if (sugg.categoryId != null) {
+              final cat = childCategories.firstWhere((c) => c.id == sugg.categoryId, orElse: () => childCategories.first);
+              suggestions.add({"id": cat.id, "name": cat.name});
+            } else if (sugg.newCategoryName != null) {
+              suggestions.add({"id": null, "name": sugg.newCategoryName});
+            }
+          }
+
+          if (suggestions.isEmpty) {
+            suggestions.add({"id": childCategories.first.id, "name": childCategories.first.name});
+          }
+
+          return {
+            "success": true,
+            "transaction": {
+              "type": result.type,
+              "amount": result.amount,
+              "walletId": wallet.id,
+              "currencyId": wallet.currencyId,
+              "description": result.description,
+              "date": result.date?.toIso8601String() ?? DateTime.now().toIso8601String(),
+            },
+            "suggestedCategories": suggestions
+          };
+        } else {
+          return {"success": false, "message": "No se pudo entender el gasto"};
+        }
+      } 
+      else if (call.method == 'saveTransaction') {
+        final Map<dynamic, dynamic>? args = call.arguments as Map<dynamic, dynamic>?;
+        if (args == null) return {"success": false, "message": "Datos vacíos"};
+
+        final type = args['type'] as String? ?? 'E';
+        final amount = (args['amount'] as num?)?.toDouble() ?? 0.0;
+        final walletId = args['walletId'] as int?;
+        final currencyIdRaw = args['currencyId'];
+        final currencyId = currencyIdRaw != null ? currencyIdRaw.toString() : '1';
+        final description = args['description'] as String? ?? '';
+        final dateStr = args['date'] as String?;
+        final date = dateStr != null ? DateTime.parse(dateStr) : DateTime.now();
+        
+        final categoryId = args['categoryId'] as int?;
+        final newCategoryName = args['newCategoryName'] as String?;
+
+        int finalCategoryId;
+        if (categoryId != null) {
+          finalCategoryId = categoryId;
+        } else if (newCategoryName != null) {
+          // Crear nueva categoría
+          final newCat = await categoryUseCases.createCategory(Category(
+            id: 0,
+            name: newCategoryName,
+            icon: '🏷️',
+            documentTypeId: type,
+            chartAccountId: 0, // se autogenerará en el usecase
+            active: true,
+            createdAt: DateTime.now(),
+            parentId: null
+          ));
+          finalCategoryId = newCat.id;
+        } else {
+          final categories = await categoryUseCases.getAllCategories();
+          final childCategories = categories.where((c) => c.parentId != null).toList();
+          finalCategoryId = childCategories.first.id;
+        }
+
+        if (type == 'E') {
+          await transactionUseCases.createExpense(
+            amount: amount,
+            categoryId: finalCategoryId,
+            paymentId: walletId ?? 1,
+            paymentTypeId: 'W',
+            currencyId: currencyId,
+            description: description,
+            date: date,
+          );
+        } else {
+          await transactionUseCases.createIncome(
+            amount: amount,
+            categoryId: finalCategoryId,
+            walletId: walletId ?? 1,
+            currencyId: currencyId,
+            description: description,
+            date: date,
+          );
+        }
+        
+        return {"success": true, "message": "Transacción guardada correctamente"};
+      }
+      
+      return {"success": false, "message": "Método no encontrado"};
+    } catch (e) {
+      return {"success": false, "message": "Error interno: ${e.toString()}"};
+    }
+  });
 }

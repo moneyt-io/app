@@ -16,7 +16,9 @@ import '../dashboard/widgets/parallax_background.dart';
 import '../../core/l10n/generated/strings.g.dart';
 
 class VoiceCommandScreen extends StatefulWidget {
-  const VoiceCommandScreen({super.key});
+  final String? initialText;
+
+  const VoiceCommandScreen({super.key, this.initialText});
 
   @override
   State<VoiceCommandScreen> createState() => _VoiceCommandScreenState();
@@ -53,12 +55,22 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen>
     _generateRandomPositions();
     _loadCategories();
 
-    // Iniciar el micrófono automáticamente al abrir la pantalla
-    _initSpeech().then((_) {
-      if (mounted && _speechEnabled) {
-        _startListening();
-      }
-    });
+    // Si recibimos texto inicial, saltamos el dictado y procesamos directamente
+    if (widget.initialText != null && widget.initialText!.isNotEmpty) {
+      _recognizedText = widget.initialText!;
+      _speechEnabled = false; // No necesitamos micrófono para este flujo
+      // Usar Future.microtask para asegurar que la UI ya está construida
+      Future.microtask(() {
+        if (mounted) _processWithAI();
+      });
+    } else {
+      // Iniciar el micrófono automáticamente al abrir la pantalla normalmente
+      _initSpeech().then((_) {
+        if (mounted && _speechEnabled) {
+          _startListening();
+        }
+      });
+    }
   }
 
   void _handleSpeechFinished() {

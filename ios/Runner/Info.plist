@@ -19,6 +19,16 @@
 				<string>fb4509366099307206</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.moneyt.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>moneyt</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
