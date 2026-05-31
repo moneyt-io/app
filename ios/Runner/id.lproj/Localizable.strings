@@ -1,0 +1,34 @@
+"Registro con IA" = "Pencatatan AI";
+"Registra una transacción en MoneyT en segundo plano mediante IA." = "Mencatat transaksi di latar belakang menggunakan AI.";
+"¿Qué gasto deseas registrar?" = "Transaksi apa yang ingin Anda catat?";
+"Categoría Seleccionada" = "Kategori Terpilih";
+"Texto" = "Teks";
+"Registro manual" = "Pencatatan Manual";
+"Registra un movimiento en MoneyT guiado paso a paso." = "Mencatat transaksi secara bertahap.";
+"Valor" = "Jumlah";
+"Tipo" = "Jenis";
+"Categoría" = "Kategori";
+"Cuenta" = "Akun";
+"Ingreso" = "Pemasukan";
+"Gasto" = "Pengeluaran";
+"¿En qué categoría?" = "Di kategori mana?";
+"¿Qué categoría?" = "Kategori mana?";
+"¿De qué cuenta?" = "Dari akun mana?";
+"Tipo de Movimiento" = "Jenis Transaksi";
+
+
+/* Manual Intent Translations */
+"manual_intent_title" = "Catatan manual";
+"manual_intent_desc" = "Catat transaksi di MoneyT secara bertahap.";
+"manual_intent_amount" = "Jumlah";
+"manual_intent_type" = "Tipe";
+"manual_intent_description" = "Deskripsi";
+"manual_intent_category" = "Kategori";
+"manual_intent_wallet" = "Dompet";
+"manual_intent_ask_category" = "Kategori yang mana?";
+"manual_intent_ask_wallet" = "Dari dompet mana?";
+"manual_intent_success_title" = "✅ Transaksi disimpan";
+"manual_intent_success_subtitle" = "Kategori: %s";
+"manual_intent_save_button" = "Simpan";
+
+"manual_intent_new_label" = "(Baru)";

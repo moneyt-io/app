@@ -53,6 +53,7 @@ class AppStringsEs extends AppStrings {
 	@override late final _AppStringsCategoriesEs categories = _AppStringsCategoriesEs._(_root);
 	@override late final _AppStringsBackupsEs backups = _AppStringsBackupsEs._(_root);
 	@override late final _AppStringsV2Es v2 = _AppStringsV2Es._(_root);
+	@override late final _AppStringsIntentsEs intents = _AppStringsIntentsEs._(_root);
 }
 
 // Path: app
@@ -332,6 +333,22 @@ class _AppStringsV2Es extends AppStringsV2En {
 	@override late final _AppStringsV2DashboardEs dashboard = _AppStringsV2DashboardEs._(_root);
 	@override late final _AppStringsV2CategoriesEs categories = _AppStringsV2CategoriesEs._(_root);
 	@override late final _AppStringsV2OnboardingEs onboarding = _AppStringsV2OnboardingEs._(_root);
+}
+
+// Path: intents
+class _AppStringsIntentsEs extends AppStringsIntentsEn {
+	_AppStringsIntentsEs._(AppStringsEs root) : this._root = root, super.internal(root);
+
+	final AppStringsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get transactionSavedTitle => '✅ Transacción guardada';
+	@override String get emptyText => 'Texto vacío';
+	@override String get emptyData => 'Datos vacíos';
+	@override String get cannotUnderstand => 'No se pudo entender el gasto';
+	@override String get errorSaving => 'Error al guardar el gasto';
+	@override String get noCategories => 'No hay categorías disponibles';
+	@override String get loadingError => 'Error cargando cuentas y categorías';
 }
 
 // Path: components.dateSelection
@@ -3337,6 +3354,13 @@ extension on AppStringsEs {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix \$10.99';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Cena \$25.00';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Farmacia \$18.50';
+			case 'intents.transactionSavedTitle': return '✅ Transacción guardada';
+			case 'intents.emptyText': return 'Texto vacío';
+			case 'intents.emptyData': return 'Datos vacíos';
+			case 'intents.cannotUnderstand': return 'No se pudo entender el gasto';
+			case 'intents.errorSaving': return 'Error al guardar el gasto';
+			case 'intents.noCategories': return 'No hay categorías disponibles';
+			case 'intents.loadingError': return 'Error cargando cuentas y categorías';
 			default: return null;
 		}
 	}

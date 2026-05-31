@@ -53,6 +53,7 @@ class AppStringsVi extends AppStrings {
 	@override late final _AppStringsCategoriesVi categories = _AppStringsCategoriesVi._(_root);
 	@override late final _AppStringsBackupsVi backups = _AppStringsBackupsVi._(_root);
 	@override late final _AppStringsV2Vi v2 = _AppStringsV2Vi._(_root);
+	@override late final _AppStringsIntentsVi intents = _AppStringsIntentsVi._(_root);
 }
 
 // Path: app
@@ -332,6 +333,22 @@ class _AppStringsV2Vi extends AppStringsV2En {
 	@override late final _AppStringsV2DashboardVi dashboard = _AppStringsV2DashboardVi._(_root);
 	@override late final _AppStringsV2CategoriesVi categories = _AppStringsV2CategoriesVi._(_root);
 	@override late final _AppStringsV2OnboardingVi onboarding = _AppStringsV2OnboardingVi._(_root);
+}
+
+// Path: intents
+class _AppStringsIntentsVi extends AppStringsIntentsEn {
+	_AppStringsIntentsVi._(AppStringsVi root) : this._root = root, super.internal(root);
+
+	final AppStringsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get transactionSavedTitle => '✅ Đã Lưu Giao Dịch';
+	@override String get emptyText => 'Văn bản trống';
+	@override String get emptyData => 'Dữ liệu trống';
+	@override String get cannotUnderstand => 'Không thể hiểu giao dịch';
+	@override String get errorSaving => 'Lỗi lưu';
+	@override String get noCategories => 'Không có danh mục';
+	@override String get loadingError => 'Lỗi tải';
 }
 
 // Path: components.dateSelection
@@ -3337,6 +3354,13 @@ extension on AppStringsVi {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix 108.000 ₫';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Ăn tối 250.000 ₫';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Nhà thuốc 185.000 ₫';
+			case 'intents.transactionSavedTitle': return '✅ Đã Lưu Giao Dịch';
+			case 'intents.emptyText': return 'Văn bản trống';
+			case 'intents.emptyData': return 'Dữ liệu trống';
+			case 'intents.cannotUnderstand': return 'Không thể hiểu giao dịch';
+			case 'intents.errorSaving': return 'Lỗi lưu';
+			case 'intents.noCategories': return 'Không có danh mục';
+			case 'intents.loadingError': return 'Lỗi tải';
 			default: return null;
 		}
 	}

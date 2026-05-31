@@ -42,23 +42,11 @@ class OnboardingSplashPage extends StatelessWidget {
           _BenefitItem(text: t.v2.onboarding.splash.benefit3),
           const SizedBox(height: 64),
           Center(
-            child: Image.network(
-              'https://raw.githubusercontent.com/fluentui/fluentui-emoji/main/assets/Seedling/3D/seedling_3d.png',
-              width: 200,
-              height: 200,
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEEF2FF),
-                  borderRadius: BorderRadius.circular(32),
-                ),
-                child: const Icon(
-                  Icons.account_balance_wallet,
-                  size: 80,
-                  color: Color(0xFF3B82F6),
-                ),
-              ),
+            child: Image.asset(
+              'assets/images/logo_onboarding.png',
+              width: 240,
+              height: 240,
+              fit: BoxFit.contain,
             ),
           ),
         ],

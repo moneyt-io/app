@@ -1193,5 +1193,14 @@
         ]
       }
     }
+  },
+  "intents": {
+    "transactionSavedTitle": "✅ Transaksi Disimpan",
+    "emptyText": "Teks kosong",
+    "emptyData": "Data kosong",
+    "cannotUnderstand": "Tidak bisa memahami transaksi",
+    "errorSaving": "Gagal menyimpan",
+    "noCategories": "Tidak ada kategori",
+    "loadingError": "Gagal memuat"
   }
 }

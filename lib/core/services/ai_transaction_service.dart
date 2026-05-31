@@ -51,16 +51,19 @@ class AITransactionResult {
 class AICategorySuggestionItem {
   final int? categoryId;
   final String? newCategoryName;
+  final String? newCategoryIcon;
 
   AICategorySuggestionItem({
     this.categoryId,
     this.newCategoryName,
+    this.newCategoryIcon,
   });
 
   factory AICategorySuggestionItem.fromJson(Map<String, dynamic> json) {
     return AICategorySuggestionItem(
       categoryId: json['categoryId'] as int?,
       newCategoryName: json['newCategoryName']?.toString(),
+      newCategoryIcon: json['newCategoryIcon']?.toString(),
     );
   }
 }
@@ -100,9 +103,9 @@ class AITransactionService {
       "amount": (número positivo flotante, ej: 50.0),
       "categorySuggestions": [
          // DEBES sugerir EXACTAMENTE 3 opciones de categorías. El formato de cada opción es:
-         // {"categoryId": ID_de_la_lista_o_null, "newCategoryName": "NombreNuevo_o_null"}
-         // Si encuentras una categoría existente que coincide, envía su categoryId y newCategoryName nulo.
-         // Si no coincide o quieres proponer una nueva alternativa, envía categoryId nulo y un newCategoryName (1 o 2 palabras).
+         // {"categoryId": ID_de_la_lista_o_null, "newCategoryName": "NombreNuevo_o_null", "newCategoryIcon": "Emoji_O_null"}
+         // Si encuentras una categoría existente que coincide, envía su categoryId y lo demas nulo.
+         // Si no coincide o quieres proponer una nueva alternativa, envía categoryId nulo, un newCategoryName (1 o 2 palabras) y en newCategoryIcon un UNICO EMOJI que lo represente (ej: 🍔).
          // La primera opción debe ser la más acertada.
       ],
       "walletId": (el ID de la billetera/cuenta que mejor coincida, o null),
@@ -156,9 +159,15 @@ class AITransactionService {
             }
           }
           
+          String? validIcon = sugg.newCategoryIcon;
+          if (validId == null && validName != null && (validIcon == null || validIcon.trim().isEmpty)) {
+            validIcon = '✨'; // Fallback
+          }
+          
           validSuggestions.add(AICategorySuggestionItem(
             categoryId: validId,
             newCategoryName: validId == null ? validName : null,
+            newCategoryIcon: validId == null ? validIcon : null,
           ));
         }
 
@@ -240,10 +249,10 @@ class AITransactionService {
     IMPORTANTE SOBRE EL IDIOMA: Si la descripción está en español, sugiere nombres en español. Si está en inglés, en inglés, etc. Adáptate al idioma de la descripción, ignorando el idioma del sistema.
     
     Reglas para cada objeto:
-    - Si la descripción coincide bien con una de las categorías existentes, devuelve su "categoryId" y "newCategoryName" en null.
-    - Si ninguna categoría existente es un buen match, devuelve "categoryId" en null y propón un "newCategoryName" corto (1 o 2 palabras) en el MISMO IDIOMA de la descripción.
+    - Si la descripción coincide bien con una de las categorías existentes, devuelve su "categoryId" y "newCategoryName"/"newCategoryIcon" en null.
+    - Si ninguna categoría existente es un buen match, devuelve "categoryId" en null y propón un "newCategoryName" corto (1 o 2 palabras) en el MISMO IDIOMA de la descripción, junto con un "newCategoryIcon" que sea UN EMOJI que represente esa categoría.
     - El primer objeto del arreglo debe ser tu mejor sugerencia absoluta (la que se autoseleccionará).
-    - El formato exacto de cada objeto debe ser: {"categoryId": numero_o_null, "newCategoryName": "String_o_null"}
+    - El formato exacto de cada objeto debe ser: {"categoryId": numero_o_null, "newCategoryName": "String_o_null", "newCategoryIcon": "Emoji_o_null"}
     
     Categorías existentes disponibles:
     ${jsonEncode(categoriesJson)}
@@ -281,9 +290,15 @@ class AITransactionService {
              validName = validName[0].toUpperCase() + validName.substring(1).toLowerCase();
           }
           
+          String? validIcon = suggestion.newCategoryIcon;
+          if (validId == null && validName != null && (validIcon == null || validIcon.trim().isEmpty)) {
+            validIcon = '✨';
+          }
+          
           results.add(AICategorySuggestionItem(
             categoryId: validId,
             newCategoryName: validId == null ? validName : null,
+            newCategoryIcon: validId == null ? validIcon : null,
           ));
         }
         

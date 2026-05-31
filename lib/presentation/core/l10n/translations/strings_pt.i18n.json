@@ -1193,5 +1193,14 @@
         ]
       }
     }
+  },
+  "intents": {
+    "transactionSavedTitle": "✅ Transação Salva",
+    "emptyText": "Texto vazio",
+    "emptyData": "Dados vazios",
+    "cannotUnderstand": "Não foi possível entender",
+    "errorSaving": "Erro ao salvar",
+    "noCategories": "Sem categorias",
+    "loadingError": "Erro ao carregar"
   }
 }

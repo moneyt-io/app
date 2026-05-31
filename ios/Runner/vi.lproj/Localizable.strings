@@ -1,0 +1,34 @@
+"Registro con IA" = "Ghi lại bằng AI";
+"Registra una transacción en MoneyT en segundo plano mediante IA." = "Ghi lại giao dịch dưới nền bằng AI.";
+"¿Qué gasto deseas registrar?" = "Bạn muốn ghi lại giao dịch nào?";
+"Categoría Seleccionada" = "Danh mục đã chọn";
+"Texto" = "Văn bản";
+"Registro manual" = "Ghi lại thủ công";
+"Registra un movimiento en MoneyT guiado paso a paso." = "Ghi lại giao dịch từng bước.";
+"Valor" = "Số tiền";
+"Tipo" = "Loại";
+"Categoría" = "Danh mục";
+"Cuenta" = "Tài khoản";
+"Ingreso" = "Thu nhập";
+"Gasto" = "Chi phí";
+"¿En qué categoría?" = "Trong danh mục nào?";
+"¿Qué categoría?" = "Danh mục nào?";
+"¿De qué cuenta?" = "Từ tài khoản nào?";
+"Tipo de Movimiento" = "Loại giao dịch";
+
+
+/* Manual Intent Translations */
+"manual_intent_title" = "Bản ghi thủ công";
+"manual_intent_desc" = "Ghi lại giao dịch trong MoneyT từng bước một.";
+"manual_intent_amount" = "Số tiền";
+"manual_intent_type" = "Loại";
+"manual_intent_description" = "Mô tả";
+"manual_intent_category" = "Danh mục";
+"manual_intent_wallet" = "Ví";
+"manual_intent_ask_category" = "Danh mục nào?";
+"manual_intent_ask_wallet" = "Từ ví nào?";
+"manual_intent_success_title" = "✅ Giao dịch đã lưu";
+"manual_intent_success_subtitle" = "Danh mục: %s";
+"manual_intent_save_button" = "Lưu";
+
+"manual_intent_new_label" = "(Mới)";

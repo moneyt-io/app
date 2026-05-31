@@ -1193,5 +1193,14 @@
         ]
       }
     }
+  },
+  "intents": {
+    "transactionSavedTitle": "✅ Transacción guardada",
+    "emptyText": "Texto vacío",
+    "emptyData": "Datos vacíos",
+    "cannotUnderstand": "No se pudo entender el gasto",
+    "errorSaving": "Error al guardar el gasto",
+    "noCategories": "No hay categorías disponibles",
+    "loadingError": "Error cargando cuentas y categorías"
   }
 }

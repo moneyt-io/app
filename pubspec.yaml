@@ -63,6 +63,7 @@ flutter:
     - .env
     - assets/seeds/en/
     - assets/seeds/es/
+    - assets/images/
 
 flutter_launcher_icons:
   image_path: assets/logo/app_icon.png          # PNG transparente, sin fondo

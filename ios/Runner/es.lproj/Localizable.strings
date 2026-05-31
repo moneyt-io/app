@@ -1,0 +1,34 @@
+"Registro con IA" = "Registro con IA";
+"Registra una transacción en MoneyT en segundo plano mediante IA." = "Registra una transacción en MoneyT en segundo plano mediante IA.";
+"¿Qué gasto deseas registrar?" = "¿Qué gasto deseas registrar?";
+"Categoría Seleccionada" = "Categoría Seleccionada";
+"Texto" = "Texto";
+"Registro manual" = "Registro manual";
+"Registra un movimiento en MoneyT guiado paso a paso." = "Registra un movimiento en MoneyT guiado paso a paso.";
+"Valor" = "Valor";
+"Tipo" = "Tipo";
+"Categoría" = "Categoría";
+"Cuenta" = "Cuenta";
+"Ingreso" = "Ingreso";
+"Gasto" = "Gasto";
+"¿En qué categoría?" = "¿En qué categoría?";
+"¿Qué categoría?" = "¿Qué categoría?";
+"¿De qué cuenta?" = "¿De qué cuenta?";
+"Tipo de Movimiento" = "Tipo de Movimiento";
+
+
+/* Manual Intent Translations */
+"manual_intent_title" = "Registro manual";
+"manual_intent_desc" = "Registra un movimiento en MoneyT guiado paso a paso.";
+"manual_intent_amount" = "Valor";
+"manual_intent_type" = "Tipo";
+"manual_intent_description" = "Descripción";
+"manual_intent_category" = "Categoría";
+"manual_intent_wallet" = "Cuenta";
+"manual_intent_ask_category" = "¿Qué categoría?";
+"manual_intent_ask_wallet" = "¿De qué cuenta?";
+"manual_intent_success_title" = "✅ Transacción guardada";
+"manual_intent_success_subtitle" = "Categoría: %s";
+"manual_intent_save_button" = "Guardar";
+
+"manual_intent_new_label" = "(Nuevo)";

@@ -1,16 +1,8 @@
-import 'dart:ui';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 import '../theme/v2_colors.dart';
-import '../dashboard/widgets/parallax_background.dart';
 import '../dashboard/widgets/dashboard2_bottom_nav.dart';
-import '../../core/providers/background_provider.dart';
 import '../../core/providers/currency_provider.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/l10n/generated/strings.g.dart';
@@ -37,51 +29,18 @@ class NewSettingsScreen extends StatelessWidget {
     final currentLanguage = languageProvider.getCurrentLanguageName();
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light, // Texto blanco para fondo oscuro
+      value: SystemUiOverlayStyle.dark, // Dark text for light background
       child: Scaffold(
+        backgroundColor: const Color(0xFFF6F7FA), // Light solid background
         extendBodyBehindAppBar: true,
         body: Stack(
           children: [
-            // Background Image with Parallax compartida
-            const ParallaxBackground(
-              imageUrl:
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuBwYJtbLoiRlK81HfQ0l7k4ySGsyJeulQ5JpR_i0oIcnwM_9Pw_1IBnZ81Yk48phFd11NOlBX-OHgmovM__zWyLxpcfQ721O5NjjvLM_7LkERh01LoHkOddGXkwHpoI-AHMuT8bcbMn849_lNZ7Su4h9TYOpv_qUTD6XXWe7Yps8HV7sQVkcNQKhhaIzTrwgESMzN-MvMbARMYlmjgpHQSr0vFRfsEkwAJWwGYqohbqQuSGjFSOnqyq7eDOq6wiFI3-d2d74TspvgIC',
-              parallaxFactor: 14.0,
-            ),
-
-            // Desenfoque extra sutil en toda la imagen de fondo
-            Positioned.fill(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                child: const SizedBox(),
-              ),
-            ),
-
-            // Gradient Overlay para suavizar el texto
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withValues(alpha: 0.6),
-                      Colors.black.withValues(alpha: 0.0),
-                      const Color(
-                          0xFFFAF8FF), // Fades to surface background color
-                    ],
-                    stops: const [0.0, 0.4, 0.8],
-                  ),
-                ),
-              ),
-            ),
-
             // Content
             SafeArea(
               bottom: false,
               child: Column(
                 children: [
-                  // App Bar Transparente Custom
+                  // App Bar Custom
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -89,7 +48,7 @@ class NewSettingsScreen extends StatelessWidget {
                       children: [
                         IconButton(
                           icon:
-                              const Icon(Icons.arrow_back, color: Colors.white),
+                              const Icon(Icons.arrow_back, color: V2Colors.onSurface),
                           onPressed: () => Navigator.pop(context),
                         ),
                         Expanded(
@@ -97,17 +56,10 @@ class NewSettingsScreen extends StatelessWidget {
                             t.v2.settings.title,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
+                              color: V2Colors.onSurface,
+                              fontSize: 20,
                               fontWeight: FontWeight.w700,
                               fontFamily: 'Manrope',
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black45,
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
                             ),
                           ),
                         ),
@@ -118,6 +70,8 @@ class NewSettingsScreen extends StatelessWidget {
                     ),
                   ),
 
+
+
                   // Scrollable Options List
                   Expanded(
                     child: ListView(
@@ -125,13 +79,14 @@ class NewSettingsScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(
                           left: 20,
                           right: 20,
-                          top: 32,
-                          bottom: 140), // Espacio para el bottom nav
+                          top: 8,
+                          bottom: 32), // Reducido al ocultar el bottom nav
                       children: [
-                        _buildGlassmorphismOptionItem(
+                        _buildOptionItem(
                           context,
-                          icon: Icons.category_outlined,
+                          emoji: '🏷️',
                           title: t.v2.settings.categories,
+                          iconBgColor: const Color(0xFFFFF7ED),
                           onTap: () {
                             Navigator.push(
                               context,
@@ -141,11 +96,12 @@ class NewSettingsScreen extends StatelessWidget {
                             );
                           },
                         ),
-                        const SizedBox(height: 16),
-                        _buildGlassmorphismOptionItem(
+                        const SizedBox(height: 12),
+                        _buildOptionItem(
                           context,
-                          icon: Icons.account_balance_wallet_outlined,
+                          emoji: '💳',
                           title: t.v2.settings.wallets,
+                          iconBgColor: const Color(0xFFF0F9FF),
                           onTap: () {
                             Navigator.push(
                               context,
@@ -155,12 +111,13 @@ class NewSettingsScreen extends StatelessWidget {
                             );
                           },
                         ),
-                        const SizedBox(height: 16),
-                        _buildGlassmorphismOptionItem(
+                        const SizedBox(height: 12),
+                        _buildOptionItem(
                           context,
-                          icon: Icons.language,
+                          emoji: '🌐',
                           title: t.v2.settings.language,
                           trailingText: currentLanguage,
+                          iconBgColor: const Color(0xFFF0FDF4),
                           onTap: () {
                             Navigator.push(
                               context,
@@ -170,13 +127,14 @@ class NewSettingsScreen extends StatelessWidget {
                             );
                           },
                         ),
-                        const SizedBox(height: 16),
-                        _buildGlassmorphismOptionItem(
+                        const SizedBox(height: 12),
+                        _buildOptionItem(
                           context,
-                          icon: Icons.attach_money,
+                          emoji: '🪙',
                           title: t.v2.settings.currency,
                           trailingText:
                               '${currentCurrency.id} (${currentCurrency.symbol})',
+                          iconBgColor: const Color(0xFFFFFBEB),
                           onTap: () {
                             Navigator.push(
                               context,
@@ -186,18 +144,30 @@ class NewSettingsScreen extends StatelessWidget {
                             );
                           },
                         ),
-                        const SizedBox(height: 16),
-                        _buildGlassmorphismOptionItem(
+                        const SizedBox(height: 12),
+                        _buildOptionItem(
                           context,
-                          icon: Icons.support_agent,
+                          emoji: '🎧',
                           title: t.v2.settings.contact,
+                          iconBgColor: const Color(0xFFFAF5FF),
                           onTap: () {},
                         ),
-                        const SizedBox(height: 32),
-                        _buildGlassmorphismOptionItem(
+                        const SizedBox(height: 12),
+                        _buildOptionItem(
                           context,
-                          icon: Icons.history,
+                          emoji: '🕰️',
                           title: t.v2.settings.legacyView,
+                          iconBgColor: const Color(0xFFF8FAFC),
+                          trailingWidget: CupertinoSwitch(
+                            value: false,
+                            activeColor: V2Colors.primary,
+                            onChanged: (value) {
+                              if (value) {
+                                Navigator.pop(context);
+                                onToggleLegacy();
+                              }
+                            },
+                          ),
                           onTap: () {
                             Navigator.pop(context);
                             onToggleLegacy();
@@ -209,95 +179,92 @@ class NewSettingsScreen extends StatelessWidget {
                 ],
               ),
             ),
-
-            // Same Bottom Nav as Dashboard
-            const Dashboard2BottomNav(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildGlassmorphismOptionItem(
+  Widget _buildOptionItem(
     BuildContext context, {
-    required IconData icon,
+    required String emoji,
     required String title,
     String? trailingText,
+    required Color iconBgColor,
+    Widget? trailingWidget,
     required VoidCallback onTap,
   }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(
-                alpha:
-                    0.25), // Opacidad reducida para que se note el efecto de cristal
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(16),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: V2Colors.primary.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      child: Icon(
-                        icon,
-                        color: V2Colors.primary,
-                        size: 22,
-                      ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: iconBgColor,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    emoji,
+                    style: const TextStyle(
+                      fontSize: 20,
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: V2Colors.onSurface,
-                          fontFamily: 'Manrope',
-                        ),
-                      ),
-                    ),
-                    if (trailingText != null) ...[
-                      Text(
-                        trailingText,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: V2Colors.onSurfaceVariant,
-                          fontFamily: 'Manrope',
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    const Icon(
-                      Icons.chevron_right,
-                      color: V2Colors.outlineVariant,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: V2Colors.onSurface,
+                      fontFamily: 'Manrope',
+                    ),
+                  ),
+                ),
+                if (trailingWidget != null)
+                  trailingWidget
+                else ...[
+                  if (trailingText != null) ...[
+                    Text(
+                      trailingText,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: V2Colors.onSurfaceVariant,
+                        fontFamily: 'Manrope',
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  const Icon(
+                    Icons.chevron_right,
+                    color: V2Colors.outlineVariant,
+                    size: 20,
+                  ),
+                ],
+              ],
             ),
           ),
         ),

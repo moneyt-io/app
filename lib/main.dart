@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/utils/icon_to_emoji_mapper.dart';
 import 'core/services/ai_transaction_service.dart';
 import 'domain/usecases/transaction_usecases.dart';
 import 'domain/usecases/wallet_usecases.dart';
@@ -33,7 +34,7 @@ import 'core/services/paywall_service.dart';
 import 'core/services/analytics_service.dart';
 import 'core/services/tiktok_service.dart';
 import 'core/services/facebook_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/utils/icon_to_emoji_mapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -177,8 +178,22 @@ void backgroundMain() async {
   await dotenv.load(fileName: ".env");
   await initializeDependencies();
   
-  // Asegurar que las preferencias compartidas están listas
-  await SharedPreferences.getInstance();
+  // Configurar Slang
+  final prefs = await SharedPreferences.getInstance();
+  final savedLanguage = prefs.getString('selected_language');
+  if (savedLanguage != null) {
+    try {
+      final locale = AppLocale.values.firstWhere(
+        (l) => l.languageCode == savedLanguage,
+        orElse: () => AppLocale.es,
+      );
+      LocaleSettings.setLocale(locale);
+    } catch (_) {
+      LocaleSettings.useDeviceLocale();
+    }
+  } else {
+    LocaleSettings.useDeviceLocale();
+  }
 
   const channel = MethodChannel('com.moneyt.app/background_intent');
   
@@ -191,7 +206,7 @@ void backgroundMain() async {
       if (call.method == 'parseTransaction') {
         final String? text = call.arguments as String?;
         if (text == null || text.isEmpty) {
-          return {"success": false, "message": "Texto vacío"};
+          return {"success": false, "message": t.intents.emptyText};
         }
 
         final wallets = await walletUseCases.getAllWallets();
@@ -208,15 +223,19 @@ void backgroundMain() async {
           for (var sugg in result.categorySuggestions) {
             if (sugg.categoryId != null) {
               final cat = childCategories.firstWhere((c) => c.id == sugg.categoryId, orElse: () => childCategories.first);
-              suggestions.add({"id": cat.id, "name": cat.name});
+              suggestions.add({"id": cat.id, "name": cat.name, "icon": IconToEmojiMapper.getEmoji(cat.icon)});
             } else if (sugg.newCategoryName != null) {
-              suggestions.add({"id": null, "name": sugg.newCategoryName});
+              suggestions.add({"id": null, "name": sugg.newCategoryName, "icon": sugg.newCategoryIcon ?? "✨"});
             }
           }
 
           if (suggestions.isEmpty) {
-            suggestions.add({"id": childCategories.first.id, "name": childCategories.first.name});
+            suggestions.add({"id": childCategories.first.id, "name": childCategories.first.name, "icon": IconToEmojiMapper.getEmoji(childCategories.first.icon)});
           }
+
+          final prefs = await SharedPreferences.getInstance();
+          final globalCurrencyId = prefs.getString('default_currency') ?? 'USD';
+          final globalSymbol = CurrencyProvider.availableCurrencies.firstWhere((c) => c.id == globalCurrencyId, orElse: () => CurrencyProvider.availableCurrencies.first).symbol;
 
           return {
             "success": true,
@@ -225,18 +244,19 @@ void backgroundMain() async {
               "amount": result.amount,
               "walletId": wallet.id,
               "currencyId": wallet.currencyId,
+              "currencySymbol": globalSymbol,
               "description": result.description,
               "date": result.date?.toIso8601String() ?? DateTime.now().toIso8601String(),
             },
             "suggestedCategories": suggestions
           };
         } else {
-          return {"success": false, "message": "No se pudo entender el gasto"};
+          return {"success": false, "message": t.intents.cannotUnderstand};
         }
       } 
       else if (call.method == 'saveTransaction') {
         final Map<dynamic, dynamic>? args = call.arguments as Map<dynamic, dynamic>?;
-        if (args == null) return {"success": false, "message": "Datos vacíos"};
+        if (args == null) return {"success": false, "message": t.intents.emptyData};
 
         final type = args['type'] as String? ?? 'E';
         final amount = (args['amount'] as num?)?.toDouble() ?? 0.0;
@@ -249,21 +269,41 @@ void backgroundMain() async {
         
         final categoryId = args['categoryId'] as int?;
         final newCategoryName = args['newCategoryName'] as String?;
+        final newCategoryIcon = args['newCategoryIcon'] as String? ?? '🏷️';
 
         int finalCategoryId;
         if (categoryId != null) {
           finalCategoryId = categoryId;
         } else if (newCategoryName != null) {
-          // Crear nueva categoría
+          // Buscar o crear el padre raíz (Expense o Income)
+          final allCats = await categoryUseCases.getAllCategories();
+          final rootName = type == 'E' ? 'Expense' : 'Income';
+          Category? root = allCats.where((c) => c.parentId == null && c.name == rootName && c.documentTypeId == type).firstOrNull;
+          
+          if (root == null) {
+            final newRoot = Category(
+              id: 0,
+              name: rootName,
+              documentTypeId: type,
+              chartAccountId: 0,
+              icon: Icons.folder.codePoint.toString(),
+              active: true,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            );
+            root = await categoryUseCases.createCategory(newRoot);
+          }
+
+          // Crear nueva categoría hijo
           final newCat = await categoryUseCases.createCategory(Category(
             id: 0,
             name: newCategoryName,
-            icon: '🏷️',
+            icon: newCategoryIcon,
             documentTypeId: type,
             chartAccountId: 0, // se autogenerará en el usecase
             active: true,
             createdAt: DateTime.now(),
-            parentId: null
+            parentId: root.id
           ));
           finalCategoryId = newCat.id;
         } else {
@@ -293,7 +333,31 @@ void backgroundMain() async {
           );
         }
         
-        return {"success": true, "message": "Transacción guardada correctamente"};
+        return {"success": true, "message": t.intents.transactionSavedTitle};
+      }
+      else if (call.method == 'getManualData') {
+        final prefs = await SharedPreferences.getInstance();
+        final globalCurrencyId = prefs.getString('default_currency') ?? 'USD';
+        final globalSymbol = CurrencyProvider.availableCurrencies.firstWhere((c) => c.id == globalCurrencyId, orElse: () => CurrencyProvider.availableCurrencies.first).symbol;
+
+        final wallets = await walletUseCases.getAllWallets();
+        final categories = await categoryUseCases.getAllCategories();
+        
+        return {
+          "success": true,
+          "globalCurrencySymbol": globalSymbol,
+          "categories": categories.where((c) => c.parentId != null).map((cat) => {
+            "id": cat.id,
+            "name": cat.name,
+            "icon": IconToEmojiMapper.getEmoji(cat.icon),
+          }).toList(),
+          "wallets": wallets.where((w) => w.parentId != null).map((w) => {
+            "id": w.id,
+            "name": w.name,
+            "currencyId": w.currencyId,
+            "currencySymbol": CurrencyProvider.availableCurrencies.firstWhere((c) => c.id == w.currencyId, orElse: () => CurrencyProvider.availableCurrencies.first).symbol
+          }).toList()
+        };
       }
       
       return {"success": false, "message": "Método no encontrado"};

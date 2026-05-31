@@ -54,6 +54,7 @@ class AppStrings implements BaseTranslations<AppLocale, AppStrings> {
 	late final AppStringsCategoriesEn categories = AppStringsCategoriesEn.internal(_root);
 	late final AppStringsBackupsEn backups = AppStringsBackupsEn.internal(_root);
 	late final AppStringsV2En v2 = AppStringsV2En.internal(_root);
+	late final AppStringsIntentsEn intents = AppStringsIntentsEn.internal(_root);
 }
 
 // Path: app
@@ -473,6 +474,36 @@ class AppStringsV2En {
 	late final AppStringsV2DashboardEn dashboard = AppStringsV2DashboardEn.internal(_root);
 	late final AppStringsV2CategoriesEn categories = AppStringsV2CategoriesEn.internal(_root);
 	late final AppStringsV2OnboardingEn onboarding = AppStringsV2OnboardingEn.internal(_root);
+}
+
+// Path: intents
+class AppStringsIntentsEn {
+	AppStringsIntentsEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: '✅ Transacción guardada'
+	String get transactionSavedTitle => '✅ Transacción guardada';
+
+	/// en: 'Texto vacío'
+	String get emptyText => 'Texto vacío';
+
+	/// en: 'Datos vacíos'
+	String get emptyData => 'Datos vacíos';
+
+	/// en: 'No se pudo entender el gasto'
+	String get cannotUnderstand => 'No se pudo entender el gasto';
+
+	/// en: 'Error al guardar el gasto'
+	String get errorSaving => 'Error al guardar el gasto';
+
+	/// en: 'No hay categorías disponibles'
+	String get noCategories => 'No hay categorías disponibles';
+
+	/// en: 'Error cargando cuentas y categorías'
+	String get loadingError => 'Error cargando cuentas y categorías';
 }
 
 // Path: components.dateSelection
@@ -5118,6 +5149,13 @@ extension on AppStrings {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix \$10.99';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Dinner \$25.00';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Pharmacy \$18.50';
+			case 'intents.transactionSavedTitle': return '✅ Transacción guardada';
+			case 'intents.emptyText': return 'Texto vacío';
+			case 'intents.emptyData': return 'Datos vacíos';
+			case 'intents.cannotUnderstand': return 'No se pudo entender el gasto';
+			case 'intents.errorSaving': return 'Error al guardar el gasto';
+			case 'intents.noCategories': return 'No hay categorías disponibles';
+			case 'intents.loadingError': return 'Error cargando cuentas y categorías';
 			default: return null;
 		}
 	}

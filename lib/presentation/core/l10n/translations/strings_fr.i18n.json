@@ -1193,5 +1193,14 @@
         ]
       }
     }
+  },
+  "intents": {
+    "transactionSavedTitle": "✅ Transaction Enregistrée",
+    "emptyText": "Texte vide",
+    "emptyData": "Données vides",
+    "cannotUnderstand": "Impossible de comprendre la transaction",
+    "errorSaving": "Erreur de sauvegarde",
+    "noCategories": "Aucune catégorie",
+    "loadingError": "Erreur de chargement"
   }
 }

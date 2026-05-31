@@ -53,6 +53,7 @@ class AppStringsFr extends AppStrings {
 	@override late final _AppStringsCategoriesFr categories = _AppStringsCategoriesFr._(_root);
 	@override late final _AppStringsBackupsFr backups = _AppStringsBackupsFr._(_root);
 	@override late final _AppStringsV2Fr v2 = _AppStringsV2Fr._(_root);
+	@override late final _AppStringsIntentsFr intents = _AppStringsIntentsFr._(_root);
 }
 
 // Path: app
@@ -332,6 +333,22 @@ class _AppStringsV2Fr extends AppStringsV2En {
 	@override late final _AppStringsV2DashboardFr dashboard = _AppStringsV2DashboardFr._(_root);
 	@override late final _AppStringsV2CategoriesFr categories = _AppStringsV2CategoriesFr._(_root);
 	@override late final _AppStringsV2OnboardingFr onboarding = _AppStringsV2OnboardingFr._(_root);
+}
+
+// Path: intents
+class _AppStringsIntentsFr extends AppStringsIntentsEn {
+	_AppStringsIntentsFr._(AppStringsFr root) : this._root = root, super.internal(root);
+
+	final AppStringsFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get transactionSavedTitle => '✅ Transaction Enregistrée';
+	@override String get emptyText => 'Texte vide';
+	@override String get emptyData => 'Données vides';
+	@override String get cannotUnderstand => 'Impossible de comprendre la transaction';
+	@override String get errorSaving => 'Erreur de sauvegarde';
+	@override String get noCategories => 'Aucune catégorie';
+	@override String get loadingError => 'Erreur de chargement';
 }
 
 // Path: components.dateSelection
@@ -3337,6 +3354,13 @@ extension on AppStringsFr {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix 10,99 €';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Dîner 25,00 €';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Pharmacie 18,50 €';
+			case 'intents.transactionSavedTitle': return '✅ Transaction Enregistrée';
+			case 'intents.emptyText': return 'Texte vide';
+			case 'intents.emptyData': return 'Données vides';
+			case 'intents.cannotUnderstand': return 'Impossible de comprendre la transaction';
+			case 'intents.errorSaving': return 'Erreur de sauvegarde';
+			case 'intents.noCategories': return 'Aucune catégorie';
+			case 'intents.loadingError': return 'Erreur de chargement';
 			default: return null;
 		}
 	}

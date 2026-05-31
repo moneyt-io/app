@@ -1193,5 +1193,14 @@
         ]
       }
     }
+  },
+  "intents": {
+    "transactionSavedTitle": "✅ Đã Lưu Giao Dịch",
+    "emptyText": "Văn bản trống",
+    "emptyData": "Dữ liệu trống",
+    "cannotUnderstand": "Không thể hiểu giao dịch",
+    "errorSaving": "Lỗi lưu",
+    "noCategories": "Không có danh mục",
+    "loadingError": "Lỗi tải"
   }
 }

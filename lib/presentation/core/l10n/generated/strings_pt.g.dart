@@ -53,6 +53,7 @@ class AppStringsPt extends AppStrings {
 	@override late final _AppStringsCategoriesPt categories = _AppStringsCategoriesPt._(_root);
 	@override late final _AppStringsBackupsPt backups = _AppStringsBackupsPt._(_root);
 	@override late final _AppStringsV2Pt v2 = _AppStringsV2Pt._(_root);
+	@override late final _AppStringsIntentsPt intents = _AppStringsIntentsPt._(_root);
 }
 
 // Path: app
@@ -332,6 +333,22 @@ class _AppStringsV2Pt extends AppStringsV2En {
 	@override late final _AppStringsV2DashboardPt dashboard = _AppStringsV2DashboardPt._(_root);
 	@override late final _AppStringsV2CategoriesPt categories = _AppStringsV2CategoriesPt._(_root);
 	@override late final _AppStringsV2OnboardingPt onboarding = _AppStringsV2OnboardingPt._(_root);
+}
+
+// Path: intents
+class _AppStringsIntentsPt extends AppStringsIntentsEn {
+	_AppStringsIntentsPt._(AppStringsPt root) : this._root = root, super.internal(root);
+
+	final AppStringsPt _root; // ignore: unused_field
+
+	// Translations
+	@override String get transactionSavedTitle => '✅ Transação Salva';
+	@override String get emptyText => 'Texto vazio';
+	@override String get emptyData => 'Dados vazios';
+	@override String get cannotUnderstand => 'Não foi possível entender';
+	@override String get errorSaving => 'Erro ao salvar';
+	@override String get noCategories => 'Sem categorias';
+	@override String get loadingError => 'Erro ao carregar';
 }
 
 // Path: components.dateSelection
@@ -3337,6 +3354,13 @@ extension on AppStringsPt {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix R\$39,90';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Jantar R\$85,00';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Farmácia R\$48,50';
+			case 'intents.transactionSavedTitle': return '✅ Transação Salva';
+			case 'intents.emptyText': return 'Texto vazio';
+			case 'intents.emptyData': return 'Dados vazios';
+			case 'intents.cannotUnderstand': return 'Não foi possível entender';
+			case 'intents.errorSaving': return 'Erro ao salvar';
+			case 'intents.noCategories': return 'Sem categorias';
+			case 'intents.loadingError': return 'Erro ao carregar';
 			default: return null;
 		}
 	}

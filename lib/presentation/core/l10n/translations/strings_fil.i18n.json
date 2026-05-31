@@ -1193,5 +1193,14 @@
         ]
       }
     }
+  },
+  "intents": {
+    "transactionSavedTitle": "✅ Nai-save ang Transaksyon",
+    "emptyText": "Walang teksto",
+    "emptyData": "Walang data",
+    "cannotUnderstand": "Hindi maintindihan ang transaksyon",
+    "errorSaving": "May error sa pag-save",
+    "noCategories": "Walang kategoryang magagamit",
+    "loadingError": "Error sa pag-load"
   }
 }

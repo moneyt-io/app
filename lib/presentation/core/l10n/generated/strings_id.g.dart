@@ -53,6 +53,7 @@ class AppStringsId extends AppStrings {
 	@override late final _AppStringsCategoriesId categories = _AppStringsCategoriesId._(_root);
 	@override late final _AppStringsBackupsId backups = _AppStringsBackupsId._(_root);
 	@override late final _AppStringsV2Id v2 = _AppStringsV2Id._(_root);
+	@override late final _AppStringsIntentsId intents = _AppStringsIntentsId._(_root);
 }
 
 // Path: app
@@ -332,6 +333,22 @@ class _AppStringsV2Id extends AppStringsV2En {
 	@override late final _AppStringsV2DashboardId dashboard = _AppStringsV2DashboardId._(_root);
 	@override late final _AppStringsV2CategoriesId categories = _AppStringsV2CategoriesId._(_root);
 	@override late final _AppStringsV2OnboardingId onboarding = _AppStringsV2OnboardingId._(_root);
+}
+
+// Path: intents
+class _AppStringsIntentsId extends AppStringsIntentsEn {
+	_AppStringsIntentsId._(AppStringsId root) : this._root = root, super.internal(root);
+
+	final AppStringsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get transactionSavedTitle => '✅ Transaksi Disimpan';
+	@override String get emptyText => 'Teks kosong';
+	@override String get emptyData => 'Data kosong';
+	@override String get cannotUnderstand => 'Tidak bisa memahami transaksi';
+	@override String get errorSaving => 'Gagal menyimpan';
+	@override String get noCategories => 'Tidak ada kategori';
+	@override String get loadingError => 'Gagal memuat';
 }
 
 // Path: components.dateSelection
@@ -3337,6 +3354,13 @@ extension on AppStringsId {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix Rp 186.000';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Makan Rp 120.000';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Apotek Rp 85.000';
+			case 'intents.transactionSavedTitle': return '✅ Transaksi Disimpan';
+			case 'intents.emptyText': return 'Teks kosong';
+			case 'intents.emptyData': return 'Data kosong';
+			case 'intents.cannotUnderstand': return 'Tidak bisa memahami transaksi';
+			case 'intents.errorSaving': return 'Gagal menyimpan';
+			case 'intents.noCategories': return 'Tidak ada kategori';
+			case 'intents.loadingError': return 'Gagal memuat';
 			default: return null;
 		}
 	}

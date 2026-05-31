@@ -53,6 +53,7 @@ class AppStringsFil extends AppStrings {
 	@override late final _AppStringsCategoriesFil categories = _AppStringsCategoriesFil._(_root);
 	@override late final _AppStringsBackupsFil backups = _AppStringsBackupsFil._(_root);
 	@override late final _AppStringsV2Fil v2 = _AppStringsV2Fil._(_root);
+	@override late final _AppStringsIntentsFil intents = _AppStringsIntentsFil._(_root);
 }
 
 // Path: app
@@ -332,6 +333,22 @@ class _AppStringsV2Fil extends AppStringsV2En {
 	@override late final _AppStringsV2DashboardFil dashboard = _AppStringsV2DashboardFil._(_root);
 	@override late final _AppStringsV2CategoriesFil categories = _AppStringsV2CategoriesFil._(_root);
 	@override late final _AppStringsV2OnboardingFil onboarding = _AppStringsV2OnboardingFil._(_root);
+}
+
+// Path: intents
+class _AppStringsIntentsFil extends AppStringsIntentsEn {
+	_AppStringsIntentsFil._(AppStringsFil root) : this._root = root, super.internal(root);
+
+	final AppStringsFil _root; // ignore: unused_field
+
+	// Translations
+	@override String get transactionSavedTitle => '✅ Nai-save ang Transaksyon';
+	@override String get emptyText => 'Walang teksto';
+	@override String get emptyData => 'Walang data';
+	@override String get cannotUnderstand => 'Hindi maintindihan ang transaksyon';
+	@override String get errorSaving => 'May error sa pag-save';
+	@override String get noCategories => 'Walang kategoryang magagamit';
+	@override String get loadingError => 'Error sa pag-load';
 }
 
 // Path: components.dateSelection
@@ -3337,6 +3354,13 @@ extension on AppStringsFil {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix ₱549';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Dinner ₱800';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Gamot ₱450';
+			case 'intents.transactionSavedTitle': return '✅ Nai-save ang Transaksyon';
+			case 'intents.emptyText': return 'Walang teksto';
+			case 'intents.emptyData': return 'Walang data';
+			case 'intents.cannotUnderstand': return 'Hindi maintindihan ang transaksyon';
+			case 'intents.errorSaving': return 'May error sa pag-save';
+			case 'intents.noCategories': return 'Walang kategoryang magagamit';
+			case 'intents.loadingError': return 'Error sa pag-load';
 			default: return null;
 		}
 	}

@@ -1,0 +1,34 @@
+"Registro con IA" = "AI Registration";
+"Registra una transacción en MoneyT en segundo plano mediante IA." = "Nagtatala ng transaksyon gamit ang AI.";
+"¿Qué gasto deseas registrar?" = "Anong transaksyon ang gusto mong itala?";
+"Categoría Seleccionada" = "Napiling Kategorya";
+"Texto" = "Teksto";
+"Registro manual" = "Manwal na Registration";
+"Registra un movimiento en MoneyT guiado paso a paso." = "Nagtatala ng transaksyon nang hakbang-hakbang.";
+"Valor" = "Halaga";
+"Tipo" = "Uri";
+"Categoría" = "Kategorya";
+"Cuenta" = "Account";
+"Ingreso" = "Kita";
+"Gasto" = "Gastos";
+"¿En qué categoría?" = "Sa anong kategorya?";
+"¿Qué categoría?" = "Anong kategorya?";
+"¿De qué cuenta?" = "Mula sa anong account?";
+"Tipo de Movimiento" = "Uri ng Transaksyon";
+
+
+/* Manual Intent Translations */
+"manual_intent_title" = "Manwal na Tala";
+"manual_intent_desc" = "Itala ang isang transaksyon sa MoneyT nang sunud-sunod.";
+"manual_intent_amount" = "Halaga";
+"manual_intent_type" = "Uri";
+"manual_intent_description" = "Paglalarawan";
+"manual_intent_category" = "Kategorya";
+"manual_intent_wallet" = "Wallet";
+"manual_intent_ask_category" = "Aling kategorya?";
+"manual_intent_ask_wallet" = "Mula sa aling wallet?";
+"manual_intent_success_title" = "✅ Na-save ang transaksyon";
+"manual_intent_success_subtitle" = "Kategorya: %s";
+"manual_intent_save_button" = "I-save";
+
+"manual_intent_new_label" = "(Bago)";

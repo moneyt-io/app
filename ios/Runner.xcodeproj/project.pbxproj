@@ -15,12 +15,14 @@
 		92E46FE02F375A57008462B4 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92E46FDF2F375A57008462B4 /* StoreKit.framework */; };
 		92E46FE22F375B14008462B4 /* MoneyT.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 92E46FE12F375B14008462B4 /* MoneyT.storekit */; };
 		92E46FE32F375B14008462B4 /* MoneyT.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 92E46FE12F375B14008462B4 /* MoneyT.storekit */; };
+		948187FCE9CA4A82A0CD3EBA /* AppShortcuts.strings in Resources */ = {isa = PBXBuildFile; fileRef = D0EB594AB48C44C98C6DE96C /* AppShortcuts.strings */; };
 		955F3D112471C254F8A44F59 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B187BB5CBAA85B719813977 /* Pods_RunnerTests.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		C5E8A5360270B7C2A2474CDB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0BF7470C0A92A9CA85FAF46A /* GoogleService-Info.plist */; };
 		DEDB18944861ACA88EA4D157 /* MoneyTAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC57C17B07AE50E4AEDBC317 /* MoneyTAppIntents.swift */; };
+		E2A85D7B254D42B4A85341D4 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0FEAF47EC9014401ACD64122 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,11 +59,21 @@
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		3CC32A00F55F49EA97CA16D0 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5447831CD02147749F68FD90 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5AD66381165D4D0B8581DF11 /* fil */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fil; path = fil.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5AFBF5A082564FFE8E8E6298 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		62372DBDD52763B25860EF87 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		64C54F8E4C2E4703ADF2272F /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
+		668E94E9F55E4B40B5A3B11F /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		7AEFD8E4B0684A7BA0C7C8A1 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
+		83A94C31D5EF4730AE1C2095 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8C478C4CCF6FA161395B92EA /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
+		8C5E55AD05E443DBA2D073B9 /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8F935DBB42A1470E9B3DA86C /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		92E46FDF2F375A57008462B4 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		92E46FE12F375B14008462B4 /* MoneyT.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; name = MoneyT.storekit; path = Runner/MoneyT.storekit; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
@@ -72,7 +84,11 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BDD1646BE6CF4B06574B74A3 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0B263A5E8DC4452A6D873B3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		CC57C17B07AE50E4AEDBC317 /* MoneyTAppIntents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MoneyTAppIntents.swift; sourceTree = "<group>"; };
+		E1276B069B0940C099493B02 /* fil */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fil; path = fil.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
+		EDE071B868ED4885AF5B4CEF /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
+		F0E9633F82EE4F9D9C6625C9 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FFE39156A933B79A14224AC8 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -164,6 +180,8 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				D0EB594AB48C44C98C6DE96C /* AppShortcuts.strings */,
+				0FEAF47EC9014401ACD64122 /* Localizable.strings */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -250,6 +268,12 @@
 			knownRegions = (
 				en,
 				Base,
+				es,
+				fr,
+				pt,
+				id,
+				vi,
+				fil,
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
@@ -275,6 +299,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2A85D7B254D42B4A85341D4 /* Localizable.strings in Resources */,
+				948187FCE9CA4A82A0CD3EBA /* AppShortcuts.strings in Resources */,
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				92E46FE22F375B14008462B4 /* MoneyT.storekit in Resources */,
@@ -428,6 +454,20 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		0FEAF47EC9014401ACD64122 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F0E9633F82EE4F9D9C6625C9 /* es */,
+				83A94C31D5EF4730AE1C2095 /* en */,
+				5AFBF5A082564FFE8E8E6298 /* fr */,
+				3CC32A00F55F49EA97CA16D0 /* pt */,
+				8C5E55AD05E443DBA2D073B9 /* id */,
+				5447831CD02147749F68FD90 /* vi */,
+				5AD66381165D4D0B8581DF11 /* fil */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		97C146FA1CF9000F007C117D /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -442,6 +482,20 @@
 				97C147001CF9000F007C117D /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		D0EB594AB48C44C98C6DE96C /* AppShortcuts.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				64C54F8E4C2E4703ADF2272F /* es */,
+				C0B263A5E8DC4452A6D873B3 /* en */,
+				7AEFD8E4B0684A7BA0C7C8A1 /* fr */,
+				668E94E9F55E4B40B5A3B11F /* pt */,
+				8F935DBB42A1470E9B3DA86C /* id */,
+				EDE071B868ED4885AF5B4CEF /* vi */,
+				E1276B069B0940C099493B02 /* fil */,
+			);
+			name = AppShortcuts.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
