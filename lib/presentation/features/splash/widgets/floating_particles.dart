@@ -72,10 +72,10 @@ class Particle {
     
     // Colores relacionados con finanzas/prosperidad
     final colors = [
-      Colors.white.withOpacity(0.1),
-      Colors.white.withOpacity(0.2),
-      const Color(0xFF14B8A6).withOpacity(0.3), // Teal
-      const Color(0xFFEAB308).withOpacity(0.2), // Gold
+      const Color(0xFF3B82F6).withOpacity(0.1),
+      const Color(0xFF1D4ED8).withOpacity(0.15),
+      const Color(0xFF14B8A6).withOpacity(0.2), 
+      const Color(0xFFEAB308).withOpacity(0.3), 
     ];
     color = colors[random.nextInt(colors.length)];
     

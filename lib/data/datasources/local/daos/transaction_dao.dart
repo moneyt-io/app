@@ -238,4 +238,26 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     final results = await query.get();
     return results.map((row) => row.readTable(transactionEntry)).toList();
   }
+
+  Future<List<int>> getActiveWalletIdsInDateRange(
+      DateTime startDate, DateTime endDate) async {
+    final query = customSelect(
+      '''
+      SELECT DISTINCT d.payment_id
+      FROM transaction_detail d
+      INNER JOIN transaction_entry e ON d.transaction_id = e.id
+      WHERE e.date >= ? AND e.date <= ? 
+        AND e.active = 1 
+        AND d.payment_id IS NOT NULL
+      ''',
+      variables: [
+        Variable.withDateTime(startDate),
+        Variable.withDateTime(endDate),
+      ],
+      readsFrom: {transactionEntry, transactionDetail},
+    );
+
+    final result = await query.get();
+    return result.map((row) => row.read<int>('payment_id')).toList();
+  }
 }

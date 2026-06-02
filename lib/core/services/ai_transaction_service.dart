@@ -37,13 +37,29 @@ class AITransactionResult {
       ));
     }
 
+    DateTime? parsedDate;
+    if (json['date'] != null) {
+      final baseDate = DateTime.tryParse(json['date'].toString());
+      if (baseDate != null) {
+        final now = DateTime.now();
+        parsedDate = DateTime(
+          baseDate.year,
+          baseDate.month,
+          baseDate.day,
+          now.hour,
+          now.minute,
+          now.second,
+        );
+      }
+    }
+
     return AITransactionResult(
       type: json['type']?.toString() ?? 'E',
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       categorySuggestions: suggestions,
       walletId: json['walletId'] as int?,
       description: json['description']?.toString() ?? '',
-      date: json['date'] != null ? DateTime.tryParse(json['date']) : null,
+      date: parsedDate,
     );
   }
 }

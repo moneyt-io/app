@@ -76,15 +76,15 @@ class _SplashScreenState extends State<SplashScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: const Color(0xFF003A9E), // Un azul oscuro profundo y premium
+        backgroundColor: const Color(0xFFFAF8FF), // Light theme background
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xFF004AC6), // primary
-                Color(0xFF002F80), // primary más oscuro
+                Color(0xFFFFFFFF), // white
+                Color(0xFFF0F4FF), // very light blue
               ],
             ),
           ),
@@ -105,7 +105,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       fontSize: 32,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -1.0,
-                      color: Colors.white, // Blanco puro para resaltar en fondo oscuro
+                      color: Color(0xFF131B2E), // Oscuro para que se lea en fondo claro
                     ),
                   ),
                   const Spacer(),
@@ -114,7 +114,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     height: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.5,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white54),
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3B82F6)), // Azul app
                     ),
                   ),
                   const SizedBox(height: 60),

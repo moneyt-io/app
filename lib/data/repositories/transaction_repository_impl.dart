@@ -252,6 +252,11 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
+  Future<List<int>> getActiveWalletIdsInDateRange(DateTime startDate, DateTime endDate) async {
+    return await _transactionDao.getActiveWalletIdsInDateRange(startDate, endDate);
+  }
+
+  @override
   Future<int> getNextSecuencial(String documentTypeId) {
     return _transactionDao.getNextSecuencial(documentTypeId);
   }

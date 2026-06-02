@@ -11,6 +11,7 @@ abstract class TransactionRepository {
   Future<List<TransactionEntry>> getTransactionsByType(String documentTypeId);
   Stream<List<TransactionEntry>> watchAllTransactions();
   Future<List<TransactionEntry>> getTransactionsByDateRange(DateTime startDate, DateTime endDate);
+  Future<List<int>> getActiveWalletIdsInDateRange(DateTime startDate, DateTime endDate);
     // Optimización de balance general
   Future<Map<int, double>> getWalletBalances();
   

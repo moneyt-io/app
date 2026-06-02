@@ -51,11 +51,27 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   );
 
   int? _selectedWalletId;
+  List<int> _activeWalletsInDateRange = [];
 
   @override
   void initState() {
     super.initState();
     _showPaywallIfNeeded();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateActiveWalletsInDateRange();
+    });
+  }
+
+  void _updateActiveWalletsInDateRange() async {
+    if (!mounted) return;
+    final tp = context.read<TransactionProvider>();
+    final activeIds = await tp.getActiveWalletIdsInDateRange(
+        _selectedDateRange.start, _selectedDateRange.end);
+    if (mounted) {
+      setState(() {
+        _activeWalletsInDateRange = activeIds;
+      });
+    }
   }
 
   Future<void> _showPaywallIfNeeded() async {
@@ -434,9 +450,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                         if (value == 'current') {
                           setState(() =>
                               _selectedDateRange = _getCurrentMonthRange());
+                          _updateActiveWalletsInDateRange();
                         } else if (value == 'previous') {
                           setState(() =>
                               _selectedDateRange = _getPreviousMonthRange());
+                          _updateActiveWalletsInDateRange();
                         } else if (value == 'custom') {
                           final picked = await V2DateSelectionSheet.showRange(
                             context,
@@ -453,6 +471,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                       59,
                                       59),
                                 ));
+                            _updateActiveWalletsInDateRange();
                           }
                         }
                       },
@@ -495,13 +514,15 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                         }
                       },
                       itemBuilder: (context) {
+                        final parentWalletsCount = walletProvider.wallets.where((w) => w.parentId == null && w.active).length;
+
                         final availableWallets =
                             walletProvider.wallets.where((w) {
                           if (!w.active) return false;
                           if (w.parentId == null) return false;
                           final balance =
                               walletProvider.walletBalances[w.id] ?? 0.0;
-                          if (balance <= 0) return false;
+                          if (balance <= 0 && !_activeWalletsInDateRange.contains(w.id)) return false;
                           return true;
                         }).toList();
 
@@ -519,9 +540,15 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                           final parent = walletProvider.wallets
                               .where((p) => p.id == w.parentId)
                               .firstOrNull;
-                          final fullName = parent != null
-                              ? '${parent.name} - ${w.name}'
-                              : w.name;
+                              
+                          final currencySymbol = CurrencyProvider.availableCurrencies
+                              .firstWhere((c) => c.id == w.currencyId, orElse: () => CurrencyProvider.availableCurrencies.first)
+                              .symbol;
+                              
+                          final fullName = (parent != null && parentWalletsCount > 1)
+                              ? '${parent.name} - ${w.name} ($currencySymbol)'
+                              : '${w.name} ($currencySymbol)';
+                              
                           items.add(PopupMenuItem(
                             value: w.id,
                             child: Text(fullName,

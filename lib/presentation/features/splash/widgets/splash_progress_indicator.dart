@@ -105,7 +105,7 @@ class _SplashProgressIndicatorState extends State<SplashProgressIndicator>
           width: 200,
           height: 4,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: const Color(0xFF3B82F6).withOpacity(0.2),
             borderRadius: BorderRadius.circular(2),
           ),
           child: AnimatedBuilder(
@@ -117,11 +117,11 @@ class _SplashProgressIndicatorState extends State<SplashProgressIndicator>
                   widthFactor: _progressAnimation.value,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFF3B82F6),
                       borderRadius: BorderRadius.circular(2),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.white.withOpacity(0.3),
+                          color: const Color(0xFF3B82F6).withOpacity(0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -146,7 +146,7 @@ class _SplashProgressIndicatorState extends State<SplashProgressIndicator>
                 _currentState,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.white.withOpacity(0.9),
+                  color: const Color(0xFF131B2E).withOpacity(0.9),
                   fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,

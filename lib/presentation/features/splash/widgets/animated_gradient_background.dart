@@ -22,9 +22,9 @@ class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
 
   // Secuencia de gradientes que se irán mostrando
   final List<List<Color>> _gradientSequence = [
-    [const Color(0xFF4AE3B5), const Color(0xFF2DD4BF)], // Inicial - Teal claro
-    [const Color(0xFF3B82F6), const Color(0xFF1D4ED8)], // Intermedio - Azul
-    [const Color(0xFF14B8A6), const Color(0xFF0F766E)], // Final - Teal oscuro
+    [const Color(0xFFFFFFFF), const Color(0xFFF0F4FF)], // White to Light Blueish
+    [const Color(0xFFF0F4FF), const Color(0xFFE2E8F0)], // Light Blueish to Slate
+    [const Color(0xFFFFFFFF), const Color(0xFFF8FAFC)], // White to Slate 50
   ];
 
   @override

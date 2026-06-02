@@ -22,6 +22,7 @@ import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/usecases/credit_card_usecases.dart';
 import 'package:get_it/get_it.dart';
 import '../../features/wallets/wallet_provider.dart';
+import '../../features/credit_cards/credit_card_provider.dart';
 
 class NewTransactionsScreen extends StatefulWidget {
   final bool autoOpenSearch;
@@ -744,8 +745,22 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
         ? tx.description!
         : (tx.contact?.name ?? category?.name ?? 'Transacción');
 
+    String accountName = DateFormat('HH:mm').format(tx.date);
+    if (tx.details.isNotEmpty) {
+      final detail = tx.details.first;
+      if (detail.paymentTypeId == 'W') {
+        final walletProvider = context.read<WalletProvider>();
+        final wallet = walletProvider.wallets.where((w) => w.id == detail.paymentId).firstOrNull;
+        if (wallet != null) accountName = wallet.name;
+      } else if (detail.paymentTypeId == 'C') {
+        final ccProvider = context.read<CreditCardProvider>();
+        final card = ccProvider.creditCards.where((c) => c.id == detail.paymentId).firstOrNull;
+        if (card != null) accountName = card.name;
+      }
+    }
+
     final subtitle =
-        "${category?.name ?? 'Otros'} • ${DateFormat('HH:mm').format(tx.date)}";
+        "${category?.name ?? 'Otros'} • $accountName";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),

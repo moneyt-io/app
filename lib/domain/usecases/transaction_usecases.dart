@@ -45,6 +45,9 @@ class TransactionUseCases {
   Stream<List<TransactionEntry>> watchAllTransactions() =>
       _transactionRepository.watchAllTransactions();
 
+  Future<List<int>> getActiveWalletIdsInDateRange(DateTime startDate, DateTime endDate) =>
+      _transactionRepository.getActiveWalletIdsInDateRange(startDate, endDate);
+
   // Operaciones CRUD coordinadas con diarios contables
   Future<TransactionEntry> createIncome({
     required DateTime date,

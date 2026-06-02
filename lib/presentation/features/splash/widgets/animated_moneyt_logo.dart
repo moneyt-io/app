@@ -130,23 +130,11 @@ class _AnimatedMoneyTLogoState extends State<AnimatedMoneyTLogo>
             angle: _rotationAnimation.value,
             child: Opacity(
               opacity: _fadeAnimation.value,
-              child: Container(
+              child: Image.asset(
+                'assets/images/logo_onboarding.png',
                 width: widget.size,
                 height: widget.size,
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFF3B82F6).withValues(alpha: 0.9), // Azul claro (centro)
-                      const Color(0xFF1D4ED8).withValues(alpha: 0.0), // Azul oscuro (borde difuminado)
-                    ],
-                    stops: const [0.3, 1.0],
-                  ),
-                ),
-                child: Icon(
-                  Icons.account_balance_wallet,
-                  size: widget.size * 0.5,
-                  color: Colors.white,
-                ),
+                fit: BoxFit.contain,
               ),
             ),
           ),

@@ -256,4 +256,13 @@ class TransactionProvider extends ChangeNotifier {
       };
     }
   }
+
+  Future<List<int>> getActiveWalletIdsInDateRange(DateTime startDate, DateTime endDate) async {
+    try {
+      return await _transactionUseCases.getActiveWalletIdsInDateRange(startDate, endDate);
+    } catch (e) {
+      debugPrint('Error getting active wallet ids: $e');
+      return [];
+    }
+  }
 }
