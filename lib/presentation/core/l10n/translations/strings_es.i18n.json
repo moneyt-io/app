@@ -1027,7 +1027,8 @@
       "newWallet": "Nueva Billetera",
       "editWallet": "Editar Billetera",
       "walletName": "Nombre de la billetera",
-      "saveWallet": "Guardar Billetera"
+      "saveWallet": "Guardar Billetera",
+      "deleteWalletHasTransactions": "No es posible eliminar esta billetera porque tiene transacciones registradas."
     },
     "dashboard": {
       "greetingMorning": "¡Buenos días!",

@@ -12,6 +12,7 @@ class Dashboard2Gauge extends StatefulWidget {
   final double expenses;
   final List<TransactionEntry> transactions;
   final Map<int, Category> categoriesDataMap;
+  final String currencyId;
 
   const Dashboard2Gauge({
     super.key,
@@ -19,6 +20,7 @@ class Dashboard2Gauge extends StatefulWidget {
     required this.expenses,
     required this.transactions,
     required this.categoriesDataMap,
+    required this.currencyId,
   });
 
   @override
@@ -124,13 +126,13 @@ class _Dashboard2GaugeState extends State<Dashboard2Gauge> {
 
     if (_selectedIndex != null && _selectedIndex! < segments.length) {
       final selectedSegment = segments[_selectedIndex!];
-      mainText = NumberFormatter.formatCurrency(selectedSegment.amount);
+      mainText = NumberFormatter.formatCurrency(selectedSegment.amount, currencyId: widget.currencyId);
       subText = selectedSegment.categoryName.toUpperCase();
     } else if (_showPercentage) {
       mainText = '${(displayPercentage * 100).toInt()}%';
       subText = displayPercentage > 1.0 ? t.v2.dashboard.gauge.exceeded : t.v2.dashboard.gauge.spent;
     } else {
-      mainText = NumberFormatter.formatCurrency(remaining.abs());
+      mainText = NumberFormatter.formatCurrency(remaining.abs(), currencyId: widget.currencyId);
       subText = remaining >= 0 ? t.v2.dashboard.gauge.available : t.v2.dashboard.gauge.overdrawn;
     }
 

@@ -16,12 +16,14 @@ class Dashboard2ActivityList extends StatelessWidget {
   final List<TransactionEntry> transactions;
   final double totalExpenses;
   final Map<int, Category> categoriesDataMap;
+  final String currencyId;
 
   const Dashboard2ActivityList({
     super.key,
     required this.transactions,
     required this.totalExpenses,
     required this.categoriesDataMap,
+    required this.currencyId,
   });
 
   @override
@@ -148,6 +150,7 @@ class Dashboard2ActivityList extends StatelessWidget {
                 progress: progress,
                 progressColor: progressColor,
                 topTransactions: categoryTransactions.take(5).toList(),
+                currencyId: currencyId,
               ),
             );
           }),
@@ -164,6 +167,7 @@ class _InteractiveActivityItem extends StatefulWidget {
   final double progress;
   final Color progressColor;
   final List<TransactionEntry> topTransactions;
+  final String currencyId;
 
   const _InteractiveActivityItem({
     required this.title,
@@ -173,6 +177,7 @@ class _InteractiveActivityItem extends StatefulWidget {
     required this.progress,
     required this.progressColor,
     required this.topTransactions,
+    required this.currencyId,
   });
 
   @override
@@ -316,7 +321,7 @@ class _InteractiveActivityItemState extends State<_InteractiveActivityItem> with
                             ),
                           ),
                           Text(
-                            NumberFormatter.formatCurrency(tx.amount.abs()),
+                            NumberFormatter.formatCurrency(tx.amount.abs(), currencyId: widget.currencyId),
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
@@ -435,7 +440,7 @@ class _InteractiveActivityItemState extends State<_InteractiveActivityItem> with
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                "${isIncome ? '+' : ''}${NumberFormatter.formatCurrency(widget.amount.abs())}",
+                                "${isIncome ? '+' : ''}${NumberFormatter.formatCurrency(widget.amount.abs(), currencyId: widget.currencyId)}",
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,

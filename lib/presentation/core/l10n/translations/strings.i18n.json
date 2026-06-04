@@ -1027,7 +1027,8 @@
       "newWallet": "New Wallet",
       "editWallet": "Edit Wallet",
       "walletName": "Wallet Name",
-      "saveWallet": "Save Wallet"
+      "saveWallet": "Save Wallet",
+      "deleteWalletHasTransactions": "Cannot delete this wallet because it has existing transactions."
     },
     "dashboard": {
       "greetingMorning": "Good morning!",

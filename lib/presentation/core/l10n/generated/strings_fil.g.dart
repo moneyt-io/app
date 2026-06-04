@@ -1632,6 +1632,7 @@ class _AppStringsV2SettingsFil extends AppStringsV2SettingsEn {
 	@override String get editWallet => 'Ayusin ang Wallet';
 	@override String get walletName => 'Pangalan ng Wallet';
 	@override String get saveWallet => 'I-save ang Wallet';
+	@override String get deleteWalletHasTransactions => 'Hindi maaaring tanggalin ang wallet na ito dahil mayroon itong mga transaksyon.';
 }
 
 // Path: v2.dashboard
@@ -3244,6 +3245,7 @@ extension on AppStringsFil {
 			case 'v2.settings.editWallet': return 'Ayusin ang Wallet';
 			case 'v2.settings.walletName': return 'Pangalan ng Wallet';
 			case 'v2.settings.saveWallet': return 'I-save ang Wallet';
+			case 'v2.settings.deleteWalletHasTransactions': return 'Hindi maaaring tanggalin ang wallet na ito dahil mayroon itong mga transaksyon.';
 			case 'v2.dashboard.greetingMorning': return 'Magandang umaga!';
 			case 'v2.dashboard.totalBalance': return 'KABUUANG PERA';
 			case 'v2.dashboard.dateFilters.thisMonth': return 'Ngayong buwan';

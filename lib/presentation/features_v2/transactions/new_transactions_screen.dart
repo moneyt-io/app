@@ -7,8 +7,11 @@ import 'package:provider/provider.dart';
 import '../../../../domain/entities/transaction_entry.dart';
 import '../../../../domain/entities/category.dart';
 import '../../../../core/utils/icon_to_emoji_mapper.dart';
+import '../../core/providers/currency_provider.dart';
 import '../../core/providers/currency_filter_provider.dart';
+import '../../../core/services/exchange_rate_service.dart';
 import '../../features/transactions/transaction_provider.dart';
+import '../../features/wallets/wallet_provider.dart';
 import 'new_transaction_screen.dart';
 import '../theme/v2_colors.dart';
 import '../../../core/utils/number_formatter.dart';
@@ -124,10 +127,8 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
           builder: (context, transactionProvider, currencyFilter, child) {
             final selectedCurrency = currencyFilter.selectedCurrencyId;
 
-            // Filtro base: moneda
-            var transactions = transactionProvider.transactions
-                .where((tx) => tx.currencyId == selectedCurrency)
-                .toList()
+            // Filtro base: moneda removido para ver todas
+            var transactions = transactionProvider.transactions.toList()
               ..sort((a, b) => b.date.compareTo(a.date));
 
             // Aplicar filtro de fecha (antes de extraer categorías)
@@ -151,10 +152,11 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                   .toList();
             }
 
+            final exchangeRateService = GetIt.instance<ExchangeRateService>();
             double totalIncome = 0.0;
             final categoryAmounts = <int, double>{};
             for (final tx in transactions) {
-              final amt = tx.amount.abs();
+              final amt = exchangeRateService.convert(tx.amount.abs(), tx.currencyId, selectedCurrency);
               if (tx.isIncome) {
                 totalIncome += amt;
               }
@@ -317,7 +319,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        NumberFormatter.formatCurrency(catAmount),
+                                        NumberFormatter.formatCurrency(catAmount, currencyId: currencyFilter.selectedCurrencyId),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
@@ -396,7 +398,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                             tx.mainCategoryId!]
                                         : null);
                                 return _buildTransactionCard(
-                                    tx, category, context);
+                                    tx, category, context, selectedCurrency);
                               },
                               childCount:
                                   entry.value.length + 1, // +1 for the header
@@ -645,6 +647,8 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
       onTap: () async {
         if (isActive) {
           setState(() => _selectedWalletId = null);
+          final globalCurrency = context.read<CurrencyProvider>().currencyId;
+          context.read<CurrencyFilterProvider>().selectCurrency(globalCurrency);
           return;
         }
 
@@ -673,6 +677,12 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
 
         if (selected != null) {
           setState(() => _selectedWalletId = selected.id);
+          
+          final walletProvider = context.read<WalletProvider>();
+          final selectedWallet = walletProvider.wallets.where((w) => w.id == selected.id).firstOrNull;
+          if (selectedWallet != null) {
+            context.read<CurrencyFilterProvider>().selectCurrency(selectedWallet.currencyId);
+          }
         }
       },
     );
@@ -728,7 +738,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
   }
 
   Widget _buildTransactionCard(
-      TransactionEntry tx, Category? category, BuildContext context) {
+      TransactionEntry tx, Category? category, BuildContext context, String baseCurrencyId) {
     final isIncome = tx.isIncome;
 
     // Asignar color consistente: rojo para gastos, verde para ingresos
@@ -834,7 +844,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                     Row(
                       children: [
                         Text(
-                          "${isIncome ? '+' : '-'}${NumberFormatter.formatCurrency(tx.amount.abs())}",
+                          "${isIncome ? '+' : '-'}${NumberFormatter.formatCurrency(tx.amount.abs(), currencyId: tx.currencyId)} ${tx.currencyId}",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
@@ -846,6 +856,22 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                         ),
                       ],
                     ),
+                    if (tx.currencyId != baseCurrencyId) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Text(
+                            "~ ${NumberFormatter.formatCurrency(GetIt.instance<ExchangeRateService>().convert(tx.amount.abs(), tx.currencyId, baseCurrencyId), currencyId: baseCurrencyId)} $baseCurrencyId",
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: V2Colors.onSurfaceVariant,
+                              fontFamily: 'Manrope',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 4),
                     Row(
                       children: [

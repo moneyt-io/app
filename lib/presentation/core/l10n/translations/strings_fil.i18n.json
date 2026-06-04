@@ -1027,7 +1027,8 @@
       "newWallet": "Bagong Wallet",
       "editWallet": "Ayusin ang Wallet",
       "walletName": "Pangalan ng Wallet",
-      "saveWallet": "I-save ang Wallet"
+      "saveWallet": "I-save ang Wallet",
+      "deleteWalletHasTransactions": "Hindi maaaring tanggalin ang wallet na ito dahil mayroon itong mga transaksyon."
     },
     "dashboard": {
       "greetingMorning": "Magandang umaga!",

@@ -11,6 +11,7 @@ import 'domain_di_module.dart';
 import '../services/data_seed_service.dart';
 import '../services/auth_service.dart';
 import '../services/paywall_service.dart'; // ✅ AÑADIDO
+import '../services/exchange_rate_service.dart';
 import '../../presentation/features/auth/auth_provider.dart' as app_auth;
 import '../../presentation/features/backup/backup_provider.dart';
 
@@ -68,6 +69,10 @@ Future<void> initializeDependencies() async {
   getIt.registerLazySingleton<DataSeedService>(() => DataSeedService()); // ✅ CORREGIDO
   getIt.registerLazySingleton<AuthService>(() => AuthService());
   getIt.registerLazySingleton<PaywallService>(() => PaywallService()); // ✅ AÑADIDO
+  
+  final exchangeRateService = ExchangeRateService();
+  getIt.registerSingleton<ExchangeRateService>(exchangeRateService);
+  exchangeRateService.init(); // fire and forget to populate rates
 
   // Providers
   getIt.registerLazySingleton<app_auth.AuthProvider>(() => app_auth.AuthProvider(getIt())); // ✅ CORREGIDO

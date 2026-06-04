@@ -1632,6 +1632,7 @@ class _AppStringsV2SettingsVi extends AppStringsV2SettingsEn {
 	@override String get editWallet => 'Đổi thông tin';
 	@override String get walletName => 'Tên ví';
 	@override String get saveWallet => 'Lưu Ví';
+	@override String get deleteWalletHasTransactions => 'Không thể xóa ví này vì nó có các giao dịch hiện có.';
 }
 
 // Path: v2.dashboard
@@ -3244,6 +3245,7 @@ extension on AppStringsVi {
 			case 'v2.settings.editWallet': return 'Đổi thông tin';
 			case 'v2.settings.walletName': return 'Tên ví';
 			case 'v2.settings.saveWallet': return 'Lưu Ví';
+			case 'v2.settings.deleteWalletHasTransactions': return 'Không thể xóa ví này vì nó có các giao dịch hiện có.';
 			case 'v2.dashboard.greetingMorning': return 'Chào buổi sáng!';
 			case 'v2.dashboard.totalBalance': return 'TIỀN CÒN LẠI';
 			case 'v2.dashboard.dateFilters.thisMonth': return 'Tháng này';

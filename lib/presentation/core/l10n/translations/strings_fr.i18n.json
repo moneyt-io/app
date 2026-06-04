@@ -1027,7 +1027,8 @@
       "newWallet": "Nouveau Compte",
       "editWallet": "Modifier Compte",
       "walletName": "Nom du compte",
-      "saveWallet": "Sauvegarder"
+      "saveWallet": "Sauvegarder",
+      "deleteWalletHasTransactions": "Impossible de supprimer ce portefeuille car il contient des transactions existantes."
     },
     "dashboard": {
       "greetingMorning": "Salut boss !",

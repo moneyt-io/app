@@ -1632,6 +1632,7 @@ class _AppStringsV2SettingsFr extends AppStringsV2SettingsEn {
 	@override String get editWallet => 'Modifier Compte';
 	@override String get walletName => 'Nom du compte';
 	@override String get saveWallet => 'Sauvegarder';
+	@override String get deleteWalletHasTransactions => 'Impossible de supprimer ce portefeuille car il contient des transactions existantes.';
 }
 
 // Path: v2.dashboard
@@ -3244,6 +3245,7 @@ extension on AppStringsFr {
 			case 'v2.settings.editWallet': return 'Modifier Compte';
 			case 'v2.settings.walletName': return 'Nom du compte';
 			case 'v2.settings.saveWallet': return 'Sauvegarder';
+			case 'v2.settings.deleteWalletHasTransactions': return 'Impossible de supprimer ce portefeuille car il contient des transactions existantes.';
 			case 'v2.dashboard.greetingMorning': return 'Salut boss !';
 			case 'v2.dashboard.totalBalance': return 'LA THUNE GLOBALE';
 			case 'v2.dashboard.dateFilters.thisMonth': return 'Ce mois-ci';

@@ -1,7 +1,7 @@
 name: moneyt_pfm
 description: "Personal Finance Manager"
 publish_to: 'none'
-version: 0.3.1+29
+version: 0.3.2+31
 
 environment:
   sdk: ^3.5.4
@@ -47,6 +47,7 @@ dependencies:
   sensors_plus: ^7.0.0
   image_picker: ^1.2.2
   app_links: ^7.0.0
+  http: ^1.6.0
   
 dev_dependencies:
   flutter_test:

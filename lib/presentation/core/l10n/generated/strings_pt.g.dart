@@ -1632,6 +1632,7 @@ class _AppStringsV2SettingsPt extends AppStringsV2SettingsEn {
 	@override String get editWallet => 'Editar Carteira';
 	@override String get walletName => 'Nome dela';
 	@override String get saveWallet => 'Gravar Carteira';
+	@override String get deleteWalletHasTransactions => 'Não é possível excluir esta carteira porque ela possui transações existentes.';
 }
 
 // Path: v2.dashboard
@@ -3244,6 +3245,7 @@ extension on AppStringsPt {
 			case 'v2.settings.editWallet': return 'Editar Carteira';
 			case 'v2.settings.walletName': return 'Nome dela';
 			case 'v2.settings.saveWallet': return 'Gravar Carteira';
+			case 'v2.settings.deleteWalletHasTransactions': return 'Não é possível excluir esta carteira porque ela possui transações existentes.';
 			case 'v2.dashboard.greetingMorning': return 'Bom dia, patrão!';
 			case 'v2.dashboard.totalBalance': return 'A GRANA TODA';
 			case 'v2.dashboard.dateFilters.thisMonth': return 'Este mês';

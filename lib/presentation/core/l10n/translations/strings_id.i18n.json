@@ -1027,7 +1027,8 @@
       "newWallet": "Dompet Baru",
       "editWallet": "Edit Dompet",
       "walletName": "Nama Dompet",
-      "saveWallet": "Simpan Dompet"
+      "saveWallet": "Simpan Dompet",
+      "deleteWalletHasTransactions": "Tidak dapat menghapus dompet ini karena memiliki transaksi yang ada."
     },
     "dashboard": {
       "greetingMorning": "Pagi, bos!",

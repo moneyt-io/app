@@ -1632,6 +1632,7 @@ class _AppStringsV2SettingsId extends AppStringsV2SettingsEn {
 	@override String get editWallet => 'Edit Dompet';
 	@override String get walletName => 'Nama Dompet';
 	@override String get saveWallet => 'Simpan Dompet';
+	@override String get deleteWalletHasTransactions => 'Tidak dapat menghapus dompet ini karena memiliki transaksi yang ada.';
 }
 
 // Path: v2.dashboard
@@ -3244,6 +3245,7 @@ extension on AppStringsId {
 			case 'v2.settings.editWallet': return 'Edit Dompet';
 			case 'v2.settings.walletName': return 'Nama Dompet';
 			case 'v2.settings.saveWallet': return 'Simpan Dompet';
+			case 'v2.settings.deleteWalletHasTransactions': return 'Tidak dapat menghapus dompet ini karena memiliki transaksi yang ada.';
 			case 'v2.dashboard.greetingMorning': return 'Pagi, bos!';
 			case 'v2.dashboard.totalBalance': return 'TOTAL UANG';
 			case 'v2.dashboard.dateFilters.thisMonth': return 'Bulan ini';

@@ -1027,7 +1027,8 @@
       "newWallet": "Ví mới",
       "editWallet": "Đổi thông tin",
       "walletName": "Tên ví",
-      "saveWallet": "Lưu Ví"
+      "saveWallet": "Lưu Ví",
+      "deleteWalletHasTransactions": "Không thể xóa ví này vì nó có các giao dịch hiện có."
     },
     "dashboard": {
       "greetingMorning": "Chào buổi sáng!",

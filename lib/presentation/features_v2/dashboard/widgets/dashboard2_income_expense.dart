@@ -5,11 +5,13 @@ import '../../../core/l10n/generated/strings.g.dart';
 class Dashboard2IncomeExpense extends StatelessWidget {
   final double income;
   final double expenses;
+  final String currencyId;
 
   const Dashboard2IncomeExpense({
     super.key,
     required this.income,
     required this.expenses,
+    required this.currencyId,
   });
 
   @override
@@ -45,7 +47,7 @@ class Dashboard2IncomeExpense extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "+${NumberFormatter.formatCurrency(income)}",
+                  "+${NumberFormatter.formatCurrency(income, currencyId: currencyId)}",
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -87,7 +89,7 @@ class Dashboard2IncomeExpense extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "-${NumberFormatter.formatCurrency(expenses)}",
+                  "-${NumberFormatter.formatCurrency(expenses, currencyId: currencyId)}",
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,

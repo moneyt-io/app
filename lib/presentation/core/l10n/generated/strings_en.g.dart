@@ -2909,6 +2909,9 @@ class AppStringsV2SettingsEn {
 
 	/// en: 'Save Wallet'
 	String get saveWallet => 'Save Wallet';
+
+	/// en: 'Cannot delete this wallet because it has existing transactions.'
+	String get deleteWalletHasTransactions => 'Cannot delete this wallet because it has existing transactions.';
 }
 
 // Path: v2.dashboard
@@ -5039,6 +5042,7 @@ extension on AppStrings {
 			case 'v2.settings.editWallet': return 'Edit Wallet';
 			case 'v2.settings.walletName': return 'Wallet Name';
 			case 'v2.settings.saveWallet': return 'Save Wallet';
+			case 'v2.settings.deleteWalletHasTransactions': return 'Cannot delete this wallet because it has existing transactions.';
 			case 'v2.dashboard.greetingMorning': return 'Good morning!';
 			case 'v2.dashboard.totalBalance': return 'TOTAL BALANCE';
 			case 'v2.dashboard.dateFilters.thisMonth': return 'This month';

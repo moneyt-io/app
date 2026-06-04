@@ -16,6 +16,7 @@ import '../../core/providers/background_provider.dart';
 import '../../core/providers/currency_filter_provider.dart';
 import '../theme/v2_colors.dart';
 import '../../core/providers/currency_provider.dart';
+import '../../../core/services/exchange_rate_service.dart';
 import '../../features/transactions/transaction_provider.dart';
 import '../../features/wallets/wallet_provider.dart';
 import '../../../domain/entities/transaction_entry.dart';
@@ -157,34 +158,40 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   }
 
   double _calculateBalanceForCurrency(
-      WalletProvider provider, String currencyId) {
+      WalletProvider provider, String baseCurrencyId) {
     double total = 0.0;
     final allWallets = provider.wallets;
+    final exchangeRateService = GetIt.instance<ExchangeRateService>();
+    
     for (final wallet in allWallets) {
-      if (!wallet.active || wallet.currencyId != currencyId) continue;
+      if (!wallet.active) continue; // Remove currencyId filter
       double balance = provider.walletBalances[wallet.id] ?? 0.0;
       if (wallet.parentId == null) {
         for (final child in allWallets.where((w) => w.parentId == wallet.id)) {
           balance -= (provider.walletBalances[child.id] ?? 0.0);
         }
       }
-      total += balance;
+      
+      double convertedBalance = exchangeRateService.convert(balance, wallet.currencyId, baseCurrencyId);
+      total += convertedBalance;
     }
     return total;
   }
 
   double _calculateIncomeForCurrency(
-      List<TransactionEntry> transactions, String currencyId) {
+      List<TransactionEntry> transactions, String baseCurrencyId) {
+    final exchangeRateService = GetIt.instance<ExchangeRateService>();
     return transactions
-        .where((t) => t.documentTypeId == 'I' && t.currencyId == currencyId)
-        .fold(0.0, (sum, t) => sum + t.amount.abs());
+        .where((t) => t.documentTypeId == 'I') // Remove currencyId filter
+        .fold(0.0, (sum, t) => sum + exchangeRateService.convert(t.amount.abs(), t.currencyId, baseCurrencyId));
   }
 
   double _calculateExpensesForCurrency(
-      List<TransactionEntry> transactions, String currencyId) {
+      List<TransactionEntry> transactions, String baseCurrencyId) {
+    final exchangeRateService = GetIt.instance<ExchangeRateService>();
     return transactions
-        .where((t) => t.documentTypeId == 'E' && t.currencyId == currencyId)
-        .fold(0.0, (sum, t) => sum + t.amount.abs());
+        .where((t) => t.documentTypeId == 'E') // Remove currencyId filter
+        .fold(0.0, (sum, t) => sum + exchangeRateService.convert(t.amount.abs(), t.currencyId, baseCurrencyId));
   }
 
   @override
@@ -251,15 +258,16 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildHeaderWithBackground(
-                        context,
-                        totalBalance,
-                        expenses,
-                        income,
-                        walletProvider,
-                        currentRangeTransactions,
-                        transactionProvider,
-                      ),
+                        _buildHeaderWithBackground(
+                          context,
+                          totalBalance,
+                          expenses,
+                          income,
+                          walletProvider,
+                          currentRangeTransactions,
+                          transactionProvider,
+                          currencyFilter,
+                        ),
                       Transform.translate(
                         offset: const Offset(0, -32),
                         child: Container(
@@ -275,17 +283,16 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                 Dashboard2IncomeExpense(
                                   income: income,
                                   expenses: expenses,
+                                  currencyId: currencyFilter.selectedCurrencyId,
                                 ),
                                 const SizedBox(height: 24),
                                 Dashboard2ActivityList(
                                   transactions: currentRangeTransactions
-                                      .where(
-                                          (t) => t.currencyId == selectedCurrency)
-                                      .toList()
                                     ..sort((a, b) => b.date.compareTo(a.date)),
                                   totalExpenses: expenses,
                                   categoriesDataMap:
                                       transactionProvider.categoriesDataMap,
+                                  currencyId: currencyFilter.selectedCurrencyId,
                                 ),
                               ],
                             ),
@@ -312,6 +319,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     WalletProvider walletProvider,
     List<TransactionEntry> currentRangeTransactions,
     TransactionProvider transactionProvider,
+    CurrencyFilterProvider currencyFilter,
   ) {
     return Container(
       width: double.infinity,
@@ -419,7 +427,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  NumberFormatter.formatCurrencyWithDecimals(totalBalance),
+                  NumberFormatter.formatCurrencyWithDecimals(totalBalance, currencyId: currencyFilter.selectedCurrencyId),
                   style: const TextStyle(
                     fontSize: 44,
                     fontWeight: FontWeight.w800,
@@ -509,8 +517,16 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                       onSelected: (value) {
                         if (value == -1) {
                           setState(() => _selectedWalletId = null);
+                          final globalCurrency = context.read<CurrencyProvider>().currencyId;
+                          currencyFilter.selectCurrency(globalCurrency);
                         } else {
                           setState(() => _selectedWalletId = value);
+                          
+                          // Sync global currency to match the selected wallet's currency
+                          final selectedWallet = walletProvider.wallets.where((w) => w.id == value).firstOrNull;
+                          if (selectedWallet != null) {
+                            currencyFilter.selectCurrency(selectedWallet.currencyId);
+                          }
                         }
                       },
                       itemBuilder: (context) {
@@ -570,6 +586,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   expenses: expenses,
                   transactions: currentRangeTransactions,
                   categoriesDataMap: transactionProvider.categoriesDataMap,
+                  currencyId: currencyFilter.selectedCurrencyId,
                 ),
                 const SizedBox(
                     height:

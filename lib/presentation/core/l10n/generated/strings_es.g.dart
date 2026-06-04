@@ -1632,6 +1632,7 @@ class _AppStringsV2SettingsEs extends AppStringsV2SettingsEn {
 	@override String get editWallet => 'Editar Billetera';
 	@override String get walletName => 'Nombre de la billetera';
 	@override String get saveWallet => 'Guardar Billetera';
+	@override String get deleteWalletHasTransactions => 'No es posible eliminar esta billetera porque tiene transacciones registradas.';
 }
 
 // Path: v2.dashboard
@@ -3244,6 +3245,7 @@ extension on AppStringsEs {
 			case 'v2.settings.editWallet': return 'Editar Billetera';
 			case 'v2.settings.walletName': return 'Nombre de la billetera';
 			case 'v2.settings.saveWallet': return 'Guardar Billetera';
+			case 'v2.settings.deleteWalletHasTransactions': return 'No es posible eliminar esta billetera porque tiene transacciones registradas.';
 			case 'v2.dashboard.greetingMorning': return '¡Buenos días!';
 			case 'v2.dashboard.totalBalance': return 'BALANCE TOTAL';
 			case 'v2.dashboard.dateFilters.thisMonth': return 'Este mes';

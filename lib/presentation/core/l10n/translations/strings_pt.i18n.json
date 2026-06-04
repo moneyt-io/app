@@ -1027,7 +1027,8 @@
       "newWallet": "Nova Carteira",
       "editWallet": "Editar Carteira",
       "walletName": "Nome dela",
-      "saveWallet": "Gravar Carteira"
+      "saveWallet": "Gravar Carteira",
+      "deleteWalletHasTransactions": "Não é possível excluir esta carteira porque ela possui transações existentes."
     },
     "dashboard": {
       "greetingMorning": "Bom dia, patrão!",
