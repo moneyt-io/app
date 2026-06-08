@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
+import '../../../core/services/exchange_rate_service.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/services/balance_calculation_service.dart';
@@ -18,10 +20,20 @@ class WalletProvider with ChangeNotifier {
   String? get error => _error;
 
   double get totalBalance {
-    // Sum the balances of top-level wallets only to avoid double-counting.
+    // Legacy getter, returns raw sum
     return _wallets
         .where((wallet) => wallet.parentId == null)
         .fold(0.0, (sum, wallet) => sum + (_walletBalances[wallet.id] ?? 0.0));
+  }
+
+  double getTotalBalance(String baseCurrencyId) {
+    // Legacy logic: Ignore baseCurrencyId, return raw sum (Absolute numbers)
+    return _wallets
+        .where((wallet) => wallet.parentId == null)
+        .fold(0.0, (sum, wallet) {
+      final rawBalance = _walletBalances[wallet.id] ?? 0.0;
+      return sum + rawBalance;
+    });
   }
 
   WalletProvider(this._walletUseCases, this._balanceService) {

@@ -155,7 +155,7 @@ class V2AccountSelectionSheet extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    NumberFormatter.formatCurrency(account.balance ?? 0.0, currencyId: account.currencyId),
+                                    NumberFormatter.formatCurrencyWithCode(account.balance ?? 0.0, currencyId: account.currencyId),
                                     style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w700,

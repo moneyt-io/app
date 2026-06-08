@@ -158,7 +158,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   }
 
   double _calculateBalanceForCurrency(
-      WalletProvider provider, String baseCurrencyId) {
+      WalletProvider provider, String baseCurrencyId, bool shouldConvert) {
     double total = 0.0;
     final allWallets = provider.wallets;
     final exchangeRateService = GetIt.instance<ExchangeRateService>();
@@ -172,26 +172,47 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
         }
       }
       
-      double convertedBalance = exchangeRateService.convert(balance, wallet.currencyId, baseCurrencyId);
-      total += convertedBalance;
+      final amt = shouldConvert ? exchangeRateService.convert(balance, wallet.currencyId, baseCurrencyId) : balance;
+      total += amt;
     }
     return total;
   }
 
+  String _getTrueCurrency(TransactionEntry t, WalletProvider walletProvider) {
+    // Si la transacción tiene paymentId en sus detalles (billetera/cuenta), usamos su moneda
+    if (t.details.isNotEmpty) {
+      final detail = t.details.first;
+      if (detail.paymentId != null) {
+        final wallet = walletProvider.wallets.where((w) => w.id == detail.paymentId).firstOrNull;
+        if (wallet != null) return wallet.currencyId;
+      }
+    }
+    // Fallback a la moneda guardada en la transacción (podría estar desactualizada)
+    return t.currencyId;
+  }
+
   double _calculateIncomeForCurrency(
-      List<TransactionEntry> transactions, String baseCurrencyId) {
+      List<TransactionEntry> transactions, String baseCurrencyId, WalletProvider provider, bool shouldConvert) {
     final exchangeRateService = GetIt.instance<ExchangeRateService>();
     return transactions
         .where((t) => t.documentTypeId == 'I') // Remove currencyId filter
-        .fold(0.0, (sum, t) => sum + exchangeRateService.convert(t.amount.abs(), t.currencyId, baseCurrencyId));
+        .fold(0.0, (sum, t) {
+          final trueCurrency = _getTrueCurrency(t, provider);
+          final amt = shouldConvert ? exchangeRateService.convert(t.amount.abs(), trueCurrency, baseCurrencyId) : t.amount.abs();
+          return sum + amt;
+        });
   }
 
   double _calculateExpensesForCurrency(
-      List<TransactionEntry> transactions, String baseCurrencyId) {
+      List<TransactionEntry> transactions, String baseCurrencyId, WalletProvider provider, bool shouldConvert) {
     final exchangeRateService = GetIt.instance<ExchangeRateService>();
     return transactions
         .where((t) => t.documentTypeId == 'E') // Remove currencyId filter
-        .fold(0.0, (sum, t) => sum + exchangeRateService.convert(t.amount.abs(), t.currencyId, baseCurrencyId));
+        .fold(0.0, (sum, t) {
+          final trueCurrency = _getTrueCurrency(t, provider);
+          final amt = shouldConvert ? exchangeRateService.convert(t.amount.abs(), trueCurrency, baseCurrencyId) : t.amount.abs();
+          return sum + amt;
+        });
   }
 
   @override
@@ -238,15 +259,16 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
             }).toList();
 
             // Financial Calcs
+            final bool shouldConvert = _selectedWalletId == null;
             final totalBalance = _selectedWalletId != null
                 ? (walletProvider.walletBalances[_selectedWalletId] ?? 0.0)
                 : _calculateBalanceForCurrency(
-                    walletProvider, selectedCurrency);
+                    walletProvider, selectedCurrency, shouldConvert);
 
             final income = _calculateIncomeForCurrency(
-                currentRangeTransactions, selectedCurrency);
+                currentRangeTransactions, selectedCurrency, walletProvider, shouldConvert);
             final expenses = _calculateExpensesForCurrency(
-                currentRangeTransactions, selectedCurrency);
+                currentRangeTransactions, selectedCurrency, walletProvider, shouldConvert);
 
             // Render Main Stack
             return Stack(
@@ -293,6 +315,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                   categoriesDataMap:
                                       transactionProvider.categoriesDataMap,
                                   currencyId: currencyFilter.selectedCurrencyId,
+                                  walletProvider: walletProvider,
+                                  shouldConvert: shouldConvert,
                                 ),
                               ],
                             ),
@@ -530,17 +554,27 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                         }
                       },
                       itemBuilder: (context) {
-                        final parentWalletsCount = walletProvider.wallets.where((w) => w.parentId == null && w.active).length;
-
                         final availableWallets =
                             walletProvider.wallets.where((w) {
                           if (!w.active) return false;
                           if (w.parentId == null) return false;
+                          
+                          // Ignorar hijos de padres inactivos
+                          final parent = walletProvider.wallets.where((p) => p.id == w.parentId).firstOrNull;
+                          if (parent == null || !parent.active) return false;
+
                           final balance =
                               walletProvider.walletBalances[w.id] ?? 0.0;
                           if (balance <= 0 && !_activeWalletsInDateRange.contains(w.id)) return false;
                           return true;
                         }).toList();
+
+                        // Contar SOLO los nombres únicos de los padres de las billeteras que realmente se van a mostrar
+                        final activeParentNames = availableWallets.map((w) {
+                          final parent = walletProvider.wallets.where((p) => p.id == w.parentId).firstOrNull;
+                          return parent?.name ?? '';
+                        }).where((name) => name.isNotEmpty).toSet();
+                        final parentWalletsCount = activeParentNames.length;
 
                         final items = <PopupMenuEntry<int>>[
                           PopupMenuItem(

@@ -120,10 +120,7 @@ class _V2CategorySelectionSheetState extends State<V2CategorySelectionSheet> {
               await context.read<TransactionProvider>().refreshCategories();
             }
             
-            // Cerrar el modal actual (el del formulario)
-            if (mounted) {
-              Navigator.pop(ctx);
-            }
+            // El modal de formulario ya se cierra a sí mismo en el botón "Guardar"
             
             // Cerrar este modal (CategorySelectionSheet) enviando la categoría creada
             if (mounted) {

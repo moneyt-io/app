@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:get_it/get_it.dart';
+import '../../../../core/services/exchange_rate_service.dart';
+import '../../../features/wallets/wallet_provider.dart';
 import '../../../../domain/entities/transaction_entry.dart';
 import '../../../../core/utils/icon_to_emoji_mapper.dart';
 import '../../../core/l10n/generated/strings.g.dart';
 
 import '../../../../domain/entities/category.dart';
 import '../../transactions/widgets/v2_category_selection_sheet.dart';
-import '../../../core/l10n/generated/strings.g.dart';
 import '../../transactions/new_transactions_screen.dart';
 import '../../../../core/utils/number_formatter.dart';
 import 'dart:ui';
@@ -17,6 +19,8 @@ class Dashboard2ActivityList extends StatelessWidget {
   final double totalExpenses;
   final Map<int, Category> categoriesDataMap;
   final String currencyId;
+  final WalletProvider walletProvider;
+  final bool shouldConvert;
 
   const Dashboard2ActivityList({
     super.key,
@@ -24,7 +28,21 @@ class Dashboard2ActivityList extends StatelessWidget {
     required this.totalExpenses,
     required this.categoriesDataMap,
     required this.currencyId,
+    required this.walletProvider,
+    required this.shouldConvert,
   });
+
+  String _getTrueCurrency(TransactionEntry t) {
+    if (t.details.isNotEmpty) {
+      final detail = t.details.first;
+      final walletId = detail.paymentId;
+      final wallet = walletProvider.wallets.where((w) => w.id == walletId).firstOrNull;
+      if (wallet != null) {
+        return wallet.currencyId;
+      }
+    }
+    return t.currencyId;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +51,16 @@ class Dashboard2ActivityList extends StatelessWidget {
     final Map<String, double> categorySums = {};
     final Map<String, Category?> categoryMap = {};
     
+    final exchangeRateService = GetIt.instance<ExchangeRateService>();
+    
     for (final t in expenses) {
       final cat = t.category ?? (t.mainCategoryId != null ? categoriesDataMap[t.mainCategoryId!] : null);
       final catId = cat?.id.toString() ?? 'otros';
-      categorySums[catId] = (categorySums[catId] ?? 0) + t.amount.abs();
+      
+      final trueCurrency = _getTrueCurrency(t);
+      final amt = shouldConvert ? exchangeRateService.convert(t.amount.abs(), trueCurrency, currencyId) : t.amount.abs();
+      
+      categorySums[catId] = (categorySums[catId] ?? 0) + amt;
       categoryMap[catId] = cat;
     }
 
@@ -151,6 +175,8 @@ class Dashboard2ActivityList extends StatelessWidget {
                 progressColor: progressColor,
                 topTransactions: categoryTransactions.take(5).toList(),
                 currencyId: currencyId,
+                walletProvider: walletProvider,
+                shouldConvert: shouldConvert,
               ),
             );
           }),
@@ -168,6 +194,8 @@ class _InteractiveActivityItem extends StatefulWidget {
   final Color progressColor;
   final List<TransactionEntry> topTransactions;
   final String currencyId;
+  final WalletProvider walletProvider;
+  final bool shouldConvert;
 
   const _InteractiveActivityItem({
     required this.title,
@@ -178,7 +206,21 @@ class _InteractiveActivityItem extends StatefulWidget {
     required this.progressColor,
     required this.topTransactions,
     required this.currencyId,
+    required this.walletProvider,
+    required this.shouldConvert,
   });
+
+  String _getTrueCurrency(TransactionEntry t) {
+    if (t.details.isNotEmpty) {
+      final detail = t.details.first;
+      final walletId = detail.paymentId;
+      final wallet = walletProvider.wallets.where((w) => w.id == walletId).firstOrNull;
+      if (wallet != null) {
+        return wallet.currencyId;
+      }
+    }
+    return t.currencyId;
+  }
 
   @override
   State<_InteractiveActivityItem> createState() => _InteractiveActivityItemState();
@@ -288,6 +330,9 @@ class _InteractiveActivityItemState extends State<_InteractiveActivityItem> with
                     final txTitle = tx.description?.isNotEmpty == true
                         ? tx.description!
                         : (tx.contact?.name ?? widget.title);
+                    final trueCurrency = widget._getTrueCurrency(tx);
+                    final exchangeRateService = GetIt.instance<ExchangeRateService>();
+                    final amt = widget.shouldConvert ? exchangeRateService.convert(tx.amount.abs(), trueCurrency, widget.currencyId) : tx.amount.abs();
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16),
                       child: Row(
@@ -321,7 +366,7 @@ class _InteractiveActivityItemState extends State<_InteractiveActivityItem> with
                             ),
                           ),
                           Text(
-                            NumberFormatter.formatCurrency(tx.amount.abs(), currencyId: widget.currencyId),
+                            NumberFormatter.formatCurrency(amt, currencyId: widget.currencyId),
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,

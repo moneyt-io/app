@@ -152,11 +152,10 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                   .toList();
             }
 
-            final exchangeRateService = GetIt.instance<ExchangeRateService>();
             double totalIncome = 0.0;
             final categoryAmounts = <int, double>{};
             for (final tx in transactions) {
-              final amt = exchangeRateService.convert(tx.amount.abs(), tx.currencyId, selectedCurrency);
+              final amt = tx.amount.abs();
               if (tx.isIncome) {
                 totalIncome += amt;
               }
@@ -740,6 +739,16 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
   Widget _buildTransactionCard(
       TransactionEntry tx, Category? category, BuildContext context, String baseCurrencyId) {
     final isIncome = tx.isIncome;
+    final walletProvider = context.read<WalletProvider>();
+    
+    String trueCurrency = tx.currencyId;
+    if (tx.details.isNotEmpty) {
+      final detail = tx.details.first;
+      if (detail.paymentId != null) {
+        final wallet = walletProvider.wallets.where((w) => w.id == detail.paymentId).firstOrNull;
+        if (wallet != null) trueCurrency = wallet.currencyId;
+      }
+    }
 
     // Asignar color consistente: rojo para gastos, verde para ingresos
     final avatarBgColor = isIncome
@@ -844,7 +853,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                     Row(
                       children: [
                         Text(
-                          "${isIncome ? '+' : '-'}${NumberFormatter.formatCurrency(tx.amount.abs(), currencyId: tx.currencyId)} ${tx.currencyId}",
+                          "${isIncome ? '+' : '-'}${NumberFormatter.formatCurrency(tx.amount.abs(), currencyId: trueCurrency)} $trueCurrency",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
@@ -856,22 +865,6 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                         ),
                       ],
                     ),
-                    if (tx.currencyId != baseCurrencyId) ...[
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Text(
-                            "~ ${NumberFormatter.formatCurrency(GetIt.instance<ExchangeRateService>().convert(tx.amount.abs(), tx.currencyId, baseCurrencyId), currencyId: baseCurrencyId)} $baseCurrencyId",
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: V2Colors.onSurfaceVariant,
-                              fontFamily: 'Manrope',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
                     const SizedBox(height: 4),
                     Row(
                       children: [

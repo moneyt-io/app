@@ -1,7 +1,7 @@
 name: moneyt_pfm
 description: "Personal Finance Manager"
 publish_to: 'none'
-version: 0.3.2+31
+version: 0.3.4+32
 
 environment:
   sdk: ^3.5.4

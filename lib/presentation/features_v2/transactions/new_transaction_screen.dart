@@ -19,6 +19,7 @@ import 'widgets/v2_category_selection_sheet.dart';
 import '../shared/widgets/v2_date_selection_sheet.dart';
 import '../../features/transactions/transaction_provider.dart';
 import '../../core/providers/currency_provider.dart';
+import '../../features/wallets/wallet_provider.dart';
 import '../../../core/utils/number_formatter.dart';
 import '../../core/l10n/generated/strings.g.dart';
 
@@ -122,6 +123,11 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
+    
+    // Read providers synchronously before async calls
+    final walletProvider = context.read<WalletProvider>();
+    final txProvider = context.read<TransactionProvider>();
+    
     try {
       final walletsResult = await _walletUseCases.getAllWallets();
       final categoriesResult = await _categoryUseCases.getAllCategories();
@@ -132,7 +138,8 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
       for (final wallet in walletsResult) {
         if (wallet.active && wallet.parentId != null) {
           accountsMap[wallet.id] = SelectableAccount.fromWallet(wallet,
-              balance: 0, accountNumber: '1234');
+              balance: walletProvider.walletBalances[wallet.id] ?? 0.0,
+              accountNumber: '1234');
         }
       }
       for (final card in creditCardResult) {
@@ -149,7 +156,32 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
               _accountsMap.containsKey(widget.initialWalletId!)) {
             _selectedAccount = _accountsMap[widget.initialWalletId!];
           } else if (_accountsMap.isNotEmpty) {
-            _selectedAccount = _accountsMap.values.first;
+            // Find most used wallet in recent transactions
+            final txs = txProvider.transactions;
+            int? mostUsedId;
+            
+            if (txs.isNotEmpty) {
+              final Map<int, int> frequencies = {};
+              for (final t in txs) {
+                if (t.details.isNotEmpty && t.details.first.paymentTypeId == 'W') {
+                  final pid = t.details.first.paymentId;
+                  if (_accountsMap.containsKey(pid)) {
+                    frequencies[pid] = (frequencies[pid] ?? 0) + 1;
+                  }
+                }
+              }
+              if (frequencies.isNotEmpty) {
+                final sorted = frequencies.entries.toList()
+                  ..sort((a, b) => b.value.compareTo(a.value));
+                mostUsedId = sorted.first.key;
+              }
+            }
+            
+            if (mostUsedId != null) {
+              _selectedAccount = _accountsMap[mostUsedId];
+            } else {
+              _selectedAccount = _accountsMap.values.first;
+            }
           }
 
           _isLoading = false;
@@ -244,9 +276,13 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
       initialSelection: currentSelection,
     );
 
-    if (result != null) {
+    final newCats = await _categoryUseCases.getAllCategories();
+    if (mounted) {
       setState(() {
-        _selectedCategoryId = result.id;
+        _categories = newCats;
+        if (result != null) {
+          _selectedCategoryId = result.id;
+        }
       });
     }
   }
@@ -511,8 +547,9 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        NumberFormatter.getSymbol(
-                            context.watch<CurrencyProvider>().currencyId),
+                        _selectedAccount != null 
+                            ? NumberFormatter.getSymbol(_selectedAccount!.currencyId)
+                            : NumberFormatter.getSymbol(context.watch<CurrencyProvider>().currencyId),
                         style: theme.textTheme.displayLarge?.copyWith(
                           color: theme.colorScheme.outlineVariant,
                         ),
