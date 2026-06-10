@@ -2978,6 +2978,7 @@ class AppStringsV2OnboardingEn {
 	late final AppStringsV2OnboardingAiAnalysisEn aiAnalysis = AppStringsV2OnboardingAiAnalysisEn.internal(_root);
 	late final AppStringsV2OnboardingMainPriorityEn mainPriority = AppStringsV2OnboardingMainPriorityEn.internal(_root);
 	late final AppStringsV2OnboardingAiVoiceEn aiVoice = AppStringsV2OnboardingAiVoiceEn.internal(_root);
+	late final AppStringsV2OnboardingVideoEn video = AppStringsV2OnboardingVideoEn.internal(_root);
 }
 
 // Path: v2.dateSelection
@@ -4064,6 +4065,27 @@ class AppStringsV2OnboardingAiVoiceEn {
 		'Dinner \$25.00',
 		'Pharmacy \$18.50',
 	];
+}
+
+// Path: v2.onboarding.video
+class AppStringsV2OnboardingVideoEn {
+	AppStringsV2OnboardingVideoEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Start — it's free'
+	String get cta => 'Start — it\'s free';
+
+	/// en: 'Loading video...'
+	String get loading => 'Loading video...';
+
+	/// en: 'Could not load video'
+	String get error => 'Could not load video';
+
+	/// en: 'Try again'
+	String get retry => 'Try again';
 }
 
 // Path: dashboard.widgets.settings.reset
@@ -5172,6 +5194,10 @@ extension on AppStrings {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix \$10.99';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Dinner \$25.00';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Pharmacy \$18.50';
+			case 'v2.onboarding.video.cta': return 'Start — it\'s free';
+			case 'v2.onboarding.video.loading': return 'Loading video...';
+			case 'v2.onboarding.video.error': return 'Could not load video';
+			case 'v2.onboarding.video.retry': return 'Try again';
 			case 'v2.dateSelection.days': return 'Days';
 			case 'v2.dateSelection.months': return 'Months';
 			case 'v2.dateSelection.years': return 'Years';

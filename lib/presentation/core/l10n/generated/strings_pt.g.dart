@@ -1683,6 +1683,7 @@ class _AppStringsV2OnboardingPt extends AppStringsV2OnboardingEn {
 	@override late final _AppStringsV2OnboardingAiAnalysisPt aiAnalysis = _AppStringsV2OnboardingAiAnalysisPt._(_root);
 	@override late final _AppStringsV2OnboardingMainPriorityPt mainPriority = _AppStringsV2OnboardingMainPriorityPt._(_root);
 	@override late final _AppStringsV2OnboardingAiVoicePt aiVoice = _AppStringsV2OnboardingAiVoicePt._(_root);
+	@override late final _AppStringsV2OnboardingVideoPt video = _AppStringsV2OnboardingVideoPt._(_root);
 }
 
 // Path: v2.dateSelection
@@ -2342,6 +2343,19 @@ class _AppStringsV2OnboardingAiVoicePt extends AppStringsV2OnboardingAiVoiceEn {
 		'Jantar R\$85,00',
 		'Farmácia R\$48,50',
 	];
+}
+
+// Path: v2.onboarding.video
+class _AppStringsV2OnboardingVideoPt extends AppStringsV2OnboardingVideoEn {
+	_AppStringsV2OnboardingVideoPt._(AppStringsPt root) : this._root = root, super.internal(root);
+
+	final AppStringsPt _root; // ignore: unused_field
+
+	// Translations
+	@override String get cta => 'Começar — é de graça';
+	@override String get loading => 'Carregando vídeo...';
+	@override String get error => 'Não deu pra carregar o vídeo';
+	@override String get retry => 'Tentar de novo';
 }
 
 // Path: dashboard.widgets.settings.reset
@@ -3369,6 +3383,10 @@ extension on AppStringsPt {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix R\$39,90';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Jantar R\$85,00';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Farmácia R\$48,50';
+			case 'v2.onboarding.video.cta': return 'Começar — é de graça';
+			case 'v2.onboarding.video.loading': return 'Carregando vídeo...';
+			case 'v2.onboarding.video.error': return 'Não deu pra carregar o vídeo';
+			case 'v2.onboarding.video.retry': return 'Tentar de novo';
 			case 'v2.dateSelection.days': return 'Dias';
 			case 'v2.dateSelection.months': return 'Meses';
 			case 'v2.dateSelection.years': return 'Anos';

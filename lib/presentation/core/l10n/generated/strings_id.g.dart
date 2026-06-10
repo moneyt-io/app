@@ -1683,6 +1683,7 @@ class _AppStringsV2OnboardingId extends AppStringsV2OnboardingEn {
 	@override late final _AppStringsV2OnboardingAiAnalysisId aiAnalysis = _AppStringsV2OnboardingAiAnalysisId._(_root);
 	@override late final _AppStringsV2OnboardingMainPriorityId mainPriority = _AppStringsV2OnboardingMainPriorityId._(_root);
 	@override late final _AppStringsV2OnboardingAiVoiceId aiVoice = _AppStringsV2OnboardingAiVoiceId._(_root);
+	@override late final _AppStringsV2OnboardingVideoId video = _AppStringsV2OnboardingVideoId._(_root);
 }
 
 // Path: v2.dateSelection
@@ -2342,6 +2343,19 @@ class _AppStringsV2OnboardingAiVoiceId extends AppStringsV2OnboardingAiVoiceEn {
 		'Makan Rp 120.000',
 		'Apotek Rp 85.000',
 	];
+}
+
+// Path: v2.onboarding.video
+class _AppStringsV2OnboardingVideoId extends AppStringsV2OnboardingVideoEn {
+	_AppStringsV2OnboardingVideoId._(AppStringsId root) : this._root = root, super.internal(root);
+
+	final AppStringsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get cta => 'Mulai — gratis!';
+	@override String get loading => 'Memuat video...';
+	@override String get error => 'Gagal memuat video';
+	@override String get retry => 'Coba lagi';
 }
 
 // Path: dashboard.widgets.settings.reset
@@ -3369,6 +3383,10 @@ extension on AppStringsId {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix Rp 186.000';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Makan Rp 120.000';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Apotek Rp 85.000';
+			case 'v2.onboarding.video.cta': return 'Mulai — gratis!';
+			case 'v2.onboarding.video.loading': return 'Memuat video...';
+			case 'v2.onboarding.video.error': return 'Gagal memuat video';
+			case 'v2.onboarding.video.retry': return 'Coba lagi';
 			case 'v2.dateSelection.days': return 'Hari';
 			case 'v2.dateSelection.months': return 'Bulan';
 			case 'v2.dateSelection.years': return 'Tahun';

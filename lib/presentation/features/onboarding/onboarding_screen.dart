@@ -15,9 +15,11 @@ import 'pages/expense_categories_page.dart';
 import 'pages/registration_method_page.dart';
 import 'pages/ai_analysis_showcase_page.dart';
 import 'pages/ai_voice_showcase_page.dart';
+import 'pages/video_showcase_page.dart';
 import '../../core/l10n/generated/strings.g.dart';
 import '../../../../core/services/analytics_service.dart';
 import '../../../../core/services/tiktok_service.dart';
+import '../../../../core/services/video_cache_service.dart';
 
 /// Onboarding simplificado solo para demostración (frontend de venta)
 class OnboardingScreen extends StatefulWidget {
@@ -38,6 +40,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   // Configuración remota — se carga desde PostHog al init
   List<int> _activeSteps = [0, 1, 2, 3, 4, 5, 6];
   String _variant = 'v2';
+
+  // Config de video del onboarding (flag separado 'onboarding_video_config')
+  VideoConfig? _videoConfig;
 
   // Estado levantado para persistencia de selección
   bool _isAnalysisComplete = false;
@@ -138,6 +143,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     AIVoiceShowcasePage(
       selectedGoal: _selectedGoal,
     ),                                                                // 6
+    // [7] VideoShowcasePage se abre como ruta modal fullscreen en _nextPage()
+    // (NO va aquí dentro del PageView, así tiene control total del system UI)
   ];
 
   // Páginas activas según la configuración remota
@@ -171,11 +178,26 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 
   Future<void> _loadOnboardingConfig() async {
-    final config = await AnalyticsService().getOnboardingConfig();
+    // Cargar configuración de pasos y configuración de video en paralelo
+    final results = await Future.wait([
+      AnalyticsService().getOnboardingConfig(),
+      AnalyticsService().getOnboardingVideoConfig(),
+    ]);
+
     if (!mounted) return;
+
+    final config = results[0] as OnboardingConfig;
+    final videoConfig = results[1] as VideoConfig?;
+
     setState(() {
-      _activeSteps = config.steps;
       _variant = config.variant;
+      _videoConfig = videoConfig ?? VideoConfig.fallback;
+
+      // Si la config de pasos incluye el 7 pero no hay config de video real,
+      // conservamos VideoConfig.fallback que tiene la URL hardcodeada
+      // Si la config de pasos NO incluye el 7, lo respetamos
+      List<int> steps = List<int>.from(config.steps);
+      _activeSteps = steps;
     });
   }
 
@@ -191,7 +213,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   void _nextPage() {
     if (_currentPage == _pages.length - 1) {
-      _completeOnboarding();
+      // Último paso del PageView
+      if (_videoConfig != null) {
+        // Hay video configurado → abrirlo como ruta modal fullscreen
+        _openVideoPage();
+      } else {
+        // Sin video → completar onboarding directamente
+        _completeOnboarding();
+      }
     } else {
       if (_currentStepIndex == 1 && _selectedCategories.isNotEmpty) {
         AnalyticsService().trackOnboardingChoiceSelected(
@@ -212,6 +241,33 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         );
       }
     }
+  }
+
+  /// Abre la pantalla de video como ruta modal fullscreen.
+  ///
+  /// Al usar pushReplacement + fullscreenDialog:
+  ///  - El sistema NO reserva espacio para la barra del padre
+  ///  - El video puede llamar a SystemChrome.immersiveSticky sin interferencias
+  ///  - Al completar, el video llama directamente a _completeOnboarding
+  void _openVideoPage() {
+    AnalyticsService().trackOnboardingStepCompleted(_currentStepIndex);
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: true,
+        fullscreenDialog: true,
+        pageBuilder: (_, __, ___) => VideoShowcasePage(
+          config: _videoConfig!,
+          onVideoCompleted: _completeOnboarding,
+        ),
+        transitionDuration: const Duration(milliseconds: 400),
+        transitionsBuilder: (_, animation, __, child) {
+          return FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: Curves.easeIn),
+            child: child,
+          );
+        },
+      ),
+    );
   }
 
   void _previousPage() {
@@ -453,16 +509,18 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     if (index >= 9) return t.common.retry; // Fallback
     
     final labels = [
-      t.v2.onboarding.buttons.start, // 0 splash
+      t.v2.onboarding.buttons.start,          // 0 splash
       t.v2.onboarding.buttons.actionContinue, // 1 Expense
       t.v2.onboarding.buttons.actionContinue, // 2 Financial goals
       t.v2.onboarding.buttons.actionContinue, // 3 Registration method
-      t.v2.onboarding.buttons.great, // 4 ai analysis
-      t.v2.onboarding.buttons.setGoal, // 5 main priority
-      t.v2.onboarding.buttons.great, // 6 ai voice
+      t.v2.onboarding.buttons.great,          // 4 ai analysis
+      t.v2.onboarding.buttons.setGoal,        // 5 main priority
+      t.v2.onboarding.buttons.great,          // 6 ai voice
+      t.v2.onboarding.buttons.great,          // 7 video (no se usa, el video tiene su propio CTA)
+      t.v2.onboarding.buttons.great,          // 8 legacy complete
     ];
     
-    return labels[index];
+    return labels[index.clamp(0, labels.length - 1)];
   }
 }
 

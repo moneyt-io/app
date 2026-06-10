@@ -1192,6 +1192,12 @@
           "Jantar R\\$85,00",
           "Farmácia R\\$48,50"
         ]
+      },
+      "video": {
+        "cta": "Começar — é de graça",
+        "loading": "Carregando vídeo...",
+        "error": "Não deu pra carregar o vídeo",
+        "retry": "Tentar de novo"
       }
     },
     "dateSelection": {

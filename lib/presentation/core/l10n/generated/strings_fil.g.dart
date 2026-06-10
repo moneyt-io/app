@@ -1683,6 +1683,7 @@ class _AppStringsV2OnboardingFil extends AppStringsV2OnboardingEn {
 	@override late final _AppStringsV2OnboardingAiAnalysisFil aiAnalysis = _AppStringsV2OnboardingAiAnalysisFil._(_root);
 	@override late final _AppStringsV2OnboardingMainPriorityFil mainPriority = _AppStringsV2OnboardingMainPriorityFil._(_root);
 	@override late final _AppStringsV2OnboardingAiVoiceFil aiVoice = _AppStringsV2OnboardingAiVoiceFil._(_root);
+	@override late final _AppStringsV2OnboardingVideoFil video = _AppStringsV2OnboardingVideoFil._(_root);
 }
 
 // Path: v2.dateSelection
@@ -2342,6 +2343,19 @@ class _AppStringsV2OnboardingAiVoiceFil extends AppStringsV2OnboardingAiVoiceEn 
 		'Dinner ₱800',
 		'Gamot ₱450',
 	];
+}
+
+// Path: v2.onboarding.video
+class _AppStringsV2OnboardingVideoFil extends AppStringsV2OnboardingVideoEn {
+	_AppStringsV2OnboardingVideoFil._(AppStringsFil root) : this._root = root, super.internal(root);
+
+	final AppStringsFil _root; // ignore: unused_field
+
+	// Translations
+	@override String get cta => 'Simulan na — libre!';
+	@override String get loading => 'Naglo-load ang video...';
+	@override String get error => 'Hindi ma-load ang video';
+	@override String get retry => 'Subukan ulit';
 }
 
 // Path: dashboard.widgets.settings.reset
@@ -3369,6 +3383,10 @@ extension on AppStringsFil {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix ₱549';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Dinner ₱800';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Gamot ₱450';
+			case 'v2.onboarding.video.cta': return 'Simulan na — libre!';
+			case 'v2.onboarding.video.loading': return 'Naglo-load ang video...';
+			case 'v2.onboarding.video.error': return 'Hindi ma-load ang video';
+			case 'v2.onboarding.video.retry': return 'Subukan ulit';
 			case 'v2.dateSelection.days': return 'Mga Araw';
 			case 'v2.dateSelection.months': return 'Mga Buwan';
 			case 'v2.dateSelection.years': return 'Mga Taon';

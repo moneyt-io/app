@@ -1192,6 +1192,12 @@
           "Cena \\$25.00",
           "Farmacia \\$18.50"
         ]
+      },
+      "video": {
+        "cta": "Empezar — es gratis",
+        "loading": "Cargando video...",
+        "error": "No se pudo cargar el video",
+        "retry": "Intentar de nuevo"
       }
     },
     "dateSelection": {

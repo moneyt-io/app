@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'facebook_service.dart';
+import 'video_cache_service.dart';
 
 /// Configuración del onboarding retornada por PostHog.
 /// [steps] son los índices de páginas a mostrar (0-7), en orden.
@@ -44,7 +45,8 @@ class AnalyticsService {
     'solution_preview',  // 4
     'current_method',    // 5
     'features_showcase', // 6
-    'complete',          // 7
+    'complete',          // 7 (legacy)
+    'video_showcase',    // 8 (nueva pantalla de video)
   ];
 
   // ─── Inicialización ───────────────────────────────────────────────────────
@@ -168,6 +170,68 @@ class AnalyticsService {
       debugPrint('❌ AnalyticsService: getOnboardingConfig failed: $e');
     }
     return OnboardingConfig.defaultConfig;
+  }
+
+  // ─── Video Config (onboarding) ────────────────────────────────────────────
+
+  /// Retorna la configuración de video del onboarding desde PostHog.
+  /// El payload del flag 'onboarding_video_config' tiene la forma:
+  /// ```json
+  /// { "videos": { "es": "https://...", "en": "https://...", "default": "https://..." } }
+  /// ```
+  /// Retorna null si el flag no existe o tiene formato incorrecto.
+  Future<VideoConfig?> getOnboardingVideoConfig() async {
+    if (!_initialized) return null;
+    try {
+      final result = await Posthog()
+          .getFeatureFlagResult('onboarding_video_config', sendEvent: false);
+      if (result == null) return null;
+      return VideoConfig.fromPayload(result.payload);
+    } catch (e) {
+      debugPrint('❌ AnalyticsService: getOnboardingVideoConfig failed: $e');
+      return null;
+    }
+  }
+
+  // ─── Video Tracking ───────────────────────────────────────────────────────
+
+  /// Cuando el video del onboarding empieza a reproducirse.
+  void trackOnboardingVideoStarted({
+    required String videoUrl,
+    required String locale,
+    required bool fromCache,
+  }) {
+    _capture('onboarding_video_started', properties: {
+      'video_url': videoUrl,
+      'locale': locale,
+      'from_cache': fromCache,
+    });
+  }
+
+  /// Cuando el video del onboarding termina de reproducirse completamente.
+  void trackOnboardingVideoCompleted({
+    required String videoUrl,
+    required String locale,
+    required int durationSeconds,
+  }) {
+    _capture('onboarding_video_completed', properties: {
+      'video_url': videoUrl,
+      'locale': locale,
+      'duration_seconds': durationSeconds,
+    });
+  }
+
+  /// Cuando el video del onboarding falla al cargar o reproducir.
+  void trackOnboardingVideoError({
+    required String videoUrl,
+    required String locale,
+    required String error,
+  }) {
+    _capture('onboarding_video_error', properties: {
+      'video_url': videoUrl,
+      'locale': locale,
+      'error': error,
+    });
   }
 
   // ─── Onboarding (continuación) ────────────────────────────────────────────

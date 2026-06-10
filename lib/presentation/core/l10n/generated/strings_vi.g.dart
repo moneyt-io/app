@@ -1683,6 +1683,7 @@ class _AppStringsV2OnboardingVi extends AppStringsV2OnboardingEn {
 	@override late final _AppStringsV2OnboardingAiAnalysisVi aiAnalysis = _AppStringsV2OnboardingAiAnalysisVi._(_root);
 	@override late final _AppStringsV2OnboardingMainPriorityVi mainPriority = _AppStringsV2OnboardingMainPriorityVi._(_root);
 	@override late final _AppStringsV2OnboardingAiVoiceVi aiVoice = _AppStringsV2OnboardingAiVoiceVi._(_root);
+	@override late final _AppStringsV2OnboardingVideoVi video = _AppStringsV2OnboardingVideoVi._(_root);
 }
 
 // Path: v2.dateSelection
@@ -2342,6 +2343,19 @@ class _AppStringsV2OnboardingAiVoiceVi extends AppStringsV2OnboardingAiVoiceEn {
 		'Ăn tối 250.000 ₫',
 		'Nhà thuốc 185.000 ₫',
 	];
+}
+
+// Path: v2.onboarding.video
+class _AppStringsV2OnboardingVideoVi extends AppStringsV2OnboardingVideoEn {
+	_AppStringsV2OnboardingVideoVi._(AppStringsVi root) : this._root = root, super.internal(root);
+
+	final AppStringsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get cta => 'Bắt đầu — hoàn toàn miễn phí';
+	@override String get loading => 'Đang tải video...';
+	@override String get error => 'Không thể tải video';
+	@override String get retry => 'Thử lại';
 }
 
 // Path: dashboard.widgets.settings.reset
@@ -3369,6 +3383,10 @@ extension on AppStringsVi {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix 108.000 ₫';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Ăn tối 250.000 ₫';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Nhà thuốc 185.000 ₫';
+			case 'v2.onboarding.video.cta': return 'Bắt đầu — hoàn toàn miễn phí';
+			case 'v2.onboarding.video.loading': return 'Đang tải video...';
+			case 'v2.onboarding.video.error': return 'Không thể tải video';
+			case 'v2.onboarding.video.retry': return 'Thử lại';
 			case 'v2.dateSelection.days': return 'Ngày';
 			case 'v2.dateSelection.months': return 'Tháng';
 			case 'v2.dateSelection.years': return 'Năm';

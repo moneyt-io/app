@@ -1192,6 +1192,12 @@
           "Dinner \\$25.00",
           "Pharmacy \\$18.50"
         ]
+      },
+      "video": {
+        "cta": "Start — it's free",
+        "loading": "Loading video...",
+        "error": "Could not load video",
+        "retry": "Try again"
       }
     },
     "dateSelection": {

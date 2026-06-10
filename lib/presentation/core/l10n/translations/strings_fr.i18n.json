@@ -1192,6 +1192,12 @@
           "Dîner 25,00 €",
           "Pharmacie 18,50 €"
         ]
+      },
+      "video": {
+        "cta": "C'est parti — c'est gratuit",
+        "loading": "Chargement de la vidéo...",
+        "error": "Impossible de charger la vidéo",
+        "retry": "Réessayer"
       }
     },
     "dateSelection": {

@@ -1192,6 +1192,12 @@
           "Makan Rp 120.000",
           "Apotek Rp 85.000"
         ]
+      },
+      "video": {
+        "cta": "Mulai — gratis!",
+        "loading": "Memuat video...",
+        "error": "Gagal memuat video",
+        "retry": "Coba lagi"
       }
     },
     "dateSelection": {

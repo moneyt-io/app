@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import '../../../core/services/app_initialization_service.dart';
 import '../../../core/enums/initialization_state.dart';
+import '../../../core/services/analytics_service.dart';
+import '../../../core/services/video_cache_service.dart';
 import '../../navigation/navigation_service.dart';
 import '../../navigation/app_routes.dart';
 import 'widgets/animated_moneyt_logo.dart';
@@ -42,6 +44,10 @@ class _SplashScreenState extends State<SplashScreen> {
         await Posthog().reloadFeatureFlags();
       } catch (_) {}
 
+      // Precarga del video de onboarding en cache — fire-and-forget
+      // No esperamos (await) para no bloquear la navegación
+      _warmupVideoCache();
+
       if (mounted) {
         _navigateBasedOnState(initState);
       }
@@ -51,6 +57,26 @@ class _SplashScreenState extends State<SplashScreen> {
         NavigationService.navigateToAndClearStack(AppRoutes.home);
       }
     }
+  }
+
+  /// Pre-carga el video de onboarding en cache local.
+  /// Se llama de forma fire-and-forget para no bloquear la navegación.
+  void _warmupVideoCache() {
+    AnalyticsService().getOnboardingVideoConfig().then((config) {
+      if (config != null) {
+        // Precalentamos con la URL 'default' (siempre presente en el fallback)
+        final url = config.getUrlForLocale('default');
+        if (url.isNotEmpty) {
+          VideoCacheService.warmupCache(url).then((_) {
+            print('✅ SplashScreen: Video warmup complete');
+          }).catchError((e) {
+            print('⚠️ SplashScreen: Video warmup failed: $e');
+          });
+        }
+      }
+    }).catchError((e) {
+      print('⚠️ SplashScreen: getOnboardingVideoConfig failed: $e');
+    });
   }
 
   void _navigateBasedOnState(InitializationState state) {

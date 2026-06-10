@@ -1192,6 +1192,12 @@
           "Ăn tối 250.000 ₫",
           "Nhà thuốc 185.000 ₫"
         ]
+      },
+      "video": {
+        "cta": "Bắt đầu — hoàn toàn miễn phí",
+        "loading": "Đang tải video...",
+        "error": "Không thể tải video",
+        "retry": "Thử lại"
       }
     },
     "dateSelection": {
