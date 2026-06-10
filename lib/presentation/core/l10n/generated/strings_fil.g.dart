@@ -333,6 +333,7 @@ class _AppStringsV2Fil extends AppStringsV2En {
 	@override late final _AppStringsV2DashboardFil dashboard = _AppStringsV2DashboardFil._(_root);
 	@override late final _AppStringsV2CategoriesFil categories = _AppStringsV2CategoriesFil._(_root);
 	@override late final _AppStringsV2OnboardingFil onboarding = _AppStringsV2OnboardingFil._(_root);
+	@override late final _AppStringsV2DateSelectionFil dateSelection = _AppStringsV2DateSelectionFil._(_root);
 }
 
 // Path: intents
@@ -1682,6 +1683,18 @@ class _AppStringsV2OnboardingFil extends AppStringsV2OnboardingEn {
 	@override late final _AppStringsV2OnboardingAiAnalysisFil aiAnalysis = _AppStringsV2OnboardingAiAnalysisFil._(_root);
 	@override late final _AppStringsV2OnboardingMainPriorityFil mainPriority = _AppStringsV2OnboardingMainPriorityFil._(_root);
 	@override late final _AppStringsV2OnboardingAiVoiceFil aiVoice = _AppStringsV2OnboardingAiVoiceFil._(_root);
+}
+
+// Path: v2.dateSelection
+class _AppStringsV2DateSelectionFil extends AppStringsV2DateSelectionEn {
+	_AppStringsV2DateSelectionFil._(AppStringsFil root) : this._root = root, super.internal(root);
+
+	final AppStringsFil _root; // ignore: unused_field
+
+	// Translations
+	@override String get days => 'Mga Araw';
+	@override String get months => 'Mga Buwan';
+	@override String get years => 'Mga Taon';
 }
 
 // Path: transactions.filter.ranges
@@ -3356,6 +3369,9 @@ extension on AppStringsFil {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix ₱549';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Dinner ₱800';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Gamot ₱450';
+			case 'v2.dateSelection.days': return 'Mga Araw';
+			case 'v2.dateSelection.months': return 'Mga Buwan';
+			case 'v2.dateSelection.years': return 'Mga Taon';
 			case 'intents.transactionSavedTitle': return '✅ Nai-save ang Transaksyon';
 			case 'intents.emptyText': return 'Walang teksto';
 			case 'intents.emptyData': return 'Walang data';

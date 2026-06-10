@@ -45,8 +45,8 @@ class TransactionDetailModel {
       currencyId: detail.currencyId,
       flowId: detail.flowId,
       paymentTypeId: detail.paymentTypeId,
-      paymentId: detail.paymentId,
-      categoryId: detail.categoryId,
+      paymentId: detail.paymentId ?? 0,
+      categoryId: detail.categoryId ?? 0,
       amount: detail.amount,
       rateExchange: detail.rateExchange,
     );

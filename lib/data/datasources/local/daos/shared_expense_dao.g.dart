@@ -9,8 +9,6 @@ mixin _$SharedExpenseDaoMixin on DatabaseAccessor<AppDatabase> {
   $SharedExpenseEntryTable get sharedExpenseEntry =>
       attachedDatabase.sharedExpenseEntry;
   $LoanEntryTable get loanEntry => attachedDatabase.loanEntry;
-  $JournalEntryTable get journalEntry => attachedDatabase.journalEntry;
-  $ContactTable get contact => attachedDatabase.contact;
   $TransactionEntryTable get transactionEntry =>
       attachedDatabase.transactionEntry;
   $SharedExpenseDetailTable get sharedExpenseDetail =>

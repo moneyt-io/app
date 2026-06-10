@@ -117,7 +117,13 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2; // INCREMENTADO para nueva migración
+  int get schemaVersion => 3; // INCREMENTADO para nueva migración (wallets.icon)
+
+  Future<String> _getDbPath() async {
+    final dbFolder = await getApplicationDocumentsDirectory();
+    final file = File(p.join(dbFolder.path, 'app_database.sqlite'));
+    return file.path;
+  }
 
   // Método necesario para backups locales
   Future<String> getDatabasePath() async {
@@ -142,6 +148,10 @@ class AppDatabase extends _$AppDatabase {
         
         // Agregar columna totalPaid a loan_entries si no existe
         await m.addColumn(loanEntry, loanEntry.totalPaid);
+      }
+      if (from < 3) {
+        // Agregar columna icon a la tabla wallets
+        await m.addColumn(wallet, wallet.icon);
       }
     },
   );

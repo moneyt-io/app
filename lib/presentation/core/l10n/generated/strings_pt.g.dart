@@ -333,6 +333,7 @@ class _AppStringsV2Pt extends AppStringsV2En {
 	@override late final _AppStringsV2DashboardPt dashboard = _AppStringsV2DashboardPt._(_root);
 	@override late final _AppStringsV2CategoriesPt categories = _AppStringsV2CategoriesPt._(_root);
 	@override late final _AppStringsV2OnboardingPt onboarding = _AppStringsV2OnboardingPt._(_root);
+	@override late final _AppStringsV2DateSelectionPt dateSelection = _AppStringsV2DateSelectionPt._(_root);
 }
 
 // Path: intents
@@ -1682,6 +1683,18 @@ class _AppStringsV2OnboardingPt extends AppStringsV2OnboardingEn {
 	@override late final _AppStringsV2OnboardingAiAnalysisPt aiAnalysis = _AppStringsV2OnboardingAiAnalysisPt._(_root);
 	@override late final _AppStringsV2OnboardingMainPriorityPt mainPriority = _AppStringsV2OnboardingMainPriorityPt._(_root);
 	@override late final _AppStringsV2OnboardingAiVoicePt aiVoice = _AppStringsV2OnboardingAiVoicePt._(_root);
+}
+
+// Path: v2.dateSelection
+class _AppStringsV2DateSelectionPt extends AppStringsV2DateSelectionEn {
+	_AppStringsV2DateSelectionPt._(AppStringsPt root) : this._root = root, super.internal(root);
+
+	final AppStringsPt _root; // ignore: unused_field
+
+	// Translations
+	@override String get days => 'Dias';
+	@override String get months => 'Meses';
+	@override String get years => 'Anos';
 }
 
 // Path: transactions.filter.ranges
@@ -3356,6 +3369,9 @@ extension on AppStringsPt {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix R\$39,90';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Jantar R\$85,00';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Farmácia R\$48,50';
+			case 'v2.dateSelection.days': return 'Dias';
+			case 'v2.dateSelection.months': return 'Meses';
+			case 'v2.dateSelection.years': return 'Anos';
 			case 'intents.transactionSavedTitle': return '✅ Transação Salva';
 			case 'intents.emptyText': return 'Texto vazio';
 			case 'intents.emptyData': return 'Dados vazios';

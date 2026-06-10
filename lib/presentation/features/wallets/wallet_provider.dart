@@ -106,21 +106,23 @@ class WalletProvider with ChangeNotifier {
   }
 
   Future<void> createWalletWithAccount({
+    int? parentId, // Wallet parent ID
     required String name,
-    String? description,
     required String currencyId,
-    int? parentId,
+    String? description,
+    String? icon,
   }) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
     try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
       await _walletUseCases.createWalletWithAccount(
-        name: name,
-        description: description,
-        currencyId: currencyId,
         parentId: parentId,
+        name: name,
+        currencyId: currencyId,
+        description: description,
+        icon: icon,
       );
       await loadInitialData(); // Reload all data to ensure consistency
     } catch (e) {

@@ -1193,6 +1193,11 @@
           "Pharmacy \\$18.50"
         ]
       }
+    },
+    "dateSelection": {
+      "days": "Days",
+      "months": "Months",
+      "years": "Years"
     }
   },
   "intents": {

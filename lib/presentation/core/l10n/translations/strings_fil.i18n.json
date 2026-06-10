@@ -1193,6 +1193,11 @@
           "Gamot ₱450"
         ]
       }
+    },
+    "dateSelection": {
+      "days": "Mga Araw",
+      "months": "Mga Buwan",
+      "years": "Mga Taon"
     }
   },
   "intents": {

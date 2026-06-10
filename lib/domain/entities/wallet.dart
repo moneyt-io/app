@@ -7,6 +7,7 @@ class Wallet extends Equatable {
   final int chartAccountId;
   final String name;
   final String? description;
+  final String? icon; // Added icon
   final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -19,6 +20,7 @@ class Wallet extends Equatable {
     required this.chartAccountId,
     required this.name,
     this.description,
+    this.icon, // Added icon
     required this.active,
     required this.createdAt,
     this.updatedAt,
@@ -35,6 +37,7 @@ class Wallet extends Equatable {
     int? chartAccountId,
     String? name,
     String? description,
+    String? icon,
     bool? active,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -47,6 +50,7 @@ class Wallet extends Equatable {
       chartAccountId: chartAccountId ?? this.chartAccountId,
       name: name ?? this.name,
       description: description ?? this.description,
+      icon: icon ?? this.icon,
       active: active ?? this.active,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -62,6 +66,7 @@ class Wallet extends Equatable {
         chartAccountId,
         name,
         description,
+        icon,
         active,
         createdAt,
         updatedAt,

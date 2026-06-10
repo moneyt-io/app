@@ -6,6 +6,12 @@ import '../../../domain/entities/wallet.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../features/wallets/wallet_provider.dart';
 import '../../core/providers/currency_provider.dart';
+import '../../core/atoms/app_app_bar.dart';
+import '../../core/molecules/confirmation_dialog.dart';
+import 'dart:async';
+import '../../../core/utils/financial_emoji_dictionary.dart';
+import '../../../core/services/ai_transaction_service.dart';
+import '../../../core/utils/icon_to_emoji_mapper.dart';
 import '../../../core/utils/number_formatter.dart';
 import '../../core/l10n/generated/strings.g.dart';
 import '../theme/v2_colors.dart';
@@ -108,7 +114,7 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
       builder: (ctx) => _WalletFormBottomSheet(
         walletToEdit: walletToEdit,
         currencyId: currencyId,
-        onSave: (name, selectedCurrency) async {
+        onSave: (name, selectedCurrency, icon) async {
           final provider = context.read<WalletProvider>();
           
             if (walletToEdit != null) {
@@ -116,6 +122,7 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
               final updatedWallet = walletToEdit.copyWith(
                 name: name,
                 currencyId: selectedCurrency,
+                icon: icon,
                 updatedAt: DateTime.now(),
               );
               await provider.updateWallet(updatedWallet);
@@ -144,6 +151,7 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
                   name: name,
                   currencyId: selectedCurrency,
                   parentId: root.id,
+                  icon: icon,
                   chartAccountId: 0,
                   active: true,
                   createdAt: DateTime.now(),
@@ -235,7 +243,10 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 alignment: Alignment.center,
-                                child: const Icon(Icons.account_balance_wallet, color: V2Colors.primary),
+                                child: Text(
+                                  IconToEmojiMapper.getEmoji(wallet.icon ?? '58376'),
+                                  style: const TextStyle(fontSize: 24),
+                                ),
                               ),
                               title: Text(
                                 wallet.name,
@@ -285,7 +296,7 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
 class _WalletFormBottomSheet extends StatefulWidget {
   final Wallet? walletToEdit;
   final String currencyId;
-  final Function(String name, String currencyId) onSave;
+  final Function(String name, String currencyId, String icon) onSave;
 
   const _WalletFormBottomSheet({
     this.walletToEdit,
@@ -297,15 +308,140 @@ class _WalletFormBottomSheet extends StatefulWidget {
   State<_WalletFormBottomSheet> createState() => _WalletFormBottomSheetState();
 }
 
-class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> {
+class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with SingleTickerProviderStateMixin {
   late TextEditingController _nameController;
   late String _selectedCurrencyId;
+  String _selectedEmoji = "🏦";
+  List<String> _suggestedEmojis = ["🏦", "💳", "💵"];
+  bool _hasManuallySelectedEmoji = false;
+  String _lastValidName = '';
+  
+  Timer? _debounceTimer;
+  bool _isAnalyzingEmoji = false;
+  final AITransactionService _aiService = AITransactionService();
+  
+  AnimationController? _aiAnimationController;
 
   @override
   void initState() {
     super.initState();
+    _aiAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
     _nameController = TextEditingController(text: widget.walletToEdit?.name ?? '');
+    _lastValidName = _nameController.text;
     _selectedCurrencyId = widget.walletToEdit?.currencyId ?? widget.currencyId;
+    
+    if (widget.walletToEdit != null && widget.walletToEdit!.icon != null) {
+      _selectedEmoji = IconToEmojiMapper.getEmoji(widget.walletToEdit!.icon!);
+      _suggestedEmojis = [_selectedEmoji];
+      _hasManuallySelectedEmoji = true;
+    }
+  }
+
+  void _onNameChanged(String val) {
+    _debounceTimer?.cancel();
+    
+    final chars = val.characters;
+    String extractedEmoji = '';
+    String newText = '';
+
+    for (var c in chars) {
+      bool isEmoji = c.runes.any((r) => 
+        (r >= 0x2600 && r <= 0x27BF) || 
+        (r >= 0x1F300 && r <= 0x1FAFF)
+      );
+      
+      if (isEmoji) {
+        extractedEmoji = c;
+      } else {
+        newText += c;
+      }
+    }
+
+    if (extractedEmoji.isNotEmpty) {
+      _hasManuallySelectedEmoji = true;
+      setState(() {
+        _selectedEmoji = extractedEmoji;
+        if (widget.walletToEdit != null) {
+          _suggestedEmojis = [extractedEmoji];
+        } else if (!_suggestedEmojis.contains(extractedEmoji)) {
+          _suggestedEmojis[0] = extractedEmoji;
+        }
+      });
+      
+      if (newText.trim().isEmpty && _lastValidName.isNotEmpty) {
+        newText = _lastValidName;
+      }
+      
+      _nameController.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.fromPosition(TextPosition(offset: newText.length)),
+      );
+      _lastValidName = newText;
+    } else {
+      _lastValidName = val;
+      _hasManuallySelectedEmoji = false;
+      
+      _autoSelectEmojiLocal();
+      
+      if (!_hasManuallySelectedEmoji && val.trim().isNotEmpty) {
+        _debounceTimer = Timer(const Duration(milliseconds: 1000), () {
+          _analyzeEmojiWithAI(val.trim());
+        });
+      }
+    }
+  }
+
+  void _autoSelectEmojiLocal() {
+    if (_hasManuallySelectedEmoji) return;
+    
+    final name = _nameController.text;
+    String? suggested = FinancialEmojiDictionary.getEmojiForKeyword(name);
+    
+    if (suggested != null && _selectedEmoji != suggested) {
+      _debounceTimer?.cancel();
+      setState(() {
+        _selectedEmoji = suggested;
+        if (!_suggestedEmojis.contains(suggested)) {
+          _suggestedEmojis = [suggested, '💳', '💵'];
+        }
+      });
+    }
+  }
+
+  Future<void> _analyzeEmojiWithAI(String name) async {
+    if (!mounted || _hasManuallySelectedEmoji) return;
+
+    _aiAnimationController ??= AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    setState(() {
+      _isAnalyzingEmoji = true;
+      _aiAnimationController?.repeat();
+    });
+
+    try {
+      final emojis = await _aiService.suggestEmojiForWallet(name);
+      
+      if (mounted && !_hasManuallySelectedEmoji) {
+        setState(() {
+          _suggestedEmojis = emojis;
+          _selectedEmoji = emojis.isNotEmpty ? emojis.first : '🏦';
+        });
+      }
+    } catch (_) {
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAnalyzingEmoji = false;
+          _aiAnimationController?.stop();
+        });
+      }
+    }
   }
 
   void _showCurrencyPicker() {
@@ -409,6 +545,8 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> {
 
   @override
   void dispose() {
+    _aiAnimationController?.dispose();
+    _debounceTimer?.cancel();
     _nameController.dispose();
     super.dispose();
   }
@@ -492,6 +630,7 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> {
                     color: V2Colors.onSurface,
                   ),
                   autofocus: widget.walletToEdit == null,
+                  onChanged: _onNameChanged,
                   textCapitalization: TextCapitalization.words,
                 ),
               ),
@@ -537,6 +676,86 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> {
             ],
           ),
           
+          const SizedBox(height: 24),
+
+          // Emoji Suggestions Pill
+          Container(
+            height: 56,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              color: V2Colors.secondaryContainer.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                color: V2Colors.secondaryContainer.withValues(alpha: 0.3),
+              ),
+            ),
+            alignment: Alignment.center,
+            child: _isAnalyzingEmoji && _aiAnimationController != null
+                ? AnimatedBuilder(
+                    animation: _aiAnimationController!,
+                    builder: (context, child) {
+                      return Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: SweepGradient(
+                            colors: [
+                              V2Colors.primary.withValues(alpha: 0.1),
+                              V2Colors.primary.withValues(alpha: 0.5),
+                              V2Colors.primary,
+                            ],
+                            transform: GradientRotation(_aiAnimationController!.value * 2 * 3.14159),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: V2Colors.surface,
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: const Text('✨', style: TextStyle(fontSize: 10)),
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: _suggestedEmojis.map((emoji) {
+                      final isSelected = emoji == _selectedEmoji;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedEmoji = emoji;
+                            _hasManuallySelectedEmoji = true;
+                          });
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: isSelected 
+                                ? V2Colors.secondaryContainer.withValues(alpha: 0.5)
+                                : Colors.transparent,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            emoji,
+                            style: TextStyle(
+                              fontSize: isSelected ? 24 : 20,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+          ),
+          
           const SizedBox(height: 32),
           
           // Action Buttons
@@ -562,15 +781,15 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                flex: 2,
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed: () {
-                    final name = _nameController.text.trim();
-                    if (name.isEmpty) return;
+                    if (_nameController.text.trim().isEmpty) return;
+                    String finalEmoji = _selectedEmoji;
+                    if (finalEmoji.isEmpty) finalEmoji = '🏦';
+                    widget.onSave(_nameController.text.trim(), _selectedCurrencyId, finalEmoji);
                     Navigator.pop(context);
-                    widget.onSave(name, _selectedCurrencyId);
                   },
-                  style: ElevatedButton.styleFrom(
+                  style: FilledButton.styleFrom(
                     backgroundColor: V2Colors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),

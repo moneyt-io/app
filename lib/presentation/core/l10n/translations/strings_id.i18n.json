@@ -1193,6 +1193,11 @@
           "Apotek Rp 85.000"
         ]
       }
+    },
+    "dateSelection": {
+      "days": "Hari",
+      "months": "Bulan",
+      "years": "Tahun"
     }
   },
   "intents": {

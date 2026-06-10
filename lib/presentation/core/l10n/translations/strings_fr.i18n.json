@@ -1193,6 +1193,11 @@
           "Pharmacie 18,50 €"
         ]
       }
+    },
+    "dateSelection": {
+      "days": "Jours",
+      "months": "Mois",
+      "years": "Années"
     }
   },
   "intents": {

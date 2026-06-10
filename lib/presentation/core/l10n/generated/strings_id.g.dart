@@ -333,6 +333,7 @@ class _AppStringsV2Id extends AppStringsV2En {
 	@override late final _AppStringsV2DashboardId dashboard = _AppStringsV2DashboardId._(_root);
 	@override late final _AppStringsV2CategoriesId categories = _AppStringsV2CategoriesId._(_root);
 	@override late final _AppStringsV2OnboardingId onboarding = _AppStringsV2OnboardingId._(_root);
+	@override late final _AppStringsV2DateSelectionId dateSelection = _AppStringsV2DateSelectionId._(_root);
 }
 
 // Path: intents
@@ -1682,6 +1683,18 @@ class _AppStringsV2OnboardingId extends AppStringsV2OnboardingEn {
 	@override late final _AppStringsV2OnboardingAiAnalysisId aiAnalysis = _AppStringsV2OnboardingAiAnalysisId._(_root);
 	@override late final _AppStringsV2OnboardingMainPriorityId mainPriority = _AppStringsV2OnboardingMainPriorityId._(_root);
 	@override late final _AppStringsV2OnboardingAiVoiceId aiVoice = _AppStringsV2OnboardingAiVoiceId._(_root);
+}
+
+// Path: v2.dateSelection
+class _AppStringsV2DateSelectionId extends AppStringsV2DateSelectionEn {
+	_AppStringsV2DateSelectionId._(AppStringsId root) : this._root = root, super.internal(root);
+
+	final AppStringsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get days => 'Hari';
+	@override String get months => 'Bulan';
+	@override String get years => 'Tahun';
 }
 
 // Path: transactions.filter.ranges
@@ -3356,6 +3369,9 @@ extension on AppStringsId {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix Rp 186.000';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Makan Rp 120.000';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Apotek Rp 85.000';
+			case 'v2.dateSelection.days': return 'Hari';
+			case 'v2.dateSelection.months': return 'Bulan';
+			case 'v2.dateSelection.years': return 'Tahun';
 			case 'intents.transactionSavedTitle': return '✅ Transaksi Disimpan';
 			case 'intents.emptyText': return 'Teks kosong';
 			case 'intents.emptyData': return 'Data kosong';

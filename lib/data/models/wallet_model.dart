@@ -9,6 +9,7 @@ class WalletModel {
   final int chartAccountId;
   final String name;
   final String? description;
+  final String? icon;
   final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -21,6 +22,7 @@ class WalletModel {
     required this.chartAccountId,
     required this.name,
     this.description,
+    this.icon,
     required this.active,
     required this.createdAt,
     this.updatedAt,
@@ -34,6 +36,7 @@ class WalletModel {
     required this.chartAccountId,
     required this.name,
     this.description,
+    this.icon,
     bool? active,
   })  : id = 0,
         active = active ?? true,
@@ -49,6 +52,7 @@ class WalletModel {
     chartAccountId: Value(chartAccountId),
     name: Value(name),
     description: Value(description),
+    icon: Value(icon),
     active: Value(active),
     createdAt: Value(createdAt),
     updatedAt: Value(updatedAt),
@@ -63,6 +67,7 @@ class WalletModel {
     chartAccountId: chartAccountId,
     name: name,
     description: description,
+    icon: icon,
     active: active,
     createdAt: createdAt,
     updatedAt: updatedAt,
@@ -76,6 +81,7 @@ class WalletModel {
     chartAccountId: entity.chartAccountId,
     name: entity.name,
     description: entity.description,
+    icon: entity.icon,
     active: entity.active,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,

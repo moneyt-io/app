@@ -474,6 +474,7 @@ class AppStringsV2En {
 	late final AppStringsV2DashboardEn dashboard = AppStringsV2DashboardEn.internal(_root);
 	late final AppStringsV2CategoriesEn categories = AppStringsV2CategoriesEn.internal(_root);
 	late final AppStringsV2OnboardingEn onboarding = AppStringsV2OnboardingEn.internal(_root);
+	late final AppStringsV2DateSelectionEn dateSelection = AppStringsV2DateSelectionEn.internal(_root);
 }
 
 // Path: intents
@@ -2979,6 +2980,24 @@ class AppStringsV2OnboardingEn {
 	late final AppStringsV2OnboardingAiVoiceEn aiVoice = AppStringsV2OnboardingAiVoiceEn.internal(_root);
 }
 
+// Path: v2.dateSelection
+class AppStringsV2DateSelectionEn {
+	AppStringsV2DateSelectionEn.internal(this._root);
+
+	final AppStrings _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Days'
+	String get days => 'Days';
+
+	/// en: 'Months'
+	String get months => 'Months';
+
+	/// en: 'Years'
+	String get years => 'Years';
+}
+
 // Path: transactions.filter.ranges
 class AppStringsTransactionsFilterRangesEn {
 	AppStringsTransactionsFilterRangesEn.internal(this._root);
@@ -5153,6 +5172,9 @@ extension on AppStrings {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix \$10.99';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Dinner \$25.00';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Pharmacy \$18.50';
+			case 'v2.dateSelection.days': return 'Days';
+			case 'v2.dateSelection.months': return 'Months';
+			case 'v2.dateSelection.years': return 'Years';
 			case 'intents.transactionSavedTitle': return '✅ Transacción guardada';
 			case 'intents.emptyText': return 'Texto vacío';
 			case 'intents.emptyData': return 'Datos vacíos';

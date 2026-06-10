@@ -1193,6 +1193,11 @@
           "Farmácia R\\$48,50"
         ]
       }
+    },
+    "dateSelection": {
+      "days": "Dias",
+      "months": "Meses",
+      "years": "Anos"
     }
   },
   "intents": {

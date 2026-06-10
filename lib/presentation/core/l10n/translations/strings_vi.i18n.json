@@ -1193,6 +1193,11 @@
           "Nhà thuốc 185.000 ₫"
         ]
       }
+    },
+    "dateSelection": {
+      "days": "Ngày",
+      "months": "Tháng",
+      "years": "Năm"
     }
   },
   "intents": {

@@ -333,6 +333,7 @@ class _AppStringsV2Es extends AppStringsV2En {
 	@override late final _AppStringsV2DashboardEs dashboard = _AppStringsV2DashboardEs._(_root);
 	@override late final _AppStringsV2CategoriesEs categories = _AppStringsV2CategoriesEs._(_root);
 	@override late final _AppStringsV2OnboardingEs onboarding = _AppStringsV2OnboardingEs._(_root);
+	@override late final _AppStringsV2DateSelectionEs dateSelection = _AppStringsV2DateSelectionEs._(_root);
 }
 
 // Path: intents
@@ -1682,6 +1683,18 @@ class _AppStringsV2OnboardingEs extends AppStringsV2OnboardingEn {
 	@override late final _AppStringsV2OnboardingAiAnalysisEs aiAnalysis = _AppStringsV2OnboardingAiAnalysisEs._(_root);
 	@override late final _AppStringsV2OnboardingMainPriorityEs mainPriority = _AppStringsV2OnboardingMainPriorityEs._(_root);
 	@override late final _AppStringsV2OnboardingAiVoiceEs aiVoice = _AppStringsV2OnboardingAiVoiceEs._(_root);
+}
+
+// Path: v2.dateSelection
+class _AppStringsV2DateSelectionEs extends AppStringsV2DateSelectionEn {
+	_AppStringsV2DateSelectionEs._(AppStringsEs root) : this._root = root, super.internal(root);
+
+	final AppStringsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get days => 'Días';
+	@override String get months => 'Meses';
+	@override String get years => 'Años';
 }
 
 // Path: transactions.filter.ranges
@@ -3356,6 +3369,9 @@ extension on AppStringsEs {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix \$10.99';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Cena \$25.00';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Farmacia \$18.50';
+			case 'v2.dateSelection.days': return 'Días';
+			case 'v2.dateSelection.months': return 'Meses';
+			case 'v2.dateSelection.years': return 'Años';
 			case 'intents.transactionSavedTitle': return '✅ Transacción guardada';
 			case 'intents.emptyText': return 'Texto vacío';
 			case 'intents.emptyData': return 'Datos vacíos';

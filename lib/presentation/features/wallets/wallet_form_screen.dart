@@ -14,6 +14,7 @@ import '../../core/molecules/form_action_bar.dart';
 import '../../core/molecules/error_message_card.dart';
 import '../../core/molecules/currency_selection_dialog.dart';
 import '../../core/molecules/parent_wallet_selection_dialog.dart';
+import '../../core/molecules/category_icon_picker.dart';
 import '../../navigation/navigation_service.dart';
 import '../../core/l10n/generated/strings.g.dart';
 import '../../core/providers/currency_provider.dart';
@@ -32,6 +33,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  IconData _selectedIcon = Icons.account_balance_wallet;
   
   String _selectedCurrency = 'USD';
   int? _selectedParentId;
@@ -106,6 +108,9 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
       _descriptionController.text = wallet.description ?? '';
       _selectedCurrency = wallet.currencyId;
       _selectedParentId = wallet.parentId;
+      if (wallet.icon != null) {
+        _selectedIcon = IconData(int.parse(wallet.icon!), fontFamily: 'MaterialIcons');
+      }
     } else {
       // Pre-seleccionar la moneda por defecto del usuario
       _selectedCurrency = context.read<CurrencyProvider>().currencyId;
@@ -223,6 +228,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
           chartAccountId: widget.wallet!.chartAccountId,
           name: _nameController.text.trim(),
           description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+          icon: _selectedIcon.codePoint.toString(),
           active: widget.wallet!.active,
           createdAt: widget.wallet!.createdAt,
           updatedAt: DateTime.now(),
@@ -235,6 +241,7 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
           description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
           currencyId: _selectedCurrency,
           parentId: _selectedParentId,
+          icon: _selectedIcon.codePoint.toString(),
         );
       }
 
@@ -311,6 +318,19 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
                             textCapitalization: TextCapitalization.words,
                           ),
                           
+                          const SizedBox(height: 24), // HTML: space-y-6
+
+                          // Icon Picker
+                          CategoryIconPicker(
+                            selectedIcon: _selectedIcon,
+                            onIconSelected: (icon) {
+                              setState(() {
+                                _selectedIcon = icon;
+                              });
+                            },
+                          ),
+                          
+                          const SizedBox(height: 24), // HTML: space-y-6
                           const SizedBox(height: 24), // HTML: space-y-6
                           
                           // ✅ REFACTORIZADO: Description con floating label exacto del HTML

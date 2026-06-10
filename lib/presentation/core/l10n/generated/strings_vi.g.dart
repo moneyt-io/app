@@ -333,6 +333,7 @@ class _AppStringsV2Vi extends AppStringsV2En {
 	@override late final _AppStringsV2DashboardVi dashboard = _AppStringsV2DashboardVi._(_root);
 	@override late final _AppStringsV2CategoriesVi categories = _AppStringsV2CategoriesVi._(_root);
 	@override late final _AppStringsV2OnboardingVi onboarding = _AppStringsV2OnboardingVi._(_root);
+	@override late final _AppStringsV2DateSelectionVi dateSelection = _AppStringsV2DateSelectionVi._(_root);
 }
 
 // Path: intents
@@ -1682,6 +1683,18 @@ class _AppStringsV2OnboardingVi extends AppStringsV2OnboardingEn {
 	@override late final _AppStringsV2OnboardingAiAnalysisVi aiAnalysis = _AppStringsV2OnboardingAiAnalysisVi._(_root);
 	@override late final _AppStringsV2OnboardingMainPriorityVi mainPriority = _AppStringsV2OnboardingMainPriorityVi._(_root);
 	@override late final _AppStringsV2OnboardingAiVoiceVi aiVoice = _AppStringsV2OnboardingAiVoiceVi._(_root);
+}
+
+// Path: v2.dateSelection
+class _AppStringsV2DateSelectionVi extends AppStringsV2DateSelectionEn {
+	_AppStringsV2DateSelectionVi._(AppStringsVi root) : this._root = root, super.internal(root);
+
+	final AppStringsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get days => 'Ngày';
+	@override String get months => 'Tháng';
+	@override String get years => 'Năm';
 }
 
 // Path: transactions.filter.ranges
@@ -3356,6 +3369,9 @@ extension on AppStringsVi {
 			case 'v2.onboarding.aiVoice.examples.5': return 'Netflix 108.000 ₫';
 			case 'v2.onboarding.aiVoice.examples.6': return 'Ăn tối 250.000 ₫';
 			case 'v2.onboarding.aiVoice.examples.7': return 'Nhà thuốc 185.000 ₫';
+			case 'v2.dateSelection.days': return 'Ngày';
+			case 'v2.dateSelection.months': return 'Tháng';
+			case 'v2.dateSelection.years': return 'Năm';
 			case 'intents.transactionSavedTitle': return '✅ Đã Lưu Giao Dịch';
 			case 'intents.emptyText': return 'Văn bản trống';
 			case 'intents.emptyData': return 'Dữ liệu trống';

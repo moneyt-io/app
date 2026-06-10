@@ -240,6 +240,41 @@ class AITransactionService {
     }
   }
 
+  Future<List<String>> suggestEmojiForWallet(String walletName) async {
+    final apiKey = dotenv.env['GEMINI_API_KEY'];
+    if (apiKey == null || apiKey.isEmpty) {
+      return ['🏦', '💳', '💵'];
+    }
+
+    final model = GenerativeModel(
+      model: 'gemini-flash-lite-latest',
+      apiKey: apiKey,
+    );
+
+    final prompt = 'Sugiere 3 emojis que mejor representen la siguiente billetera, cuenta bancaria o método de pago: "$walletName". Devuelve ÚNICAMENTE los 3 emojis seguidos, sin espacios ni texto adicional (ejemplo: 🏦💳💵).';
+
+    try {
+      final response = await model.generateContent([Content.text(prompt)]);
+      final String? responseText = response.text;
+      
+      if (responseText != null && responseText.trim().isNotEmpty) {
+        final chars = responseText.trim().characters.toList();
+        if (chars.isNotEmpty) {
+          final emojis = chars.take(3).toList();
+          while (emojis.length < 3) {
+            emojis.add('🏦');
+          }
+          return emojis;
+        }
+      }
+      return ['🏦', '💳', '💵'];
+    } catch (e) {
+      print('=== AI Emoji Error ===');
+      print(e);
+      return ['🏦', '💳', '💵'];
+    }
+  }
+
   Future<List<AICategorySuggestionItem>> suggestCategoriesForTransaction(
     String description,
     List<Category> categories,

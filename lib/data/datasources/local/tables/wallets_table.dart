@@ -13,6 +13,7 @@ class Wallet extends Table {
   // Main data fields
   TextColumn get name => text().withLength(min: 1, max: 50)();
   TextColumn get description => text().nullable()();
+  TextColumn get icon => text().withLength(min: 1, max: 50).nullable()();
   BoolColumn get active => boolean().withDefault(const Constant(true))();
 
   // Audit fields

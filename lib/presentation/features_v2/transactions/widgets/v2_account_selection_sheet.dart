@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/organisms/account_selector_modal.dart' show SelectableAccount;
 import '../../../../core/utils/number_formatter.dart';
+import '../../../../core/utils/icon_to_emoji_mapper.dart';
 import '../../theme/v2_colors.dart';
 
 class V2AccountSelectionSheet extends StatelessWidget {
@@ -132,10 +133,12 @@ class V2AccountSelectionSheet extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               alignment: Alignment.center,
-                              child: Icon(
-                                account.isCreditCard ? Icons.credit_card : Icons.account_balance_wallet,
-                                color: V2Colors.primary,
-                              ),
+                              child: account.isCreditCard 
+                                ? const Icon(Icons.credit_card, color: V2Colors.primary)
+                                : Text(
+                                    IconToEmojiMapper.getEmoji(account.icon ?? '58376'), // 58376 is Icons.account_balance_wallet.codePoint
+                                    style: const TextStyle(fontSize: 24),
+                                  ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(

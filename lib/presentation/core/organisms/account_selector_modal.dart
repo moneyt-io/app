@@ -18,17 +18,19 @@ class SelectableAccount {
   final String last4Digits;
   final double? availableCredit;
   final int? parentAccountId;
+  final String? icon;
 
   const SelectableAccount({
     required this.id,
     required this.name,
     this.description,
     required this.currencyId,
-    required this.isCreditCard,
+    this.isCreditCard = false,
     this.balance,
-    required this.last4Digits,
+    this.last4Digits = '',
     this.availableCredit,
     this.parentAccountId,
+    this.icon,
   });
 
   factory SelectableAccount.fromWallet(
@@ -47,6 +49,7 @@ class SelectableAccount {
           ? accountNumber!.substring(accountNumber.length - 4)
           : '',
       parentAccountId: wallet.parentId,
+      icon: wallet.icon,
     );
   }
 

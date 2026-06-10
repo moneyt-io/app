@@ -34,6 +34,7 @@ class WalletUseCases {
     required String name,
     required String currencyId,
     String? description,
+    String? icon,
   }) async {
     int? parentChartAccountId; // ChartAccount parent ID
 
@@ -62,6 +63,7 @@ class WalletUseCases {
       chartAccountId: chartAccount.id,
       name: name,
       description: description,
+      icon: icon,
       active: true,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),

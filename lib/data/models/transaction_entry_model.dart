@@ -92,7 +92,7 @@ class TransactionEntryModel {
       description: Value(description),
       active: Value(active),
       createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
+      updatedAt: updatedAt == null ? const Value.absent() : Value(updatedAt!),
       deletedAt: Value(deletedAt),
     );
   }
