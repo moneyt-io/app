@@ -3,6 +3,7 @@ import '../../../domain/entities/wallet.dart';
 import '../../../core/utils/number_formatter.dart';
 import '../atoms/widget_card_header.dart';
 import '../l10n/generated/strings.g.dart';
+import '../molecules/category_icon_picker.dart';
 
 /// Widget de wallets para dashboard basado en dashboard_main.html
 ///
@@ -184,39 +185,14 @@ class WalletDisplayItem {
 
   /// Factory para crear desde Wallet entity
   factory WalletDisplayItem.fromWallet(Wallet wallet, double balance) {
-    final nameAndDesc =
-        '${wallet.name} ${wallet.description ?? ''}'.toLowerCase();
-
-    IconData icon;
-    Color iconColor;
-    Color iconBackgroundColor;
-
-    if (nameAndDesc.contains('checking') || nameAndDesc.contains('chase')) {
-      icon = Icons.account_balance;
-      iconColor = const Color(0xFF16A34A); // text-green-600
-      iconBackgroundColor = const Color(0xFFDCFCE7); // bg-green-100
-    } else if (nameAndDesc.contains('savings')) {
-      icon = Icons.savings;
-      iconColor = const Color(0xFF2563EB); // text-blue-600
-      iconBackgroundColor = const Color(0xFFDBEAFE); // bg-blue-100
-    } else if (nameAndDesc.contains('cash')) {
-      icon = Icons.payments;
-      iconColor = const Color(0xFFEA580C); // text-orange-600
-      iconBackgroundColor = const Color(0xFFFED7AA); // bg-orange-100
-    } else {
-      icon = Icons.account_balance_wallet;
-      iconColor = const Color(0xFF2563EB); // Default blue
-      iconBackgroundColor = const Color(0xFFDBEAFE);
-    }
-
     return WalletDisplayItem(
       id: wallet.id,
       name: wallet.name,
       balance: balance,
       currencyId: wallet.currencyId,
-      icon: icon,
-      iconColor: iconColor,
-      iconBackgroundColor: iconBackgroundColor,
+      icon: CategoryIconPicker.fromCode(wallet.icon),
+      iconColor: const Color(0xFF2563EB),
+      iconBackgroundColor: const Color(0xFFDBEAFE),
     );
   }
 }

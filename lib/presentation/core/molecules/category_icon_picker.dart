@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import '../design_system/tokens/app_colors.dart';
 import '../l10n/generated/strings.g.dart';
 
-/// Selector de íconos para categorías basado en category_form.html
-/// 
+/// Selector de íconos para categorías y wallets.
+///
 /// HTML Reference:
 /// ```html
 /// <div class="grid grid-cols-6 gap-3">
@@ -21,7 +20,12 @@ class CategoryIconPicker extends StatelessWidget {
   final ValueChanged<IconData> onIconSelected;
   final Color selectedColor;
 
-  static const List<IconData> _categoryIcons = [
+  /// Lista completa de iconos disponibles (categorías + wallets).
+  ///
+  /// Es `const` — todos los elementos son constantes de compilación.
+  /// Esto garantiza compatibilidad con el tree-shaker en release builds.
+  static const List<IconData> categoryIcons = [
+    // Categorías de ingresos/gastos
     Icons.work,
     Icons.business,
     Icons.laptop_mac,
@@ -46,7 +50,43 @@ class CategoryIconPicker extends StatelessWidget {
     Icons.savings,
     Icons.account_balance,
     Icons.calculate,
+    // Wallets / cuentas
+    Icons.account_balance_wallet,
+    Icons.payments,
+    Icons.wallet,
+    Icons.attach_money,
+    Icons.currency_exchange,
   ];
+
+  /// Convierte un codePoint guardado en DB (String decimal o hex) al [IconData]
+  /// correspondiente de la lista [categoryIcons].
+  ///
+  /// **Compatible con release builds**: nunca construye [IconData] dinámicamente
+  /// (lo que rompería el tree-shaking de icon fonts). En cambio, busca en la
+  /// lista `const` por codePoint.
+  ///
+  /// Si el codePoint no está en la lista, devuelve [fallback]
+  /// (por defecto `Icons.account_balance_wallet`).
+  ///
+  /// Uso:
+  /// ```dart
+  /// Icon(CategoryIconPicker.fromCode(wallet.icon))
+  /// Icon(CategoryIconPicker.fromCode(category.icon, fallback: Icons.category))
+  /// ```
+  static IconData fromCode(
+    String? code, {
+    IconData fallback = Icons.account_balance_wallet,
+  }) {
+    if (code == null || code.isEmpty) return fallback;
+    // Intentar decimal primero (formato que guarda wallet_form_screen),
+    // luego hex (formato que usaba category_list_view con radix: 16).
+    final parsed = int.tryParse(code) ?? int.tryParse(code, radix: 16);
+    if (parsed == null) return fallback;
+    return categoryIcons.firstWhere(
+      (icon) => icon.codePoint == parsed,
+      orElse: () => fallback,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,11 +118,11 @@ class CategoryIconPicker extends StatelessWidget {
               crossAxisSpacing: 12,
               childAspectRatio: 1,
             ),
-            itemCount: _categoryIcons.length,
+            itemCount: categoryIcons.length,
             itemBuilder: (context, index) {
-              final icon = _categoryIcons[index];
+              final icon = categoryIcons[index];
               final isSelected = icon == selectedIcon;
-              
+
               return Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -93,20 +133,20 @@ class CategoryIconPicker extends StatelessWidget {
                     width: 48, // HTML: w-12
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12), // HTML: rounded-xl
-                      color: isSelected 
-                          ? selectedColor.withOpacity(0.1)
+                      color: isSelected
+                          ? selectedColor.withValues(alpha: 0.1)
                           : const Color(0xFFF9FAFB), // HTML: bg-gray-50
                       border: Border.all(
                         width: 2,
-                        color: isSelected 
-                            ? selectedColor.withOpacity(0.3)
+                        color: isSelected
+                            ? selectedColor.withValues(alpha: 0.3)
                             : const Color(0xFFE5E7EB), // HTML: border-gray-200
                       ),
                     ),
                     child: Icon(
                       icon,
-                      color: isSelected 
-                          ? selectedColor 
+                      color: isSelected
+                          ? selectedColor
                           : const Color(0xFF6B7280), // HTML: text-gray-500
                       size: 24,
                     ),

@@ -33,6 +33,9 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  // El IconData se inicializa siempre con un valor const de CategoryIconPicker.categoryIcons.
+  // NUNCA se construye un IconData desde un int de runtime — eso rompe el tree shaker
+  // en release builds. En su lugar hacemos lookup por codePoint en la lista const.
   IconData _selectedIcon = Icons.account_balance_wallet;
   
   String _selectedCurrency = 'USD';
@@ -109,7 +112,12 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
       _selectedCurrency = wallet.currencyId;
       _selectedParentId = wallet.parentId;
       if (wallet.icon != null) {
-        _selectedIcon = IconData(int.parse(wallet.icon!), fontFamily: 'MaterialIcons');
+        final savedCode = int.tryParse(wallet.icon!) ?? 0;
+        // Buscar en la lista const por codePoint — nunca construir IconData dinámicamente
+        _selectedIcon = CategoryIconPicker.categoryIcons.firstWhere(
+          (icon) => icon.codePoint == savedCode,
+          orElse: () => CategoryIconPicker.categoryIcons.first,
+        );
       }
     } else {
       // Pre-seleccionar la moneda por defecto del usuario

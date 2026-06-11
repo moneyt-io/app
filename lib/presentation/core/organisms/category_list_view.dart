@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../domain/entities/category.dart';
 import '../design_system/theme/app_dimensions.dart';
 import '../molecules/confirm_delete_dialog.dart';
+import '../molecules/category_icon_picker.dart';
 
 /// Organismo que muestra una lista jerárquica de categorías con Material Design 3.
 ///
@@ -68,16 +69,11 @@ class _CategoryListViewState extends State<CategoryListView> {
     final hasChildren = children.isNotEmpty;
     final isExpanded = _expandedCategories.contains(category.id);
     
-    // Obtener el IconData para la categoría
-    IconData categoryIcon;
-    try {
-      categoryIcon = IconData(
-        int.parse(category.icon, radix: 16),
-        fontFamily: 'MaterialIcons',
-      );
-    } catch (e) {
-      categoryIcon = Icons.category;
-    }
+    // Obtener el IconData para la categoría usando el helper seguro
+    final categoryIcon = CategoryIconPicker.fromCode(
+      category.icon,
+      fallback: Icons.category,
+    );
     
     // Determinar colores según el tipo de categoría (ingreso o gasto)
     final isExpense = category.documentTypeId == 'E';
@@ -274,16 +270,11 @@ class _CategoryListViewState extends State<CategoryListView> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     
-    // Obtener el IconData para la subcategoría
-    IconData subcategoryIcon;
-    try {
-      subcategoryIcon = IconData(
-        int.parse(subcategory.icon, radix: 16),
-        fontFamily: 'MaterialIcons',
-      );
-    } catch (e) {
-      subcategoryIcon = Icons.label;
-    }
+    // Obtener el IconData para la subcategoría usando el helper seguro
+    final subcategoryIcon = CategoryIconPicker.fromCode(
+      subcategory.icon,
+      fallback: Icons.label,
+    );
     
     // Determinar colores según el tipo de categoría
     final isExpense = subcategory.documentTypeId == 'E';

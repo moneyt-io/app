@@ -4,6 +4,7 @@ import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/chart_account.dart';
 import '../design_system/theme/app_dimensions.dart';
 import '../atoms/action_menu_button.dart';
+import '../molecules/category_icon_picker.dart';
 
 class WalletListItem extends StatelessWidget {
   final Wallet wallet;
@@ -59,9 +60,9 @@ class WalletListItem extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  Icons.account_balance_wallet, // Mantener icono de wallet
+                  CategoryIconPicker.fromCode(wallet.icon),
                   color: colorScheme.onPrimaryContainer,
-                  size: AppDimensions.iconSizeSmall, // Check if matches CategoryIcon internal size
+                  size: AppDimensions.iconSizeSmall,
                 ),
               ),
               const SizedBox(width: AppDimensions.spacing16), // Check vs Category spacing12

@@ -5,6 +5,7 @@ import '../atoms/app_button.dart';
 import '../molecules/search_field.dart';
 import '../design_system/theme/app_dimensions.dart';
 import '../l10n/generated/strings.g.dart';
+import '../molecules/category_icon_picker.dart';
 
 /// Modelo para representar una cuenta seleccionable
 /// (ya sea wallet o tarjeta de crédito)
@@ -333,7 +334,7 @@ class _AccountSelectorModalState extends State<AccountSelectorModal> {
                 child: Icon(
                   account.isCreditCard
                     ? Icons.credit_card
-                    : Icons.account_balance_wallet,
+                    : CategoryIconPicker.fromCode(account.icon),
                   color: account.isCreditCard
                     ? colorScheme.onSecondaryContainer
                     : colorScheme.onPrimaryContainer,
