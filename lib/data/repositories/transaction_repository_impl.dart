@@ -32,6 +32,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       amount: transactionEntity.amount,
       rateExchange: transactionEntity.rateExchange,
       description: transactionEntity.description,
+      recurrenceFrequency: transactionEntity.recurrenceFrequency,
       active: transactionEntity.active,
       createdAt: transactionEntity.createdAt,
       updatedAt: transactionEntity.updatedAt,
@@ -281,22 +282,23 @@ class TransactionRepositoryImpl implements TransactionRepository {
     required String currencyId,
     required int walletId,
     required int categoryId,
-    required int journalId, // AGREGADO: parámetro faltante
+    required int journalId,
     int? contactId,
+    String? recurrenceFrequency,
     double rateExchange = 1.0,
   }) async {
-    // Crear la transacción de ingreso
     final transaction = TransactionEntry(
       id: 0,
       documentTypeId: 'I',
       currencyId: currencyId,
-      journalId: journalId, // USAR el journalId proporcionado
+      journalId: journalId,
       contactId: contactId,
       secuencial: await getNextSecuencial('I'),
       date: date,
       amount: amount,
       rateExchange: rateExchange,
       description: description,
+      recurrenceFrequency: recurrenceFrequency,
       active: true,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
@@ -328,12 +330,12 @@ class TransactionRepositoryImpl implements TransactionRepository {
     required String currencyId,
     required int categoryId,
     required int journalId,
-    required String paymentTypeId, // AGREGADO: parámetro faltante
-    required int paymentId, // CAMBIADO: de walletId a paymentId
+    required String paymentTypeId,
+    required int paymentId,
     int? contactId,
+    String? recurrenceFrequency,
     double rateExchange = 1.0,
   }) async {
-    // Crear la transacción de gasto
     final transaction = TransactionEntry(
       id: 0,
       documentTypeId: 'E',
@@ -345,6 +347,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       amount: amount,
       rateExchange: rateExchange,
       description: description,
+      recurrenceFrequency: recurrenceFrequency,
       active: true,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),

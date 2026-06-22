@@ -117,7 +117,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3; // INCREMENTADO para nueva migración (wallets.icon)
+  int get schemaVersion => 4; // v4: recurrenceFrequency en transaction_entries
 
   Future<String> _getDbPath() async {
     final dbFolder = await getApplicationDocumentsDirectory();
@@ -152,6 +152,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 3) {
         // Agregar columna icon a la tabla wallets
         await m.addColumn(wallet, wallet.icon);
+      }
+      if (from < 4) {
+        // Agregar columna recurrenceFrequency a transaction_entries (nullable, default null)
+        await m.addColumn(transactionEntry, transactionEntry.recurrenceFrequency);
       }
     },
   );

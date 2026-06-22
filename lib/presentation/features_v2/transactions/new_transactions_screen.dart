@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../domain/entities/transaction_entry.dart';
 import '../../../../domain/entities/category.dart';
+import '../../../../domain/enums/recurrence_frequency.dart';
 import '../../../../core/utils/icon_to_emoji_mapper.dart';
 import '../../core/providers/currency_provider.dart';
 import '../../core/providers/currency_filter_provider.dart';
@@ -43,6 +44,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
   int? _selectedCategoryId;
   int? _selectedWalletId;
   DateTimeRange? _selectedDateRange;
+  bool _filterRecurring = false; // Filters only recurring transactions
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   late bool _isSearchExpanded;
@@ -149,6 +151,13 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
               transactions = transactions
                   .where((tx) =>
                       tx.details.any((d) => d.paymentId == _selectedWalletId))
+                  .toList();
+            }
+
+            // Aplicar filtro de recurrencia
+            if (_filterRecurring) {
+              transactions = transactions
+                  .where((tx) => tx.isRecurring)
                   .toList();
             }
 
@@ -472,6 +481,7 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                             children: [
                                               _buildDateChip(),
                                               _buildWalletChip(),
+                                              _buildRecurringChip(),
                                             ],
                                           ),
                                         ),
@@ -687,6 +697,15 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
     );
   }
 
+  Widget _buildRecurringChip() {
+    return _buildFilterChip(
+      label: t.v2.transactions.recurrenceFilter,
+      icon: Icons.repeat,
+      isActive: _filterRecurring,
+      onTap: () => setState(() => _filterRecurring = !_filterRecurring),
+    );
+  }
+
   Widget _buildFilterChip({
     required String label,
     required IconData icon,
@@ -843,6 +862,12 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                           fontFamily: 'Manrope',
                         ),
                       ),
+                      // Recurrence badge — shown only when the transaction is recurring
+                      if (tx.isRecurring) ...
+                        [
+                          const SizedBox(height: 6),
+                          _buildRecurrenceBadge(tx.recurrenceFrequency!),
+                        ],
                     ],
                   ),
                 ),
@@ -950,6 +975,52 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// Small inline badge showing the recurrence frequency inside a transaction card.
+  Widget _buildRecurrenceBadge(String frequencyKey) {
+    final freq = RecurrenceFrequency.fromKey(frequencyKey);
+    if (freq == null) return const SizedBox.shrink();
+
+    final label = switch (freq) {
+      RecurrenceFrequency.daily     => t.v2.transactions.recurrenceDaily,
+      RecurrenceFrequency.weekly    => t.v2.transactions.recurrenceWeekly,
+      RecurrenceFrequency.monthly   => t.v2.transactions.recurrenceMonthly,
+      RecurrenceFrequency.bimonthly => t.v2.transactions.recurrenceBimonthly,
+      RecurrenceFrequency.quarterly => t.v2.transactions.recurrenceQuarterly,
+      RecurrenceFrequency.yearly    => t.v2.transactions.recurrenceYearly,
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: V2Colors.primary.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: V2Colors.primary.withValues(alpha: 0.30),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            freq.emoji,
+            style: const TextStyle(fontSize: 11),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: V2Colors.primary,
+            ),
+          ),
+        ],
       ),
     );
   }

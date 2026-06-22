@@ -16,6 +16,10 @@ class TransactionEntry extends Table {
   RealColumn get rateExchange => real().withDefault(const Constant(1.0))();
   TextColumn get description => text().nullable()();
 
+  // Recurrence
+  // Possible values: 'daily', 'weekly', 'monthly', 'bimonthly', 'quarterly', 'yearly', or null (no recurrence)
+  TextColumn get recurrenceFrequency => text().nullable()();
+
   // Audit fields
   BoolColumn get active => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

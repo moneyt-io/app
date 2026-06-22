@@ -35,6 +35,7 @@ abstract class TransactionRepository {
     required int walletId,
     required int categoryId,
     int? contactId,
+    String? recurrenceFrequency,
     double rateExchange = 1.0,
   });
   
@@ -48,6 +49,7 @@ abstract class TransactionRepository {
     required int paymentId,
     required int categoryId,
     int? contactId,
+    String? recurrenceFrequency,
     double rateExchange = 1.0,
   });
   

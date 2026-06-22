@@ -1002,7 +1002,18 @@
       "selectWallet": "Seleccionar Billetera",
       "save": "Guardar",
       "transactionUpdated": "Transacción actualizada.",
-      "transactionSaved": "Transacción guardada exitosamente."
+      "transactionSaved": "Transacción guardada exitosamente.",
+      "recurrence": "Repetir",
+      "recurrenceNone": "Sin repetición",
+      "recurrenceFilter": "Recurrentes",
+      "recurrenceDaily": "Diario",
+      "recurrenceWeekly": "Semanal",
+      "recurrenceMonthly": "Mensual",
+      "recurrenceBimonthly": "Bimestral",
+      "recurrenceQuarterly": "Trimestral",
+      "recurrenceYearly": "Anual",
+      "recurrenceSheetTitle": "Frecuencia de repetición",
+      "recurrenceSheetSubtitle": "¿Cada cuánto se repite esta transacción?"
     },
     "settings": {
       "title": "Personalizar",

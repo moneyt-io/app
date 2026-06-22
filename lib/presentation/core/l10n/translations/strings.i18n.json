@@ -1002,7 +1002,18 @@
       "selectWallet": "Select Wallet",
       "save": "Save",
       "transactionUpdated": "Transaction updated.",
-      "transactionSaved": "Transaction saved successfully."
+      "transactionSaved": "Transaction saved successfully.",
+      "recurrence": "Repeat",
+      "recurrenceNone": "No repeat",
+      "recurrenceFilter": "Recurring",
+      "recurrenceDaily": "Daily",
+      "recurrenceWeekly": "Weekly",
+      "recurrenceMonthly": "Monthly",
+      "recurrenceBimonthly": "Bimonthly",
+      "recurrenceQuarterly": "Quarterly",
+      "recurrenceYearly": "Yearly",
+      "recurrenceSheetTitle": "Repeat frequency",
+      "recurrenceSheetSubtitle": "How often does this transaction repeat?"
     },
     "settings": {
       "title": "Customize",

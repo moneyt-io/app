@@ -57,6 +57,7 @@ class TransactionUseCases {
     required int walletId,
     required int categoryId,
     int? contactId,
+    String? recurrenceFrequency,
     double rateExchange = 1.0,
   }) async {
     // 1. Obtener información de la wallet y categoría para los asientos contables
@@ -80,7 +81,7 @@ class TransactionUseCases {
 
     // 3. Crear la transacción vinculada al diario contable
     return _transactionRepository.createIncomeTransaction(
-      journalId: journalEntry.id, // <-- Pasar journalId
+      journalId: journalEntry.id,
       date: date,
       description: description,
       amount: amount,
@@ -88,6 +89,7 @@ class TransactionUseCases {
       walletId: walletId,
       categoryId: categoryId,
       contactId: contactId,
+      recurrenceFrequency: recurrenceFrequency,
       rateExchange: rateExchange,
     );
   }
@@ -101,6 +103,7 @@ class TransactionUseCases {
     required String paymentTypeId, // 'W' para wallet, 'C' para credit card
     required int categoryId,
     int? contactId,
+    String? recurrenceFrequency,
     double rateExchange = 1.0,
   }) async {
     // 1. Obtener información de categoría
@@ -150,6 +153,7 @@ class TransactionUseCases {
       paymentId: paymentId,
       categoryId: categoryId,
       contactId: contactId,
+      recurrenceFrequency: recurrenceFrequency,
       rateExchange: rateExchange,
     );
   }

@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 
 import '../../../domain/entities/category.dart';
+import '../../../domain/enums/recurrence_frequency.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/usecases/category_usecases.dart';
 import '../../../domain/usecases/credit_card_usecases.dart';
@@ -16,6 +17,7 @@ import '../../../core/services/ai_transaction_service.dart';
 import 'dart:async';
 import 'widgets/v2_account_selection_sheet.dart';
 import 'widgets/v2_category_selection_sheet.dart';
+import 'widgets/v2_recurrence_sheet.dart';
 import '../shared/widgets/v2_date_selection_sheet.dart';
 import '../../features/transactions/transaction_provider.dart';
 import '../../core/providers/currency_provider.dart';
@@ -69,6 +71,9 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
   Timer? _debounceTimer;
   bool _hasManuallySelectedCategory = false;
   bool _isAnalyzingCategory = false;
+
+  // Recurrence frequency (null = not recurring)
+  RecurrenceFrequency? _selectedRecurrence;
 
   List<Category> _categories = [];
   Map<int, SelectableAccount> _accountsMap = {};
@@ -256,6 +261,18 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     }
   }
 
+  // Opens the recurrence bottom sheet
+  Future<void> _selectRecurrence() async {
+    final result = await V2RecurrenceSheet.show(
+      context,
+      currentFrequency: _selectedRecurrence,
+    );
+    // sheet returns null when user picks "No repeat"; only update when sheet was not dismissed
+    if (mounted) {
+      setState(() => _selectedRecurrence = result);
+    }
+  }
+
   Future<void> _selectMoreCategories() async {
     // Solo mostrar las que sean del tipo seleccionado y preferiblemente hijas si hay agupamiento root
     // Para no romper legacy y ser V2, usamos parentId != null (o todas para estar seguros)
@@ -431,6 +448,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             paymentId: paymentId,
             paymentTypeId: paymentTypeId,
             categoryId: _selectedCategoryId!,
+            recurrenceFrequency: _selectedRecurrence?.key,
           );
         } else {
           await transactionProvider.createIncome(
@@ -440,6 +458,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             currencyId: _selectedAccount!.currencyId,
             walletId: paymentId,
             categoryId: _selectedCategoryId!,
+            recurrenceFrequency: _selectedRecurrence?.key,
           );
         }
       }
@@ -525,6 +544,22 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                     children: [
                       _buildMetaPill(context, _getDateLabel(),
                           Icons.calendar_today, _selectDate),
+                      // Recurrence chip — only shown when a frequency is selected
+                      if (_selectedRecurrence != null)
+                        _buildMetaPill(
+                          context,
+                          '${_selectedRecurrence!.emoji} ${_recurrenceLabel(_selectedRecurrence!)}',
+                          null,
+                          _selectRecurrence,
+                          isActive: true,
+                        )
+                      else
+                        _buildMetaPill(
+                          context,
+                          t.v2.transactions.recurrence,
+                          Icons.repeat,
+                          _selectRecurrence,
+                        ),
                       _buildMetaPill(
                           context,
                           _selectedAccount?.name ?? t.v2.transactions.selectWallet,
@@ -861,18 +896,28 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
   }
 
   Widget _buildMetaPill(
-      BuildContext context, String label, IconData icon, VoidCallback onTap,
-      {Color? color, Color? textColor}) {
+      BuildContext context, String label, IconData? icon, VoidCallback onTap,
+      {Color? color, Color? textColor, bool isActive = false}) {
     final theme = Theme.of(context);
+    final activeColor = theme.colorScheme.primary;
+    final pillColor = isActive
+        ? activeColor.withValues(alpha: 0.12)
+        : color ?? theme.colorScheme.surfaceContainerLow;
+    final pillBorder = isActive
+        ? activeColor.withValues(alpha: 0.6)
+        : theme.colorScheme.outlineVariant.withValues(alpha: 0.3);
+    final contentColor = isActive
+        ? activeColor
+        : textColor ?? theme.colorScheme.onSurface;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: color ?? theme.colorScheme.surfaceContainerLow,
+          color: pillColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-              color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
+          border: Border.all(color: pillBorder),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -880,16 +925,32 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             Text(
               label,
               style: theme.textTheme.labelMedium?.copyWith(
-                color: textColor ?? theme.colorScheme.onSurface,
+                color: contentColor,
+                fontWeight: isActive ? FontWeight.w700 : null,
               ),
             ),
-            const SizedBox(width: 4),
-            Icon(icon,
-                size: 18, color: textColor ?? theme.colorScheme.onSurface),
+            if (icon != null) ...
+              [
+                const SizedBox(width: 4),
+                Icon(icon, size: 18, color: contentColor),
+              ],
           ],
         ),
       ),
     );
+  }
+
+  /// Returns the i18n label for the given [RecurrenceFrequency].
+  String _recurrenceLabel(RecurrenceFrequency freq) {
+    final t = context.t;
+    switch (freq) {
+      case RecurrenceFrequency.daily:     return t.v2.transactions.recurrenceDaily;
+      case RecurrenceFrequency.weekly:    return t.v2.transactions.recurrenceWeekly;
+      case RecurrenceFrequency.monthly:   return t.v2.transactions.recurrenceMonthly;
+      case RecurrenceFrequency.bimonthly: return t.v2.transactions.recurrenceBimonthly;
+      case RecurrenceFrequency.quarterly: return t.v2.transactions.recurrenceQuarterly;
+      case RecurrenceFrequency.yearly:    return t.v2.transactions.recurrenceYearly;
+    }
   }
 
   Widget _buildAddCategoryButton(BuildContext context, VoidCallback onTap) {

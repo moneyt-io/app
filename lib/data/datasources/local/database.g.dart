@@ -4670,6 +4670,12 @@ class $TransactionEntryTable extends TransactionEntry
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
       'description', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _recurrenceFrequencyMeta =
+      const VerificationMeta('recurrenceFrequency');
+  @override
+  late final GeneratedColumn<String> recurrenceFrequency =
+      GeneratedColumn<String>('recurrence_frequency', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _activeMeta = const VerificationMeta('active');
   @override
   late final GeneratedColumn<bool> active = GeneratedColumn<bool>(
@@ -4713,6 +4719,7 @@ class $TransactionEntryTable extends TransactionEntry
         amount,
         rateExchange,
         description,
+        recurrenceFrequency,
         active,
         createdAt,
         updatedAt,
@@ -4789,6 +4796,12 @@ class $TransactionEntryTable extends TransactionEntry
           description.isAcceptableOrUnknown(
               data['description']!, _descriptionMeta));
     }
+    if (data.containsKey('recurrence_frequency')) {
+      context.handle(
+          _recurrenceFrequencyMeta,
+          recurrenceFrequency.isAcceptableOrUnknown(
+              data['recurrence_frequency']!, _recurrenceFrequencyMeta));
+    }
     if (data.containsKey('active')) {
       context.handle(_activeMeta,
           active.isAcceptableOrUnknown(data['active']!, _activeMeta));
@@ -4834,6 +4847,8 @@ class $TransactionEntryTable extends TransactionEntry
           .read(DriftSqlType.double, data['${effectivePrefix}rate_exchange'])!,
       description: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      recurrenceFrequency: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}recurrence_frequency']),
       active: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}active'])!,
       createdAt: attachedDatabase.typeMapping
@@ -4863,6 +4878,7 @@ class TransactionEntries extends DataClass
   final double amount;
   final double rateExchange;
   final String? description;
+  final String? recurrenceFrequency;
   final bool active;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -4878,6 +4894,7 @@ class TransactionEntries extends DataClass
       required this.amount,
       required this.rateExchange,
       this.description,
+      this.recurrenceFrequency,
       required this.active,
       required this.createdAt,
       required this.updatedAt,
@@ -4898,6 +4915,9 @@ class TransactionEntries extends DataClass
     map['rate_exchange'] = Variable<double>(rateExchange);
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || recurrenceFrequency != null) {
+      map['recurrence_frequency'] = Variable<String>(recurrenceFrequency);
     }
     map['active'] = Variable<bool>(active);
     map['created_at'] = Variable<DateTime>(createdAt);
@@ -4924,6 +4944,9 @@ class TransactionEntries extends DataClass
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
+      recurrenceFrequency: recurrenceFrequency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recurrenceFrequency),
       active: Value(active),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -4947,6 +4970,8 @@ class TransactionEntries extends DataClass
       amount: serializer.fromJson<double>(json['amount']),
       rateExchange: serializer.fromJson<double>(json['rateExchange']),
       description: serializer.fromJson<String?>(json['description']),
+      recurrenceFrequency:
+          serializer.fromJson<String?>(json['recurrenceFrequency']),
       active: serializer.fromJson<bool>(json['active']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -4967,6 +4992,7 @@ class TransactionEntries extends DataClass
       'amount': serializer.toJson<double>(amount),
       'rateExchange': serializer.toJson<double>(rateExchange),
       'description': serializer.toJson<String?>(description),
+      'recurrenceFrequency': serializer.toJson<String?>(recurrenceFrequency),
       'active': serializer.toJson<bool>(active),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -4985,6 +5011,7 @@ class TransactionEntries extends DataClass
           double? amount,
           double? rateExchange,
           Value<String?> description = const Value.absent(),
+          Value<String?> recurrenceFrequency = const Value.absent(),
           bool? active,
           DateTime? createdAt,
           DateTime? updatedAt,
@@ -5000,6 +5027,9 @@ class TransactionEntries extends DataClass
         amount: amount ?? this.amount,
         rateExchange: rateExchange ?? this.rateExchange,
         description: description.present ? description.value : this.description,
+        recurrenceFrequency: recurrenceFrequency.present
+            ? recurrenceFrequency.value
+            : this.recurrenceFrequency,
         active: active ?? this.active,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -5024,6 +5054,9 @@ class TransactionEntries extends DataClass
           : this.rateExchange,
       description:
           data.description.present ? data.description.value : this.description,
+      recurrenceFrequency: data.recurrenceFrequency.present
+          ? data.recurrenceFrequency.value
+          : this.recurrenceFrequency,
       active: data.active.present ? data.active.value : this.active,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -5044,6 +5077,7 @@ class TransactionEntries extends DataClass
           ..write('amount: $amount, ')
           ..write('rateExchange: $rateExchange, ')
           ..write('description: $description, ')
+          ..write('recurrenceFrequency: $recurrenceFrequency, ')
           ..write('active: $active, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -5064,6 +5098,7 @@ class TransactionEntries extends DataClass
       amount,
       rateExchange,
       description,
+      recurrenceFrequency,
       active,
       createdAt,
       updatedAt,
@@ -5082,6 +5117,7 @@ class TransactionEntries extends DataClass
           other.amount == this.amount &&
           other.rateExchange == this.rateExchange &&
           other.description == this.description &&
+          other.recurrenceFrequency == this.recurrenceFrequency &&
           other.active == this.active &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
@@ -5099,6 +5135,7 @@ class TransactionEntriesCompanion extends UpdateCompanion<TransactionEntries> {
   final Value<double> amount;
   final Value<double> rateExchange;
   final Value<String?> description;
+  final Value<String?> recurrenceFrequency;
   final Value<bool> active;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -5114,6 +5151,7 @@ class TransactionEntriesCompanion extends UpdateCompanion<TransactionEntries> {
     this.amount = const Value.absent(),
     this.rateExchange = const Value.absent(),
     this.description = const Value.absent(),
+    this.recurrenceFrequency = const Value.absent(),
     this.active = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -5130,6 +5168,7 @@ class TransactionEntriesCompanion extends UpdateCompanion<TransactionEntries> {
     required double amount,
     this.rateExchange = const Value.absent(),
     this.description = const Value.absent(),
+    this.recurrenceFrequency = const Value.absent(),
     this.active = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -5151,6 +5190,7 @@ class TransactionEntriesCompanion extends UpdateCompanion<TransactionEntries> {
     Expression<double>? amount,
     Expression<double>? rateExchange,
     Expression<String>? description,
+    Expression<String>? recurrenceFrequency,
     Expression<bool>? active,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -5167,6 +5207,8 @@ class TransactionEntriesCompanion extends UpdateCompanion<TransactionEntries> {
       if (amount != null) 'amount': amount,
       if (rateExchange != null) 'rate_exchange': rateExchange,
       if (description != null) 'description': description,
+      if (recurrenceFrequency != null)
+        'recurrence_frequency': recurrenceFrequency,
       if (active != null) 'active': active,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -5185,6 +5227,7 @@ class TransactionEntriesCompanion extends UpdateCompanion<TransactionEntries> {
       Value<double>? amount,
       Value<double>? rateExchange,
       Value<String?>? description,
+      Value<String?>? recurrenceFrequency,
       Value<bool>? active,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
@@ -5200,6 +5243,7 @@ class TransactionEntriesCompanion extends UpdateCompanion<TransactionEntries> {
       amount: amount ?? this.amount,
       rateExchange: rateExchange ?? this.rateExchange,
       description: description ?? this.description,
+      recurrenceFrequency: recurrenceFrequency ?? this.recurrenceFrequency,
       active: active ?? this.active,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -5240,6 +5284,9 @@ class TransactionEntriesCompanion extends UpdateCompanion<TransactionEntries> {
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
+    if (recurrenceFrequency.present) {
+      map['recurrence_frequency'] = Variable<String>(recurrenceFrequency.value);
+    }
     if (active.present) {
       map['active'] = Variable<bool>(active.value);
     }
@@ -5268,6 +5315,7 @@ class TransactionEntriesCompanion extends UpdateCompanion<TransactionEntries> {
           ..write('amount: $amount, ')
           ..write('rateExchange: $rateExchange, ')
           ..write('description: $description, ')
+          ..write('recurrenceFrequency: $recurrenceFrequency, ')
           ..write('active: $active, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -12228,6 +12276,7 @@ typedef $$TransactionEntryTableCreateCompanionBuilder
   required double amount,
   Value<double> rateExchange,
   Value<String?> description,
+  Value<String?> recurrenceFrequency,
   Value<bool> active,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
@@ -12245,6 +12294,7 @@ typedef $$TransactionEntryTableUpdateCompanionBuilder
   Value<double> amount,
   Value<double> rateExchange,
   Value<String?> description,
+  Value<String?> recurrenceFrequency,
   Value<bool> active,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
@@ -12314,6 +12364,10 @@ class $$TransactionEntryTableFilterComposer
 
   ColumnFilters<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get recurrenceFrequency => $composableBuilder(
+      column: $table.recurrenceFrequency,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get active => $composableBuilder(
       column: $table.active, builder: (column) => ColumnFilters(column));
@@ -12390,6 +12444,10 @@ class $$TransactionEntryTableOrderingComposer
   ColumnOrderings<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get recurrenceFrequency => $composableBuilder(
+      column: $table.recurrenceFrequency,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get active => $composableBuilder(
       column: $table.active, builder: (column) => ColumnOrderings(column));
 
@@ -12441,6 +12499,9 @@ class $$TransactionEntryTableAnnotationComposer
 
   GeneratedColumn<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get recurrenceFrequency => $composableBuilder(
+      column: $table.recurrenceFrequency, builder: (column) => column);
 
   GeneratedColumn<bool> get active =>
       $composableBuilder(column: $table.active, builder: (column) => column);
@@ -12512,6 +12573,7 @@ class $$TransactionEntryTableTableManager extends RootTableManager<
             Value<double> amount = const Value.absent(),
             Value<double> rateExchange = const Value.absent(),
             Value<String?> description = const Value.absent(),
+            Value<String?> recurrenceFrequency = const Value.absent(),
             Value<bool> active = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -12528,6 +12590,7 @@ class $$TransactionEntryTableTableManager extends RootTableManager<
             amount: amount,
             rateExchange: rateExchange,
             description: description,
+            recurrenceFrequency: recurrenceFrequency,
             active: active,
             createdAt: createdAt,
             updatedAt: updatedAt,
@@ -12544,6 +12607,7 @@ class $$TransactionEntryTableTableManager extends RootTableManager<
             required double amount,
             Value<double> rateExchange = const Value.absent(),
             Value<String?> description = const Value.absent(),
+            Value<String?> recurrenceFrequency = const Value.absent(),
             Value<bool> active = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -12560,6 +12624,7 @@ class $$TransactionEntryTableTableManager extends RootTableManager<
             amount: amount,
             rateExchange: rateExchange,
             description: description,
+            recurrenceFrequency: recurrenceFrequency,
             active: active,
             createdAt: createdAt,
             updatedAt: updatedAt,

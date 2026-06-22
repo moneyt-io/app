@@ -3,6 +3,7 @@ import '../../domain/entities/contact.dart';
 import '../../domain/entities/wallet.dart';
 import '../../domain/entities/category.dart';
 import 'transaction_detail.dart';
+import '../enums/recurrence_frequency.dart';
 
 class TransactionEntry extends Equatable {
   final int id;
@@ -15,6 +16,7 @@ class TransactionEntry extends Equatable {
   final double amount;
   final double rateExchange;
   final String? description;
+  final String? recurrenceFrequency;
   final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -35,6 +37,7 @@ class TransactionEntry extends Equatable {
     required this.amount,
     required this.rateExchange,
     this.description,
+    this.recurrenceFrequency,
     required this.active,
     required this.createdAt,
     this.updatedAt,
@@ -49,6 +52,13 @@ class TransactionEntry extends Equatable {
   bool get isIncome => documentTypeId == 'I';
   bool get isExpense => documentTypeId == 'E';
   bool get isTransfer => documentTypeId == 'T';
+  
+  /// Returns true if this transaction is marked as recurring.
+  bool get isRecurring => recurrenceFrequency != null;
+  
+  /// Returns the typed [RecurrenceFrequency] enum, or null if not recurring.
+  RecurrenceFrequency? get recurringFrequency =>
+      RecurrenceFrequency.fromKey(recurrenceFrequency);
   
   // Para obtener el detalle principal (primero en la lista)
   TransactionDetail? get mainDetail => details.isNotEmpty ? details.first : null;
@@ -83,6 +93,7 @@ class TransactionEntry extends Equatable {
     amount,
     rateExchange,
     description,
+    recurrenceFrequency,
     active,
     createdAt,
     updatedAt,

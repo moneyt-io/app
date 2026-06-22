@@ -2832,6 +2832,39 @@ class AppStringsV2TransactionsEn {
 
 	/// en: 'Transaction saved successfully.'
 	String get transactionSaved => 'Transaction saved successfully.';
+
+	/// en: 'Repeat'
+	String get recurrence => 'Repeat';
+
+	/// en: 'No repeat'
+	String get recurrenceNone => 'No repeat';
+
+	/// en: 'Recurring'
+	String get recurrenceFilter => 'Recurring';
+
+	/// en: 'Daily'
+	String get recurrenceDaily => 'Daily';
+
+	/// en: 'Weekly'
+	String get recurrenceWeekly => 'Weekly';
+
+	/// en: 'Monthly'
+	String get recurrenceMonthly => 'Monthly';
+
+	/// en: 'Bimonthly'
+	String get recurrenceBimonthly => 'Bimonthly';
+
+	/// en: 'Quarterly'
+	String get recurrenceQuarterly => 'Quarterly';
+
+	/// en: 'Yearly'
+	String get recurrenceYearly => 'Yearly';
+
+	/// en: 'Repeat frequency'
+	String get recurrenceSheetTitle => 'Repeat frequency';
+
+	/// en: 'How often does this transaction repeat?'
+	String get recurrenceSheetSubtitle => 'How often does this transaction repeat?';
 }
 
 // Path: v2.settings
@@ -5060,6 +5093,17 @@ extension on AppStrings {
 			case 'v2.transactions.save': return 'Save';
 			case 'v2.transactions.transactionUpdated': return 'Transaction updated.';
 			case 'v2.transactions.transactionSaved': return 'Transaction saved successfully.';
+			case 'v2.transactions.recurrence': return 'Repeat';
+			case 'v2.transactions.recurrenceNone': return 'No repeat';
+			case 'v2.transactions.recurrenceFilter': return 'Recurring';
+			case 'v2.transactions.recurrenceDaily': return 'Daily';
+			case 'v2.transactions.recurrenceWeekly': return 'Weekly';
+			case 'v2.transactions.recurrenceMonthly': return 'Monthly';
+			case 'v2.transactions.recurrenceBimonthly': return 'Bimonthly';
+			case 'v2.transactions.recurrenceQuarterly': return 'Quarterly';
+			case 'v2.transactions.recurrenceYearly': return 'Yearly';
+			case 'v2.transactions.recurrenceSheetTitle': return 'Repeat frequency';
+			case 'v2.transactions.recurrenceSheetSubtitle': return 'How often does this transaction repeat?';
 			case 'v2.settings.title': return 'Customize';
 			case 'v2.settings.categories': return 'Categories';
 			case 'v2.settings.wallets': return 'Wallets';

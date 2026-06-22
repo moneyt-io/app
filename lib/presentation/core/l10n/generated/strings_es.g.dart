@@ -1601,6 +1601,17 @@ class _AppStringsV2TransactionsEs extends AppStringsV2TransactionsEn {
 	@override String get save => 'Guardar';
 	@override String get transactionUpdated => 'Transacción actualizada.';
 	@override String get transactionSaved => 'Transacción guardada exitosamente.';
+	@override String get recurrence => 'Repetir';
+	@override String get recurrenceNone => 'Sin repetición';
+	@override String get recurrenceFilter => 'Recurrentes';
+	@override String get recurrenceDaily => 'Diario';
+	@override String get recurrenceWeekly => 'Semanal';
+	@override String get recurrenceMonthly => 'Mensual';
+	@override String get recurrenceBimonthly => 'Bimestral';
+	@override String get recurrenceQuarterly => 'Trimestral';
+	@override String get recurrenceYearly => 'Anual';
+	@override String get recurrenceSheetTitle => 'Frecuencia de repetición';
+	@override String get recurrenceSheetSubtitle => '¿Cada cuánto se repite esta transacción?';
 }
 
 // Path: v2.settings
@@ -3249,6 +3260,17 @@ extension on AppStringsEs {
 			case 'v2.transactions.save': return 'Guardar';
 			case 'v2.transactions.transactionUpdated': return 'Transacción actualizada.';
 			case 'v2.transactions.transactionSaved': return 'Transacción guardada exitosamente.';
+			case 'v2.transactions.recurrence': return 'Repetir';
+			case 'v2.transactions.recurrenceNone': return 'Sin repetición';
+			case 'v2.transactions.recurrenceFilter': return 'Recurrentes';
+			case 'v2.transactions.recurrenceDaily': return 'Diario';
+			case 'v2.transactions.recurrenceWeekly': return 'Semanal';
+			case 'v2.transactions.recurrenceMonthly': return 'Mensual';
+			case 'v2.transactions.recurrenceBimonthly': return 'Bimestral';
+			case 'v2.transactions.recurrenceQuarterly': return 'Trimestral';
+			case 'v2.transactions.recurrenceYearly': return 'Anual';
+			case 'v2.transactions.recurrenceSheetTitle': return 'Frecuencia de repetición';
+			case 'v2.transactions.recurrenceSheetSubtitle': return '¿Cada cuánto se repite esta transacción?';
 			case 'v2.settings.title': return 'Personalizar';
 			case 'v2.settings.categories': return 'Categorías';
 			case 'v2.settings.wallets': return 'Billeteras';
