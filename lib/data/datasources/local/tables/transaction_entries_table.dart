@@ -19,6 +19,9 @@ class TransactionEntry extends Table {
   // Recurrence
   // Possible values: 'daily', 'weekly', 'monthly', 'bimonthly', 'quarterly', 'yearly', or null (no recurrence)
   TextColumn get recurrenceFrequency => text().nullable()();
+  // Tracks when the last auto-created copy of this recurring transaction was made.
+  // Null means it has never been auto-executed yet.
+  DateTimeColumn get lastExecutedAt => dateTime().nullable()();
 
   // Audit fields
   BoolColumn get active => boolean().withDefault(const Constant(true))();

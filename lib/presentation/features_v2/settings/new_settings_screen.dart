@@ -11,6 +11,7 @@ import 'language_selection_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'v2_categories_screen.dart';
 import 'v2_wallets_screen.dart';
+import '../transactions/recurring_transactions_screen.dart';
 
 class NewSettingsScreen extends StatelessWidget {
   final VoidCallback onToggleLegacy;
@@ -107,6 +108,22 @@ class NewSettingsScreen extends StatelessWidget {
                               context,
                               CupertinoPageRoute(
                                 builder: (_) => const V2WalletsScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        _buildOptionItem(
+                          context,
+                          emoji: '🔄',
+                          title: t.v2.settings.recurringTransactions,
+                          iconBgColor: const Color(0xFFF0FFF4),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (_) =>
+                                    const RecurringTransactionsScreen(),
                               ),
                             );
                           },

@@ -1013,12 +1013,20 @@
       "recurrenceQuarterly": "Quarterly",
       "recurrenceYearly": "Yearly",
       "recurrenceSheetTitle": "Repeat frequency",
-      "recurrenceSheetSubtitle": "How often does this transaction repeat?"
+      "recurrenceSheetSubtitle": "How often does this transaction repeat?",
+      "recurringScreenTitle": "Recurring Transactions",
+      "recurringScreenEmpty": "No recurring transactions yet.\nCreate one by setting a repeat frequency when adding a transaction.",
+      "recurringNextDue": "Next: $date",
+      "recurringLastRun": "Last run: $date",
+      "recurringNeverRun": "Not yet executed",
+      "recurringAutoCreated": "$count transaction(s) auto-created",
+      "recurringNoAuto": "Auto-creation up to date"
     },
     "settings": {
       "title": "Customize",
       "categories": "Categories",
       "wallets": "Wallets",
+      "recurringTransactions": "Recurring Transactions",
       "language": "Language",
       "currency": "Currency",
       "contact": "Contact",

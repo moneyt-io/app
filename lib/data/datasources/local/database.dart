@@ -117,7 +117,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4; // v4: recurrenceFrequency en transaction_entries
+  int get schemaVersion => 5; // v5: lastExecutedAt for recurring auto-creation
 
   Future<String> _getDbPath() async {
     final dbFolder = await getApplicationDocumentsDirectory();
@@ -156,6 +156,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 4) {
         // Agregar columna recurrenceFrequency a transaction_entries (nullable, default null)
         await m.addColumn(transactionEntry, transactionEntry.recurrenceFrequency);
+      }
+      if (from < 5) {
+        // Agregar columna lastExecutedAt para el motor de auto-creacion de recurrentes
+        await m.addColumn(transactionEntry, transactionEntry.lastExecutedAt);
       }
     },
   );

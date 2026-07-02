@@ -17,6 +17,7 @@ class TransactionEntry extends Equatable {
   final double rateExchange;
   final String? description;
   final String? recurrenceFrequency;
+  final DateTime? lastExecutedAt;
   final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -38,6 +39,7 @@ class TransactionEntry extends Equatable {
     required this.rateExchange,
     this.description,
     this.recurrenceFrequency,
+    this.lastExecutedAt,
     required this.active,
     required this.createdAt,
     this.updatedAt,

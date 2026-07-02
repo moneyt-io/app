@@ -2865,6 +2865,27 @@ class AppStringsV2TransactionsEn {
 
 	/// en: 'How often does this transaction repeat?'
 	String get recurrenceSheetSubtitle => 'How often does this transaction repeat?';
+
+	/// en: 'Recurring Transactions'
+	String get recurringScreenTitle => 'Recurring Transactions';
+
+	/// en: 'No recurring transactions yet. Create one by setting a repeat frequency when adding a transaction.'
+	String get recurringScreenEmpty => 'No recurring transactions yet.\nCreate one by setting a repeat frequency when adding a transaction.';
+
+	/// en: 'Next: $date'
+	String recurringNextDue({required Object date}) => 'Next: ${date}';
+
+	/// en: 'Last run: $date'
+	String recurringLastRun({required Object date}) => 'Last run: ${date}';
+
+	/// en: 'Not yet executed'
+	String get recurringNeverRun => 'Not yet executed';
+
+	/// en: '$count transaction(s) auto-created'
+	String recurringAutoCreated({required Object count}) => '${count} transaction(s) auto-created';
+
+	/// en: 'Auto-creation up to date'
+	String get recurringNoAuto => 'Auto-creation up to date';
 }
 
 // Path: v2.settings
@@ -2883,6 +2904,9 @@ class AppStringsV2SettingsEn {
 
 	/// en: 'Wallets'
 	String get wallets => 'Wallets';
+
+	/// en: 'Recurring Transactions'
+	String get recurringTransactions => 'Recurring Transactions';
 
 	/// en: 'Language'
 	String get language => 'Language';
@@ -5104,9 +5128,17 @@ extension on AppStrings {
 			case 'v2.transactions.recurrenceYearly': return 'Yearly';
 			case 'v2.transactions.recurrenceSheetTitle': return 'Repeat frequency';
 			case 'v2.transactions.recurrenceSheetSubtitle': return 'How often does this transaction repeat?';
+			case 'v2.transactions.recurringScreenTitle': return 'Recurring Transactions';
+			case 'v2.transactions.recurringScreenEmpty': return 'No recurring transactions yet.\nCreate one by setting a repeat frequency when adding a transaction.';
+			case 'v2.transactions.recurringNextDue': return ({required Object date}) => 'Next: ${date}';
+			case 'v2.transactions.recurringLastRun': return ({required Object date}) => 'Last run: ${date}';
+			case 'v2.transactions.recurringNeverRun': return 'Not yet executed';
+			case 'v2.transactions.recurringAutoCreated': return ({required Object count}) => '${count} transaction(s) auto-created';
+			case 'v2.transactions.recurringNoAuto': return 'Auto-creation up to date';
 			case 'v2.settings.title': return 'Customize';
 			case 'v2.settings.categories': return 'Categories';
 			case 'v2.settings.wallets': return 'Wallets';
+			case 'v2.settings.recurringTransactions': return 'Recurring Transactions';
 			case 'v2.settings.language': return 'Language';
 			case 'v2.settings.currency': return 'Currency';
 			case 'v2.settings.contact': return 'Contact';

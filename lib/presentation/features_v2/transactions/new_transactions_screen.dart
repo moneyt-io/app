@@ -910,6 +910,8 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
                                           : tx.details.first.paymentId)
                                       : null,
                                   initialDate: tx.date,
+                                  initialRecurrenceFrequency:
+                                      tx.recurrenceFrequency,
                                 ),
                               ),
                             );

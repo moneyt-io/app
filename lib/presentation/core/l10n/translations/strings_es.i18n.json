@@ -1013,12 +1013,20 @@
       "recurrenceQuarterly": "Trimestral",
       "recurrenceYearly": "Anual",
       "recurrenceSheetTitle": "Frecuencia de repetición",
-      "recurrenceSheetSubtitle": "¿Cada cuánto se repite esta transacción?"
+      "recurrenceSheetSubtitle": "¿Cada cuánto se repite esta transacción?",
+      "recurringScreenTitle": "Transacciones Recurrentes",
+      "recurringScreenEmpty": "Aún no tienes transacciones recurrentes.\nCrea una eligiendo una frecuencia de repetición al registrar un gasto o ingreso.",
+      "recurringNextDue": "Próxima: $date",
+      "recurringLastRun": "Última ejecución: $date",
+      "recurringNeverRun": "Aún no ejecutada",
+      "recurringAutoCreated": "$count transacción(es) creada(s) automáticamente",
+      "recurringNoAuto": "Auto-creación al día"
     },
     "settings": {
       "title": "Personalizar",
       "categories": "Categorías",
       "wallets": "Billeteras",
+      "recurringTransactions": "Transacciones Recurrentes",
       "language": "Idioma",
       "currency": "Divisa",
       "contact": "Contacto",

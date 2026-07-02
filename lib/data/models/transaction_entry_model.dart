@@ -18,6 +18,7 @@ class TransactionEntryModel {
   final double rateExchange;
   final String? description;
   final String? recurrenceFrequency;
+  final DateTime? lastExecutedAt;
   final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -35,6 +36,7 @@ class TransactionEntryModel {
     required this.rateExchange,
     this.description,
     this.recurrenceFrequency,
+    this.lastExecutedAt,
     required this.active,
     required this.createdAt,
     this.updatedAt,
@@ -53,6 +55,7 @@ class TransactionEntryModel {
     required this.rateExchange,
     this.description,
     this.recurrenceFrequency,
+    this.lastExecutedAt,
     bool? active,
   })  : id = 0,
         active = active ?? true,
@@ -74,6 +77,7 @@ class TransactionEntryModel {
       rateExchange: entry.rateExchange,
       description: entry.description,
       recurrenceFrequency: entry.recurrenceFrequency,
+      lastExecutedAt: entry.lastExecutedAt,
       active: entry.active,
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt,
@@ -95,6 +99,7 @@ class TransactionEntryModel {
       rateExchange: Value(rateExchange),
       description: Value(description),
       recurrenceFrequency: Value(recurrenceFrequency),
+      lastExecutedAt: Value(lastExecutedAt),
       active: Value(active),
       createdAt: Value(createdAt),
       updatedAt: updatedAt == null ? const Value.absent() : Value(updatedAt!),
@@ -119,6 +124,7 @@ class TransactionEntryModel {
     rateExchange: rateExchange,
     description: description,
     recurrenceFrequency: recurrenceFrequency,
+    lastExecutedAt: lastExecutedAt,
     active: active,
     createdAt: createdAt,
     updatedAt: updatedAt,
@@ -141,6 +147,7 @@ class TransactionEntryModel {
     rateExchange: entity.rateExchange,
     description: entity.description,
     recurrenceFrequency: entity.recurrenceFrequency,
+    lastExecutedAt: entity.lastExecutedAt,
     active: entity.active,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,

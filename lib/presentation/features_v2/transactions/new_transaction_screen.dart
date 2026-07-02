@@ -37,6 +37,7 @@ class NewTransactionScreen extends StatefulWidget {
   final int? transactionIdToEdit;
   final DateTime? initialDate;
   final bool autoOpenKeyboard;
+  final String? initialRecurrenceFrequency; // e.g. 'monthly', 'weekly', etc.
 
   const NewTransactionScreen({
     super.key,
@@ -49,6 +50,7 @@ class NewTransactionScreen extends StatefulWidget {
     this.transactionIdToEdit,
     this.initialDate,
     this.autoOpenKeyboard = true,
+    this.initialRecurrenceFrequency,
   });
 
   @override
@@ -113,6 +115,12 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
       } else if (first.newCategoryName != null) {
         _pendingSuggestedCategoryName = first.newCategoryName;
       }
+    }
+
+    // Restore recurrence frequency if editing an existing recurring transaction
+    if (widget.initialRecurrenceFrequency != null) {
+      _selectedRecurrence =
+          RecurrenceFrequency.fromKey(widget.initialRecurrenceFrequency);
     }
 
     _loadData();

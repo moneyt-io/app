@@ -28,6 +28,9 @@ import 'widgets/dashboard2_gauge.dart';
 import 'widgets/dashboard2_income_expense.dart';
 import 'widgets/dashboard2_activity_list.dart';
 import 'widgets/dashboard2_bottom_nav.dart';
+import 'widgets/v2_balance_card.dart';
+import 'widgets/v2_quick_actions.dart';
+import '../../../core/services/recurring_transaction_service.dart';
 import 'widgets/parallax_background.dart';
 import '../settings/new_settings_screen.dart';
 
@@ -60,6 +63,14 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     _showPaywallIfNeeded();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateActiveWalletsInDateRange();
+      
+      // Run auto-creation of recurring transactions
+      RecurringTransactionService.instance.runPendingRecurrences().then((count) {
+        if (count > 0 && mounted) {
+          // Refresh transactions list if new ones were created
+          context.read<TransactionProvider>().refreshTransactions();
+        }
+      });
     });
   }
 

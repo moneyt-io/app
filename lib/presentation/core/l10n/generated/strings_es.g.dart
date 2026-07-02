@@ -1612,6 +1612,13 @@ class _AppStringsV2TransactionsEs extends AppStringsV2TransactionsEn {
 	@override String get recurrenceYearly => 'Anual';
 	@override String get recurrenceSheetTitle => 'Frecuencia de repetición';
 	@override String get recurrenceSheetSubtitle => '¿Cada cuánto se repite esta transacción?';
+	@override String get recurringScreenTitle => 'Transacciones Recurrentes';
+	@override String get recurringScreenEmpty => 'Aún no tienes transacciones recurrentes.\nCrea una eligiendo una frecuencia de repetición al registrar un gasto o ingreso.';
+	@override String recurringNextDue({required Object date}) => 'Próxima: ${date}';
+	@override String recurringLastRun({required Object date}) => 'Última ejecución: ${date}';
+	@override String get recurringNeverRun => 'Aún no ejecutada';
+	@override String recurringAutoCreated({required Object count}) => '${count} transacción(es) creada(s) automáticamente';
+	@override String get recurringNoAuto => 'Auto-creación al día';
 }
 
 // Path: v2.settings
@@ -1624,6 +1631,7 @@ class _AppStringsV2SettingsEs extends AppStringsV2SettingsEn {
 	@override String get title => 'Personalizar';
 	@override String get categories => 'Categorías';
 	@override String get wallets => 'Billeteras';
+	@override String get recurringTransactions => 'Transacciones Recurrentes';
 	@override String get language => 'Idioma';
 	@override String get currency => 'Divisa';
 	@override String get contact => 'Contacto';
@@ -3271,9 +3279,17 @@ extension on AppStringsEs {
 			case 'v2.transactions.recurrenceYearly': return 'Anual';
 			case 'v2.transactions.recurrenceSheetTitle': return 'Frecuencia de repetición';
 			case 'v2.transactions.recurrenceSheetSubtitle': return '¿Cada cuánto se repite esta transacción?';
+			case 'v2.transactions.recurringScreenTitle': return 'Transacciones Recurrentes';
+			case 'v2.transactions.recurringScreenEmpty': return 'Aún no tienes transacciones recurrentes.\nCrea una eligiendo una frecuencia de repetición al registrar un gasto o ingreso.';
+			case 'v2.transactions.recurringNextDue': return ({required Object date}) => 'Próxima: ${date}';
+			case 'v2.transactions.recurringLastRun': return ({required Object date}) => 'Última ejecución: ${date}';
+			case 'v2.transactions.recurringNeverRun': return 'Aún no ejecutada';
+			case 'v2.transactions.recurringAutoCreated': return ({required Object count}) => '${count} transacción(es) creada(s) automáticamente';
+			case 'v2.transactions.recurringNoAuto': return 'Auto-creación al día';
 			case 'v2.settings.title': return 'Personalizar';
 			case 'v2.settings.categories': return 'Categorías';
 			case 'v2.settings.wallets': return 'Billeteras';
+			case 'v2.settings.recurringTransactions': return 'Transacciones Recurrentes';
 			case 'v2.settings.language': return 'Idioma';
 			case 'v2.settings.currency': return 'Divisa';
 			case 'v2.settings.contact': return 'Contacto';
