@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
@@ -8,6 +9,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/constants/app_storage_keys.dart';
 
 import '../../core/l10n/generated/strings.g.dart';
 import '../../../core/services/paywall_service.dart';
@@ -57,9 +60,19 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   int? _selectedWalletId;
   List<int> _activeWalletsInDateRange = [];
 
+  int _balancePageIndex = 0;
+  bool _isAnimatingPage = false;
+  bool _rotateLeft = true;
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
+    _loadBalanceViewPreference();
     _showPaywallIfNeeded();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateActiveWalletsInDateRange();
@@ -72,6 +85,21 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
         }
       });
     });
+  }
+
+  Future<void> _loadBalanceViewPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedIndex = prefs.getInt(AppStorageKeys.selectedBalanceView) ?? 0;
+    if (savedIndex != _balancePageIndex && mounted) {
+      setState(() {
+        _balancePageIndex = savedIndex;
+      });
+    }
+  }
+
+  Future<void> _saveBalanceViewPreference(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(AppStorageKeys.selectedBalanceView, index);
   }
 
   void _updateActiveWalletsInDateRange() async {
@@ -346,6 +374,191 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     );
   }
 
+  void _onBalancePageChanged(int index) {
+    if (_balancePageIndex != index) {
+      if (!_isAnimatingPage) {
+        HapticFeedback.lightImpact();
+      }
+      setState(() {
+        _balancePageIndex = index;
+      });
+      _saveBalanceViewPreference(index);
+    }
+  }
+
+  void _toggleBalanceView({bool? rotateLeft}) {
+    if (_isAnimatingPage) return;
+    HapticFeedback.lightImpact();
+    setState(() {
+      _isAnimatingPage = true;
+      final nextIndex = _balancePageIndex == 0 ? 1 : 0;
+      _rotateLeft = rotateLeft ?? (nextIndex > _balancePageIndex);
+      _balancePageIndex = nextIndex;
+    });
+    _saveBalanceViewPreference(_balancePageIndex);
+    Future.delayed(const Duration(milliseconds: 450), () {
+      if (mounted) {
+        _isAnimatingPage = false;
+      }
+    });
+  }
+
+  String _getBalanceTitle(int pageIndex) {
+    if (pageIndex == 0) {
+      return t.v2.dashboard.totalBalance;
+    } else {
+      switch (LocaleSettings.currentLocale) {
+        case AppLocale.es:
+          return 'BALANCE MENSUAL';
+        case AppLocale.fil:
+          return 'BUWANANG SALDO';
+        case AppLocale.fr:
+          return 'LA THUNE DU MOIS';
+        case AppLocale.id:
+          return 'SALDO BULANAN';
+        case AppLocale.pt:
+          return 'SALDO DO MÊS';
+        case AppLocale.vi:
+          return 'SỐ DƯ THÁNG';
+        case AppLocale.en:
+          return 'MONTHLY BALANCE';
+      }
+    }
+  }
+
+  Widget _buildBalanceTitleRow(int pageIndex) {
+    final title = _getBalanceTitle(pageIndex);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: () => _toggleBalanceView(rotateLeft: false),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              child: AnimatedOpacity(
+                opacity: pageIndex == 1 ? 0.9 : 0.5,
+                duration: const Duration(milliseconds: 200),
+                child: const Icon(
+                  Icons.chevron_left,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => _toggleBalanceView(),
+            behavior: HitTestBehavior.opaque,
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                letterSpacing: 2.0,
+                fontFamily: 'Manrope',
+                shadows: [
+                  Shadow(
+                    color: Colors.black45,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => _toggleBalanceView(rotateLeft: true),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              child: AnimatedOpacity(
+                opacity: pageIndex == 0 ? 0.9 : 0.5,
+                duration: const Duration(milliseconds: 200),
+                child: const Icon(
+                  Icons.chevron_right,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _build3DFlipTransition(Widget child, Animation<double> animation) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        final isIncoming = (child!.key == ValueKey(_balancePageIndex));
+        double rotateAngle;
+        if (isIncoming) {
+          if (animation.value < 0.5) {
+            return const SizedBox.shrink();
+          } else {
+            final t = (animation.value - 0.5) * 2.0;
+            final maxAngle = _rotateLeft ? -math.pi / 2 : math.pi / 2;
+            rotateAngle = maxAngle * (1.0 - t);
+          }
+        } else {
+          if (animation.value < 0.5) {
+            return const SizedBox.shrink();
+          } else {
+            final t = (animation.value - 0.5) * 2.0;
+            final maxAngle = _rotateLeft ? math.pi / 2 : -math.pi / 2;
+            rotateAngle = maxAngle * (1.0 - t);
+          }
+        }
+
+        final transform = Matrix4.identity()
+          ..setEntry(3, 2, 0.001)
+          ..rotateY(rotateAngle);
+
+        return Transform(
+          transform: transform,
+          alignment: Alignment.center,
+          child: child,
+        );
+      },
+      child: child,
+    );
+  }
+
+  Widget _buildBalancePage(int pageIndex, double balance, String? currencyId) {
+    return Column(
+      key: ValueKey<int>(pageIndex),
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildBalanceTitleRow(pageIndex),
+        const SizedBox(height: 6),
+        Text(
+          NumberFormatter.formatCurrencyWithDecimals(balance, currencyId: currencyId),
+          style: const TextStyle(
+            fontSize: 44,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+            letterSpacing: -1.0,
+            fontFamily: 'Manrope',
+            height: 1.1,
+            shadows: [
+              Shadow(
+                color: Colors.black45,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildHeaderWithBackground(
     BuildContext context,
     double totalBalance,
@@ -356,6 +569,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     TransactionProvider transactionProvider,
     CurrencyFilterProvider currencyFilter,
   ) {
+    final double monthlyBalance = income - expenses;
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -442,41 +656,38 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Total Balance Text
-                Text(
-                  t.v2.dashboard.totalBalance,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: 2.0,
-                    fontFamily: 'Manrope',
-                    shadows: [
-                      Shadow(
-                        color: Colors.black45,
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  NumberFormatter.formatCurrencyWithDecimals(totalBalance, currencyId: currencyFilter.selectedCurrencyId),
-                  style: const TextStyle(
-                    fontSize: 44,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    letterSpacing: -1.0,
-                    fontFamily: 'Manrope',
-                    height: 1.1,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black45,
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
+                // 3D Flip Balance Section (Total vs Monthly)
+                GestureDetector(
+                  onHorizontalDragEnd: (details) {
+                    if (details.primaryVelocity != null) {
+                      if (details.primaryVelocity! < -100) {
+                        _toggleBalanceView(rotateLeft: true);
+                      } else if (details.primaryVelocity! > 100) {
+                        _toggleBalanceView(rotateLeft: false);
+                      }
+                    }
+                  },
+                  onTap: () => _toggleBalanceView(),
+                  behavior: HitTestBehavior.opaque,
+                  child: SizedBox(
+                    height: 90,
+                    width: double.infinity,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 450),
+                      transitionBuilder: _build3DFlipTransition,
+                      layoutBuilder: (currentChild, previousChildren) {
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: <Widget>[
+                            ...previousChildren,
+                            if (currentChild != null) currentChild,
+                          ],
+                        );
+                      },
+                      child: _balancePageIndex == 0
+                          ? _buildBalancePage(0, totalBalance, currencyFilter.selectedCurrencyId)
+                          : _buildBalancePage(1, monthlyBalance, currencyFilter.selectedCurrencyId),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),

@@ -33,16 +33,21 @@ class WalletDao extends DatabaseAccessor<AppDatabase> with _$WalletDaoMixin {
       }
 
       // 2. Check if there are any journal details referencing this chart account.
-      final query = select(db.journalDetail, distinct: true)
+      final journalQuery = select(db.journalDetail, distinct: true)
         ..where((jd) => jd.chartAccountId.equals(walletToDelete.chartAccountId));
-      final hasTransactions = await query.getSingleOrNull();
+      final hasJournalTransactions = await journalQuery.getSingleOrNull();
 
-      // 3. If transactions exist, throw an exception to prevent deletion.
-      if (hasTransactions != null) {
+      // 3. Check if there are any modern transaction details referencing this wallet.
+      final txQuery = select(db.transactionDetail, distinct: true)
+        ..where((td) => td.paymentId.equals(walletId));
+      final hasTxTransactions = await txQuery.getSingleOrNull();
+
+      // 4. If transactions exist in either table, throw an exception to prevent deletion.
+      if (hasJournalTransactions != null || hasTxTransactions != null) {
         throw Exception('Cannot delete wallet: It has associated transactions.');
       }
 
-      // 4. If no transactions, proceed with deletion.
+      // 5. If no transactions, proceed with deletion.
       await (delete(wallet)..where((w) => w.id.equals(walletId))).go();
     });
   }

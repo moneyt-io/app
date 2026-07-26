@@ -27,6 +27,7 @@ class AppStorageKeys {
   // 🎨 User Preferences (existentes)
   static const String themeMode = 'theme_mode';
   static const String selectedLanguage = 'selected_language';
+  static const String selectedBalanceView = 'selected_balance_view';
   
   // 🔄 Backup (existentes)
   static const String backupEnabled = 'backup_enabled';
@@ -67,5 +68,6 @@ class AppStorageKeys {
     authSkipped,
     themeMode,
     selectedLanguage,
+    selectedBalanceView,
   ];
 }

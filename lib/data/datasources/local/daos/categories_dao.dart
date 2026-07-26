@@ -29,6 +29,20 @@ class CategoriesDao extends DatabaseAccessor<AppDatabase> with _$CategoriesDaoMi
   Future<bool> updateCategory(CategoriesCompanion category) =>
       update(this.category).replace(category);
 
-  Future<int> deleteCategory(int id) =>
-      (delete(category)..where((t) => t.id.equals(id))).go();
+  Future<int> deleteCategory(int id) async {
+    return db.transaction(() async {
+      // 1. Check if any transaction detail references this category.
+      final query = select(db.transactionDetail, distinct: true)
+        ..where((td) => td.categoryId.equals(id));
+      final hasTransactions = await query.getSingleOrNull();
+
+      // 2. If transactions exist, throw an exception to prevent deletion.
+      if (hasTransactions != null) {
+        throw Exception('Cannot delete category: It has associated transactions.');
+      }
+
+      // 3. Proceed with deletion.
+      return await (delete(category)..where((t) => t.id.equals(id))).go();
+    });
+  }
 }

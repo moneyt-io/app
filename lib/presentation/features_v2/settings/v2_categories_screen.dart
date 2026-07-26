@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
 import '../../../domain/entities/category.dart';
 import '../../../domain/usecases/category_usecases.dart';
@@ -7,6 +8,7 @@ import '../../../core/utils/icon_to_emoji_mapper.dart';
 import '../categories/widgets/v2_category_form_bottom_sheet.dart';
 import '../../core/l10n/generated/strings.g.dart';
 import '../theme/v2_colors.dart';
+import '../../features/transactions/transaction_provider.dart';
 
 class V2CategoriesScreen extends StatefulWidget {
   const V2CategoriesScreen({super.key});
@@ -51,7 +53,59 @@ class _V2CategoriesScreenState extends State<V2CategoriesScreen> {
     }
   }
 
+  String _getDeleteCategoryHasTransactionsMessage() {
+    switch (LocaleSettings.currentLocale) {
+      case AppLocale.es:
+        return 'No es posible eliminar esta categoría porque tiene transacciones registradas.';
+      case AppLocale.fil:
+        return 'Hindi maaaring tanggalin ang kategoryang ito dahil mayroon itong mga transaksyon.';
+      case AppLocale.fr:
+        return 'Impossible de supprimer cette catégorie car elle contient des transactions existantes.';
+      case AppLocale.id:
+        return 'Tidak dapat menghapus kategori ini karena memiliki transaksi yang ada.';
+      case AppLocale.pt:
+        return 'Não é possível excluir esta categoria porque ela possui transações existentes.';
+      case AppLocale.vi:
+        return 'Không thể xóa danh mục này vì nó có các giao dịch hiện có.';
+      case AppLocale.en:
+        return 'Cannot delete this category because it has existing transactions.';
+    }
+  }
+
   Future<void> _deleteCategory(Category category) async {
+    final txProvider = context.read<TransactionProvider>();
+    
+    // Check if category has transactions (standardized behavior with wallets)
+    final hasTransactions = txProvider.transactions.any((tx) {
+      final matchesHeader = tx.category?.id == category.id;
+      final matchesDetails = tx.details.any((d) => d.categoryId == category.id);
+      return matchesHeader || matchesDetails;
+    });
+
+    if (hasTransactions) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.info_outline, color: Colors.white, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  _getDeleteCategoryHasTransactionsMessage(),
+                  style: const TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: V2Colors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
+      return;
+    }
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
