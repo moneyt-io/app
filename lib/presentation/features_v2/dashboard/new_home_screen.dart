@@ -33,6 +33,7 @@ import 'widgets/dashboard2_activity_list.dart';
 import 'widgets/dashboard2_bottom_nav.dart';
 import 'widgets/v2_balance_card.dart';
 import 'widgets/v2_quick_actions.dart';
+import 'widgets/v2_wallet_filter_sheet.dart';
 import '../../../core/services/recurring_transaction_service.dart';
 import 'widgets/parallax_background.dart';
 import '../settings/new_settings_screen.dart';
@@ -167,6 +168,12 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
         provider.wallets.where((w) => w.id == _selectedWalletId).firstOrNull;
     if (wallet == null) return t.v2.dashboard.walletFilters.allWallets;
     // Para el dashboard, mostramos solo el nombre corto para que no se vea muy largo
+    if (wallet.name.contains(' - ')) {
+      final parts = wallet.name.split(' - ');
+      if (parts.length > 1 && parts.first.trim().isNotEmpty) {
+        return parts.sublist(1).join(' - ').trim();
+      }
+    }
     return wallet.name;
   }
 
@@ -755,81 +762,46 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                       child: _buildFilterChip(_getDateRangeLabel()),
                     ),
                     const SizedBox(width: 8),
-                    PopupMenuButton<int>(
-                      color: const Color(0xFFFAF8FF),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
-                      offset: const Offset(0, 40),
-                      onSelected: (value) {
-                        if (value == -1) {
-                          setState(() => _selectedWalletId = null);
-                          final globalCurrency = context.read<CurrencyProvider>().currencyId;
-                          currencyFilter.selectCurrency(globalCurrency);
-                        } else {
-                          setState(() => _selectedWalletId = value);
-                          
-                          // Sync global currency to match the selected wallet's currency
-                          final selectedWallet = walletProvider.wallets.where((w) => w.id == value).firstOrNull;
-                          if (selectedWallet != null) {
-                            currencyFilter.selectCurrency(selectedWallet.currencyId);
-                          }
-                        }
-                      },
-                      itemBuilder: (context) {
-                        final availableWallets =
-                            walletProvider.wallets.where((w) {
+                    GestureDetector(
+                      onTap: () async {
+                        final availableWallets = walletProvider.wallets.where((w) {
                           if (!w.active) return false;
-                          if (w.parentId == null) return false;
+                          
+                          // Si es una carpeta padre que agrupa otras billeteras, no se selecciona directamente
+                          final hasChildren = walletProvider.wallets.any((child) => child.parentId == w.id && child.active);
+                          if (w.parentId == null && hasChildren) return false;
                           
                           // Ignorar hijos de padres inactivos
-                          final parent = walletProvider.wallets.where((p) => p.id == w.parentId).firstOrNull;
-                          if (parent == null || !parent.active) return false;
+                          if (w.parentId != null) {
+                            final parent = walletProvider.wallets.where((p) => p.id == w.parentId).firstOrNull;
+                            if (parent == null || !parent.active) return false;
+                          }
 
-                          final balance =
-                              walletProvider.walletBalances[w.id] ?? 0.0;
+                          final balance = walletProvider.walletBalances[w.id] ?? 0.0;
                           if (balance <= 0 && !_activeWalletsInDateRange.contains(w.id)) return false;
                           return true;
                         }).toList();
 
-                        // Contar SOLO los nombres únicos de los padres de las billeteras que realmente se van a mostrar
-                        final activeParentNames = availableWallets.map((w) {
-                          final parent = walletProvider.wallets.where((p) => p.id == w.parentId).firstOrNull;
-                          return parent?.name ?? '';
-                        }).where((name) => name.isNotEmpty).toSet();
-                        final parentWalletsCount = activeParentNames.length;
+                        final value = await V2WalletFilterSheet.show(
+                          context,
+                          wallets: availableWallets,
+                          allWallets: walletProvider.wallets,
+                          currentWalletId: _selectedWalletId,
+                        );
 
-                        final items = <PopupMenuEntry<int>>[
-                          PopupMenuItem(
-                            value: -1,
-                            child: Text(t.v2.dashboard.walletFilters.all,
-                                style: const TextStyle(
-                                    fontFamily: 'Manrope',
-                                    fontWeight: FontWeight.w500)),
-                          ),
-                        ];
-
-                        for (final w in availableWallets) {
-                          final parent = walletProvider.wallets
-                              .where((p) => p.id == w.parentId)
-                              .firstOrNull;
-                              
-                          final currencySymbol = CurrencyProvider.availableCurrencies
-                              .firstWhere((c) => c.id == w.currencyId, orElse: () => CurrencyProvider.availableCurrencies.first)
-                              .symbol;
-                              
-                          final fullName = (parent != null && parentWalletsCount > 1)
-                              ? '${parent.name} - ${w.name} ($currencySymbol)'
-                              : '${w.name} ($currencySymbol)';
-                              
-                          items.add(PopupMenuItem(
-                            value: w.id,
-                            child: Text(fullName,
-                                style: const TextStyle(
-                                    fontFamily: 'Manrope',
-                                    fontWeight: FontWeight.w500)),
-                          ));
+                        if (value != null && context.mounted) {
+                          if (value == -1) {
+                            setState(() => _selectedWalletId = null);
+                            final globalCurrency = context.read<CurrencyProvider>().currencyId;
+                            currencyFilter.selectCurrency(globalCurrency);
+                          } else {
+                            setState(() => _selectedWalletId = value);
+                            final selectedWallet = walletProvider.wallets.where((w) => w.id == value).firstOrNull;
+                            if (selectedWallet != null) {
+                              currencyFilter.selectCurrency(selectedWallet.currencyId);
+                            }
+                          }
                         }
-                        return items;
                       },
                       child: _buildFilterChip(_getWalletLabel(walletProvider)),
                     ),
