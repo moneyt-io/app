@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../domain/entities/transaction_entry.dart';
+import '../../../../domain/entities/recurring_transaction.dart';
 import '../../../../domain/enums/recurrence_frequency.dart';
-import '../../features/transactions/transaction_provider.dart';
-import '../../features/wallets/wallet_provider.dart';
+import '../../../../domain/usecases/recurring_transaction_usecases.dart';
 import '../../core/l10n/generated/strings.g.dart';
 import '../theme/v2_colors.dart';
 import '../../../core/utils/number_formatter.dart';
-import 'new_transaction_screen.dart';
+import '../../../core/utils/icon_to_emoji_mapper.dart';
+import 'widgets/recurring_transaction_edit_sheet.dart';
 
-/// Full-screen management view for all recurring transactions.
+/// Full-screen management view for all recurring transaction rules.
+/// Completely decoupled from historical transaction entries to preserve financial integrity.
 class RecurringTransactionsScreen extends StatefulWidget {
   const RecurringTransactionsScreen({super.key});
 
@@ -24,14 +25,15 @@ class RecurringTransactionsScreen extends StatefulWidget {
 
 class _RecurringTransactionsScreenState
     extends State<RecurringTransactionsScreen> {
+  final _useCases = GetIt.instance<RecurringTransactionUseCases>();
 
   // ------------------------------------------------------------------ helpers
 
-  Map<RecurrenceFrequency, List<TransactionEntry>> _group(
-      List<TransactionEntry> txs) {
-    final map = <RecurrenceFrequency, List<TransactionEntry>>{};
+  Map<RecurrenceFrequency, List<RecurringTransaction>> _group(
+      List<RecurringTransaction> rules) {
+    final map = <RecurrenceFrequency, List<RecurringTransaction>>{};
     for (final freq in RecurrenceFrequency.values) {
-      final filtered = txs.where((t) => t.recurringFrequency == freq).toList();
+      final filtered = rules.where((t) => t.recurrenceFrequency == freq).toList();
       if (filtered.isNotEmpty) map[freq] = filtered;
     }
     return map;
@@ -49,17 +51,6 @@ class _RecurringTransactionsScreenState
     };
   }
 
-  DateTime _nextDue(DateTime last, RecurrenceFrequency freq) {
-    return switch (freq) {
-      RecurrenceFrequency.daily     => last.add(const Duration(days: 1)),
-      RecurrenceFrequency.weekly    => last.add(const Duration(days: 7)),
-      RecurrenceFrequency.monthly   => DateTime(last.year, last.month + 1, last.day),
-      RecurrenceFrequency.bimonthly => DateTime(last.year, last.month + 2, last.day),
-      RecurrenceFrequency.quarterly => DateTime(last.year, last.month + 3, last.day),
-      RecurrenceFrequency.yearly    => DateTime(last.year + 1, last.month, last.day),
-    };
-  }
-
   Color _freqColor(RecurrenceFrequency freq) {
     return switch (freq) {
       RecurrenceFrequency.daily     => const Color(0xFF6750A4),
@@ -71,53 +62,43 @@ class _RecurringTransactionsScreenState
     };
   }
 
-  void _navigateToEdit(TransactionEntry tx) {
-    Navigator.push(
+  void _openEditSheet(RecurringTransaction rule) {
+    RecurringTransactionEditSheet.show(
       context,
-      CupertinoPageRoute(
-        builder: (_) => NewTransactionScreen(
-          transactionIdToEdit: tx.id,
-          initialType: tx.documentTypeId,
-          initialAmount: tx.amount.abs(),
-          initialDescription: tx.description,
-          initialCategoryId: tx.mainCategoryId,
-          initialWalletId: tx.details.isNotEmpty
-              ? (tx.details.first.paymentTypeId == 'C'
-                  ? -tx.details.first.paymentId
-                  : tx.details.first.paymentId)
-              : null,
-          initialDate: tx.date,
-          initialRecurrenceFrequency: tx.recurrenceFrequency,
-          autoOpenKeyboard: false,
-        ),
-      ),
+      rule: rule,
+      onUpdated: () => setState(() {}),
     );
   }
 
-  Future<void> _confirmDelete(
-      BuildContext ctx, TransactionEntry tx, TransactionProvider tp) async {
+  Future<void> _confirmDelete(RecurringTransaction rule) async {
+    final t = context.t;
     final confirmed = await showCupertinoDialog<bool>(
-      context: ctx,
+      context: context,
       builder: (_) => CupertinoAlertDialog(
-        title: const Text('Eliminar transacción recurrente'),
-        content: const Text(
-            'Se eliminará permanentemente. Esta acción no se puede deshacer.'),
+        title: Text(t.v2.transactions.deleteRecurringTitle),
+        content: Text(t.v2.transactions.deleteRecurringContent),
         actions: [
           CupertinoDialogAction(
             isDestructiveAction: true,
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Eliminar'),
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(t.v2.transactions.delete),
           ),
           CupertinoDialogAction(
             isDefaultAction: true,
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(t.v2.transactions.cancel),
           ),
         ],
       ),
     );
-    if (confirmed == true && ctx.mounted) {
-      await tp.deleteTransaction(tx.id);
+    if (confirmed == true && mounted) {
+      await _useCases.deleteRecurringTransaction(rule.id);
+      setState(() {});
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.v2.transactions.recurringRuleDeleted)),
+        );
+      }
     }
   }
 
@@ -132,24 +113,33 @@ class _RecurringTransactionsScreenState
         backgroundColor: const Color(0xFFF6F7FA),
         body: SafeArea(
           bottom: false,
-          child: Consumer2<TransactionProvider, WalletProvider>(
-            builder: (ctx, txProvider, walletProvider, _) {
-              final all = txProvider.transactions
-                  .where((tx) => tx.isRecurring)
-                  .toList()
-                ..sort((a, b) => b.date.compareTo(a.date));
+          child: Column(
+            children: [
+              _buildAppBar(t),
+              Expanded(
+                child: StreamBuilder<List<RecurringTransaction>>(
+                  stream: _useCases.watchAllRecurringTransactions(),
+                  builder: (ctx, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting &&
+                        !snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: V2Colors.primary,
+                        ),
+                      );
+                    }
 
-              return Column(
-                children: [
-                  _buildAppBar(t),
-                  Expanded(
-                    child: all.isEmpty
-                        ? _buildEmpty(t)
-                        : _buildList(ctx, all, txProvider, walletProvider, t),
-                  ),
-                ],
-              );
-            },
+                    final all = snapshot.data ?? [];
+
+                    if (all.isEmpty) {
+                      return _buildEmpty(t);
+                    }
+
+                    return _buildList(ctx, all, t);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -222,9 +212,7 @@ class _RecurringTransactionsScreenState
 
   Widget _buildList(
     BuildContext ctx,
-    List<TransactionEntry> all,
-    TransactionProvider txProvider,
-    WalletProvider walletProvider,
+    List<RecurringTransaction> all,
     AppStrings t,
   ) {
     final grouped = _group(all);
@@ -235,8 +223,8 @@ class _RecurringTransactionsScreenState
         for (final entry in grouped.entries) ...[
           _buildSectionHeader(entry.key, entry.value.length),
           const SizedBox(height: 8),
-          for (final tx in entry.value) ...[
-            _buildCard(ctx, tx, entry.key, txProvider, walletProvider, t),
+          for (final rule in entry.value) ...[
+            _buildCard(ctx, rule, entry.key, t),
             const SizedBox(height: 10),
           ],
           const SizedBox(height: 16),
@@ -291,31 +279,25 @@ class _RecurringTransactionsScreenState
 
   Widget _buildCard(
     BuildContext ctx,
-    TransactionEntry tx,
+    RecurringTransaction rule,
     RecurrenceFrequency freq,
-    TransactionProvider txProvider,
-    WalletProvider walletProvider,
     AppStrings t,
   ) {
-    final isIncome = tx.isIncome;
+    final isIncome = rule.isIncome;
     final amountColor =
         isIncome ? const Color(0xFF1B873F) : const Color(0xFFB3261E);
     final amountPrefix = isIncome ? '+' : '-';
-    final fmt = NumberFormatter.formatCurrency(tx.amount.abs(), currencyId: tx.currencyId);
+    final fmt = NumberFormatter.formatCurrency(rule.amount.abs(),
+        currencyId: rule.currencyId);
 
-    // Wallet name
-    String walletName = '';
-    if (tx.details.isNotEmpty && tx.details.first.paymentId != null) {
-      final wallet = walletProvider.wallets
-          .where((w) => w.id == tx.details.first.paymentId)
-          .firstOrNull;
-      walletName = wallet?.name ?? '';
-    }
+    final walletName = rule.wallet?.name ?? '';
+    final emoji = (rule.category != null && rule.category!.icon.isNotEmpty)
+        ? IconToEmojiMapper.getEmoji(rule.category!.icon)
+        : (isIncome ? '💰' : '🏷️');
 
-    final emoji = tx.category?.icon ?? (isIncome ? '💰' : '💸');
-
-    final nextDue = _nextDue(tx.date, freq);
-    final nextDueStr = DateFormat('d MMM yyyy', 'es').format(nextDue);
+    final nextDue = rule.nextExecutionDate;
+    final langCode = LocaleSettings.currentLocale.languageCode;
+    final nextDueStr = DateFormat('d MMM yyyy', langCode).format(nextDue);
     final isOverdue = nextDue.isBefore(DateTime.now());
     final freqColor = _freqColor(freq);
 
@@ -334,7 +316,7 @@ class _RecurringTransactionsScreenState
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _navigateToEdit(tx),
+          onTap: () => _openEditSheet(rule),
           borderRadius: BorderRadius.circular(18),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -359,18 +341,47 @@ class _RecurringTransactionsScreenState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            tx.description?.isNotEmpty == true
-                                ? tx.description!
-                                : (isIncome ? 'Ingreso' : 'Gasto'),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: V2Colors.onSurface,
-                              fontFamily: 'Manrope',
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  rule.description?.isNotEmpty == true
+                                      ? rule.description!
+                                      : (rule.category?.name ??
+                                          (isIncome
+                                              ? t.v2.transactions.recurringIncome
+                                              : t.v2.transactions.recurringExpense)),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: V2Colors.onSurface,
+                                    fontFamily: 'Manrope',
+                                  ),
+                                ),
+                              ),
+                              if (!rule.active) ...[
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    t.v2.transactions.pausedBadge,
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange,
+                                      fontFamily: 'Manrope',
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                           if (walletName.isNotEmpty) ...[
                             const SizedBox(height: 2),
@@ -466,14 +477,14 @@ class _RecurringTransactionsScreenState
                     _ActionBtn(
                       icon: Icons.edit_outlined,
                       color: V2Colors.primary,
-                      onTap: () => _navigateToEdit(tx),
+                      onTap: () => _openEditSheet(rule),
                     ),
                     const SizedBox(width: 6),
                     // Delete
                     _ActionBtn(
                       icon: Icons.delete_outline_rounded,
                       color: const Color(0xFFB3261E),
-                      onTap: () => _confirmDelete(ctx, tx, txProvider),
+                      onTap: () => _confirmDelete(rule),
                     ),
                   ],
                 ),

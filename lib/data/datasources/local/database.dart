@@ -15,9 +15,11 @@ import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 // Importar todas las tablas
 import 'daos/journal_dao.dart';
 import 'daos/transaction_dao.dart';
+import 'daos/recurring_transaction_dao.dart';
 import 'tables/categories_table.dart';
 import 'tables/transaction_entries_table.dart'; // AGREGADO
 import 'tables/transaction_details_table.dart'; // AGREGADO
+import 'tables/recurring_transactions_table.dart';
 import 'tables/contacts_table.dart';
 import 'tables/accounting_types_tables.dart';
 import 'tables/document_types_table.dart';
@@ -28,11 +30,9 @@ import 'tables/chart_accounts_table.dart';
 import 'tables/credit_cards_table.dart';
 import 'tables/journal_entries_table.dart'; // AGREGADO
 import 'tables/journal_details_table.dart'; // AGREGADO
-import 'tables/loan_entries_table.dart';
-import 'tables/loan_details_table.dart';
 import 'daos/loan_dao.dart';
-
-import 'seeds/reference_seeds.dart';
+import '../../../core/utils/recurring_date_helper.dart';
+import '../../../domain/enums/recurrence_frequency.dart';
 
 part 'database.g.dart';
 
@@ -97,11 +97,12 @@ LazyDatabase _openConnection() {
     Wallet,
     CreditCard,
     
-    // Tablas transaccionales
+    // Tablas transaccionales y programadas
     JournalEntry,
     JournalDetail,
     TransactionEntry,
     TransactionDetail,
+    RecurringTransactions,
     LoanEntry, // ← AGREGADO
     LoanDetail, // ← AGREGADO
     SharedExpenseEntry,
@@ -111,13 +112,15 @@ LazyDatabase _openConnection() {
     LoanDao, // ← AGREGADO
     TransactionDao, // AGREGADO
     JournalDao, // AGREGADO
+    RecurringTransactionDao,
   ]
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
+  AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 5; // v5: lastExecutedAt for recurring auto-creation
+  int get schemaVersion => 6; // v6: Dedicated recurring_transactions table + recurringTransactionId link
 
   Future<String> _getDbPath() async {
     final dbFolder = await getApplicationDocumentsDirectory();
@@ -160,6 +163,65 @@ class AppDatabase extends _$AppDatabase {
       if (from < 5) {
         // Agregar columna lastExecutedAt para el motor de auto-creacion de recurrentes
         await m.addColumn(transactionEntry, transactionEntry.lastExecutedAt);
+      }
+      if (from < 6) {
+        // 1. Crear la nueva tabla de transacciones recurrentes
+        await m.createTable(recurringTransactions);
+
+        // 2. Agregar columna recurringTransactionId a transaction_entries
+        await m.addColumn(transactionEntry, transactionEntry.recurringTransactionId);
+
+        // 3. Migrar reglas recurrentes existentes en bases de datos de clientes
+        try {
+          final oldRecurringEntries = await (select(transactionEntry)
+                ..where((t) => t.recurrenceFrequency.isNotNull() & t.active.equals(true)))
+              .get();
+
+          for (final oldEntry in oldRecurringEntries) {
+            final details = await (select(transactionDetail)
+                  ..where((d) => d.transactionId.equals(oldEntry.id)))
+                .get();
+            final mainDetail = details.isNotEmpty ? details.first : null;
+
+            if (mainDetail != null && oldEntry.recurrenceFrequency != null) {
+              final freq = RecurrenceFrequency.fromKey(oldEntry.recurrenceFrequency);
+              final nextDue = freq != null
+                  ? RecurringDateHelper.calculateNextDueDate(
+                      oldEntry.lastExecutedAt ?? oldEntry.date, freq)
+                  : oldEntry.date;
+
+              final newRuleId = await into(recurringTransactions).insert(
+                RecurringTransactionDataCompanion(
+                  documentTypeId: Value(oldEntry.documentTypeId),
+                  currencyId: Value(oldEntry.currencyId),
+                  paymentId: Value(mainDetail.paymentId ?? 0),
+                  paymentTypeId: Value(mainDetail.paymentTypeId ?? 'W'),
+                  categoryId: Value(mainDetail.categoryId ?? 0),
+                  contactId: Value(oldEntry.contactId),
+                  amount: Value(oldEntry.amount.abs()),
+                  rateExchange: Value(oldEntry.rateExchange),
+                  description: Value(oldEntry.description),
+                  frequency: Value(oldEntry.recurrenceFrequency!),
+                  startDate: Value(oldEntry.date),
+                  lastExecutedAt: Value(oldEntry.lastExecutedAt ?? oldEntry.date),
+                  nextExecutionDate: Value(nextDue),
+                  active: Value(oldEntry.active),
+                  createdAt: Value(oldEntry.createdAt),
+                  updatedAt: Value(oldEntry.updatedAt),
+                ),
+              );
+
+              // Asignar el nuevo ID de regla a la transacción histórica original
+              await (update(transactionEntry)..where((t) => t.id.equals(oldEntry.id))).write(
+                TransactionEntriesCompanion(
+                  recurringTransactionId: Value(newRuleId),
+                ),
+              );
+            }
+          }
+        } catch (e) {
+          print('⚠️ Warning during recurring transactions migration to v6: $e');
+        }
       }
     },
   );

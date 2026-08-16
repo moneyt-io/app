@@ -1567,7 +1567,7 @@ class _AppStringsV2TransactionsId extends AppStringsV2TransactionsEn {
 	final AppStringsId _root; // ignore: unused_field
 
 	// Translations
-	@override String get invalidAmount => 'Angka yang bener dong masukinnya.';
+	@override String get invalidAmount => 'Harap masukkan jumlah yang valid';
 	@override String get selectAccount => 'Ini keluar dari dompet mana?';
 	@override String get selectCategory => 'Kategori apaan nih?';
 	@override String errorCreatingCategory({required Object error}) => 'Gagal bikin kategori baru: ${error}';
@@ -1576,7 +1576,7 @@ class _AppStringsV2TransactionsId extends AppStringsV2TransactionsEn {
 	@override String get expense => 'Pengeluaran';
 	@override String get income => 'Pemasukan';
 	@override String get deleteTransaction => 'Beneran mau hapus catatan ini?';
-	@override String get cancel => 'Gak jadi';
+	@override String get cancel => 'Batal';
 	@override String get delete => 'Hapus';
 	@override String get yesterday => 'Kemarin';
 	@override String get usedCategories => 'SERING DIPAKAI';
@@ -1601,6 +1601,40 @@ class _AppStringsV2TransactionsId extends AppStringsV2TransactionsEn {
 	@override String get save => 'Simpan';
 	@override String get transactionUpdated => 'Sip, udah diupdate.';
 	@override String get transactionSaved => 'Oke, udah kesimpen.';
+	@override String get recurrence => 'Ulangi';
+	@override String get recurrenceNone => 'Tidak berulang';
+	@override String get recurrenceFilter => 'Berulang';
+	@override String get recurrenceDaily => 'Harian';
+	@override String get recurrenceWeekly => 'Mingguan';
+	@override String get recurrenceMonthly => 'Bulanan';
+	@override String get recurrenceBimonthly => 'Dua bulanan';
+	@override String get recurrenceQuarterly => 'Tiga bulanan';
+	@override String get recurrenceYearly => 'Tahunan';
+	@override String get recurrenceSheetTitle => 'Frekuensi pengulangan';
+	@override String get recurrenceSheetSubtitle => 'Seberapa sering transaksi ini berulang?';
+	@override String get recurringScreenTitle => 'Transaksi Berulang';
+	@override String get recurringScreenEmpty => 'Belum ada transaksi berulang.\nBuat transaksi dengan memilih frekuensi saat menambahkan transaksi.';
+	@override String recurringNextDue({required Object date}) => 'Berikutnya: ${date}';
+	@override String recurringLastRun({required Object date}) => 'Terakhir: ${date}';
+	@override String get recurringNeverRun => 'Belum dieksekusi';
+	@override String recurringAutoCreated({required Object count}) => '${count} transaksi dibuat otomatis';
+	@override String get recurringNoAuto => 'Semua terbaru';
+	@override String get editRecurringRule => 'Edit Aturan Berulang';
+	@override String get recurringRuleUpdated => 'Aturan berulang diperbarui';
+	@override String get recurringRuleDeleted => 'Aturan berulang dihapus';
+	@override String get deleteRecurringTitle => 'Hapus aturan berulang';
+	@override String get deleteRecurringContent => 'Aturan terjadwal akan dihapus. Riwayat transaksi masa lalu Anda akan tetap utuh.';
+	@override String get recurringIncome => 'Pemasukan Berulang';
+	@override String get recurringExpense => 'Pengeluaran Berulang';
+	@override String get recurringStatus => 'Status aturan';
+	@override String get recurringActive => 'Aktif (dibuat otomatis)';
+	@override String get recurringPaused => 'Dijeda';
+	@override String get recurringStartDate => 'Tanggal Mulai';
+	@override String get recurringNextExecution => 'Eksekusi berikutnya';
+	@override String get recurringChangeDate => 'Ubah Tanggal';
+	@override String get recurringBadge => 'Berulang';
+	@override String get pausedBadge => 'Dijeda';
+	@override String get saveChanges => 'Simpan Perubahan';
 }
 
 // Path: v2.settings
@@ -3215,7 +3249,7 @@ extension on AppStringsId {
 			case 'v2.voice.aiError': return ({required Object error}) => 'AI lagi error: ${error}';
 			case 'v2.voice.cancel': return 'Batalin';
 			case 'v2.voice.scan': return 'Scan struk';
-			case 'v2.transactions.invalidAmount': return 'Angka yang bener dong masukinnya.';
+			case 'v2.transactions.invalidAmount': return 'Harap masukkan jumlah yang valid';
 			case 'v2.transactions.selectAccount': return 'Ini keluar dari dompet mana?';
 			case 'v2.transactions.selectCategory': return 'Kategori apaan nih?';
 			case 'v2.transactions.errorCreatingCategory': return ({required Object error}) => 'Gagal bikin kategori baru: ${error}';
@@ -3224,7 +3258,7 @@ extension on AppStringsId {
 			case 'v2.transactions.expense': return 'Pengeluaran';
 			case 'v2.transactions.income': return 'Pemasukan';
 			case 'v2.transactions.deleteTransaction': return 'Beneran mau hapus catatan ini?';
-			case 'v2.transactions.cancel': return 'Gak jadi';
+			case 'v2.transactions.cancel': return 'Batal';
 			case 'v2.transactions.delete': return 'Hapus';
 			case 'v2.transactions.yesterday': return 'Kemarin';
 			case 'v2.transactions.usedCategories': return 'SERING DIPAKAI';
@@ -3249,6 +3283,40 @@ extension on AppStringsId {
 			case 'v2.transactions.save': return 'Simpan';
 			case 'v2.transactions.transactionUpdated': return 'Sip, udah diupdate.';
 			case 'v2.transactions.transactionSaved': return 'Oke, udah kesimpen.';
+			case 'v2.transactions.recurrence': return 'Ulangi';
+			case 'v2.transactions.recurrenceNone': return 'Tidak berulang';
+			case 'v2.transactions.recurrenceFilter': return 'Berulang';
+			case 'v2.transactions.recurrenceDaily': return 'Harian';
+			case 'v2.transactions.recurrenceWeekly': return 'Mingguan';
+			case 'v2.transactions.recurrenceMonthly': return 'Bulanan';
+			case 'v2.transactions.recurrenceBimonthly': return 'Dua bulanan';
+			case 'v2.transactions.recurrenceQuarterly': return 'Tiga bulanan';
+			case 'v2.transactions.recurrenceYearly': return 'Tahunan';
+			case 'v2.transactions.recurrenceSheetTitle': return 'Frekuensi pengulangan';
+			case 'v2.transactions.recurrenceSheetSubtitle': return 'Seberapa sering transaksi ini berulang?';
+			case 'v2.transactions.recurringScreenTitle': return 'Transaksi Berulang';
+			case 'v2.transactions.recurringScreenEmpty': return 'Belum ada transaksi berulang.\nBuat transaksi dengan memilih frekuensi saat menambahkan transaksi.';
+			case 'v2.transactions.recurringNextDue': return ({required Object date}) => 'Berikutnya: ${date}';
+			case 'v2.transactions.recurringLastRun': return ({required Object date}) => 'Terakhir: ${date}';
+			case 'v2.transactions.recurringNeverRun': return 'Belum dieksekusi';
+			case 'v2.transactions.recurringAutoCreated': return ({required Object count}) => '${count} transaksi dibuat otomatis';
+			case 'v2.transactions.recurringNoAuto': return 'Semua terbaru';
+			case 'v2.transactions.editRecurringRule': return 'Edit Aturan Berulang';
+			case 'v2.transactions.recurringRuleUpdated': return 'Aturan berulang diperbarui';
+			case 'v2.transactions.recurringRuleDeleted': return 'Aturan berulang dihapus';
+			case 'v2.transactions.deleteRecurringTitle': return 'Hapus aturan berulang';
+			case 'v2.transactions.deleteRecurringContent': return 'Aturan terjadwal akan dihapus. Riwayat transaksi masa lalu Anda akan tetap utuh.';
+			case 'v2.transactions.recurringIncome': return 'Pemasukan Berulang';
+			case 'v2.transactions.recurringExpense': return 'Pengeluaran Berulang';
+			case 'v2.transactions.recurringStatus': return 'Status aturan';
+			case 'v2.transactions.recurringActive': return 'Aktif (dibuat otomatis)';
+			case 'v2.transactions.recurringPaused': return 'Dijeda';
+			case 'v2.transactions.recurringStartDate': return 'Tanggal Mulai';
+			case 'v2.transactions.recurringNextExecution': return 'Eksekusi berikutnya';
+			case 'v2.transactions.recurringChangeDate': return 'Ubah Tanggal';
+			case 'v2.transactions.recurringBadge': return 'Berulang';
+			case 'v2.transactions.pausedBadge': return 'Dijeda';
+			case 'v2.transactions.saveChanges': return 'Simpan Perubahan';
 			case 'v2.settings.title': return 'Atur-atur';
 			case 'v2.settings.categories': return 'Kategori Pengeluaran';
 			case 'v2.settings.wallets': return 'Akun & Dompet';

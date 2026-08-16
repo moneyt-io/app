@@ -36,6 +36,7 @@ abstract class TransactionRepository {
     required int categoryId,
     int? contactId,
     String? recurrenceFrequency,
+    int? recurringTransactionId,
     double rateExchange = 1.0,
   });
   
@@ -50,6 +51,7 @@ abstract class TransactionRepository {
     required int categoryId,
     int? contactId,
     String? recurrenceFrequency,
+    int? recurringTransactionId,
     double rateExchange = 1.0,
   });
   

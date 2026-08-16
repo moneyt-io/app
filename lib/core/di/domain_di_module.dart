@@ -16,6 +16,8 @@ import '../../domain/usecases/loan_usecases.dart';
 import '../../domain/usecases/shared_expense_usecases.dart';
 import '../../domain/services/balance_calculation_service.dart'; // AGREGADO: Import faltante
 import '../../domain/repositories/credit_card_repository.dart'; // AGREGADO: Import faltante
+import '../../domain/repositories/recurring_transaction_repository.dart';
+import '../../domain/usecases/recurring_transaction_usecases.dart';
 
 final getIt = GetIt.instance;
 
@@ -101,6 +103,10 @@ void registerDomainDependencies() {
       getIt(), // ChartAccountRepository
       getIt(), // TransactionRepository
     ),
+  );
+
+  getIt.registerLazySingleton<RecurringTransactionUseCases>(
+    () => RecurringTransactionUseCases(getIt<RecurringTransactionRepository>()),
   );
 
   getIt.registerLazySingleton<SharedExpenseUseCases>(

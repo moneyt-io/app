@@ -20,7 +20,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
     final details = await _transactionDao.getTransactionDetailsForEntry(entry.id);
     final transactionEntity = TransactionEntryModel.fromDatabase(entry).toEntity();
     
-    // CORREGIDO: No usar copyWith, crear nueva instancia con details
+    // CORREGIDO: Pasar lastExecutedAt y recurringTransactionId
     return TransactionEntry(
       id: transactionEntity.id,
       documentTypeId: transactionEntity.documentTypeId,
@@ -33,6 +33,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
       rateExchange: transactionEntity.rateExchange,
       description: transactionEntity.description,
       recurrenceFrequency: transactionEntity.recurrenceFrequency,
+      lastExecutedAt: transactionEntity.lastExecutedAt,
+      recurringTransactionId: transactionEntity.recurringTransactionId,
       active: transactionEntity.active,
       createdAt: transactionEntity.createdAt,
       updatedAt: transactionEntity.updatedAt,
@@ -285,6 +287,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
     required int journalId,
     int? contactId,
     String? recurrenceFrequency,
+    int? recurringTransactionId,
     double rateExchange = 1.0,
   }) async {
     final transaction = TransactionEntry(
@@ -299,6 +302,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       rateExchange: rateExchange,
       description: description,
       recurrenceFrequency: recurrenceFrequency,
+      recurringTransactionId: recurringTransactionId,
       active: true,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
@@ -334,6 +338,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
     required int paymentId,
     int? contactId,
     String? recurrenceFrequency,
+    int? recurringTransactionId,
     double rateExchange = 1.0,
   }) async {
     final transaction = TransactionEntry(
@@ -348,6 +353,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       rateExchange: rateExchange,
       description: description,
       recurrenceFrequency: recurrenceFrequency,
+      recurringTransactionId: recurringTransactionId,
       active: true,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),

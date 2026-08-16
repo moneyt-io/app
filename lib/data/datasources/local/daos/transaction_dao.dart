@@ -260,4 +260,27 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     final result = await query.get();
     return result.map((row) => row.read<int>('payment_id')).toList();
   }
+
+  /// Retorna todas las transacciones generadas por una regla recurrente específica
+  Future<List<TransactionEntries>> getTransactionsByRecurringId(int recurringId) =>
+      (select(transactionEntry)
+            ..where((t) => t.recurringTransactionId.equals(recurringId) & t.active.equals(true))
+            ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+          .get();
+
+  /// Comprueba si ya existe una transacción para una regla recurrente en la misma fecha (año-mes-día)
+  Future<bool> hasTransactionForRecurringAndDate(int recurringId, DateTime targetDate) async {
+    final startOfDay = DateTime(targetDate.year, targetDate.month, targetDate.day, 0, 0, 0);
+    final endOfDay = DateTime(targetDate.year, targetDate.month, targetDate.day, 23, 59, 59);
+
+    final existing = await (select(transactionEntry)
+          ..where((t) =>
+              t.recurringTransactionId.equals(recurringId) &
+              t.date.isBiggerOrEqual(Constant(startOfDay)) &
+              t.date.isSmallerOrEqual(Constant(endOfDay)) &
+              t.active.equals(true)))
+        .get();
+
+    return existing.isNotEmpty;
+  }
 }

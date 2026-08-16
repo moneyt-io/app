@@ -25,6 +25,10 @@ import '../../data/datasources/local/daos/loan_dao.dart';
 import '../../domain/repositories/loan_repository.dart';
 import '../../../data/repositories/loan_repository_impl.dart';
 
+import '../../data/datasources/local/daos/recurring_transaction_dao.dart';
+import '../../domain/repositories/recurring_transaction_repository.dart';
+import '../../data/repositories/recurring_transaction_repository_impl.dart';
+
 final getIt = GetIt.instance;
 
 void registerDataDependencies() {
@@ -38,6 +42,7 @@ void registerDataDependencies() {
   getIt.registerLazySingleton<WalletDao>(() => WalletDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<JournalDao>(() => JournalDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<TransactionDao>(() => TransactionDao(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<RecurringTransactionDao>(() => RecurringTransactionDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<CreditCardDao>(() => CreditCardDao(getIt<AppDatabase>()));
   getIt.registerLazySingleton<LoanDao>(() => LoanDao(getIt<AppDatabase>())); // CORREGIDO
 
@@ -62,6 +67,15 @@ void registerDataDependencies() {
   getIt.registerLazySingleton<TransactionRepository>(
     () => TransactionRepositoryImpl(getIt<TransactionDao>()),
   );
+
+  getIt.registerLazySingleton<RecurringTransactionRepository>(
+    () => RecurringTransactionRepositoryImpl(
+      getIt<RecurringTransactionDao>(),
+      getIt<CategoryRepository>(),
+      getIt<WalletRepository>(),
+      getIt<ContactRepository>(),
+    ),
+  );
   
   getIt.registerLazySingleton<CreditCardRepository>(
     () => CreditCardRepositoryImpl(getIt<CreditCardDao>()),
@@ -69,9 +83,4 @@ void registerDataDependencies() {
   getIt.registerLazySingleton<LoanRepository>(
     () => LoanRepositoryImpl(getIt<LoanDao>()),
   );
-  
-  // AGREGAR SharedExpenseRepository cuando se implemente
-  // getIt.registerLazySingleton<SharedExpenseRepository>(
-  //   () => SharedExpenseRepositoryImpl(getIt<SharedExpenseDao>()),
-  // );
 }

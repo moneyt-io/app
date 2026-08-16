@@ -19,6 +19,7 @@ class TransactionEntryModel {
   final String? description;
   final String? recurrenceFrequency;
   final DateTime? lastExecutedAt;
+  final int? recurringTransactionId;
   final bool active;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -37,6 +38,7 @@ class TransactionEntryModel {
     this.description,
     this.recurrenceFrequency,
     this.lastExecutedAt,
+    this.recurringTransactionId,
     required this.active,
     required this.createdAt,
     this.updatedAt,
@@ -56,6 +58,7 @@ class TransactionEntryModel {
     this.description,
     this.recurrenceFrequency,
     this.lastExecutedAt,
+    this.recurringTransactionId,
     bool? active,
   })  : id = 0,
         active = active ?? true,
@@ -78,6 +81,7 @@ class TransactionEntryModel {
       description: entry.description,
       recurrenceFrequency: entry.recurrenceFrequency,
       lastExecutedAt: entry.lastExecutedAt,
+      recurringTransactionId: entry.recurringTransactionId,
       active: entry.active,
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt,
@@ -100,6 +104,7 @@ class TransactionEntryModel {
       description: Value(description),
       recurrenceFrequency: Value(recurrenceFrequency),
       lastExecutedAt: Value(lastExecutedAt),
+      recurringTransactionId: Value(recurringTransactionId),
       active: Value(active),
       createdAt: Value(createdAt),
       updatedAt: updatedAt == null ? const Value.absent() : Value(updatedAt!),
@@ -125,6 +130,7 @@ class TransactionEntryModel {
     description: description,
     recurrenceFrequency: recurrenceFrequency,
     lastExecutedAt: lastExecutedAt,
+    recurringTransactionId: recurringTransactionId,
     active: active,
     createdAt: createdAt,
     updatedAt: updatedAt,
@@ -148,6 +154,7 @@ class TransactionEntryModel {
     description: entity.description,
     recurrenceFrequency: entity.recurrenceFrequency,
     lastExecutedAt: entity.lastExecutedAt,
+    recurringTransactionId: entity.recurringTransactionId,
     active: entity.active,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,

@@ -84,6 +84,7 @@ class TransactionProvider extends ChangeNotifier {
     required int categoryId,
     int? contactId,
     String? recurrenceFrequency,
+    int? recurringTransactionId,
   }) async {
     try {
       final newTransaction = await _transactionUseCases.createIncome(
@@ -95,6 +96,7 @@ class TransactionProvider extends ChangeNotifier {
         categoryId: categoryId,
         contactId: contactId,
         recurrenceFrequency: recurrenceFrequency,
+        recurringTransactionId: recurringTransactionId,
       );
       _transactions.insert(0, newTransaction); // Add to list
       notifyListeners(); // Notify UI
@@ -116,6 +118,7 @@ class TransactionProvider extends ChangeNotifier {
     required int categoryId,
     int? contactId,
     String? recurrenceFrequency,
+    int? recurringTransactionId,
   }) async {
     try {
       final newTransaction = await _transactionUseCases.createExpense(
@@ -128,6 +131,7 @@ class TransactionProvider extends ChangeNotifier {
         categoryId: categoryId,
         contactId: contactId,
         recurrenceFrequency: recurrenceFrequency,
+        recurringTransactionId: recurringTransactionId,
       );
       _transactions.insert(0, newTransaction); // Add to list
       notifyListeners(); // Notify UI

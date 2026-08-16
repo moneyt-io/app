@@ -1567,7 +1567,7 @@ class _AppStringsV2TransactionsVi extends AppStringsV2TransactionsEn {
 	final AppStringsVi _root; // ignore: unused_field
 
 	// Translations
-	@override String get invalidAmount => 'Ghi lộn số tiền rồi.';
+	@override String get invalidAmount => 'Vui lòng nhập số tiền hợp lệ';
 	@override String get selectAccount => 'Chi từ ví nào vậy?';
 	@override String get selectCategory => 'Mục nào đây?';
 	@override String errorCreatingCategory({required Object error}) => 'Tạo danh mục bị lỗi: ${error}';
@@ -1577,7 +1577,7 @@ class _AppStringsV2TransactionsVi extends AppStringsV2TransactionsEn {
 	@override String get income => 'Thu nhập';
 	@override String get deleteTransaction => 'Bỏ giao dịch này nha?';
 	@override String get cancel => 'Hủy';
-	@override String get delete => 'Bỏ';
+	@override String get delete => 'Xóa';
 	@override String get yesterday => 'Hôm qua';
 	@override String get usedCategories => 'HAY DÙNG';
 	@override String get noTransactions => 'Hôm nay chưa tiêu gì';
@@ -1601,6 +1601,40 @@ class _AppStringsV2TransactionsVi extends AppStringsV2TransactionsEn {
 	@override String get save => 'Lưu lại';
 	@override String get transactionUpdated => 'Chỉnh sửa thành công.';
 	@override String get transactionSaved => 'Ok, đã lưu.';
+	@override String get recurrence => 'Lặp lại';
+	@override String get recurrenceNone => 'Không lặp lại';
+	@override String get recurrenceFilter => 'Định kỳ';
+	@override String get recurrenceDaily => 'Hàng ngày';
+	@override String get recurrenceWeekly => 'Hàng tuần';
+	@override String get recurrenceMonthly => 'Hàng tháng';
+	@override String get recurrenceBimonthly => 'Hai tháng một lần';
+	@override String get recurrenceQuarterly => 'Hàng quý';
+	@override String get recurrenceYearly => 'Hàng năm';
+	@override String get recurrenceSheetTitle => 'Tần suất lặp lại';
+	@override String get recurrenceSheetSubtitle => 'Giao dịch này lặp lại bao lâu một lần?';
+	@override String get recurringScreenTitle => 'Giao dịch định kỳ';
+	@override String get recurringScreenEmpty => 'Chưa có giao dịch định kỳ nào.\nTạo giao dịch bằng cách chọn tần suất khi thêm giao dịch.';
+	@override String recurringNextDue({required Object date}) => 'Tiếp theo: ${date}';
+	@override String recurringLastRun({required Object date}) => 'Lần cuối: ${date}';
+	@override String get recurringNeverRun => 'Chưa thực hiện';
+	@override String recurringAutoCreated({required Object count}) => '${count} giao dịch tự động được tạo';
+	@override String get recurringNoAuto => 'Tất cả đã cập nhật';
+	@override String get editRecurringRule => 'Chỉnh sửa quy tắc định kỳ';
+	@override String get recurringRuleUpdated => 'Đã cập nhật quy tắc định kỳ';
+	@override String get recurringRuleDeleted => 'Đã xóa quy tắc định kỳ';
+	@override String get deleteRecurringTitle => 'Xóa quy tắc định kỳ';
+	@override String get deleteRecurringContent => 'Quy tắc đã lên lịch sẽ bị xóa. Các giao dịch trong quá khứ của bạn sẽ được giữ nguyên trong lịch sử.';
+	@override String get recurringIncome => 'Thu nhập định kỳ';
+	@override String get recurringExpense => 'Chi phí định kỳ';
+	@override String get recurringStatus => 'Trạng thái quy tắc';
+	@override String get recurringActive => 'Đang hoạt động (tự động tạo)';
+	@override String get recurringPaused => 'Tạm dừng';
+	@override String get recurringStartDate => 'Ngày bắt đầu';
+	@override String get recurringNextExecution => 'Lần thực hiện tiếp theo';
+	@override String get recurringChangeDate => 'Đổi ngày';
+	@override String get recurringBadge => 'Định kỳ';
+	@override String get pausedBadge => 'Tạm dừng';
+	@override String get saveChanges => 'Lưu thay đổi';
 }
 
 // Path: v2.settings
@@ -3215,7 +3249,7 @@ extension on AppStringsVi {
 			case 'v2.voice.aiError': return ({required Object error}) => 'Lỗi AI: ${error}';
 			case 'v2.voice.cancel': return 'Thôi';
 			case 'v2.voice.scan': return 'Quét';
-			case 'v2.transactions.invalidAmount': return 'Ghi lộn số tiền rồi.';
+			case 'v2.transactions.invalidAmount': return 'Vui lòng nhập số tiền hợp lệ';
 			case 'v2.transactions.selectAccount': return 'Chi từ ví nào vậy?';
 			case 'v2.transactions.selectCategory': return 'Mục nào đây?';
 			case 'v2.transactions.errorCreatingCategory': return ({required Object error}) => 'Tạo danh mục bị lỗi: ${error}';
@@ -3225,7 +3259,7 @@ extension on AppStringsVi {
 			case 'v2.transactions.income': return 'Thu nhập';
 			case 'v2.transactions.deleteTransaction': return 'Bỏ giao dịch này nha?';
 			case 'v2.transactions.cancel': return 'Hủy';
-			case 'v2.transactions.delete': return 'Bỏ';
+			case 'v2.transactions.delete': return 'Xóa';
 			case 'v2.transactions.yesterday': return 'Hôm qua';
 			case 'v2.transactions.usedCategories': return 'HAY DÙNG';
 			case 'v2.transactions.noTransactions': return 'Hôm nay chưa tiêu gì';
@@ -3249,6 +3283,40 @@ extension on AppStringsVi {
 			case 'v2.transactions.save': return 'Lưu lại';
 			case 'v2.transactions.transactionUpdated': return 'Chỉnh sửa thành công.';
 			case 'v2.transactions.transactionSaved': return 'Ok, đã lưu.';
+			case 'v2.transactions.recurrence': return 'Lặp lại';
+			case 'v2.transactions.recurrenceNone': return 'Không lặp lại';
+			case 'v2.transactions.recurrenceFilter': return 'Định kỳ';
+			case 'v2.transactions.recurrenceDaily': return 'Hàng ngày';
+			case 'v2.transactions.recurrenceWeekly': return 'Hàng tuần';
+			case 'v2.transactions.recurrenceMonthly': return 'Hàng tháng';
+			case 'v2.transactions.recurrenceBimonthly': return 'Hai tháng một lần';
+			case 'v2.transactions.recurrenceQuarterly': return 'Hàng quý';
+			case 'v2.transactions.recurrenceYearly': return 'Hàng năm';
+			case 'v2.transactions.recurrenceSheetTitle': return 'Tần suất lặp lại';
+			case 'v2.transactions.recurrenceSheetSubtitle': return 'Giao dịch này lặp lại bao lâu một lần?';
+			case 'v2.transactions.recurringScreenTitle': return 'Giao dịch định kỳ';
+			case 'v2.transactions.recurringScreenEmpty': return 'Chưa có giao dịch định kỳ nào.\nTạo giao dịch bằng cách chọn tần suất khi thêm giao dịch.';
+			case 'v2.transactions.recurringNextDue': return ({required Object date}) => 'Tiếp theo: ${date}';
+			case 'v2.transactions.recurringLastRun': return ({required Object date}) => 'Lần cuối: ${date}';
+			case 'v2.transactions.recurringNeverRun': return 'Chưa thực hiện';
+			case 'v2.transactions.recurringAutoCreated': return ({required Object count}) => '${count} giao dịch tự động được tạo';
+			case 'v2.transactions.recurringNoAuto': return 'Tất cả đã cập nhật';
+			case 'v2.transactions.editRecurringRule': return 'Chỉnh sửa quy tắc định kỳ';
+			case 'v2.transactions.recurringRuleUpdated': return 'Đã cập nhật quy tắc định kỳ';
+			case 'v2.transactions.recurringRuleDeleted': return 'Đã xóa quy tắc định kỳ';
+			case 'v2.transactions.deleteRecurringTitle': return 'Xóa quy tắc định kỳ';
+			case 'v2.transactions.deleteRecurringContent': return 'Quy tắc đã lên lịch sẽ bị xóa. Các giao dịch trong quá khứ của bạn sẽ được giữ nguyên trong lịch sử.';
+			case 'v2.transactions.recurringIncome': return 'Thu nhập định kỳ';
+			case 'v2.transactions.recurringExpense': return 'Chi phí định kỳ';
+			case 'v2.transactions.recurringStatus': return 'Trạng thái quy tắc';
+			case 'v2.transactions.recurringActive': return 'Đang hoạt động (tự động tạo)';
+			case 'v2.transactions.recurringPaused': return 'Tạm dừng';
+			case 'v2.transactions.recurringStartDate': return 'Ngày bắt đầu';
+			case 'v2.transactions.recurringNextExecution': return 'Lần thực hiện tiếp theo';
+			case 'v2.transactions.recurringChangeDate': return 'Đổi ngày';
+			case 'v2.transactions.recurringBadge': return 'Định kỳ';
+			case 'v2.transactions.pausedBadge': return 'Tạm dừng';
+			case 'v2.transactions.saveChanges': return 'Lưu thay đổi';
 			case 'v2.settings.title': return 'Cài đặt & Tùy chỉnh';
 			case 'v2.settings.categories': return 'Danh mục chi';
 			case 'v2.settings.wallets': return 'Các loại Ví';

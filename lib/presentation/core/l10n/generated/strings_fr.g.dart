@@ -1567,7 +1567,7 @@ class _AppStringsV2TransactionsFr extends AppStringsV2TransactionsEn {
 	final AppStringsFr _root; // ignore: unused_field
 
 	// Translations
-	@override String get invalidAmount => 'Mets un vrai montant.';
+	@override String get invalidAmount => 'Veuillez entrer un montant valide';
 	@override String get selectAccount => 'Choisis de quel compte ça sort.';
 	@override String get selectCategory => 'C\'est quelle catégorie ?';
 	@override String errorCreatingCategory({required Object error}) => 'Erreur catégorie: ${error}';
@@ -1577,7 +1577,7 @@ class _AppStringsV2TransactionsFr extends AppStringsV2TransactionsEn {
 	@override String get income => 'Entrée';
 	@override String get deleteTransaction => 'On efface ça ?';
 	@override String get cancel => 'Annuler';
-	@override String get delete => 'Virer';
+	@override String get delete => 'Supprimer';
 	@override String get yesterday => 'Hier';
 	@override String get usedCategories => 'TES HABITUDES';
 	@override String get noTransactions => 'Rien de noté';
@@ -1598,9 +1598,42 @@ class _AppStringsV2TransactionsFr extends AppStringsV2TransactionsEn {
 	@override String get editTransaction => 'Modifier le truc';
 	@override String get newTransaction => 'Nouveau Mouvement';
 	@override String get selectWallet => 'Choisis le compte';
-	@override String get save => 'Enregistrer';
 	@override String get transactionUpdated => 'C\'est mis à jour.';
 	@override String get transactionSaved => 'C\'est dans la boîte.';
+	@override String get recurrence => 'Répéter';
+	@override String get recurrenceNone => 'Ne pas répéter';
+	@override String get recurrenceFilter => 'Récurrents';
+	@override String get recurrenceDaily => 'Quotidien';
+	@override String get recurrenceWeekly => 'Hebdomadaire';
+	@override String get recurrenceMonthly => 'Mensuel';
+	@override String get recurrenceBimonthly => 'Bimestriel';
+	@override String get recurrenceQuarterly => 'Trimestriel';
+	@override String get recurrenceYearly => 'Annuel';
+	@override String get recurrenceSheetTitle => 'Fréquence de répétition';
+	@override String get recurrenceSheetSubtitle => 'À quelle fréquence ce mouvement se répète-t-il ?';
+	@override String get recurringScreenTitle => 'Transactions Récurrentes';
+	@override String get recurringScreenEmpty => 'Aucune transaction récurrente pour le moment.\nCréez-en une en définissant une fréquence lors de l\'ajout d\'une transaction.';
+	@override String recurringNextDue({required Object date}) => 'Prochaine : ${date}';
+	@override String recurringLastRun({required Object date}) => 'Dernière : ${date}';
+	@override String get recurringNeverRun => 'Pas encore exécuté';
+	@override String recurringAutoCreated({required Object count}) => '${count} transaction(s) créée(s) automatiquement';
+	@override String get recurringNoAuto => 'Tout est à jour';
+	@override String get editRecurringRule => 'Modifier la règle récurrente';
+	@override String get recurringRuleUpdated => 'Règle récurrente mise à jour';
+	@override String get recurringRuleDeleted => 'Règle récurrente supprimée';
+	@override String get deleteRecurringTitle => 'Supprimer la règle récurrente';
+	@override String get deleteRecurringContent => 'La règle programmée sera supprimée. Vos transactions passées enregistrées resteront intactes dans votre historique.';
+	@override String get recurringIncome => 'Revenu récurrent';
+	@override String get recurringExpense => 'Dépense récurrente';
+	@override String get recurringStatus => 'Statut de la règle';
+	@override String get recurringActive => 'Active (création automatique)';
+	@override String get recurringPaused => 'En pause';
+	@override String get recurringStartDate => 'Date de début';
+	@override String get recurringNextExecution => 'Prochaine exécution';
+	@override String get recurringChangeDate => 'Changer la date';
+	@override String get recurringBadge => 'Récurrent';
+	@override String get pausedBadge => 'En pause';
+	@override String get saveChanges => 'Enregistrer les modifications';
 }
 
 // Path: v2.settings
@@ -3215,7 +3248,7 @@ extension on AppStringsFr {
 			case 'v2.voice.aiError': return ({required Object error}) => 'Erreur IA: ${error}';
 			case 'v2.voice.cancel': return 'Laisse tomber';
 			case 'v2.voice.scan': return 'Scanner';
-			case 'v2.transactions.invalidAmount': return 'Mets un vrai montant.';
+			case 'v2.transactions.invalidAmount': return 'Veuillez entrer un montant valide';
 			case 'v2.transactions.selectAccount': return 'Choisis de quel compte ça sort.';
 			case 'v2.transactions.selectCategory': return 'C\'est quelle catégorie ?';
 			case 'v2.transactions.errorCreatingCategory': return ({required Object error}) => 'Erreur catégorie: ${error}';
@@ -3225,7 +3258,7 @@ extension on AppStringsFr {
 			case 'v2.transactions.income': return 'Entrée';
 			case 'v2.transactions.deleteTransaction': return 'On efface ça ?';
 			case 'v2.transactions.cancel': return 'Annuler';
-			case 'v2.transactions.delete': return 'Virer';
+			case 'v2.transactions.delete': return 'Supprimer';
 			case 'v2.transactions.yesterday': return 'Hier';
 			case 'v2.transactions.usedCategories': return 'TES HABITUDES';
 			case 'v2.transactions.noTransactions': return 'Rien de noté';
@@ -3246,9 +3279,42 @@ extension on AppStringsFr {
 			case 'v2.transactions.editTransaction': return 'Modifier le truc';
 			case 'v2.transactions.newTransaction': return 'Nouveau Mouvement';
 			case 'v2.transactions.selectWallet': return 'Choisis le compte';
-			case 'v2.transactions.save': return 'Enregistrer';
 			case 'v2.transactions.transactionUpdated': return 'C\'est mis à jour.';
 			case 'v2.transactions.transactionSaved': return 'C\'est dans la boîte.';
+			case 'v2.transactions.recurrence': return 'Répéter';
+			case 'v2.transactions.recurrenceNone': return 'Ne pas répéter';
+			case 'v2.transactions.recurrenceFilter': return 'Récurrents';
+			case 'v2.transactions.recurrenceDaily': return 'Quotidien';
+			case 'v2.transactions.recurrenceWeekly': return 'Hebdomadaire';
+			case 'v2.transactions.recurrenceMonthly': return 'Mensuel';
+			case 'v2.transactions.recurrenceBimonthly': return 'Bimestriel';
+			case 'v2.transactions.recurrenceQuarterly': return 'Trimestriel';
+			case 'v2.transactions.recurrenceYearly': return 'Annuel';
+			case 'v2.transactions.recurrenceSheetTitle': return 'Fréquence de répétition';
+			case 'v2.transactions.recurrenceSheetSubtitle': return 'À quelle fréquence ce mouvement se répète-t-il ?';
+			case 'v2.transactions.recurringScreenTitle': return 'Transactions Récurrentes';
+			case 'v2.transactions.recurringScreenEmpty': return 'Aucune transaction récurrente pour le moment.\nCréez-en une en définissant une fréquence lors de l\'ajout d\'une transaction.';
+			case 'v2.transactions.recurringNextDue': return ({required Object date}) => 'Prochaine : ${date}';
+			case 'v2.transactions.recurringLastRun': return ({required Object date}) => 'Dernière : ${date}';
+			case 'v2.transactions.recurringNeverRun': return 'Pas encore exécuté';
+			case 'v2.transactions.recurringAutoCreated': return ({required Object count}) => '${count} transaction(s) créée(s) automatiquement';
+			case 'v2.transactions.recurringNoAuto': return 'Tout est à jour';
+			case 'v2.transactions.editRecurringRule': return 'Modifier la règle récurrente';
+			case 'v2.transactions.recurringRuleUpdated': return 'Règle récurrente mise à jour';
+			case 'v2.transactions.recurringRuleDeleted': return 'Règle récurrente supprimée';
+			case 'v2.transactions.deleteRecurringTitle': return 'Supprimer la règle récurrente';
+			case 'v2.transactions.deleteRecurringContent': return 'La règle programmée sera supprimée. Vos transactions passées enregistrées resteront intactes dans votre historique.';
+			case 'v2.transactions.recurringIncome': return 'Revenu récurrent';
+			case 'v2.transactions.recurringExpense': return 'Dépense récurrente';
+			case 'v2.transactions.recurringStatus': return 'Statut de la règle';
+			case 'v2.transactions.recurringActive': return 'Active (création automatique)';
+			case 'v2.transactions.recurringPaused': return 'En pause';
+			case 'v2.transactions.recurringStartDate': return 'Date de début';
+			case 'v2.transactions.recurringNextExecution': return 'Prochaine exécution';
+			case 'v2.transactions.recurringChangeDate': return 'Changer la date';
+			case 'v2.transactions.recurringBadge': return 'Récurrent';
+			case 'v2.transactions.pausedBadge': return 'En pause';
+			case 'v2.transactions.saveChanges': return 'Enregistrer les modifications';
 			case 'v2.settings.title': return 'Personnaliser';
 			case 'v2.settings.categories': return 'Catégories';
 			case 'v2.settings.wallets': return 'Tes Comptes';

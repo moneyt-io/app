@@ -1,17 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import '../../domain/entities/transaction_entry.dart';
-import '../../domain/enums/recurrence_frequency.dart';
+import '../../domain/usecases/recurring_transaction_usecases.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../../data/datasources/local/daos/transaction_dao.dart';
-import '../../data/datasources/local/database.dart';
-import 'package:drift/drift.dart' show Value;
+import '../utils/recurring_date_helper.dart';
 
-/// Service that checks all recurring transactions on app startup and
-/// automatically creates new copies for any that have passed their due date.
+/// Robust and idempotent background service that checks active recurring transaction rules
+/// on app startup and automatically generates transaction instances for any due dates passed.
 ///
-/// Usage: call [runPendingRecurrences] once after the database is ready,
-/// typically from [DashboardWrapper.initState] or [main].
+/// Ensures:
+/// 1. Complete isolation: Rules live in `recurring_transactions`; historical transactions in `transaction_entries`.
+/// 2. Idempotency: Checks for already-created transactions for the same rule and date before inserting.
+/// 3. Month-end & calendar safety: Uses [RecurringDateHelper] to avoid date drifting and time-of-day bugs.
 class RecurringTransactionService {
   RecurringTransactionService._();
 
@@ -19,9 +19,8 @@ class RecurringTransactionService {
 
   bool _isRunning = false;
 
-  /// Runs the auto-creation check.
-  ///
-  /// Returns the number of new transactions that were created.
+  /// Runs the auto-creation check for all active recurring transaction rules.
+  /// Returns the total number of newly generated transactions.
   Future<int> runPendingRecurrences() async {
     if (_isRunning) return 0;
     _isRunning = true;
@@ -29,141 +28,108 @@ class RecurringTransactionService {
     int created = 0;
 
     try {
-      final useCases = GetIt.instance<TransactionUseCases>();
-      final db = GetIt.instance<AppDatabase>();
+      final recurringUseCases = GetIt.instance<RecurringTransactionUseCases>();
+      final transactionUseCases = GetIt.instance<TransactionUseCases>();
+      final transactionDao = GetIt.instance<TransactionDao>();
 
-      // Fetch all active recurring transactions
-      final all = await useCases.getAllTransactions();
-      final recurring =
-          all.where((tx) => tx.isRecurring && tx.active).toList();
-
+      // Fetch only active recurring rules
+      final activeRules = await recurringUseCases.getActiveRecurringTransactions();
       final now = DateTime.now();
 
-      for (final template in recurring) {
-        final freq = template.recurringFrequency;
-        if (freq == null) continue;
+      for (final rule in activeRules) {
+        // Reference date: lastExecutedAt if available, otherwise rule's startDate
+        final lastRef = rule.lastExecutedAt ?? rule.startDate;
 
-        // Determine the reference date: lastExecutedAt if set, otherwise
-        // the transaction's own creation date (date field).
-        final lastRef = template.lastExecutedAt ?? template.date;
+        // Compute all due dates between lastRef (exclusive) and now (inclusive)
+        final dueDates = RecurringDateHelper.computeDueDates(
+          lastRef,
+          rule.recurrenceFrequency,
+          now,
+        );
 
-        // Compute all missed due dates since lastRef up to now
-        final dueDates = _computeDueDates(lastRef, freq, now);
         if (dueDates.isEmpty) continue;
 
-        // Create a new transaction copy for each missed due date
+        DateTime? lastSuccessfullyCreatedDate;
+
         for (final dueDate in dueDates) {
+          // If the rule has an end date and this due date is after it, stop generating
+          if (rule.endDate != null && dueDate.isAfter(rule.endDate!)) {
+            break;
+          }
+
+          // 🛡️ IDEMPOTENCY CHECK: Ensure a transaction hasn't already been created for this rule & date
+          final alreadyExists = await transactionDao.hasTransactionForRecurringAndDate(rule.id, dueDate);
+          if (alreadyExists) {
+            debugPrint('[RecurringService] ⏩ Skipping rule #${rule.id} for $dueDate: already exists.');
+            lastSuccessfullyCreatedDate = dueDate;
+            continue;
+          }
+
           try {
-            if (template.isIncome) {
-              if (template.details.isEmpty) continue;
-              final detail = template.details.first;
-              await useCases.createIncome(
+            if (rule.isIncome) {
+              await transactionUseCases.createIncome(
                 date: dueDate,
-                description: template.description ?? '',
-                amount: template.amount.abs(),
-                currencyId: template.currencyId,
-                walletId: detail.paymentId ?? 0,
-                categoryId: detail.categoryId ?? 0,
-                contactId: template.contactId,
-                rateExchange: template.rateExchange,
-                // No recurrenceFrequency on auto-created copies — they are
-                // one-time instances. Only the template keeps the frequency.
-                recurrenceFrequency: null,
+                description: rule.description ?? '',
+                amount: rule.amount.abs(),
+                currencyId: rule.currencyId,
+                walletId: rule.paymentId,
+                categoryId: rule.categoryId,
+                contactId: rule.contactId,
+                rateExchange: rule.rateExchange,
+                recurringTransactionId: rule.id,
               );
-            } else if (template.isExpense) {
-              if (template.details.isEmpty) continue;
-              final detail = template.details.first;
-              await useCases.createExpense(
+            } else {
+              await transactionUseCases.createExpense(
                 date: dueDate,
-                description: template.description ?? '',
-                amount: template.amount.abs(),
-                currencyId: template.currencyId,
-                paymentId: detail.paymentId ?? 0,
-                paymentTypeId: detail.paymentTypeId ?? 'W',
-                categoryId: detail.categoryId ?? 0,
-                contactId: template.contactId,
-                rateExchange: template.rateExchange,
-                recurrenceFrequency: null,
+                description: rule.description ?? '',
+                amount: rule.amount.abs(),
+                currencyId: rule.currencyId,
+                paymentId: rule.paymentId,
+                paymentTypeId: rule.paymentTypeId,
+                categoryId: rule.categoryId,
+                contactId: rule.contactId,
+                rateExchange: rule.rateExchange,
+                recurringTransactionId: rule.id,
               );
             }
             created++;
+            lastSuccessfullyCreatedDate = dueDate;
           } catch (e) {
-            debugPrint(
-                '[RecurringService] Error creating copy for tx ${template.id}: $e');
+            debugPrint('[RecurringService] ❌ Error creating recurring copy for rule #${rule.id} at $dueDate: $e');
           }
         }
 
-        if (dueDates.isNotEmpty) {
-          // Update lastExecutedAt on the template to the last due date fired
-          await db.update(db.transactionEntry).replace(
-                TransactionEntriesCompanion(
-                  id: Value(template.id),
-                  documentTypeId: Value(template.documentTypeId),
-                  currencyId: Value(template.currencyId),
-                  journalId: Value(template.journalId),
-                  contactId: Value(template.contactId),
-                  secuencial: Value(template.secuencial),
-                  date: Value(template.date),
-                  amount: Value(template.amount),
-                  rateExchange: Value(template.rateExchange),
-                  description: Value(template.description),
-                  recurrenceFrequency: Value(template.recurrenceFrequency),
-                  lastExecutedAt: Value(dueDates.last),
-                  active: Value(template.active),
-                  createdAt: Value(template.createdAt),
-                  updatedAt: Value(DateTime.now()),
-                  deletedAt: Value(template.deletedAt),
-                ),
-              );
+        // Update lastExecutedAt and nextExecutionDate on the rule
+        if (lastSuccessfullyCreatedDate != null) {
+          final nextDue = RecurringDateHelper.calculateNextDueDate(
+            lastSuccessfullyCreatedDate,
+            rule.recurrenceFrequency,
+          );
+
+          await recurringUseCases.updateExecutionDates(
+            rule.id,
+            lastSuccessfullyCreatedDate,
+            nextDue,
+          );
+
+          // If next scheduled date is past endDate, deactivate rule automatically
+          if (rule.endDate != null && nextDue.isAfter(rule.endDate!)) {
+            await recurringUseCases.toggleActive(rule.id, false);
+          }
         }
       }
 
       if (created > 0) {
-        debugPrint(
-            '[RecurringService] ✅ Auto-created $created recurring transaction(s)');
+        debugPrint('[RecurringService] ✅ Auto-created $created recurring transaction(s).');
       } else {
-        debugPrint('[RecurringService] ✅ All recurring transactions are up to date');
+        debugPrint('[RecurringService] ✅ All recurring transactions are up to date.');
       }
     } catch (e) {
-      debugPrint('[RecurringService] ❌ Error: $e');
+      debugPrint('[RecurringService] ❌ Unexpected error during recurrence run: $e');
     } finally {
       _isRunning = false;
     }
 
     return created;
-  }
-
-  /// Returns all dates between [lastRef] (exclusive) and [now] (inclusive)
-  /// that are due based on [freq]. Limited to 365 iterations for safety.
-  List<DateTime> _computeDueDates(
-    DateTime lastRef,
-    RecurrenceFrequency freq,
-    DateTime now,
-  ) {
-    final dates = <DateTime>[];
-    DateTime cursor = lastRef;
-    int iterations = 0;
-
-    while (iterations < 365) {
-      final next = _advance(cursor, freq);
-      // Only add if the next due date is strictly in the past (not future)
-      if (next.isAfter(now)) break;
-      dates.add(next);
-      cursor = next;
-      iterations++;
-    }
-
-    return dates;
-  }
-
-  DateTime _advance(DateTime from, RecurrenceFrequency freq) {
-    return switch (freq) {
-      RecurrenceFrequency.daily     => from.add(const Duration(days: 1)),
-      RecurrenceFrequency.weekly    => from.add(const Duration(days: 7)),
-      RecurrenceFrequency.monthly   => DateTime(from.year, from.month + 1, from.day),
-      RecurrenceFrequency.bimonthly => DateTime(from.year, from.month + 2, from.day),
-      RecurrenceFrequency.quarterly => DateTime(from.year, from.month + 3, from.day),
-      RecurrenceFrequency.yearly    => DateTime(from.year + 1, from.month, from.day),
-    };
   }
 }

@@ -1567,7 +1567,7 @@ class _AppStringsV2TransactionsFil extends AppStringsV2TransactionsEn {
 	final AppStringsFil _root; // ignore: unused_field
 
 	// Translations
-	@override String get invalidAmount => 'Maling halaga. Paki-ayos.';
+	@override String get invalidAmount => 'Mangyaring maglagay ng wastong halaga';
 	@override String get selectAccount => 'Saan nanggaling ang pera?';
 	@override String get selectCategory => 'Anong klaseng gastos \'to?';
 	@override String errorCreatingCategory({required Object error}) => 'Error sa kategorya: ${error}';
@@ -1576,7 +1576,7 @@ class _AppStringsV2TransactionsFil extends AppStringsV2TransactionsEn {
 	@override String get expense => 'Gastos';
 	@override String get income => 'Pumasok';
 	@override String get deleteTransaction => 'Burahin \'tong transaksyon?';
-	@override String get cancel => 'Cancel';
+	@override String get cancel => 'Kanselahin';
 	@override String get delete => 'Burahin';
 	@override String get yesterday => 'Kahapon';
 	@override String get usedCategories => 'MADALAS GAMITIN';
@@ -1601,6 +1601,40 @@ class _AppStringsV2TransactionsFil extends AppStringsV2TransactionsEn {
 	@override String get save => 'I-save';
 	@override String get transactionUpdated => 'Ayos, na-update na.';
 	@override String get transactionSaved => 'Na-save na, boss.';
+	@override String get recurrence => 'Ulitin';
+	@override String get recurrenceNone => 'Huwag ulitin';
+	@override String get recurrenceFilter => 'Paulit-ulit';
+	@override String get recurrenceDaily => 'Araw-araw';
+	@override String get recurrenceWeekly => 'Lingguhan';
+	@override String get recurrenceMonthly => 'Buwanan';
+	@override String get recurrenceBimonthly => 'Bawat 2 buwan';
+	@override String get recurrenceQuarterly => 'Kada 3 buwan';
+	@override String get recurrenceYearly => 'Taunan';
+	@override String get recurrenceSheetTitle => 'Dalas ng pag-ulit';
+	@override String get recurrenceSheetSubtitle => 'Gaano kadalas umuulit ang transaksyong ito?';
+	@override String get recurringScreenTitle => 'Mga Paulit-ulit na Transaksyon';
+	@override String get recurringScreenEmpty => 'Wala pang paulit-ulit na transaksyon.\nLumikha sa pamamagitan ng pagpili ng dalas ng pag-ulit kapag nagdagdag ng transaksyon.';
+	@override String recurringNextDue({required Object date}) => 'Susunod: ${date}';
+	@override String recurringLastRun({required Object date}) => 'Huling takbo: ${date}';
+	@override String get recurringNeverRun => 'Hindi pa naisagawa';
+	@override String recurringAutoCreated({required Object count}) => '${count} transaksyon ang awtomatikong nalikha';
+	@override String get recurringNoAuto => 'Nasa oras ang lahat';
+	@override String get editRecurringRule => 'I-edit ang Paulit-ulit na Panuntunan';
+	@override String get recurringRuleUpdated => 'Na-update ang paulit-ulit na panuntunan';
+	@override String get recurringRuleDeleted => 'Na-delete ang paulit-ulit na panuntunan';
+	@override String get deleteRecurringTitle => 'I-delete ang paulit-ulit na panuntunan';
+	@override String get deleteRecurringContent => 'Mabubura ang nakaiskedyul na panuntunan. Mananatiling buo ang iyong mga nakaraang transaksyon sa kasaysayan.';
+	@override String get recurringIncome => 'Paulit-ulit na Kita';
+	@override String get recurringExpense => 'Paulit-ulit na Gastos';
+	@override String get recurringStatus => 'Katayuan ng panuntunan';
+	@override String get recurringActive => 'Aktibo (awtomatikong nilikha)';
+	@override String get recurringPaused => 'Naka-pause';
+	@override String get recurringStartDate => 'Petsa ng Simula';
+	@override String get recurringNextExecution => 'Susunod na pagpapatupad';
+	@override String get recurringChangeDate => 'Palitan ang petsa';
+	@override String get recurringBadge => 'Paulit-ulit';
+	@override String get pausedBadge => 'Naka-pause';
+	@override String get saveChanges => 'I-save ang mga Pagbabago';
 }
 
 // Path: v2.settings
@@ -3215,7 +3249,7 @@ extension on AppStringsFil {
 			case 'v2.voice.aiError': return ({required Object error}) => 'AI Error: ${error}';
 			case 'v2.voice.cancel': return 'Kanselahin';
 			case 'v2.voice.scan': return 'I-scan';
-			case 'v2.transactions.invalidAmount': return 'Maling halaga. Paki-ayos.';
+			case 'v2.transactions.invalidAmount': return 'Mangyaring maglagay ng wastong halaga';
 			case 'v2.transactions.selectAccount': return 'Saan nanggaling ang pera?';
 			case 'v2.transactions.selectCategory': return 'Anong klaseng gastos \'to?';
 			case 'v2.transactions.errorCreatingCategory': return ({required Object error}) => 'Error sa kategorya: ${error}';
@@ -3224,7 +3258,7 @@ extension on AppStringsFil {
 			case 'v2.transactions.expense': return 'Gastos';
 			case 'v2.transactions.income': return 'Pumasok';
 			case 'v2.transactions.deleteTransaction': return 'Burahin \'tong transaksyon?';
-			case 'v2.transactions.cancel': return 'Cancel';
+			case 'v2.transactions.cancel': return 'Kanselahin';
 			case 'v2.transactions.delete': return 'Burahin';
 			case 'v2.transactions.yesterday': return 'Kahapon';
 			case 'v2.transactions.usedCategories': return 'MADALAS GAMITIN';
@@ -3249,6 +3283,40 @@ extension on AppStringsFil {
 			case 'v2.transactions.save': return 'I-save';
 			case 'v2.transactions.transactionUpdated': return 'Ayos, na-update na.';
 			case 'v2.transactions.transactionSaved': return 'Na-save na, boss.';
+			case 'v2.transactions.recurrence': return 'Ulitin';
+			case 'v2.transactions.recurrenceNone': return 'Huwag ulitin';
+			case 'v2.transactions.recurrenceFilter': return 'Paulit-ulit';
+			case 'v2.transactions.recurrenceDaily': return 'Araw-araw';
+			case 'v2.transactions.recurrenceWeekly': return 'Lingguhan';
+			case 'v2.transactions.recurrenceMonthly': return 'Buwanan';
+			case 'v2.transactions.recurrenceBimonthly': return 'Bawat 2 buwan';
+			case 'v2.transactions.recurrenceQuarterly': return 'Kada 3 buwan';
+			case 'v2.transactions.recurrenceYearly': return 'Taunan';
+			case 'v2.transactions.recurrenceSheetTitle': return 'Dalas ng pag-ulit';
+			case 'v2.transactions.recurrenceSheetSubtitle': return 'Gaano kadalas umuulit ang transaksyong ito?';
+			case 'v2.transactions.recurringScreenTitle': return 'Mga Paulit-ulit na Transaksyon';
+			case 'v2.transactions.recurringScreenEmpty': return 'Wala pang paulit-ulit na transaksyon.\nLumikha sa pamamagitan ng pagpili ng dalas ng pag-ulit kapag nagdagdag ng transaksyon.';
+			case 'v2.transactions.recurringNextDue': return ({required Object date}) => 'Susunod: ${date}';
+			case 'v2.transactions.recurringLastRun': return ({required Object date}) => 'Huling takbo: ${date}';
+			case 'v2.transactions.recurringNeverRun': return 'Hindi pa naisagawa';
+			case 'v2.transactions.recurringAutoCreated': return ({required Object count}) => '${count} transaksyon ang awtomatikong nalikha';
+			case 'v2.transactions.recurringNoAuto': return 'Nasa oras ang lahat';
+			case 'v2.transactions.editRecurringRule': return 'I-edit ang Paulit-ulit na Panuntunan';
+			case 'v2.transactions.recurringRuleUpdated': return 'Na-update ang paulit-ulit na panuntunan';
+			case 'v2.transactions.recurringRuleDeleted': return 'Na-delete ang paulit-ulit na panuntunan';
+			case 'v2.transactions.deleteRecurringTitle': return 'I-delete ang paulit-ulit na panuntunan';
+			case 'v2.transactions.deleteRecurringContent': return 'Mabubura ang nakaiskedyul na panuntunan. Mananatiling buo ang iyong mga nakaraang transaksyon sa kasaysayan.';
+			case 'v2.transactions.recurringIncome': return 'Paulit-ulit na Kita';
+			case 'v2.transactions.recurringExpense': return 'Paulit-ulit na Gastos';
+			case 'v2.transactions.recurringStatus': return 'Katayuan ng panuntunan';
+			case 'v2.transactions.recurringActive': return 'Aktibo (awtomatikong nilikha)';
+			case 'v2.transactions.recurringPaused': return 'Naka-pause';
+			case 'v2.transactions.recurringStartDate': return 'Petsa ng Simula';
+			case 'v2.transactions.recurringNextExecution': return 'Susunod na pagpapatupad';
+			case 'v2.transactions.recurringChangeDate': return 'Palitan ang petsa';
+			case 'v2.transactions.recurringBadge': return 'Paulit-ulit';
+			case 'v2.transactions.pausedBadge': return 'Naka-pause';
+			case 'v2.transactions.saveChanges': return 'I-save ang mga Pagbabago';
 			case 'v2.settings.title': return 'I-customize';
 			case 'v2.settings.categories': return 'Mga Kategorya ng Gastos';
 			case 'v2.settings.wallets': return 'Mga Pera at Account Mo';

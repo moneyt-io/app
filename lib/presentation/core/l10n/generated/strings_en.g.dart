@@ -2731,8 +2731,8 @@ class AppStringsV2TransactionsEn {
 
 	// Translations
 
-	/// en: 'Please enter a valid amount.'
-	String get invalidAmount => 'Please enter a valid amount.';
+	/// en: 'Please enter a valid amount'
+	String get invalidAmount => 'Please enter a valid amount';
 
 	/// en: 'Please select an account.'
 	String get selectAccount => 'Please select an account.';
@@ -2886,6 +2886,54 @@ class AppStringsV2TransactionsEn {
 
 	/// en: 'Auto-creation up to date'
 	String get recurringNoAuto => 'Auto-creation up to date';
+
+	/// en: 'Edit Recurring Rule'
+	String get editRecurringRule => 'Edit Recurring Rule';
+
+	/// en: 'Recurring rule updated'
+	String get recurringRuleUpdated => 'Recurring rule updated';
+
+	/// en: 'Recurring rule deleted'
+	String get recurringRuleDeleted => 'Recurring rule deleted';
+
+	/// en: 'Delete recurrence rule'
+	String get deleteRecurringTitle => 'Delete recurrence rule';
+
+	/// en: 'The scheduled rule will be deleted. Your past recorded transactions will remain intact in your history.'
+	String get deleteRecurringContent => 'The scheduled rule will be deleted. Your past recorded transactions will remain intact in your history.';
+
+	/// en: 'Recurring Income'
+	String get recurringIncome => 'Recurring Income';
+
+	/// en: 'Recurring Expense'
+	String get recurringExpense => 'Recurring Expense';
+
+	/// en: 'Rule status'
+	String get recurringStatus => 'Rule status';
+
+	/// en: 'Active (auto-created)'
+	String get recurringActive => 'Active (auto-created)';
+
+	/// en: 'Paused'
+	String get recurringPaused => 'Paused';
+
+	/// en: 'Start Date'
+	String get recurringStartDate => 'Start Date';
+
+	/// en: 'Next execution'
+	String get recurringNextExecution => 'Next execution';
+
+	/// en: 'Change Date'
+	String get recurringChangeDate => 'Change Date';
+
+	/// en: 'Recurring'
+	String get recurringBadge => 'Recurring';
+
+	/// en: 'Paused'
+	String get pausedBadge => 'Paused';
+
+	/// en: 'Save Changes'
+	String get saveChanges => 'Save Changes';
 }
 
 // Path: v2.settings
@@ -5083,7 +5131,7 @@ extension on AppStrings {
 			case 'v2.voice.aiError': return ({required Object error}) => 'AI Error: ${error}';
 			case 'v2.voice.cancel': return 'Cancel';
 			case 'v2.voice.scan': return 'Scan';
-			case 'v2.transactions.invalidAmount': return 'Please enter a valid amount.';
+			case 'v2.transactions.invalidAmount': return 'Please enter a valid amount';
 			case 'v2.transactions.selectAccount': return 'Please select an account.';
 			case 'v2.transactions.selectCategory': return 'Please select a category.';
 			case 'v2.transactions.errorCreatingCategory': return ({required Object error}) => 'Error creating category: ${error}';
@@ -5135,6 +5183,22 @@ extension on AppStrings {
 			case 'v2.transactions.recurringNeverRun': return 'Not yet executed';
 			case 'v2.transactions.recurringAutoCreated': return ({required Object count}) => '${count} transaction(s) auto-created';
 			case 'v2.transactions.recurringNoAuto': return 'Auto-creation up to date';
+			case 'v2.transactions.editRecurringRule': return 'Edit Recurring Rule';
+			case 'v2.transactions.recurringRuleUpdated': return 'Recurring rule updated';
+			case 'v2.transactions.recurringRuleDeleted': return 'Recurring rule deleted';
+			case 'v2.transactions.deleteRecurringTitle': return 'Delete recurrence rule';
+			case 'v2.transactions.deleteRecurringContent': return 'The scheduled rule will be deleted. Your past recorded transactions will remain intact in your history.';
+			case 'v2.transactions.recurringIncome': return 'Recurring Income';
+			case 'v2.transactions.recurringExpense': return 'Recurring Expense';
+			case 'v2.transactions.recurringStatus': return 'Rule status';
+			case 'v2.transactions.recurringActive': return 'Active (auto-created)';
+			case 'v2.transactions.recurringPaused': return 'Paused';
+			case 'v2.transactions.recurringStartDate': return 'Start Date';
+			case 'v2.transactions.recurringNextExecution': return 'Next execution';
+			case 'v2.transactions.recurringChangeDate': return 'Change Date';
+			case 'v2.transactions.recurringBadge': return 'Recurring';
+			case 'v2.transactions.pausedBadge': return 'Paused';
+			case 'v2.transactions.saveChanges': return 'Save Changes';
 			case 'v2.settings.title': return 'Customize';
 			case 'v2.settings.categories': return 'Categories';
 			case 'v2.settings.wallets': return 'Wallets';

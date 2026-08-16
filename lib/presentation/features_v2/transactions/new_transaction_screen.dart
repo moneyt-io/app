@@ -23,6 +23,8 @@ import '../../features/transactions/transaction_provider.dart';
 import '../../core/providers/currency_provider.dart';
 import '../../features/wallets/wallet_provider.dart';
 import '../../../core/utils/number_formatter.dart';
+import '../../../core/utils/recurring_date_helper.dart';
+import '../../../domain/usecases/recurring_transaction_usecases.dart';
 import '../../core/l10n/generated/strings.g.dart';
 
 import '../../../domain/entities/transaction.dart';
@@ -446,7 +448,39 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
         );
         await transactionProvider.updateTransaction(updatedEntity);
       } else {
-        // Create new transaction
+        int? recurringRuleId;
+
+        // Si el usuario configuró una frecuencia de repetición, crear la regla independiente
+        if (_selectedRecurrence != null) {
+          try {
+            final recurringUseCases = GetIt.instance<RecurringTransactionUseCases>();
+            final nextDue = RecurringDateHelper.calculateNextDueDate(
+              _selectedDate,
+              _selectedRecurrence!,
+            );
+
+            final rule = await recurringUseCases.createRecurringTransaction(
+              documentTypeId: _selectedType,
+              currencyId: _selectedAccount!.currencyId,
+              paymentId: paymentId,
+              paymentTypeId: paymentTypeId,
+              categoryId: _selectedCategoryId!,
+              amount: amount,
+              description: _descriptionController.text.trim().isNotEmpty
+                  ? _descriptionController.text.trim()
+                  : null,
+              frequency: _selectedRecurrence!.key,
+              startDate: _selectedDate,
+              lastExecutedAt: _selectedDate,
+              nextExecutionDate: nextDue,
+            );
+            recurringRuleId = rule.id;
+          } catch (e) {
+            debugPrint('Error creating recurring rule: $e');
+          }
+        }
+
+        // Crear la primera instancia histórica vinculada a la regla
         if (_selectedType == 'E') {
           await transactionProvider.createExpense(
             date: _selectedDate,
@@ -457,6 +491,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             paymentTypeId: paymentTypeId,
             categoryId: _selectedCategoryId!,
             recurrenceFrequency: _selectedRecurrence?.key,
+            recurringTransactionId: recurringRuleId,
           );
         } else {
           await transactionProvider.createIncome(
@@ -467,6 +502,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
             walletId: paymentId,
             categoryId: _selectedCategoryId!,
             recurrenceFrequency: _selectedRecurrence?.key,
+            recurringTransactionId: recurringRuleId,
           );
         }
       }
