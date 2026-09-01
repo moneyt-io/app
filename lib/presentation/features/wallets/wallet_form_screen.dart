@@ -112,11 +112,9 @@ class _WalletFormScreenState extends State<WalletFormScreen> {
       _selectedCurrency = wallet.currencyId;
       _selectedParentId = wallet.parentId;
       if (wallet.icon != null) {
-        final savedCode = int.tryParse(wallet.icon!) ?? 0;
-        // Buscar en la lista const por codePoint — nunca construir IconData dinámicamente
-        _selectedIcon = CategoryIconPicker.categoryIcons.firstWhere(
-          (icon) => icon.codePoint == savedCode,
-          orElse: () => CategoryIconPicker.categoryIcons.first,
+        _selectedIcon = CategoryIconPicker.fromCode(
+          wallet.icon,
+          fallback: Icons.account_balance_wallet,
         );
       }
     } else {

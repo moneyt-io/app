@@ -24,30 +24,47 @@ class WalletDao extends DatabaseAccessor<AppDatabase> with _$WalletDaoMixin {
   Future<bool> updateWallet(WalletsCompanion wallet) =>
       update(this.wallet).replace(wallet);
 
-    Future<void> deleteWallet(int walletId) async {
+  Future<void> deleteWallet(int walletId) async {
     return db.transaction(() async {
-      // 1. Find the chart account associated with the wallet.
+      // 1. Verify wallet exists
       final walletToDelete = await (select(wallet)..where((w) => w.id.equals(walletId))).getSingleOrNull();
       if (walletToDelete == null) {
         throw Exception('Wallet not found.');
       }
 
-      // 2. Check if there are any journal details referencing this chart account.
-      final journalQuery = select(db.journalDetail, distinct: true)
-        ..where((jd) => jd.chartAccountId.equals(walletToDelete.chartAccountId));
-      final hasJournalTransactions = await journalQuery.getSingleOrNull();
-
-      // 3. Check if there are any modern transaction details referencing this wallet.
-      final txQuery = select(db.transactionDetail, distinct: true)
-        ..where((td) => td.paymentId.equals(walletId));
+      // 2. Check if there are active transactions referencing this wallet
+      // Join with transactionEntry to ensure we only check existing transactions
+      final txQuery = select(db.transactionDetail).join([
+        innerJoin(
+          db.transactionEntry,
+          db.transactionEntry.id.equalsExp(db.transactionDetail.transactionId),
+        )
+      ])..where(
+          db.transactionDetail.paymentId.equals(walletId) &
+          db.transactionDetail.paymentTypeId.equals('W'),
+        );
       final hasTxTransactions = await txQuery.getSingleOrNull();
 
-      // 4. If transactions exist in either table, throw an exception to prevent deletion.
-      if (hasJournalTransactions != null || hasTxTransactions != null) {
+      if (hasTxTransactions != null) {
         throw Exception('Cannot delete wallet: It has associated transactions.');
       }
 
-      // 5. If no transactions, proceed with deletion.
+      // 3. Check if there are active recurring transactions referencing this wallet
+      final recurringQuery = select(db.recurringTransactions)
+        ..where((rt) => rt.paymentId.equals(walletId) & rt.paymentTypeId.equals('W'));
+      final hasRecurring = await recurringQuery.getSingleOrNull();
+      if (hasRecurring != null) {
+        throw Exception('Cannot delete wallet: It has associated transactions.');
+      }
+
+      // 4. If this wallet has children, unlink them to avoid foreign key violation
+      final childWallets = await (select(wallet)..where((w) => w.parentId.equals(walletId))).get();
+      if (childWallets.isNotEmpty) {
+        await (update(wallet)..where((w) => w.parentId.equals(walletId)))
+            .write(const WalletsCompanion(parentId: Value(null)));
+      }
+
+      // 5. Proceed with deletion
       await (delete(wallet)..where((w) => w.id.equals(walletId))).go();
     });
   }

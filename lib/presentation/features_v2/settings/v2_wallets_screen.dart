@@ -6,8 +6,6 @@ import '../../../domain/entities/wallet.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../features/wallets/wallet_provider.dart';
 import '../../core/providers/currency_provider.dart';
-import '../../core/atoms/app_app_bar.dart';
-import '../../core/molecules/confirmation_dialog.dart';
 import 'dart:async';
 import '../../../core/utils/financial_emoji_dictionary.dart';
 import '../../../core/services/ai_transaction_service.dart';
@@ -98,8 +96,18 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
         }
       } catch (e) {
         if (mounted) {
+          final isTxError = e.toString().contains('Cannot delete wallet: It has associated transactions.');
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.v2.settings.deleteError(error: e.toString()))),
+            SnackBar(
+              content: Text(
+                isTxError ? t.v2.settings.deleteWalletHasTransactions : t.v2.settings.deleteError(error: e.toString()),
+                style: const TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w600),
+              ),
+              backgroundColor: V2Colors.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              margin: const EdgeInsets.all(16),
+            ),
           );
         }
       }
@@ -158,7 +166,7 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
                   updatedAt: DateTime.now(),
                 );
                 await _walletUseCases.createWallet(newWallet);
-                provider.loadInitialData();
+                await provider.loadInitialData();
               }
             }
         },
@@ -244,7 +252,7 @@ class _V2WalletsScreenState extends State<V2WalletsScreen> {
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  IconToEmojiMapper.getEmoji(wallet.icon ?? '58376'),
+                                  IconToEmojiMapper.getEmoji(wallet.icon ?? ''),
                                   style: const TextStyle(fontSize: 24),
                                 ),
                               ),
@@ -311,8 +319,8 @@ class _WalletFormBottomSheet extends StatefulWidget {
 class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with SingleTickerProviderStateMixin {
   late TextEditingController _nameController;
   late String _selectedCurrencyId;
-  String _selectedEmoji = "🏦";
-  List<String> _suggestedEmojis = ["🏦", "💳", "💵"];
+  String _selectedEmoji = "💳";
+  List<String> _suggestedEmojis = ["💳", "🏦", "💵", "👛", "🐷"];
   bool _hasManuallySelectedEmoji = false;
   String _lastValidName = '';
   
@@ -333,9 +341,14 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with Sin
     _lastValidName = _nameController.text;
     _selectedCurrencyId = widget.walletToEdit?.currencyId ?? widget.currencyId;
     
-    if (widget.walletToEdit != null && widget.walletToEdit!.icon != null) {
-      _selectedEmoji = IconToEmojiMapper.getEmoji(widget.walletToEdit!.icon!);
-      _suggestedEmojis = [_selectedEmoji];
+    if (widget.walletToEdit != null) {
+      final rawIcon = widget.walletToEdit!.icon;
+      if (rawIcon != null && rawIcon.isNotEmpty) {
+        _selectedEmoji = IconToEmojiMapper.getEmoji(rawIcon);
+      } else {
+        _selectedEmoji = '💳';
+      }
+      _suggestedEmojis = {_selectedEmoji, '💳', '🏦', '💵', '👛', '🐷'}.toList();
       _hasManuallySelectedEmoji = true;
     }
   }
@@ -364,10 +377,8 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with Sin
       _hasManuallySelectedEmoji = true;
       setState(() {
         _selectedEmoji = extractedEmoji;
-        if (widget.walletToEdit != null) {
-          _suggestedEmojis = [extractedEmoji];
-        } else if (!_suggestedEmojis.contains(extractedEmoji)) {
-          _suggestedEmojis[0] = extractedEmoji;
+        if (!_suggestedEmojis.contains(extractedEmoji)) {
+          _suggestedEmojis = [extractedEmoji, ..._suggestedEmojis];
         }
       });
       
@@ -382,14 +393,16 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with Sin
       _lastValidName = newText;
     } else {
       _lastValidName = val;
-      _hasManuallySelectedEmoji = false;
       
-      _autoSelectEmojiLocal();
-      
-      if (!_hasManuallySelectedEmoji && val.trim().isNotEmpty) {
-        _debounceTimer = Timer(const Duration(milliseconds: 1000), () {
-          _analyzeEmojiWithAI(val.trim());
-        });
+      // Solo auto-seleccionar si el usuario aún no ha escogido un emoji manualmente
+      if (!_hasManuallySelectedEmoji) {
+        _autoSelectEmojiLocal();
+        
+        if (val.trim().isNotEmpty) {
+          _debounceTimer = Timer(const Duration(milliseconds: 1000), () {
+            _analyzeEmojiWithAI(val.trim());
+          });
+        }
       }
     }
   }
@@ -405,7 +418,7 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with Sin
       setState(() {
         _selectedEmoji = suggested;
         if (!_suggestedEmojis.contains(suggested)) {
-          _suggestedEmojis = [suggested, '💳', '💵'];
+          _suggestedEmojis = {suggested, '💳', '🏦', '💵', '👛', '🐷'}.toList();
         }
       });
     }
@@ -430,7 +443,7 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with Sin
       if (mounted && !_hasManuallySelectedEmoji) {
         setState(() {
           _suggestedEmojis = emojis;
-          _selectedEmoji = emojis.isNotEmpty ? emojis.first : '🏦';
+          _selectedEmoji = emojis.isNotEmpty ? emojis.first : '💳';
         });
       }
     } catch (_) {
@@ -444,8 +457,121 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with Sin
     }
   }
 
+  void _showEmojiPicker() {
+    final emojiCategories = {
+      'Finanzas & Dinero': [
+        '💳', '🏦', '💵', '👛', '🐷', '🪙', '💰', '💸', '🧾', '📈', '📉', '💹', '💱', '🏧', '💎', '📱', '💼', '🏢',
+      ],
+      'Cuentas & Servicios': [
+        '🏠', '🏡', '🚗', '⛽', '✈️', '🛒', '🛍️', '🍽️', '🍔', '☕', '⚡', '💧', '📶', '🎓', '🩺', '💊', '🏋️‍♂️',
+      ],
+      'Otros': [
+        '🎁', '🎉', '🌴', '🏖️', '🐾', '👶', '🎮', '💻', '🚲', '🛵', '🍿', '🎵', '🛡️', '❤️', '⭐', '🏷️',
+      ],
+    };
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(context).size.height * 0.55,
+        decoration: const BoxDecoration(
+          color: V2Colors.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            Center(
+              child: Container(
+                width: 48,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: V2Colors.outlineVariant.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              t.categories.form.selectIcon,
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: V2Colors.onSurface,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                children: [
+                  for (final entry in emojiCategories.entries) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12, bottom: 8),
+                      child: Text(
+                        entry.key,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: V2Colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: entry.value.map((emoji) {
+                        final isSelected = emoji == _selectedEmoji;
+                        return InkWell(
+                          onTap: () {
+                            setState(() {
+                              _selectedEmoji = emoji;
+                              _hasManuallySelectedEmoji = true;
+                              if (!_suggestedEmojis.contains(emoji)) {
+                                _suggestedEmojis = [emoji, ..._suggestedEmojis];
+                              }
+                            });
+                            Navigator.pop(ctx);
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? V2Colors.primary.withValues(alpha: 0.15)
+                                  : V2Colors.surfaceContainerLowest,
+                              borderRadius: BorderRadius.circular(12),
+                              border: isSelected
+                                  ? Border.all(color: V2Colors.primary, width: 2)
+                                  : null,
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              emoji,
+                              style: const TextStyle(fontSize: 24),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showCurrencyPicker() {
-    final currencies = CurrencyProvider.availableCurrencies;
+    const currencies = CurrencyProvider.availableCurrencies;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -681,7 +807,7 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with Sin
           // Emoji Suggestions Pill
           Container(
             height: 56,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: V2Colors.secondaryContainer.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(28),
@@ -690,13 +816,16 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with Sin
               ),
             ),
             alignment: Alignment.center,
-            child: _isAnalyzingEmoji && _aiAnimationController != null
-                ? AnimatedBuilder(
+            child: Row(
+              children: [
+                if (_isAnalyzingEmoji && _aiAnimationController != null)
+                  AnimatedBuilder(
                     animation: _aiAnimationController!,
                     builder: (context, child) {
                       return Container(
                         width: 32,
                         height: 32,
+                        margin: const EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: SweepGradient(
@@ -711,7 +840,7 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with Sin
                         child: Padding(
                           padding: const EdgeInsets.all(3.0),
                           child: Container(
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: V2Colors.surface,
                               shape: BoxShape.circle,
                             ),
@@ -721,39 +850,53 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with Sin
                         ),
                       );
                     },
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: _suggestedEmojis.map((emoji) {
-                      final isSelected = emoji == _selectedEmoji;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedEmoji = emoji;
-                            _hasManuallySelectedEmoji = true;
-                          });
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: isSelected 
-                                ? V2Colors.secondaryContainer.withValues(alpha: 0.5)
-                                : Colors.transparent,
-                            shape: BoxShape.circle,
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            emoji,
-                            style: TextStyle(
-                              fontSize: isSelected ? 24 : 20,
+                  ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _suggestedEmojis.map((emoji) {
+                        final isSelected = emoji == _selectedEmoji;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedEmoji = emoji;
+                              _hasManuallySelectedEmoji = true;
+                            });
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: isSelected 
+                                  ? V2Colors.secondaryContainer.withValues(alpha: 0.5)
+                                  : Colors.transparent,
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              emoji,
+                              style: TextStyle(
+                                fontSize: isSelected ? 24 : 20,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+                    ),
                   ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_reaction_outlined, color: V2Colors.primary, size: 22),
+                  onPressed: _showEmojiPicker,
+                  tooltip: 'Más íconos',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                ),
+              ],
+            ),
           ),
           
           const SizedBox(height: 32),
@@ -770,7 +913,7 @@ class _WalletFormBottomSheetState extends State<_WalletFormBottomSheet> with Sin
                   ),
                   child: Text(
                     t.v2.settings.wallets,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

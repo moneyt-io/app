@@ -1,6 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:get_it/get_it.dart';
-import '../../../core/services/exchange_rate_service.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/usecases/wallet_usecases.dart';
 import '../../../domain/services/balance_calculation_service.dart';
@@ -168,7 +166,7 @@ class WalletProvider with ChangeNotifier {
         _error = 'Failed to delete wallet: ${e.toString()}';
       }
       notifyListeners();
-      // Do not re-throw, as the provider now handles the error state for the UI.
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();

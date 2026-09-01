@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../theme/v2_colors.dart';
-import '../dashboard/widgets/dashboard2_bottom_nav.dart';
 import '../../core/providers/currency_provider.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/l10n/generated/strings.g.dart';
@@ -177,7 +177,7 @@ class NewSettingsScreen extends StatelessWidget {
                           iconBgColor: const Color(0xFFF8FAFC),
                           trailingWidget: CupertinoSwitch(
                             value: false,
-                            activeColor: V2Colors.primary,
+                            activeTrackColor: V2Colors.primary,
                             onChanged: (value) {
                               if (value) {
                                 Navigator.pop(context);
@@ -188,6 +188,31 @@ class NewSettingsScreen extends StatelessWidget {
                           onTap: () {
                             Navigator.pop(context);
                             onToggleLegacy();
+                          },
+                        ),
+                        const SizedBox(height: 32),
+                        FutureBuilder<PackageInfo>(
+                          future: PackageInfo.fromPlatform(),
+                          builder: (context, snapshot) {
+                            final version = snapshot.data?.version ?? '';
+                            if (version.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 24),
+                              child: Center(
+                                child: Text(
+                                  'MoneyT v$version',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'Manrope',
+                                    color: V2Colors.onSurfaceVariant.withValues(alpha: 0.45),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                            );
                           },
                         ),
                       ],

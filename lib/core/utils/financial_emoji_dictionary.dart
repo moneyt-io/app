@@ -83,10 +83,13 @@ class FinancialEmojiDictionary {
     'ventas': '📈', 'sales': '📈', 'bono': '🎁', 'bonus': '🎁',
 
     // === FINANZAS Y BANCOS / FINANCE & BANKING ===
-    'banco': '🏦', 'bank': '🏦', 'ahorro': '🐷', 'savings': '🐷',
-    'inversion': '💹', 'investment': '💹', 'acciones': '📈', 'stocks': '📈',
-    'cripto': '🪙', 'crypto': '🪙', 'bitcoin': '₿',
-    'tarjeta': '💳', 'card': '💳', 'credito': '💳', 'credit': '💳',
+    'efectivo': '💵', 'cash': '💵', 'billetes': '💵', 'plata': '💵', 'dinero': '💵', 'money': '💵',
+    'billetera': '👛', 'wallet': '👛', 'cartera': '👛', 'monedero': '👛', 'bolsillo': '👛',
+    'banco': '🏦', 'bank': '🏦', 'cuenta': '🏦', 'corriente': '🏦', 'ahorro': '🐷', 'savings': '🐷', 'alcancia': '🐷',
+    'inversion': '💹', 'investment': '💹', 'acciones': '📈', 'stocks': '📈', 'bolsa': '📈',
+    'cripto': '🪙', 'crypto': '🪙', 'bitcoin': '🪙', 'moneda': '🪙', 'monedas': '🪙', 'coins': '🪙',
+    'tarjeta': '💳', 'card': '💳', 'credito': '💳', 'credit': '💳', 'debito': '💳', 'debit': '💳', 'visa': '💳', 'mastercard': '💳', 'amex': '💳',
+    'nequi': '📱', 'daviplata': '📱', 'mercadopago': '📱', 'mp': '📱', 'paypal': '📱', 'zinli': '📱', 'uala': '📱',
     'prestamo': '💸', 'loan': '💸', 'deuda': '📉', 'debt': '📉',
     'impuestos': '🏛️', 'taxes': '🏛️', 'seguro': '🛡️', 'insurance': '🛡️',
     'pago': '✅', 'payment': '✅', 'transferencia': '🔄', 'transfer': '🔄',

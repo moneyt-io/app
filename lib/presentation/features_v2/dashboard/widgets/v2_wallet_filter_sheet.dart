@@ -255,7 +255,7 @@ class _V2WalletFilterSheetState extends State<V2WalletFilterSheet> {
                               onTap: () => Navigator.pop(context, wallet.id),
                               isSelected: widget.currentWalletId == wallet.id,
                               emoji: IconToEmojiMapper.getEmoji(
-                                  wallet.icon ?? '58376'),
+                                  wallet.icon ?? ''),
                               title: _getDisplayName(wallet),
                               subtitle: wallet.description,
                               currencyId: wallet.currencyId,

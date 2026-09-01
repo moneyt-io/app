@@ -65,14 +65,12 @@ class _NewTransactionsScreenState extends State<NewTransactionsScreen> {
 
   String _formatDateHeader(DateTime date) {
     final now = DateTime.now();
-    final difference = now.difference(date);
-
     final langCode = LocaleSettings.currentLocale.languageCode;
-    if (difference.inDays == 0 && now.day == date.day) {
+
+    if (now.year == date.year && now.month == date.month && now.day == date.day) {
       return t.v2.transactions.today;
-    } else if (difference.inDays == 1 ||
-        (difference.inDays == 0 && now.day != date.day)) {
-      return t.v2.transactions.yesterday;
+    } else if (now.year != date.year) {
+      return DateFormat.yMMMMd(langCode).format(date);
     } else {
       return DateFormat.MMMMd(langCode).format(date);
     }

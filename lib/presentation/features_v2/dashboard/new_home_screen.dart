@@ -14,7 +14,6 @@ import '../../../core/constants/app_storage_keys.dart';
 
 import '../../core/l10n/generated/strings.g.dart';
 import '../../../core/services/paywall_service.dart';
-import '../../core/organisms/app_drawer.dart';
 import '../../core/providers/background_provider.dart';
 import '../../core/providers/currency_filter_provider.dart';
 import '../theme/v2_colors.dart';
@@ -23,16 +22,12 @@ import '../../../core/services/exchange_rate_service.dart';
 import '../../features/transactions/transaction_provider.dart';
 import '../../features/wallets/wallet_provider.dart';
 import '../../../domain/entities/transaction_entry.dart';
-import '../../core/l10n/generated/strings.g.dart';
 import '../../../core/utils/number_formatter.dart';
 
 import '../shared/widgets/v2_date_selection_sheet.dart';
-import 'widgets/dashboard2_gauge.dart';
 import 'widgets/dashboard2_income_expense.dart';
 import 'widgets/dashboard2_activity_list.dart';
 import 'widgets/dashboard2_bottom_nav.dart';
-import 'widgets/v2_balance_card.dart';
-import 'widgets/v2_quick_actions.dart';
 import 'widgets/v2_wallet_filter_sheet.dart';
 import '../../../core/services/recurring_transaction_service.dart';
 import 'widgets/parallax_background.dart';
@@ -271,7 +266,6 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
           .light, // Fuerza íconos blancos en la barra de estado
       child: Scaffold(
         backgroundColor: const Color(0xFFFAF8FF), // surface-container-lowest
-        drawer: const AppDrawer(),
         body: Consumer3<WalletProvider, TransactionProvider,
             CurrencyFilterProvider>(
           builder: (context, walletProvider, transactionProvider,
@@ -332,14 +326,15 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                           expenses,
                           income,
                           walletProvider,
-                          currentRangeTransactions,
-                          transactionProvider,
                           currencyFilter,
                         ),
                       Transform.translate(
                         offset: const Offset(0, -32),
                         child: Container(
                           width: double.infinity,
+                          constraints: BoxConstraints(
+                            minHeight: MediaQuery.of(context).size.height * 0.5,
+                          ),
                           decoration: const BoxDecoration(
                             color: Color(0xFFFAF8FF),
                             borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
@@ -572,13 +567,15 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     double expenses,
     double income,
     WalletProvider walletProvider,
-    List<TransactionEntry> currentRangeTransactions,
-    TransactionProvider transactionProvider,
     CurrencyFilterProvider currencyFilter,
   ) {
     final double monthlyBalance = income - expenses;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final headerHeight = screenHeight * 0.5;
+
     return Container(
       width: double.infinity,
+      height: headerHeight,
       decoration: const BoxDecoration(
         color: Colors.black,
       ),
@@ -607,224 +604,228 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
               ),
             ),
           ),
-          // Content
-          SafeArea(
-            bottom: false,
-            child: Column(
-              children: [
-                // Top App Bar
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          t.v2.dashboard.greetingMorning,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                            fontFamily: 'Manrope',
-                            shadows: [
-                              Shadow(
-                                color: Colors.black26,
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                  builder: (_) => NewSettingsScreen(
-                                    onToggleLegacy: widget.onToggleLegacy,
-                                  ),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.settings_outlined,
-                                color: Colors.white),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // 3D Flip Balance Section (Total vs Monthly)
-                GestureDetector(
-                  onHorizontalDragEnd: (details) {
-                    if (details.primaryVelocity != null) {
-                      if (details.primaryVelocity! < -100) {
-                        _toggleBalanceView(rotateLeft: true);
-                      } else if (details.primaryVelocity! > 100) {
-                        _toggleBalanceView(rotateLeft: false);
-                      }
-                    }
-                  },
-                  onTap: () => _toggleBalanceView(),
-                  behavior: HitTestBehavior.opaque,
-                  child: SizedBox(
-                    height: 90,
-                    width: double.infinity,
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 450),
-                      transitionBuilder: _build3DFlipTransition,
-                      layoutBuilder: (currentChild, previousChildren) {
-                        return Stack(
-                          alignment: Alignment.center,
-                          children: <Widget>[
-                            ...previousChildren,
-                            if (currentChild != null) currentChild,
-                          ],
-                        );
-                      },
-                      child: _balancePageIndex == 0
-                          ? _buildBalancePage(0, totalBalance, currencyFilter.selectedCurrencyId)
-                          : _buildBalancePage(1, monthlyBalance, currencyFilter.selectedCurrencyId),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Filter Chips
-                Row(
+          // Centered Balance & Filter Chips in visible header area
+          Positioned.fill(
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 20,
+                bottom: 40,
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    PopupMenuButton<String>(
-                      color: const Color(0xFFFAF8FF), // match dashboard surface
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
-                      offset: const Offset(0, 40),
-                      onSelected: (value) async {
-                        if (value == 'current') {
-                          setState(() =>
-                              _selectedDateRange = _getCurrentMonthRange());
-                          _updateActiveWalletsInDateRange();
-                        } else if (value == 'previous') {
-                          setState(() =>
-                              _selectedDateRange = _getPreviousMonthRange());
-                          _updateActiveWalletsInDateRange();
-                        } else if (value == 'custom') {
-                          final picked = await V2DateSelectionSheet.showRange(
-                            context,
-                            initialRange: _selectedDateRange,
-                          );
-                          if (picked != null) {
-                            setState(() => _selectedDateRange = DateTimeRange(
-                                  start: picked.start,
-                                  end: DateTime(
-                                      picked.end.year,
-                                      picked.end.month,
-                                      picked.end.day,
-                                      23,
-                                      59,
-                                      59),
-                                ));
-                            _updateActiveWalletsInDateRange();
+                    // 3D Flip Balance Section (Total vs Monthly)
+                    GestureDetector(
+                      onHorizontalDragEnd: (details) {
+                        if (details.primaryVelocity != null) {
+                          if (details.primaryVelocity! < -100) {
+                            _toggleBalanceView(rotateLeft: true);
+                          } else if (details.primaryVelocity! > 100) {
+                            _toggleBalanceView(rotateLeft: false);
                           }
                         }
                       },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'current',
-                          child: Text(t.v2.dashboard.dateFilters.thisMonth,
-                              style: const TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w500)),
+                      onTap: () => _toggleBalanceView(),
+                      behavior: HitTestBehavior.opaque,
+                      child: SizedBox(
+                        height: 90,
+                        width: double.infinity,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 450),
+                          transitionBuilder: _build3DFlipTransition,
+                          layoutBuilder: (currentChild, previousChildren) {
+                            return Stack(
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                ...previousChildren,
+                                if (currentChild != null) currentChild,
+                              ],
+                            );
+                          },
+                          child: _balancePageIndex == 0
+                              ? _buildBalancePage(0, totalBalance, currencyFilter.selectedCurrencyId)
+                              : _buildBalancePage(1, monthlyBalance, currencyFilter.selectedCurrencyId),
                         ),
-                        PopupMenuItem(
-                          value: 'previous',
-                          child: Text(t.v2.dashboard.dateFilters.lastMonth,
-                              style: const TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w500)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Filter Chips
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        PopupMenuButton<String>(
+                          color: const Color(0xFFFAF8FF), // match dashboard surface
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16)),
+                          offset: const Offset(0, 40),
+                          onSelected: (value) async {
+                            if (value == 'current') {
+                              setState(() =>
+                                  _selectedDateRange = _getCurrentMonthRange());
+                              _updateActiveWalletsInDateRange();
+                            } else if (value == 'previous') {
+                              setState(() =>
+                                  _selectedDateRange = _getPreviousMonthRange());
+                              _updateActiveWalletsInDateRange();
+                            } else if (value == 'custom') {
+                              final picked = await V2DateSelectionSheet.showRange(
+                                context,
+                                initialRange: _selectedDateRange,
+                              );
+                              if (picked != null) {
+                                setState(() => _selectedDateRange = DateTimeRange(
+                                      start: picked.start,
+                                      end: DateTime(
+                                          picked.end.year,
+                                          picked.end.month,
+                                          picked.end.day,
+                                          23,
+                                          59,
+                                          59),
+                                    ));
+                                _updateActiveWalletsInDateRange();
+                              }
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'current',
+                              child: Text(t.v2.dashboard.dateFilters.thisMonth,
+                                  style: const TextStyle(
+                                      fontFamily: 'Manrope',
+                                      fontWeight: FontWeight.w500)),
+                            ),
+                            PopupMenuItem(
+                              value: 'previous',
+                              child: Text(t.v2.dashboard.dateFilters.lastMonth,
+                                  style: const TextStyle(
+                                      fontFamily: 'Manrope',
+                                      fontWeight: FontWeight.w500)),
+                            ),
+                            PopupMenuItem(
+                              value: 'custom',
+                              child: Text(t.v2.dashboard.dateFilters.customRange,
+                                  style: const TextStyle(
+                                      fontFamily: 'Manrope',
+                                      fontWeight: FontWeight.w500)),
+                            ),
+                          ],
+                          child: _buildFilterChip(_getDateRangeLabel()),
                         ),
-                        PopupMenuItem(
-                          value: 'custom',
-                          child: Text(t.v2.dashboard.dateFilters.customRange,
-                              style: const TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w500)),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () async {
+                            final availableWallets = walletProvider.wallets.where((w) {
+                              if (!w.active) return false;
+                              
+                              // Si es una carpeta padre que agrupa otras billeteras, no se selecciona directamente
+                              final hasChildren = walletProvider.wallets.any((child) => child.parentId == w.id && child.active);
+                              if (w.parentId == null && hasChildren) return false;
+                              
+                              // Ignorar hijos de padres inactivos
+                              if (w.parentId != null) {
+                                final parent = walletProvider.wallets.where((p) => p.id == w.parentId).firstOrNull;
+                                if (parent == null || !parent.active) return false;
+                              }
+
+                              final balance = walletProvider.walletBalances[w.id] ?? 0.0;
+                              if (balance <= 0 && !_activeWalletsInDateRange.contains(w.id)) return false;
+                              return true;
+                            }).toList();
+
+                            final value = await V2WalletFilterSheet.show(
+                              context,
+                              wallets: availableWallets,
+                              allWallets: walletProvider.wallets,
+                              currentWalletId: _selectedWalletId,
+                            );
+
+                            if (value != null && context.mounted) {
+                              if (value == -1) {
+                                setState(() => _selectedWalletId = null);
+                                final globalCurrency = context.read<CurrencyProvider>().currencyId;
+                                currencyFilter.selectCurrency(globalCurrency);
+                              } else {
+                                setState(() => _selectedWalletId = value);
+                                final selectedWallet = walletProvider.wallets.where((w) => w.id == value).firstOrNull;
+                                if (selectedWallet != null) {
+                                  currencyFilter.selectCurrency(selectedWallet.currencyId);
+                                }
+                              }
+                            }
+                          },
+                          child: _buildFilterChip(_getWalletLabel(walletProvider)),
                         ),
                       ],
-                      child: _buildFilterChip(_getDateRangeLabel()),
-                    ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () async {
-                        final availableWallets = walletProvider.wallets.where((w) {
-                          if (!w.active) return false;
-                          
-                          // Si es una carpeta padre que agrupa otras billeteras, no se selecciona directamente
-                          final hasChildren = walletProvider.wallets.any((child) => child.parentId == w.id && child.active);
-                          if (w.parentId == null && hasChildren) return false;
-                          
-                          // Ignorar hijos de padres inactivos
-                          if (w.parentId != null) {
-                            final parent = walletProvider.wallets.where((p) => p.id == w.parentId).firstOrNull;
-                            if (parent == null || !parent.active) return false;
-                          }
-
-                          final balance = walletProvider.walletBalances[w.id] ?? 0.0;
-                          if (balance <= 0 && !_activeWalletsInDateRange.contains(w.id)) return false;
-                          return true;
-                        }).toList();
-
-                        final value = await V2WalletFilterSheet.show(
-                          context,
-                          wallets: availableWallets,
-                          allWallets: walletProvider.wallets,
-                          currentWalletId: _selectedWalletId,
-                        );
-
-                        if (value != null && context.mounted) {
-                          if (value == -1) {
-                            setState(() => _selectedWalletId = null);
-                            final globalCurrency = context.read<CurrencyProvider>().currencyId;
-                            currencyFilter.selectCurrency(globalCurrency);
-                          } else {
-                            setState(() => _selectedWalletId = value);
-                            final selectedWallet = walletProvider.wallets.where((w) => w.id == value).firstOrNull;
-                            if (selectedWallet != null) {
-                              currencyFilter.selectCurrency(selectedWallet.currencyId);
-                            }
-                          }
-                        }
-                      },
-                      child: _buildFilterChip(_getWalletLabel(walletProvider)),
                     ),
                   ],
                 ),
-                const SizedBox(height: 32),
-                // Gauge Chart
-                Dashboard2Gauge(
-                  income: income,
-                  expenses: expenses,
-                  transactions: currentRangeTransactions,
-                  categoriesDataMap: transactionProvider.categoriesDataMap,
-                  currencyId: currencyFilter.selectedCurrencyId,
+              ),
+            ),
+          ),
+          // Top App Bar
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        t.v2.dashboard.greetingMorning,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          fontFamily: 'Manrope',
+                          shadows: [
+                            Shadow(
+                              color: Colors.black26,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (_) => NewSettingsScreen(
+                                  onToggleLegacy: widget.onToggleLegacy,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.settings_outlined,
+                              color: Colors.white),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(
-                    height:
-                        64), // Space before the overlapping sheet
-              ],
+              ),
             ),
           ),
           Positioned(
-            right: 14, // Ajustado para alinear perfectamente el centro con el icono de settings de arriba
-            bottom: 58, // Raised to clear the overlap
+            right: 14, // Alineado con el icono de settings
+            bottom: 48, // Ajustado para quedar sobre la curva del contenedor inferior
             child: _buildCameraFab(context),
           ),
         ],

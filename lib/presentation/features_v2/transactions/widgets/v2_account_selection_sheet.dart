@@ -136,7 +136,7 @@ class V2AccountSelectionSheet extends StatelessWidget {
                               child: account.isCreditCard 
                                 ? const Icon(Icons.credit_card, color: V2Colors.primary)
                                 : Text(
-                                    IconToEmojiMapper.getEmoji(account.icon ?? '58376'), // 58376 is Icons.account_balance_wallet.codePoint
+                                    IconToEmojiMapper.getEmoji(account.icon ?? ''),
                                     style: const TextStyle(fontSize: 24),
                                   ),
                             ),
